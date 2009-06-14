@@ -1,0 +1,2 @@
+PROMPT_COMMAND=''
+alias ls='/bin/ls' # no colour so as not to confuse tramp file-completion (experimental)

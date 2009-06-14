@@ -1,0 +1,35 @@
+#+STARTUP: showall
+
+* links to manual
+  [[http://www.gnu.org/software/emacs/manual//html_node/gnus/Summary-Mail-Commands.html][summary mail commands]]
+  [[http://www.gnus.org/manual/gnus_130.html#SEC130][mail group commands]]
+  [[http://gnus.org/manual/message_18.html][headers]]
+  [[http://www.gnus.org/manual/gnus_82.html][process marks]]
+  [[http:www.randomsample.de/nnmairix-doc/nnmairix-keyboard-shortcuts.html#nnmairix%20keyboard%20shortcuts][nnmairix]]
+
+
+* Group buffer
+| mairix search              | G b m |
+| mairix update              | G b u |
+| gnus-group-list-all-groups | L     |
+
+  
+* Summary buffer
+| limit to author regexp    | / a            |
+| wide reply                | S r, S R       |
+| forward                   | S o m, C-c C-f |
+| move to different mailbox | B m            |
+| process mark              | #, M P p       |
+| remove process marks      | M P U          |
+| delete message            | B DEL          |
+  
+* Article buffer
+| save attachment  | K o         |
+| attach file      | C-c C-a     |
+
+* Composing mail buffer
+| go to BCC header | C-c C-f C-b |
+
+* Server buffer
+| close server | C |
+
