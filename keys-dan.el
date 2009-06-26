@@ -72,7 +72,6 @@
 	([(meta right)] . winner-redo)
 	("\C-ce" .   org-insert-literal-example)
 	("\C-ch" . hide-subtree)
-	("\C-cl" . dan-edit-region-as-latex)
 	("\C-ct" . org-toggle-latex-org)))
 
 (setq dan-c-c++-mode-keybindings
