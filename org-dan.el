@@ -44,6 +44,9 @@
 
 ;;;
 ;;; agenda
+(org-defkey org-agenda-mode-map [(right)] 'forward-char)
+(org-defkey org-agenda-mode-map [(left)] 'backward-char)
+
 ;;;;
 
 
