@@ -70,7 +70,7 @@
 (setq org-directory "~/org")
 (setq org-agenda-files (list org-directory))
 (setq org-agenda-start-on-weekday nil)
-(setq org-agenda-ndays 30)
+(setq org-agenda-ndays 7)
 (setq org-agenda-compact-blocks t)
 (setq org-deadline-warning-days 7)
 ;; (set-face-foreground 'org-agenda-date-weekend "red")
