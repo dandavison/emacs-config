@@ -16,7 +16,6 @@
 
 ;; http://flash.metawaredesign.co.uk/2/.gnus
 (add-hook 'gnus-group-mode-hook 'color-theme-charcoal-black)
-
 (setq gnus-read-active-file nil
       gnus-check-new-newsgroups nil)
 
@@ -55,8 +54,9 @@
 
 (defun gnus-dan-summary-delete-article ()
   (interactive)
-  (gnus-summary-delete-article)
-  (gnus-summary-next-article))
+  (save-window-excursion
+    (gnus-summary-delete-article)
+    (gnus-summary-next-article)))
   
 (define-key gnus-summary-mode-map [delete] 'gnus-dan-summary-delete-article)
 
