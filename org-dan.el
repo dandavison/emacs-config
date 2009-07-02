@@ -15,6 +15,15 @@
 
 (add-to-list 'load-path "~/src/org-babel/lisp")
 (require 'org-babel-init)
+(setq org-babel-tangle-langs
+      '(
+	("python" . ("py" "#!/usr/bin/env python"))
+	("R" . ("R" "#!/usr/bin/env R"))
+	("sh" . ("sh" "#!/usr/bin/env bash"))
+	))
+			      
+
+
 (load "~/website/website.el")
 
 (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
