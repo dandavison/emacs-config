@@ -105,45 +105,22 @@
 	("info" ?i "* %?\n %i" "~/zzz/info.org" 'top)
 	))
 
-(fset 'org-dan-store-link-in-notes-dot-org-macro
-      (lambda (&optional arg)
-	"Keyboard macro."
-	(interactive "p")
-	(kmacro-exec-ring-item
-	 (quote ([3 108 f8 110 3 12 up return return 3 3]
-		 0 "%d")) arg)))
 
-(fset 'org-dan-store-link-in-work-dot-org-macro
-   (lambda (&optional arg)
-     "Keyboard macro."
-     (interactive "p")
-     (kmacro-exec-ring-item 
-      (quote ([3 108 f8 119 return 3 12 up return return 3 3] 0 "%d")) arg)))
+(defun org-dan-schedule-task-with-link (remember-target-char &optional arg)
+  "Schedule a task with a link to current buffer.
+   This uses org-remember. The task is scheduled for today, and
+may use one of several remember targets"
+  (interactive "cSelect remember target: [w]ork [t]asks [p]eople [c]omputing")
+  (case remember-target-char
+    (?w (kmacro-exec-ring-item 
+	 (quote ([3 108 f8 ?w return 3 12 up return return 3 3] 0 "%d")) arg))
+    (?t (kmacro-exec-ring-item 
+	 (quote ([3 108 f8 ?t return 3 12 up return return 3 3] 0 "%d")) arg))
+    (?c (kmacro-exec-ring-item 
+	 (quote ([3 108 f8 ?c return 3 12 up return return 3 3] 0 "%d")) arg))
+    (?p (kmacro-exec-ring-item 
+	 (quote ([3 108 f8 ?p return 3 12 up return return 3 3] 0 "%d")) arg))))
 
-
-
-(fset 'org-dan-store-link-in-work-dot-org-macro-2
-   (lambda (&optional arg)
-     "Keyboard macro."
-     (interactive "p")
-     (kmacro-exec-ring-item 
-      (quote ([3 108 f8 119 return 3 12] 0 "%d")) arg)
-     (previous-history-element)
-     (kmacro-exec-ring-item 
-      (quote ([return return 3 3] 0 "%d")) arg)))
-
-(defun org-dan-store-link-in-work-dot-org ()
-  (interactive)
-  (org-store-link t)
-  (org-remember nil ?w)    
-  (newline) ;; date
-  (org-insert-link nil buffer-file-name)    
-  ;; (previous-history-element)    
-  ;; (newline) ;; defaults to stored link?    
-  ;; (newline) ;; select default link name    
-  ;; (newline) ;; confirm link name    
-  (org-remember-finalize)) 
-    
 (setq org-completion-use-ido t)    
 (setq org-odd-levels-only t)    
 (setq org-startup-folded t)    

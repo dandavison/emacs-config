@@ -31,6 +31,7 @@
 	([f3] . (lambda () (interactive) (switch-to-buffer "*Org Agenda*")))
 	([f4] . (lambda () (interactive) (switch-to-buffer "*shell*")))
 	([f5] . (lambda () (interactive) (switch-to-buffer "*Python*")))
+	([f7] . org-dan-schedule-task-with-link)
 	([f8] . org-remember)
 	([f9] . find-tag-at-point)
 	([f10] . delete-other-windows)
