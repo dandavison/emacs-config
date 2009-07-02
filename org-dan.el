@@ -91,19 +91,59 @@
 ;; (setq org-remember-default-headline "top")
 (setq org-remember-templates
       '(
-	("work" ?w "* x %?\n  %i" "~/org/work.org" 'top)
-	("task" ?t "* x %?\n%^T\n  %i" "~/org/tasks.org" 'top)
+	("work" ?w "* x %?\nSCHEDULED: %^T  %i" "~/org/work.org" 'top)
+	("task" ?t "* x %?\nSCHEDULED: %^T\n  %i" "~/org/tasks.org" 'top)
         ("event" ?e "* %?\n%^T\n %i" "~/org/events.org" 'top)
 	("computing" ?c "* x %?\n  %i" "~/org/computing.org" 'top)
+	("notes" ?n "* %?\n  %i" "~/org/notes.org" 'top)
 	("dbm" ?d "* x %?\n  %i" "~/org/dbm.org" 'top)
 	("music" ?m "* %?\n %i" "~/org/music.org" 'top)
-	("people" ?p "* x %?\n  %i" "~/org/people.org" 'top)
+	("people" ?p "* x %?\nSCHEDULED: %^T\n  %i" "~/org/people.org" 'top)
 	("info" ?i "* %?\n %i" "~/zzz/info.org" 'top)
 	))
 
-(setq org-completion-use-ido t)
-(setq org-odd-levels-only t)
-(setq org-startup-folded t)
+(fset 'org-dan-store-link-in-notes-dot-org-macro
+      (lambda (&optional arg)
+	"Keyboard macro."
+	(interactive "p")
+	(kmacro-exec-ring-item
+	 (quote ([3 108 f8 110 3 12 up return return 3 3]
+		 0 "%d")) arg)))
+
+(fset 'org-dan-store-link-in-work-dot-org-macro
+   (lambda (&optional arg)
+     "Keyboard macro."
+     (interactive "p")
+     (kmacro-exec-ring-item 
+      (quote ([3 108 f8 119 return 3 12 up return return 3 3] 0 "%d")) arg)))
+
+
+
+(fset 'org-dan-store-link-in-work-dot-org-macro-2
+   (lambda (&optional arg)
+     "Keyboard macro."
+     (interactive "p")
+     (kmacro-exec-ring-item 
+      (quote ([3 108 f8 119 return 3 12] 0 "%d")) arg)
+     (previous-history-element)
+     (kmacro-exec-ring-item 
+      (quote ([return return 3 3] 0 "%d")) arg)))
+
+(defun org-dan-store-link-in-work-dot-org ()
+  (interactive)
+  (org-store-link t)
+  (org-remember nil ?w)    
+  (newline) ;; date
+  (org-insert-link nil buffer-file-name)    
+  ;; (previous-history-element)    
+  ;; (newline) ;; defaults to stored link?    
+  ;; (newline) ;; select default link name    
+  ;; (newline) ;; confirm link name    
+  (org-remember-finalize)) 
+    
+(setq org-completion-use-ido t)    
+(setq org-odd-levels-only t)    
+(setq org-startup-folded t)    
 (setq org-cycle-emulate-tab t)
 (setq org-special-ctrl-a t)
 (setq org-special-ctrl-e t)
