@@ -1,2 +1,17 @@
 PROMPT_COMMAND=''
 alias ls='/bin/ls' # no colour so as not to confuse tramp file-completion (experimental)
+
+# in [[gnus:emacs#87fxd3jpbt.fsf@galatea.local][Email from Pascal J. Bourguignon]]
+# unset LC_MONETARY
+# unset LC_NUMERIC
+# unset LC_MESSAGES
+# unset LC_COLLATE
+# unset LC_CTYPE
+# unset LC_TIME
+# export LC_CTYPE=en_US.UTF-8 
+
+# export PAGER=cat 
+# export TERM=emacs 
+# alias less=cat 
+# alias more=cat 
+# stty rows 10000 columns 80 
