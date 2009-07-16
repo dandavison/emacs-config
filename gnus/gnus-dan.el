@@ -15,11 +15,12 @@
 (setq mm-text-html-renderer 'w3m)
 
 ;; http://flash.metawaredesign.co.uk/2/.gnus
-(add-hook 'gnus-group-mode-hook 'color-theme-charcoal-black)
+;; (add-hook 'gnus-group-mode-hook 'color-theme-charcoal-black)
 (setq gnus-read-active-file nil
       gnus-check-new-newsgroups nil)
 
 (setq gnus-novice-user nil)
+(setq gnus-always-read-dribble-file t)
 ;;;
 ;;; Receiving and sending
 ;;;
@@ -49,6 +50,19 @@
  sendmail-program "~/bin/sendmail-dan" ;; passes email over ssh to remote sendmail in Oxford
  gnus-message-archive-group "nnimap+email:a-new" ;; save outgoing mail into my default mail box
  )
+
+(defun ded/mml-fill-paragraph ()
+  "Fill paragraph, but without messing with the email header"
+  (interactive)
+  (let ((beg (save-excursion
+	       (when (search-backward "--text follows this line--" nil t)
+		 (forward-line 1) (point)))))
+    (when beg
+      (narrow-to-region beg (point-max))
+      (fill-paragraph)
+      (widen))))
+
+(define-key mml-mode-map "\M-q" 'ded/mml-fill-paragraph)
 ;;
 ;;-----------------------------------------------------------------------------------------
 
@@ -59,7 +73,6 @@
     (gnus-summary-next-article)))
   
 (define-key gnus-summary-mode-map [delete] 'gnus-dan-summary-delete-article)
-
 
 ;;;
 ;;; Expiry
