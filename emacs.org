@@ -118,6 +118,7 @@
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
 
+;; (setq kill-buffer-query-functions '(lambda() t))
 #+end_src
   
 * Browser
@@ -398,6 +399,16 @@ parenthesis-delimited list of symbols at point"
      ;; If there is more than one, they won't work right.
      '(default ((t (:inherit nil :stipple nil :background "Grey15" :foreground "Grey" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 110 :width normal :foundry "unknown" :family "DejaVu Sans Mono"))))))
 #+end_src
+
+* Start-up
+#+begin_src emacs-lisp
+(when (string-match "^23\.*" emacs-version)
+  ;; temp hack to make w3m work with emacs23
+  (require 'w3m-e21)
+  (provide 'w3m-e23)
+  (org-agenda-list)
+  (delete-other-windows))
+#+end_src
 * Etc
 #+begin_src emacs-lisp
 ;; (setq custom-file "~/src/config/emacs/emacs.el") ;; now code
@@ -409,20 +420,4 @@ parenthesis-delimited list of symbols at point"
 ;; (add-hook 'post-command-hook 'eldoc-schedule-timer nil t)
 ;; (add-hook 'pre-command-hook 'eldoc-pre-command-refresh-echo-area t)
 ;; (setq eldoc-timer [nil 1000000 0 500000 t eldoc-print-current-symbol-info nil t]) ;;
-
-
 #+end_src
-
-* Start-up
-(when (string-match "^23\.*" emacs-version)
-  ;; temp hack to make w3m work with emacs23
-  (require 'w3m-e21)
-  (provide 'w3m-e23)
-  (org-agenda-list)
-  (delete-other-windows))
-
-;; muttrc -> mailrc
-;; alias \([a-z_-]+\) \([^<]+\)<\([^>]+\)>
-;; alias \1 "\2 <\3>"
-;; (setq kill-buffer-query-functions '(lambda() t))
-
