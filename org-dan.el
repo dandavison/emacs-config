@@ -1,7 +1,5 @@
 ;;* Org-mode settings
 
-(add-to-list 'load-path "/usr/local/src/org-mode/lisp")
-(require 'org-install)
 (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
 
 (add-to-list 'load-path "/usr/local/src/org-mode/contrib/lisp")
@@ -20,15 +18,19 @@
 (global-set-key "\C-cb" 'org-iswitchb)
 
 ;;* org-babel
-(add-to-list 'load-path "~/src/org-babel/lisp")
-(require 'org-babel-init)
-(setq org-babel-tangle-langs
-      '(
-	("python" . ("py" "#!/usr/bin/env python"))
-	("R" . ("R" "#!/usr/bin/env R"))
-	("sh" . ("sh" "#!/usr/bin/env bash"))
-	("emacs-lisp" . ("el" ""))))
-			      
+
+
+
+(add-hook 'org-mode-hook
+	  (lambda ()
+	    ;; yasnippet
+	    (make-variable-buffer-local 'yas/trigger-key)
+	    (setq yas/trigger-key [tab])
+	    (define-key yas/keymap [tab] 'yas/next-field-group)))
+
+
+(yas/load-directory "~/src/org-babel/snippets")
+
 ;;* export latex
 (setq org-export-latex-classes nil)
 (add-to-list 'org-export-latex-classes

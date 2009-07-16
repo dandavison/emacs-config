@@ -1,3 +1,7 @@
+;; acceptable color-themes
+;; (robin-hood gray30 kingsajz)
+
+
 (defun color-theme-system-wide ()
   "Color theme by Dan Davison, created 2007-09-21."
   (interactive)
