@@ -14,6 +14,7 @@
 	("\C-cr" . replace-regexp)
 	("\C-\M-r" . ess-switch-to-end-of-ESS)
 	("\C-cs" . search-forward-symbol-at-point)
+	("\C-cv" . revert-buffer)
 	;; ("\C-c\C-r" . budget-eval)
 	;; ("\C-c\C-w" . dan-xclip-kill)
 	;; ("\C-c\C-y" . dan-xclip-yank)
@@ -75,6 +76,8 @@
 	("\C-ch" . hide-subtree)
 	("\C-ct" . org-toggle-latex-org)))
 
+(setq dan-emacs-lisp-mode-keybindings
+      '(("\C-cd" . edebug-defun)))
 (setq dan-c-c++-mode-keybindings
       '(
 	;; ("(" . insert-parentheses)
