@@ -196,52 +196,6 @@ may use one of several remember targets"
 ;; Targets complete in steps so we start with filename, TAB shows the next level of targets etc 
 (setq org-outline-path-complete-in-steps t)
 
-;;* folding
-;; [[gnus:org#87zlb6vt8m.fsf@mundaneum.com][Email from Sébastien Vauban: {Orgmode} Re: org-style foldin]]
-(defun prompt-for-outline-regexp (new-regexp)
-  "ask the user for a local value of outline-regexp in this buffer"
-  (interactive "Outline regexp: ")
-  (set (make-local-variable 'outline-regexp) new-regexp)
-)
-
-(global-set-key (kbd "<f9>") 'prompt-for-outline-regexp)
-
-(defun th-outline-regexp ()
- "Calculate the outline regexp for the current mode."
- (let ((comment-starter (replace-regexp-in-string
-                         "[[:space:]]+" "" comment-start)))
-   (when (string= comment-start ";")
-     (setq comment-starter ";;"))
-   (concat "^" comment-starter "\\*+")))
-
-(defun th-outline-minor-mode-init ()
-  (interactive)
-  (setq outline-regexp (th-outline-regexp))
-
-  ;; highlight the headings
-  ;; see http://www.gnu.org/software/emacs/manual/html_node/emacs/Font-Lock.html
-  ;; use M-x customize-apropos face to customize faces
-  ;; to find the corresponding face for each outline level see org-faces.el
-  (let ((heading-1-regexp (concat (substring outline-regexp 0 -1) "\\{1\\} \\(.*\\)"))
-        (heading-2-regexp (concat (substring outline-regexp 0 -1) "\\{2\\} \\(.*\\)"))
-        (heading-3-regexp (concat (substring outline-regexp 0 -1) "\\{3\\} \\(.*\\)"))
-        (heading-4-regexp (concat (substring outline-regexp 0 -1) "\\{4,\\} \\(.*\\)"))
-        )
-    (font-lock-add-keywords
-     nil
-     `((,heading-1-regexp 1 'org-level-1 t)
-       (,heading-2-regexp 1 'org-level-2 t)
-       (,heading-3-regexp 1 'org-level-3 t)
-       (,heading-4-regexp 1 'org-level-4 t)))))
-
-(add-hook 'outline-minor-mode-hook
-          'th-outline-minor-mode-init)x
-
-
-;; (org-level-1 ((t (:foreground "cornflower blue" :weight bold :height 1.8 :family "Arial"))))
-;; (org-level-2 ((t (:foreground "LimeGreen" :weight bold :height 1.6 :family "Arial"))))
-;; (org-level-3 ((t (:foreground "orange" :weight bold :height 1.3 :family "Arial"))))
-
 
 ;;* Extra org functions
 
