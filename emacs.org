@@ -1,7 +1,16 @@
+* Load path
+#+begin_src emacs-lisp
+(add-to-list 'load-path "/usr/local/src/elisp-library")
+(add-to-list 'load-path "/usr/local/src/elisp-library/egg")
+(add-to-list 'load-path "/usr/local/src/elisp-library/magit")
+(add-to-list 'load-path "/usr/local/src/elisp-library/yasnippet")
+;; (add-to-list 'load-path "/usr/local/src/elisp-library/icicles")
+(add-to-list 'load-path "/usr/local/src/elisp-library/orgfold")
+#+end_src
+
 * Extra packages
 #+srcname: name
 #+begin_src emacs-lisp
-(add-to-list 'load-path "/usr/local/src/elisp-library")
 (require 'htmlize)
 (require 'regex-tool)
 (require 'unbound)
@@ -10,21 +19,22 @@
 (require 'xclip)
 (require 'highlight-parentheses)
 (highlight-parentheses-mode)
-(add-to-list 'load-path "/usr/local/src/elisp-library/magit")
 (require 'magit)
+;; (require 'egg)
+(setq egg-enable-tooltip t)
 ;; (require 'bbdb)
 ;; (bbdb-initialize)
 ;; (require 'ido)
-(add-to-list 'load-path "/usr/local/src/elisp-library/yasnippet")
 (require 'yasnippet)
 (yas/initialize)
 (yas/load-directory "/usr/local/src/elisp-library/yasnippet/snippets")
 (require 'recentf)
-
-(load "R-anything-config")
-;; (add-to-list 'load-path "/usr/local/src/elisp-library/icicles")
+;; (load "/usr/local/src/elisp-library/nxhtml/autostart.el")
+;; (load "R-anything-config")
 ;; (load "icicles/icicles")
 ;; (icy-mode t)
+(require 'pp)
+;; (require 'orgfold)
 #+end_src
 
 * Load config files
@@ -34,6 +44,274 @@
 (load "outline-dan")
 (load "ess-dan")
 (load "latex-dan")
+#+end_src
+
+* Org
+*** Basics
+#+begin_src emacs-lisp
+  ;;* Org-mode settings
+  
+  (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
+  
+  (add-to-list 'load-path "/usr/local/src/org-mode/contrib/lisp")
+  (require 'org-mairix)
+  
+  (server-start)
+  ;; (add-to-list 'load-path "~/path/to/org/protocol/")
+  (require 'org-protocol)
+  
+  (require 'org-R)
+  (load "~/src/org/org-util.el")
+  (load "~/src/org/org-R/org-R.el")
+  
+  (global-set-key "\C-cl" 'org-store-link)
+  (global-set-key "\C-ca" 'org-agenda)
+  (global-set-key "\C-cb" 'org-iswitchb)
+  (add-hook 'org-mode-hook
+            (lambda ()
+              ;; yasnippet
+              (make-variable-buffer-local 'yas/trigger-key)
+              (setq yas/trigger-key [tab])
+              (define-key yas/keymap [tab] 'yas/next-field-group)))
+  
+  
+  (yas/load-directory "~/src/org-babel/snippets")
+
+  ;; (load "~/website/website.el")
+#+end_src
+*** Etc
+#+begin_src emacs-lisp
+    ;;* org-babel
+    
+    ;;* export latex
+    (setq org-export-latex-classes nil)
+    (add-to-list 'org-export-latex-classes
+                 '("beamer"
+                   "\\documentclass[11pt]{beamer}\n\\usepackage[utf8]{inputenc}\n\\usepackage[T1]{fontenc}\n\\usepackage{hyperref}\n\\usepackage{verbatim}\n\\setbeameroption{show notes}\n\\usetheme{Goettingen}\n\\useoutertheme{infolines}"
+                   ("\\begin{frame}\\frametitle{%s}\\begin{itemize}" "\\end{itemize}\\end{frame}"
+                    "\\begin{frame}\\frametitle{%s}\\begin{itemize}" "\\end{itemize}\\end{frame}")
+                   ("\\item{%s}" . "\\item*{%s}")
+                   ("\\end{itemize}\\note{" "}")))
+    
+    ;; (setq org-dan-expert t)
+    (defun dan-org-mode-hook ()
+      (mapc (lambda (pair) (local-set-key (car pair) (cdr pair)))
+            dan-org-mode-keybindings))
+    
+    (add-hook 'org-mode-hook 'dan-org-mode-hook)
+    
+    (defun ded/org-src-mode-hook ()
+      (outline-minor-mode nil))
+  ;;    (add-hook 'kill-buffer-hook 'org-edit-src-save))
+    
+    (add-hook 'org-src-mode-hook 'ded/org-src-mode-hook)
+    
+    
+    ;;* remember
+    (org-remember-insinuate)
+    (setq org-default-notes-file "~/org/etc.org")
+    ;; (setq org-remember-default-headline "top")
+    (setq org-remember-templates
+          '(
+            ("work" ?w "* x %?\nSCHEDULED: %^T  %i" "~/org/work.org" 'top)
+            ("task" ?t "* x %?\nSCHEDULED: %^T\n  %i" "~/org/tasks.org" 'top)
+            ("event" ?e "* %?\n%^T\n %i" "~/org/events.org" 'top)
+            ("computing" ?c "* x %?\n  %i" "~/org/computing.org" 'top)
+            ("notes" ?n "* %?\n  %i" "~/org/notes.org" 'top)
+            ("dbm" ?d "* x %?\n  %i" "~/org/dbm.org" 'top)
+            ("music" ?m "* %?\n %i" "~/org/music.org" 'top)
+            ("people" ?p "* x %?\nSCHEDULED: %^T\n  %i" "~/org/people.org" 'top)
+            ("info" ?i "* %?\n %i" "~/zzz/info.org" 'top)
+            ))
+    
+    
+    (defun org-dan-schedule-task-with-link (remember-target-char &optional arg)
+      "Schedule a task with a link to current buffer.
+       This uses org-remember. The task is scheduled for today, and
+    may use one of several remember targets"
+      (interactive "cSelect remember target: [w]ork [t]asks [p]eople [c]omputing")
+      (case remember-target-char
+        (?w (kmacro-exec-ring-item 
+             (quote ([3 108 f8 ?w return 3 12 up return return 3 3] 0 "%d")) arg))
+        (?t (kmacro-exec-ring-item 
+             (quote ([3 108 f8 ?t return 3 12 up return return 3 3] 0 "%d")) arg))
+        (?c (kmacro-exec-ring-item 
+             (quote ([3 108 f8 ?c return 3 12 up return return 3 3] 0 "%d")) arg))
+        (?p (kmacro-exec-ring-item 
+             (quote ([3 108 f8 ?p return 3 12 up return return 3 3] 0 "%d")) arg))))
+    
+    (setq org-completion-use-ido t)    
+    (setq org-startup-folded t)    
+    (setq org-cycle-emulate-tab t)
+    (setq org-special-ctrl-a t)
+    (setq org-special-ctrl-e t)
+    (setq org-return-follows-link t)
+    ;;* refiling
+    ;; http://doc.norang.ca/org-mode.html#Refiling
+    
+    ;; Use IDO for target completion
+    (setq org-completion-use-ido t)
+    
+    ;; Targets include this file and any file contributing to the agenda - up to 5 levels deep
+    (setq org-refile-targets (quote ((org-agenda-files :maxlevel . 5) (nil :maxlevel . 5))))
+    
+    ;; Targets start with the file name - allows creating level 1 tasks
+    (setq org-refile-use-outline-path 'file)
+    
+    ;; Targets complete in steps so we start with filename, TAB shows the next level of targets etc 
+    (setq org-outline-path-complete-in-steps t)
+    
+    
+    ;;* Extra org functions
+    
+    (defun org-insert-link-maybe ()
+      "insert a file link depending on the context"
+      (interactive)
+      (let ((case-fold-search t))
+        (if (save-excursion
+              (backward-word)
+              (looking-at "\\[?\\[?file:?\\(?:[ \t\n]\\|\\'\\)"))
+            (progn (replace-match "") (org-insert-link '(4)) t)
+          nil)))
+    
+    (add-hook 'org-tab-first-hook 'org-insert-link-maybe)
+    
+    (defun org-dan-read-subtrees ()
+      "Return subtrees as a list of strings"
+      (let ((subtrees))
+        (while (or (looking-at "^*") (outline-next-heading))
+          (outline-mark-subtree)
+          (setq subtrees (cons (buffer-substring (point) (mark)) subtrees))
+          (goto-char (mark)))
+        (nreverse subtrees)))
+    
+    (defun org-dan-reverse-subtrees ()
+      "Reverse the order of all subtrees.
+    
+    Should start by setting restriction?
+    "
+      (interactive)
+      (beginning-of-line)
+      (let ((subtrees (org-dan-read-subtrees)))
+        (beginning-of-buffer)
+        (delete-region (point) (mark))
+        (insert (mapconcat 'identity (nreverse subtrees) "\n"))))
+#+end_src
+
+*** Navigation
+    See also [[mairix:t:@@20524da70908071211y4aeb4c0se9a465e2ebe27a8f@mail.gmail.com][Email from Samuel Wales: {Orgmode} Arrow + RET navigati]]
+***** Eric's outline navigation bindings
+[[mairix:t:@@m2eirnzhb4.fsf@gmail.com][Email from Eric Schulte: Re: {Orgmode} Go to top node]]
+#+begin_src emacs-lisp
+(add-hook 'org-mode-hook
+	  (lambda ()
+	    (local-set-key (kbd "\M-\C-n") 'outline-next-visible-heading)
+	    (local-set-key (kbd "\M-\C-p") 'outline-previous-visible-heading)
+	    (local-set-key (kbd "\M-\C-u") 'outline-up-heading)))
+#+end_src
+
+*** Agenda
+#+begin_src emacs-lisp
+  ;;* agenda
+  (org-defkey org-agenda-mode-map [(right)] 'forward-char)
+  (org-defkey org-agenda-mode-map [(left)] 'backward-char)
+  
+  ;;;;
+  
+  
+  (setq org-dan-todo-keyword "x")
+  (setq org-dan-started-keyword "s")
+  (setq org-dan-done-keyword "o")
+  (setq org-dan-cancelled-keyword "n")
+  
+  
+  (setq org-todo-keywords 
+        '((sequence 
+           "x(x!@/!@)" "s(s!@/!@)" "|" "o(o!@/!@)" "n(n!@/!@)")))
+  (setq org-todo-keyword-faces
+        '(
+          ("x" . (:foreground "red" :weight bold))
+          ("s" . (:foreground "darkorange" :weight bold))
+          ("o" . (:foreground "green" :weight bold))
+          ("n" . (:foreground "black" :weight bold))
+          ))
+  (setq org-edit-src-persistent-message nil)
+  (setq org-enforce-todo-dependencies t)
+  (setq org-enforce-todo-checkbox-dependencies t)
+  
+  (setq org-directory "~/org")
+  (setq org-agenda-files (list org-directory))
+  (setq org-agenda-start-on-weekday nil)
+  (setq org-agenda-ndays 30)
+  (setq org-agenda-compact-blocks t)
+  (setq org-deadline-warning-days 7)
+  ;; (set-face-foreground 'org-agenda-date-weekend "red")
+  ;; (setq org-agenda-remove-tags t) not sure why I had this
+  
+  (setq org-agenda-custom-commands
+        '(
+          ("W" "Search for work items in state" todo "x"
+           ((org-agenda-files '("~/org/work.org"
+                                "~/org/wtccc2.org"
+                                "~/org/pobi.org"
+                                "~/org/shellfish.org"))))
+          ("T" "Search for tasks items in state" todo "x"
+           ((org-agenda-files '("~/org/tasks.org"))))
+          ("C" "Search for computing items in state" todo "x"
+           ((org-agenda-files '("~/org/computing.org"))))
+          ))
+  
+  (defun org-agenda-format-date-aligned-dan (date)
+    "Dan's modified version of `org-agenda-format-date-aligned'.
+  
+  Format a date string for display in the daily/weekly agenda, or
+  timeline.  This function makes sure that dates are aligned for
+  easy reading.
+  "
+    (require 'cal-iso)
+    (let* ((dayname (calendar-day-name date))
+           (day (cadr date))
+           (day-of-week (calendar-day-of-week date))
+           (month (car date))
+           (monthname (calendar-month-name month))
+           (year (nth 2 date))
+           (iso-week (org-days-to-iso-week
+                      (calendar-absolute-from-gregorian date)))
+           (weekyear (cond ((and (= month 1) (>= iso-week 52))
+                            (1- year))
+                           ((and (= month 12) (<= iso-week 1))
+                            (1+ year))
+                           (t year)))
+           (weekstring (if (= day-of-week 1)
+                           (format " W%02d" iso-week)
+                         "")))
+  ;;;     (format "%-10s %2d %s %4d%s"
+  ;;;         dayname day monthname year weekstring)
+      
+      (format "%s %2d %s"
+              (substring dayname 0 3) day (substring monthname 0 3))))
+  
+  (setq org-agenda-format-date 'org-agenda-format-date-aligned-dan)
+#+end_src
+
+*** Appearance
+***** x Set org-hide face according to current background face / color theme
+#+begin_src emacs-lisp
+  (setq org-odd-levels-only t)    
+  ;; (setq org-show-entry-below t) not sure why I had this
+  (setq org-hide-leading-stars t)
+
+  ;; (set-face-attribute 'org-hide nil :foreground "gray15")
+  (set-face-attribute 'org-hide nil :foreground "white")
+  (setq org-export-with-LaTeX-fragments t)
+#+end_src
+
+*** Fireforg
+#+begin_src emacs-lisp :tangle no
+(add-to-list 'load-path "/usr/local/src/org-etc/org-fireforg/lisp")
+(require 'org-fireforg)
+(org-fireforg-registry-insinuate)
+
 #+end_src
 
 * Minor modes
@@ -119,6 +397,8 @@
 (put 'downcase-region 'disabled nil)
 
 ;; (setq kill-buffer-query-functions '(lambda() t))
+
+;; (transient-mark-mode t) ;; something turns it off
 #+end_src
   
 * Browser
@@ -184,209 +464,210 @@
 #+end_src
 
 *** Lua
+#+begin_src emacs-lisp
 (setq auto-mode-alist (cons '("\\.lua$" . lua-mode) auto-mode-alist))
 (setq auto-mode-alist (cons '("\\.pyw$" . python-mode) auto-mode-alist))
 (autoload 'lua-mode "/usr/local/src/lua-mode/lua-mode" "Lua editing mode." t)
 ;; (add-hook 'lua-mode-hook 'turn-on-font-lock)
-
-;; this doesn't write anything in minibuffer...
-(defun dan-show-current-font() 
-  (interactive)
-  (frame-parameter nil 'font))
-
-;; Why doesn't this work? (Says something about wrong number of arguments)
-(defun dan-indent-buffer ()
-  "Indent whole buffer"
-  (interactive)
-  (mark-whole-buffer)
-  (indent-region))
-
-(defun dan-eval-buffer-confirm ()
-  (interactive)
-  (save-buffer)
-  (eval-buffer)
-  (message "loaded buffer %s" (buffer-name)))
-
-;; http://blog.printf.net/ find-tag-at-point I often work on the
-;; kernel or Xorg, and I would be totally ridiculously lost with both
-;; if I wasn't using "tags" support in my editor. Here's how it works:
-;; you run etags over your .[ch] files (or make tags in a kernel
-;; source dir), and it generates a TAGS index. You load that in emacs
-;; with M-x visit-tags-table, and with the below keybinding, pressing
-;; F10 will take you to the original definition of whichever symbol
-;; the cursor is on, no matter where it appears in the source
-;; tree. Within a few presses of F10, you've escaped macro hell and
-;; found where the code that actually defines the function you're
-;; interested in is.
-
-
-(defun find-tag-at-point ()
-  "*Find tag whose name contains TAGNAME.
-  Identical to `find-tag' but does not prompt for 
-  tag when called interactively;  instead, uses 
-  tag around or before point."
-    (interactive)
-    (find-tag (if current-prefix-arg
-		  (find-tag-tag "Find tag: "))
-	      (find-tag (find-tag-default))))
-
-(defun search-forward-symbol-at-point ()
-  "Search forward to next occurrence of thing at point"
-  (interactive)
-  (search-forward (symbol-name (symbol-at-point)) nil t)
-  (backward-sexp)) ;; should be backward-symbol
-
-(defun dan-insert-double-quotes ()
-  (interactive)
-  (insert "\"\"")
-  (backward-char))
-
-(defun quote-list-of-symbols ()
-  "Place double quotes around the comma-separated,
-parenthesis-delimited list of symbols at point"
-  (interactive)
-  (save-excursion
-    (let ((beg (search-forward "("))
-	  (end (save-excursion (search-forward ")"))))
-      (insert "\"")
-      (while (replace-regexp " *, *" "\", \"" t beg end))
-      (replace-regexp " *)" "\")" t (point) (1+ end)))))
-
-(defun dan-find-defun (fun)
-  (interactive "a")
-  (describe-function fun)
-  (other-window 1)
-  (when (re-search-forward "`[^']+\.e")
-      (push-button)))
-
-(defun dan-wc-region ()
-  (interactive)
-  (shell-command-on-region (mark) (point) "wc"))
-
-;; http://www.emacswiki.org/cgi-bin/wiki/ToggleWindowSplit
-(defun toggle-window-split ()
-  (interactive)
-  (if (= (count-windows) 2)
-      (let* ((this-win-buffer (window-buffer))
-	     (next-win-buffer (window-buffer (next-window)))
-	     (this-win-edges (window-edges (selected-window)))
-	     (next-win-edges (window-edges (next-window)))
-	     (this-win-2nd (not (and (<= (car this-win-edges)
-					 (car next-win-edges))
-				     (<= (cadr this-win-edges)
-					 (cadr next-win-edges)))))
-	     (splitter
-	      (if (= (car this-win-edges)
-		     (car (window-edges (next-window))))
-		  'split-window-horizontally
-		'split-window-vertically)))
-	(delete-other-windows)
-	(let ((first-win (selected-window)))
-	  (funcall splitter)
-	  (if this-win-2nd (other-window 1))
-	  (set-window-buffer (selected-window) this-win-buffer)
-	  (set-window-buffer (next-window) next-win-buffer)
-	  (select-window first-win)
-	  (if this-win-2nd (other-window 1))))))
-
-
-
-
-
-(transient-mark-mode t) ;; something turns it off
+#+end_src
 
 * Functions
 #+begin_src emacs-lisp
+  (defun ded/looking-at-string (string)
+    (interactive)
+    (string-equal
+     string
+     (buffer-substring-no-properties (point) (+ (point) (length string)))))
   
-(defun byte-compile-dir (dir)
-  (interactive)
-  (let ((files (directory-files dir t ".*\.el" t)) file)
-    (while (setq file (pop files))
-      (byte-compile-file file))))
-
-
-(defun budget-eval ()
-  ;; to eval yanked text in python-shell -- doesn't work
-  (interactive)
-  (other-buffer)
-  (yank)
-  (newline))
-
-;; (defun dan-xclip-kill ()
-;;   "kill region and place on X clipboard"
-;;   (interactive)
-;;   (shell-command-on-region (mark) (point) "xclip")
-;;   (delete-region (mark) (point))) ;; don't add to kill ring
-
-;; (defun dan-xclip-yank ()
-;;   "yank from X clipboard and insert at point"
-;;   (interactive)
-;;   (shell-command "xclip -o" t))
-
-(defun paste-mode ()
-  (interactive)
-  (mapc (lambda (pair) (local-set-key (car pair) (cdr pair)))
-	dan-paste-mode-keybindings))
-
-(defun dan-next-line-and-indent ()
-  (interactive)
-  (next-line)
-  (indent-according-to-mode))
-
-(defun dan-previous-line-and-indent ()
-  (interactive)
-  (previous-line)
-  (indent-according-to-mode))
-
-(defun dan-insert-square-brackets ()
-  (interactive)
-  (insert "[]")
-  (backward-char))
-
-(defun dan-insert-curly-brackets ()
-  (interactive)
-  (insert "{}")
-  (backward-char))
-
-(defun dan-enclose-sexp-in-parentheses ()
-  (interactive)
-  (insert "(")
-  (forward-sexp)
-  (insert ")"))
-
-(defun dan-enclose-rest-of-line-in-parentheses ()
-  (interactive)
-  (insert "(")
-  (end-of-line) ;; need to account for comment on same line
-  (insert ")"))
-
-(defun dan-insert-- ()
-  (interactive)
-  (insert "-"))
-
-(defun dan-quote-word ()
-  "Surround word at point with double quotes"
-  (interactive)
-  (re-search-backward "[ ,(\t]" nil t)
-  (forward-char) (insert "\"")
-  (re-search-forward "[ ,)\t]" nil t)
-  (backward-char) (insert "\""))
-
-(defun dan-compile-and-switch-to-iESS ()
-  (interactive)
-  (when (compile "make -k")
-    (ess-switch-to-end-of-ESS)))
-
-;;  (when (shell-command "make -k")
-
-;; From Sacha Chua website
-(defun byte-compile-if-newer-and-load (file)
-   "Byte compile file.el if newer than file.elc"
-   (if (file-newer-than-file-p (concat file ".el")
-			       (concat file ".elc"))
-       (byte-compile-file (concat file ".el")))
-   (load file))
-
+  ;; this doesn't write anything in minibuffer...
+  (defun dan-show-current-font() 
+    (interactive)
+    (frame-parameter nil 'font))
+  
+  ;; Why doesn't this work? (Says something about wrong number of arguments)
+  (defun dan-indent-buffer ()
+    "Indent whole buffer"
+    (interactive)
+    (mark-whole-buffer)
+    (indent-region))
+  
+  (defun dan-eval-buffer-confirm ()
+    (interactive)
+    (save-buffer)
+    (eval-buffer)
+    (message "loaded buffer %s" (buffer-name)))
+  
+  ;; http://blog.printf.net/ find-tag-at-point I often work on the
+  ;; kernel or Xorg, and I would be totally ridiculously lost with both
+  ;; if I wasn't using "tags" support in my editor. Here's how it works:
+  ;; you run etags over your .[ch] files (or make tags in a kernel
+  ;; source dir), and it generates a TAGS index. You load that in emacs
+  ;; with M-x visit-tags-table, and with the below keybinding, pressing
+  ;; F10 will take you to the original definition of whichever symbol
+  ;; the cursor is on, no matter where it appears in the source
+  ;; tree. Within a few presses of F10, you've escaped macro hell and
+  ;; found where the code that actually defines the function you're
+  ;; interested in is.
+  
+  
+  (defun find-tag-at-point ()
+    "*Find tag whose name contains TAGNAME.
+    Identical to `find-tag' but does not prompt for 
+    tag when called interactively;  instead, uses 
+    tag around or before point."
+      (interactive)
+      (find-tag (if current-prefix-arg
+                    (find-tag-tag "Find tag: "))
+                (find-tag (find-tag-default))))
+  
+  (defun search-forward-symbol-at-point ()
+    "Search forward to next occurrence of thing at point"
+    (interactive)
+    (search-forward (symbol-name (symbol-at-point)) nil t)
+    (backward-sexp)) ;; should be backward-symbol
+  
+  (defun dan-insert-double-quotes ()
+    (interactive)
+    (insert "\"\"")
+    (backward-char))
+  
+  (defun quote-list-of-symbols ()
+    "Place double quotes around the comma-separated,
+  parenthesis-delimited list of symbols at point"
+    (interactive)
+    (save-excursion
+      (let ((beg (search-forward "("))
+            (end (save-excursion (search-forward ")"))))
+        (insert "\"")
+        (while (replace-regexp " *, *" "\", \"" t beg end))
+        (replace-regexp " *)" "\")" t (point) (1+ end)))))
+  
+  (defun dan-find-defun (fun)
+    (interactive "a")
+    (describe-function fun)
+    (other-window 1)
+    (when (re-search-forward "`[^']+\.e")
+        (push-button)))
+  
+  (defun dan-wc-region ()
+    (interactive)
+    (shell-command-on-region (mark) (point) "wc"))
+  
+  ;; http://www.emacswiki.org/cgi-bin/wiki/ToggleWindowSplit
+  (defun toggle-window-split ()
+    (interactive)
+    (if (= (count-windows) 2)
+        (let* ((this-win-buffer (window-buffer))
+               (next-win-buffer (window-buffer (next-window)))
+               (this-win-edges (window-edges (selected-window)))
+               (next-win-edges (window-edges (next-window)))
+               (this-win-2nd (not (and (<= (car this-win-edges)
+                                           (car next-win-edges))
+                                       (<= (cadr this-win-edges)
+                                           (cadr next-win-edges)))))
+               (splitter
+                (if (= (car this-win-edges)
+                       (car (window-edges (next-window))))
+                    'split-window-horizontally
+                  'split-window-vertically)))
+          (delete-other-windows)
+          (let ((first-win (selected-window)))
+            (funcall splitter)
+            (if this-win-2nd (other-window 1))
+            (set-window-buffer (selected-window) this-win-buffer)
+            (set-window-buffer (next-window) next-win-buffer)
+            (select-window first-win)
+            (if this-win-2nd (other-window 1))))))
+  
+  
+    (defun byte-compile-dir (dir)
+      (interactive)
+      (let ((files (directory-files dir t ".*\.el" t)) file)
+        (while (setq file (pop files))
+          (byte-compile-file file))))
+    
+    
+    (defun budget-eval ()
+      ;; to eval yanked text in python-shell -- doesn't work
+      (interactive)
+      (other-buffer)
+      (yank)
+      (newline))
+    
+    ;; (defun dan-xclip-kill ()
+    ;;   "kill region and place on X clipboard"
+    ;;   (interactive)
+    ;;   (shell-command-on-region (mark) (point) "xclip")
+    ;;   (delete-region (mark) (point))) ;; don't add to kill ring
+    
+    ;; (defun dan-xclip-yank ()
+    ;;   "yank from X clipboard and insert at point"
+    ;;   (interactive)
+    ;;   (shell-command "xclip -o" t))
+    
+    (defun paste-mode ()
+      (interactive)
+      (mapc (lambda (pair) (local-set-key (car pair) (cdr pair)))
+            dan-paste-mode-keybindings))
+    
+    (defun dan-next-line-and-indent ()
+      (interactive)
+      (next-line)
+      (indent-according-to-mode))
+    
+    (defun dan-previous-line-and-indent ()
+      (interactive)
+      (previous-line)
+      (indent-according-to-mode))
+    
+    (defun dan-insert-square-brackets ()
+      (interactive)
+      (insert "[]")
+      (backward-char))
+    
+    (defun dan-insert-curly-brackets ()
+      (interactive)
+      (insert "{}")
+      (backward-char))
+    
+    (defun dan-enclose-sexp-in-parentheses ()
+      (interactive)
+      (insert "(")
+      (forward-sexp)
+      (insert ")"))
+    
+    (defun dan-enclose-rest-of-line-in-parentheses ()
+      (interactive)
+      (insert "(")
+      (end-of-line) ;; need to account for comment on same line
+      (insert ")"))
+    
+    (defun dan-insert-- ()
+      (interactive)
+      (insert "-"))
+    
+    (defun dan-quote-word ()
+      "Surround word at point with double quotes"
+      (interactive)
+      (re-search-backward "[ ,(\t]" nil t)
+      (forward-char) (insert "\"")
+      (re-search-forward "[ ,)\t]" nil t)
+      (backward-char) (insert "\""))
+    
+    (defun dan-compile-and-switch-to-iESS ()
+      (interactive)
+      (when (compile "make -k")
+        (ess-switch-to-end-of-ESS)))
+    
+    ;;  (when (shell-command "make -k")
+    
+    ;; From Sacha Chua website
+    (defun byte-compile-if-newer-and-load (file)
+       "Byte compile file.el if newer than file.elc"
+       (if (file-newer-than-file-p (concat file ".el")
+                                   (concat file ".elc"))
+           (byte-compile-file (concat file ".el")))
+       (load file))
 #+end_src
 
 * Faces
@@ -408,6 +689,8 @@ parenthesis-delimited list of symbols at point"
   (provide 'w3m-e23)
   (org-agenda-list)
   (delete-other-windows))
+
+;; (org-fireforg-registry-initialize t)
 #+end_src
 * Etc
 #+begin_src emacs-lisp
