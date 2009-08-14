@@ -107,39 +107,6 @@
     (add-hook 'org-src-mode-hook 'ded/org-src-mode-hook)
     
     
-    ;;* remember
-    (org-remember-insinuate)
-    (setq org-default-notes-file "~/org/etc.org")
-    ;; (setq org-remember-default-headline "top")
-    (setq org-remember-templates
-          '(
-            ("work" ?w "* x %?\nSCHEDULED: %^T  %i" "~/org/work.org" 'top)
-            ("task" ?t "* x %?\nSCHEDULED: %^T\n  %i" "~/org/tasks.org" 'top)
-            ("event" ?e "* %?\n%^T\n %i" "~/org/events.org" 'top)
-            ("computing" ?c "* x %?\n  %i" "~/org/computing.org" 'top)
-            ("notes" ?n "* %?\n  %i" "~/org/notes.org" 'top)
-            ("dbm" ?d "* x %?\n  %i" "~/org/dbm.org" 'top)
-            ("music" ?m "* %?\n %i" "~/org/music.org" 'top)
-            ("people" ?p "* x %?\nSCHEDULED: %^T\n  %i" "~/org/people.org" 'top)
-            ("info" ?i "* %?\n %i" "~/zzz/info.org" 'top)
-            ))
-    
-    
-    (defun org-dan-schedule-task-with-link (remember-target-char &optional arg)
-      "Schedule a task with a link to current buffer.
-       This uses org-remember. The task is scheduled for today, and
-    may use one of several remember targets"
-      (interactive "cSelect remember target: [w]ork [t]asks [p]eople [c]omputing")
-      (case remember-target-char
-        (?w (kmacro-exec-ring-item 
-             (quote ([3 108 f8 ?w return 3 12 up return return 3 3] 0 "%d")) arg))
-        (?t (kmacro-exec-ring-item 
-             (quote ([3 108 f8 ?t return 3 12 up return return 3 3] 0 "%d")) arg))
-        (?c (kmacro-exec-ring-item 
-             (quote ([3 108 f8 ?c return 3 12 up return return 3 3] 0 "%d")) arg))
-        (?p (kmacro-exec-ring-item 
-             (quote ([3 108 f8 ?p return 3 12 up return return 3 3] 0 "%d")) arg))))
-    
     (setq org-completion-use-ido t)    
     (setq org-startup-folded t)    
     (setq org-cycle-emulate-tab t)
@@ -162,40 +129,6 @@
     (setq org-outline-path-complete-in-steps t)
     
     
-    ;;* Extra org functions
-    
-    (defun org-insert-link-maybe ()
-      "insert a file link depending on the context"
-      (interactive)
-      (let ((case-fold-search t))
-        (if (save-excursion
-              (backward-word)
-              (looking-at "\\[?\\[?file:?\\(?:[ \t\n]\\|\\'\\)"))
-            (progn (replace-match "") (org-insert-link '(4)) t)
-          nil)))
-    
-    (add-hook 'org-tab-first-hook 'org-insert-link-maybe)
-    
-    (defun org-dan-read-subtrees ()
-      "Return subtrees as a list of strings"
-      (let ((subtrees))
-        (while (or (looking-at "^*") (outline-next-heading))
-          (outline-mark-subtree)
-          (setq subtrees (cons (buffer-substring (point) (mark)) subtrees))
-          (goto-char (mark)))
-        (nreverse subtrees)))
-    
-    (defun org-dan-reverse-subtrees ()
-      "Reverse the order of all subtrees.
-    
-    Should start by setting restriction?
-    "
-      (interactive)
-      (beginning-of-line)
-      (let ((subtrees (org-dan-read-subtrees)))
-        (beginning-of-buffer)
-        (delete-region (point) (mark))
-        (insert (mapconcat 'identity (nreverse subtrees) "\n"))))
 #+end_src
 
 *** Navigation
@@ -208,6 +141,40 @@
 	    (local-set-key (kbd "\M-\C-n") 'outline-next-visible-heading)
 	    (local-set-key (kbd "\M-\C-p") 'outline-previous-visible-heading)
 	    (local-set-key (kbd "\M-\C-u") 'outline-up-heading)))
+#+end_src
+*** Remember
+#+begin_src emacs-lisp
+  ;;* remember
+  (org-remember-insinuate)
+  (setq org-default-notes-file "~/org/etc.org")
+  ;; (setq org-remember-default-headline "top")
+  (setq org-remember-templates
+        '(
+          ("work" ?w "* x %?\nSCHEDULED: %^T  %i" "~/org/work.org" 'top)
+          ("task" ?t "* x %?\nSCHEDULED: %^T\n  %i" "~/org/tasks.org" 'top)
+          ("event" ?e "* %?\n%^T\n %i" "~/org/events.org" 'top)
+          ("computing" ?c "* x %?\n  %i" "~/org/computing.org" 'top)
+          ("notes" ?n "* %?\n  %i" "~/org/notes.org" 'top)
+          ("dbm" ?d "* x %?\n  %i" "~/org/dbm.org" 'top)
+          ("music" ?m "* %?\n %i" "~/org/music.org" 'top)
+          ("people" ?p "* x %?\nSCHEDULED: %^T\n  %i" "~/org/people.org" 'top)
+          ("info" ?i "* %?\n %i" "~/zzz/info.org" 'top)
+          ))
+  
+  (defun org-dan-schedule-task-with-link (remember-target-char &optional arg)
+    "Schedule a task with a link to current buffer.
+     This uses org-remember. The task is scheduled for today, and
+  may use one of several remember targets"
+    (interactive "cSelect remember target: [w]ork [t]asks [p]eople [c]omputing")
+    (case remember-target-char
+      (?w (kmacro-exec-ring-item 
+           (quote ([3 108 f8 ?w return 3 12 up return return 3 3] 0 "%d")) arg))
+      (?t (kmacro-exec-ring-item 
+           (quote ([3 108 f8 ?t return 3 12 up return return 3 3] 0 "%d")) arg))
+      (?c (kmacro-exec-ring-item 
+           (quote ([3 108 f8 ?c return 3 12 up return return 3 3] 0 "%d")) arg))
+      (?p (kmacro-exec-ring-item 
+           (quote ([3 108 f8 ?p return 3 12 up return return 3 3] 0 "%d")) arg))))
 #+end_src
 
 *** Agenda
@@ -305,13 +272,51 @@
   (set-face-attribute 'org-hide nil :foreground "white")
   (setq org-export-with-LaTeX-fragments t)
 #+end_src
-
 *** Fireforg
 #+begin_src emacs-lisp :tangle no
 (add-to-list 'load-path "/usr/local/src/org-etc/org-fireforg/lisp")
 (require 'org-fireforg)
 (org-fireforg-registry-insinuate)
 
+#+end_src
+*** Extra functions
+***** org-insert-link-maybe
+#+begin_src emacs-lisp
+  (defun org-insert-link-maybe ()
+    "Insert a file link depending on the context"
+    (interactive)
+    (let ((case-fold-search t))
+      (if (save-excursion
+            (when (re-search-backward "[[:space:]]" nil t)
+              (forward-char 1)
+              (looking-at "\\[?\\[?file:?\\(?:[ \t\n]\\|\\'\\)")))
+          (progn (replace-match "") (org-insert-link '(4)) t)
+        nil)))
+#+end_src
+***** Etc
+#+begin_src emacs-lisp
+    (add-hook 'org-tab-first-hook 'org-insert-link-maybe)
+    
+    (defun org-dan-read-subtrees ()
+      "Return subtrees as a list of strings"
+      (let ((subtrees))
+        (while (or (looking-at "^*") (outline-next-heading))
+          (outline-mark-subtree)
+          (setq subtrees (cons (buffer-substring (point) (mark)) subtrees))
+          (goto-char (mark)))
+        (nreverse subtrees)))
+    
+    (defun org-dan-reverse-subtrees ()
+      "Reverse the order of all subtrees.
+    
+    Should start by setting restriction?
+    "
+      (interactive)
+      (beginning-of-line)
+      (let ((subtrees (org-dan-read-subtrees)))
+        (beginning-of-buffer)
+        (delete-region (point) (mark))
+        (insert (mapconcat 'identity (nreverse subtrees) "\n"))))
 #+end_src
 
 * Minor modes
