@@ -48,7 +48,7 @@
 (setq
  send-mail-function 'sendmail-send-it ;; generates properly-formed email and sends it with
  sendmail-program "~/bin/sendmail-dan" ;; passes email over ssh to remote sendmail in Oxford
- gnus-message-archive-group "nnimap+email:a-new" ;; save outgoing mail into my default mail box
+ gnus-message-archive-group "nnimap+dc:a-new" ;; save outgoing mail into my default mail box
  )
 
 (defun ded/mml-fill-paragraph ()
