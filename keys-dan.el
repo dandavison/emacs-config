@@ -8,6 +8,7 @@
 	("\C-n" . dan-next-line-and-indent)
 	("\C-p" . dan-previous-line-and-indent)
 	("\C-ca" . org-agenda)
+	("\C-cf" . find-function)
 	("\C-cg" . goto-line)
 	("\C-ck" . dan-kill-line-and-indent)
 	("\C-cm" . magit-status)
@@ -15,6 +16,7 @@
 	("\C-\M-r" . ess-switch-to-end-of-ESS)
 	("\C-cs" . search-forward-symbol-at-point)
 	("\C-cv" . revert-buffer)
+	("\C-\M-g" . lgrep)
 	;; ("\C-c\C-r" . budget-eval)
 	;; ("\C-c\C-w" . dan-xclip-kill)
 	;; ("\C-c\C-y" . dan-xclip-yank)
@@ -66,15 +68,14 @@
 
 (setq dan-org-mode-keybindings
       '(
-	;; ("\C-cl" 'org-store-link)
 	([(control down)] . org-insert-heading)
 	([(control left)] . org-metaleft)
 	([(control right)] . org-metaright)
 	([(meta left)] . winner-undo)
 	([(meta right)] . winner-redo)
-	("\C-ce" .   org-insert-literal-example)
 	("\C-ch" . hide-subtree)
-	("\C-ct" . org-toggle-latex-org)))
+	("\C-ct" . org-babel-cache-toggle-caching)
+	([(control \')] . org-edit-special)))
 
 (setq dan-emacs-lisp-mode-keybindings
       '(("\C-cd" . edebug-defun)))
