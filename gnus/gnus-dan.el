@@ -11,16 +11,28 @@
 ;;; Misc
 ;;;
 ;; http://people.orangeandbronze.com/~jmibanez/dotgnus.el
-(require 'w3m-load)
-(setq mm-text-html-renderer 'w3m)
+
+;; w3m absent on dell, atm
+;; (require 'w3m-load)
+;; (setq mm-text-html-renderer 'w3m)
+;; (setq mm-text-html-renderer 'html2text)
 
 ;; http://flash.metawaredesign.co.uk/2/.gnus
 ;; (add-hook 'gnus-group-mode-hook 'color-theme-charcoal-black)
-(setq gnus-read-active-file nil
-      gnus-check-new-newsgroups nil)
+
+;;(setq gnus-read-active-file nil)
+;;(setq gnus-check-new-newsgroups nil)
 
 (setq gnus-novice-user nil)
-(setq gnus-always-read-dribble-file t)
+;; (setq gnus-always-read-dribble-file t) TMP
+
+;; trying to get rid of duplicates don't know why they occur -- seems
+;; that repeated downloads from server sometimes gets previously
+;; downloaded messages
+;; (setq gnus-suppress-duplicates nil)
+;; (setq nnmail-treat-duplicates nil)
+;; (setq gnus-summary-ignore-duplicates t)
+
 ;;;
 ;;; Receiving and sending
 ;;;
@@ -36,19 +48,25 @@
 
 
 ;; (if nil
-;;     (setq mail-sources '((maildir :path "~/email-gnus/a-new" :subdirs ("cur" "new" "tmp"))
-;; 			 (maildir :path "~/email-gnus/org" :subdirs ("cur" "new" "tmp")))))
-(setq mail-sources 
-      (mapcar 
-       (lambda(dir) (list 'maildir :path dir :subdirs '("cur" "new" "tmp")))
-       (directory-files "~/Maildir" nil "^[^.]")))
+;;     (setq mail-sources '((maildir :path "~/Maildir/INBOX" :subdirs ("cur" "new" "tmp"))
+;; 			 (maildir :path "~/Maildir/org" :subdirs ("cur" "new" "tmp")))))
+
+
+
+;; TMP
+;; (setq mail-sources 
+;;       (mapcar 
+;;        (lambda(dir) (list 'maildir :path dir :subdirs '("cur" "new" "tmp")))
+;;        (directory-files "~/Maildir" nil "^[^.]")))
+
+
 ;; ;; (mail-source-delete-incoming t)
 
 
 (setq
  send-mail-function 'sendmail-send-it ;; generates properly-formed email and sends it with
  sendmail-program "~/bin/sendmail-dan" ;; passes email over ssh to remote sendmail in Oxford
- gnus-message-archive-group "nnimap+dc:a-new" ;; save outgoing mail into my default mail box
+ gnus-message-archive-group "nnimap+dc:INBOX" ;; save outgoing mail into my default mail box
  )
 
 (defun ded/mml-fill-paragraph ()
@@ -72,7 +90,31 @@
     (gnus-summary-delete-article)
     (gnus-summary-next-article)))
   
-(define-key gnus-summary-mode-map [delete] 'gnus-dan-summary-delete-article)
+(define-key gnus-summary-mode-map "\C-d" 'gnus-dan-summary-delete-article)
+
+(defun gnus-dan-get-mail ()
+  (interactive)
+  ;; a hack
+  (set-buffer "*Summary INBOX*")
+  (gnus-summary-exit)
+  (set-buffer "*Group*")
+  (gnus-group-get-new-news)
+  (beginning-of-buffer)
+  (re-search-forward "INBOX")
+  (gnus-group-select-group 200))
+
+
+(defun gnus-group-getmail-and-get-new-news ()
+  (interactive)
+  (save-window-excursion
+    (let ((buf (generate-new-buffer "*getmail output*")))
+      (pop-to-buffer buf)
+      (shell-command "getmail-dan" buf buf))
+    (switch-to-buffer "*Group*")
+    (gnus-group-get-new-news)))
+
+(define-key gnus-group-mode-map "g" 'gnus-group-getmail-and-get-new-news)
+
 
 ;;;
 ;;; Expiry
@@ -96,28 +138,10 @@
 
 ;; (setq nnmail-expiry-wait 'immediate) ;;TMP
 
-(setq gnus-parameters
-      '((".*a-new.*"
-         (expiry-wait . 'immediate))))
-
-(defun gnus-dan-get-mail ()
-  (interactive)
-  ;; a hack
-  (set-buffer "*Summary a-new*")
-  (gnus-summary-exit)
-  (set-buffer "*Group*")
-  (gnus-group-get-new-news)
-  (beginning-of-buffer)
-  (re-search-forward "a-new")
-  (gnus-group-select-group 200))
-
-
-(defun gnus-group-getmail-and-get-new-news ()
-  (interactive)
-  (shell-command "getmail-dan")
-  (gnus-group-get-new-news))
-
-(define-key gnus-group-mode-map "g" 'gnus-group-getmail-and-get-new-news)
+;; TMP
+;; (setq gnus-parameters
+;;       '((".*INBOX.*"
+;;          (expiry-wait . 'immediate))))
 
 ;;
 ;;------------------------------------------------------------------------------------------
