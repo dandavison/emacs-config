@@ -1,40 +1,56 @@
 * Load path
 #+begin_src emacs-lisp
-(add-to-list 'load-path "/usr/local/src/elisp-library")
-(add-to-list 'load-path "/usr/local/src/elisp-library/egg")
-(add-to-list 'load-path "/usr/local/src/elisp-library/magit")
-(add-to-list 'load-path "/usr/local/src/elisp-library/yasnippet")
-;; (add-to-list 'load-path "/usr/local/src/elisp-library/icicles")
-(add-to-list 'load-path "/usr/local/src/elisp-library/orgfold")
+  (add-to-list 'load-path "/usr/local/src/elisp-library")
+  ;; (add-to-list 'load-path "/usr/local/src/elisp-library/egg")
+  (add-to-list 'load-path "/usr/local/src/elisp-library/magit")
+  (add-to-list 'load-path "/usr/local/src/elisp-library/yasnippet")
+  ;; (add-to-list 'load-path "/usr/local/src/elisp-library/icicles")
+  ;; (add-to-list 'load-path "/usr/local/src/elisp-library/orgfold")
+  ;; (add-to-list 'load-path "/usr/local/src/elisp-library/ruby-emacs")
+#+end_src
+
+* ELPA
+#+begin_src emacs-lisp
+;;; This was installed by package-install.el.
+;;; This provides support for the package system and
+;;; interfacing with ELPA, the package archive.
+;;; Move this code earlier if you want to reference
+;;; packages in your .emacs.
+(when
+    (load
+     (expand-file-name "~/.emacs.d/elpa/package.el"))
+  (package-initialize))
 #+end_src
 
 * Extra packages
 #+srcname: name
 #+begin_src emacs-lisp
-(require 'htmlize)
-(require 'regex-tool)
-(require 'unbound)
-(require 'zenburn)
-(require 'windresize)
-(require 'xclip)
-(require 'highlight-parentheses)
-(highlight-parentheses-mode)
-(require 'magit)
-;; (require 'egg)
-(setq egg-enable-tooltip t)
-;; (require 'bbdb)
-;; (bbdb-initialize)
-;; (require 'ido)
-(require 'yasnippet)
-(yas/initialize)
-(yas/load-directory "/usr/local/src/elisp-library/yasnippet/snippets")
-(require 'recentf)
-;; (load "/usr/local/src/elisp-library/nxhtml/autostart.el")
-;; (load "R-anything-config")
-;; (load "icicles/icicles")
-;; (icy-mode t)
-(require 'pp)
-;; (require 'orgfold)
+  (require 'htmlize)
+  (require 'regex-tool)
+  (require 'unbound)
+  ;; (require 'zenburn)
+  (require 'windresize)
+  (require 'xclip)
+  (require 'highlight-parentheses)
+  (highlight-parentheses-mode)
+  (require 'magit)
+  ;; (require 'egg)
+  (setq egg-enable-tooltip t)
+  ;; (require 'bbdb)
+  ;; (bbdb-initialize)
+  ;; (require 'ido)
+  (require 'boxquote)
+  (require 'yasnippet)
+  (yas/initialize)
+  (yas/load-directory "/usr/local/src/elisp-library/yasnippet/snippets")
+  (require 'recentf)
+  ;; (load "/usr/local/src/elisp-library/nxhtml/autostart.el")
+  ;; (load "R-anything-config")
+  ;; (load "icicles/icicles")
+  ;; (icy-mode t)
+  (require 'pp)
+  ;; (require 'orgfold)
+  (require 'sass-mode)
 #+end_src
 
 * Load config files
@@ -46,6 +62,29 @@
 (load "latex-dan")
 #+end_src
 
+* Appearance
+*** Windows & frames
+#+begin_src emacs-lisp 
+    (setq split-window-preferred-function 'split-window-sensibly
+        split-width-threshold 1000)
+#+end_src
+
+*** Faces
+#+begin_src emacs-lisp
+  (custom-set-faces
+   ;; custom-set-faces was added by Custom.
+   ;; If you edit it by hand, you could mess it up, so be careful.
+   ;; Your init file should contain only one such instance.
+   ;; If there is more than one, they won't work right.
+   '(default ((t 
+               (:inherit nil :stipple nil :background "Grey15" :foreground "Grey"
+                         :inverse-video nil :box nil :strike-through nil :overline nil
+                         :underline nil :slant normal :weight normal :height 89
+                         :width normal :foundry "unknown" :family "DejaVu Sans Mono"))))
+               '(gnus-cite-1 ((((class color) (background light)) (:foreground "deep sky blue")))))
+#+end_src
+
+
 * Org
 *** Basics
 #+begin_src emacs-lisp
@@ -53,16 +92,17 @@
   
   (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
   
-  (add-to-list 'load-path "/usr/local/src/org-mode/contrib/lisp")
   (require 'org-mairix)
   
-  (server-start)
+  ;; (or (server-running-p) (server-start))
   ;; (add-to-list 'load-path "~/path/to/org/protocol/")
   (require 'org-protocol)
   
-  (require 'org-R)
+  ;; (require 'org-R)
   (load "~/src/org/org-util.el")
-  (load "~/src/org/org-R/org-R.el")
+  ;; (load "~/src/org/org-R/org-R.el")
+  
+  (require 'org-git-link)
   
   (global-set-key "\C-cl" 'org-store-link)
   (global-set-key "\C-ca" 'org-agenda)
@@ -74,63 +114,50 @@
               (setq yas/trigger-key [tab])
               (define-key yas/keymap [tab] 'yas/next-field-group)))
   
-  
-  (yas/load-directory "~/src/org-babel/snippets")
-
-  ;; (load "~/website/website.el")
+   ;; (load "~/website/website.el")
 #+end_src
-*** Etc
+*** Misc
 #+begin_src emacs-lisp
-    ;;* org-babel
-    
-    ;;* export latex
-    (setq org-export-latex-classes nil)
-    (add-to-list 'org-export-latex-classes
-                 '("beamer"
-                   "\\documentclass[11pt]{beamer}\n\\usepackage[utf8]{inputenc}\n\\usepackage[T1]{fontenc}\n\\usepackage{hyperref}\n\\usepackage{verbatim}\n\\setbeameroption{show notes}\n\\usetheme{Goettingen}\n\\useoutertheme{infolines}"
-                   ("\\begin{frame}\\frametitle{%s}\\begin{itemize}" "\\end{itemize}\\end{frame}"
-                    "\\begin{frame}\\frametitle{%s}\\begin{itemize}" "\\end{itemize}\\end{frame}")
-                   ("\\item{%s}" . "\\item*{%s}")
-                   ("\\end{itemize}\\note{" "}")))
-    
-    ;; (setq org-dan-expert t)
-    (defun dan-org-mode-hook ()
-      (mapc (lambda (pair) (local-set-key (car pair) (cdr pair)))
-            dan-org-mode-keybindings))
-    
-    (add-hook 'org-mode-hook 'dan-org-mode-hook)
-    
-    (defun ded/org-src-mode-hook ()
-      (outline-minor-mode nil))
-  ;;    (add-hook 'kill-buffer-hook 'org-edit-src-save))
-    
-    (add-hook 'org-src-mode-hook 'ded/org-src-mode-hook)
-    
-    
-    (setq org-completion-use-ido t)    
-    (setq org-startup-folded t)    
-    (setq org-cycle-emulate-tab t)
-    (setq org-special-ctrl-a t)
-    (setq org-special-ctrl-e t)
-    (setq org-return-follows-link t)
-    ;;* refiling
-    ;; http://doc.norang.ca/org-mode.html#Refiling
-    
-    ;; Use IDO for target completion
-    (setq org-completion-use-ido t)
-    
-    ;; Targets include this file and any file contributing to the agenda - up to 5 levels deep
-    (setq org-refile-targets (quote ((org-agenda-files :maxlevel . 5) (nil :maxlevel . 5))))
-    
-    ;; Targets start with the file name - allows creating level 1 tasks
-    (setq org-refile-use-outline-path 'file)
-    
-    ;; Targets complete in steps so we start with filename, TAB shows the next level of targets etc 
-    (setq org-outline-path-complete-in-steps t)
-    
-    
+  ;;* org-babel
+  
+  ;;* export latex
+  ;; (setq org-export-latex-classes nil)
+  ;; (add-to-list 'org-export-latex-classes
+  ;;              '("beamer"
+  ;;                "\\documentclass[11pt]{beamer}\n\\usepackage[utf8]{inputenc}\n\\usepackage[T1]{fontenc}\n\\usepackage{hyperref}\n\\usepackage{verbatim}\n\\setbeameroption{show notes}\n\\usetheme{Goettingen}\n\\useoutertheme{infolines}"
+  ;;                ("\\begin{frame}\\frametitle{%s}\\begin{itemize}" "\\end{itemize}\\end{frame}"
+  ;;                 "\\begin{frame}\\frametitle{%s}\\begin{itemize}" "\\end{itemize}\\end{frame}")
+  ;;                ("\\item{%s}" . "\\item*{%s}")
+  ;;                ("\\end{itemize}\\note{" "}")))
+  
+  ;; (setq org-dan-expert t)
+  (defun dan-org-mode-hook ()
+    (mapc (lambda (pair) (local-set-key (car pair) (cdr pair)))
+          dan-org-mode-keybindings))
+  
+  (add-hook 'org-mode-hook 'dan-org-mode-hook)
+  
+  (setq org-completion-use-ido t)    
+  ;; (setq org-startup-folded nil)    
+  (setq org-cycle-emulate-tab t)
+  (setq org-special-ctrl-a t)
+  (setq org-special-ctrl-e t)
+  (setq org-return-follows-link t)
+  ;;* refiling
+  ;; http://doc.norang.ca/org-mode.html#Refiling
+  
+  ;; Use IDO for target completion
+  (setq org-completion-use-ido t)
+  
+  ;; Targets include this file and any file contributing to the agenda - up to 5 levels deep
+  (setq org-refile-targets (quote ((org-agenda-files :maxlevel . 5) (nil :maxlevel . 5))))
+  
+  ;; Targets start with the file name - allows creating level 1 tasks
+  (setq org-refile-use-outline-path 'file)
+  
+  ;; Targets complete in steps so we start with filename, TAB shows the next level of targets etc 
+  (setq org-outline-path-complete-in-steps t)
 #+end_src
-
 *** Navigation
     See also [[mairix:t:@@20524da70908071211y4aeb4c0se9a465e2ebe27a8f@mail.gmail.com][Email from Samuel Wales: {Orgmode} Arrow + RET navigati]]
 ***** Eric's outline navigation bindings
@@ -154,6 +181,7 @@
           ("task" ?t "* x %?\nSCHEDULED: %^T\n  %i" "~/org/tasks.org" 'top)
           ("event" ?e "* %?\n%^T\n %i" "~/org/events.org" 'top)
           ("computing" ?c "* x %?\n  %i" "~/org/computing.org" 'top)
+          ("org" ?o "* x %?\n  %i" "~/org/org.org")
           ("notes" ?n "* %?\n  %i" "~/org/notes.org" 'top)
           ("dbm" ?d "* x %?\n  %i" "~/org/dbm.org" 'top)
           ("music" ?m "* %?\n %i" "~/org/music.org" 'top)
@@ -176,12 +204,16 @@
       (?p (kmacro-exec-ring-item 
            (quote ([3 108 f8 ?p return 3 12 up return return 3 3] 0 "%d")) arg))))
 #+end_src
+*** Footnotes
+#+begin_src emacs-lisp
+(setq org-footnote-auto-label 'plain)
+#+end_src
 
 *** Agenda
 #+begin_src emacs-lisp
   ;;* agenda
-  (org-defkey org-agenda-mode-map [(right)] 'forward-char)
-  (org-defkey org-agenda-mode-map [(left)] 'backward-char)
+;;  (org-defkey org-agenda-mode-map [(right)] 'forward-char)
+;;  (org-defkey org-agenda-mode-map [(left)] 'backward-char)
   
   ;;;;
   
@@ -261,6 +293,42 @@
   (setq org-agenda-format-date 'org-agenda-format-date-aligned-dan)
 #+end_src
 
+*** Export
+#+begin_src emacs-lisp
+  (setq org-export-htmlize-output-type (if t 'inline-css 'css))
+  
+  ;; from Eric
+  (setq org-export-html-style-default
+  "<style type=\"text/css\">
+  pre {
+      border: 1pt solid #AEBDCC;
+      background-color: #232323;
+      color: #E6E1DC;
+      padding: 5pt;
+      font-family: courier, monospace;
+      font-size: 90%;
+      overflow:auto;
+  }
+  </style>")
+#+end_src
+
+*** Src
+#+begin_src emacs-lisp
+  (defun ded/org-src-mode-hook ()
+    (outline-minor-mode -1)
+    (if (eq major-mode 'python-mode)
+        (setq python-indent 4)))
+  ;;  (message "hello from org-src-mode-hook")
+  ;;    (color-theme-dark-green))
+  ;;  (color-theme-charcoal-black))
+  
+  (add-hook 'org-src-mode-hook 'ded/org-src-mode-hook)
+  ;; (remove-hook 'org-src-mode-hook 'ded/org-src-mode-hook)
+  
+  (setq org-hide-block-startup t)
+  (setq org-src-window-setup 'reorganize-frame)
+  (setq org-src-ask-before-returning-to-edit-buffer nil)
+#+end_src
 *** Appearance
 ***** x Set org-hide face according to current background face / color theme
 #+begin_src emacs-lisp
@@ -268,10 +336,83 @@
   ;; (setq org-show-entry-below t) not sure why I had this
   (setq org-hide-leading-stars t)
 
-  ;; (set-face-attribute 'org-hide nil :foreground "gray15")
-  (set-face-attribute 'org-hide nil :foreground "white")
+  (set-face-attribute 'org-hide nil :foreground "gray15")
+  ;; (set-face-attribute 'org-hide nil :foreground "white")
   (setq org-export-with-LaTeX-fragments t)
 #+end_src
+*** Babel
+***** Activate languages
+#+begin_src emacs-lisp
+  (defun ded/org-babel-configure-language (lang)
+    (require (intern (concat "org-babel-" lang))))
+  
+  (setq ded/org-babel-languages '("R" "python" "ruby" "ditaa" "latex" "asymptote" "sass"))
+  (mapc 'ded/org-babel-configure-language ded/org-babel-languages)
+#+end_src
+***** Variables
+#+begin_src emacs-lisp
+  (setq org-babel-timestamp-results t)      
+#+end_src
+***** Etc
+******* yasnippets
+#+begin_src emacs-lisp
+  (yas/load-directory "/usr/local/src/Worg/org-contrib/babel/snippets")
+#+end_src
+******* Execute src block from lang mode buffer
+	Haven't tested this out much.
+#+begin_src emacs-lisp
+  (defun ded/org-src-execute ()
+    "Execute src block to which this code belongs."
+    (unless org-edit-src-from-org-mode
+      (error "This is not a sub-editing buffer, something is wrong..."))
+    (let ((beg org-edit-src-beg-marker))
+      (save-window-excursion
+        (set-buffer (marker-buffer beg))
+        (goto-char beg)
+        (org-babel-execute-src-block))))
+#+end_src
+      
+#+resname:
+| "R" | "python" | "ruby" | "ditaa" | "sass" |
+******* R -> org
+#+begin_src emacs-lisp :tangle no
+  (defun ded/wrap-R-functions-in-source-blocks ()
+    (interactive)
+    (R-mode)
+    (save-excursion
+      (while (re-search-forward "\\([\.[:alnum:]]+\\)[ \t]+<-[ \t]+function" nil t)
+        (goto-char (match-beginning 0))
+        (insert (format "* %s\n" (match-string 1)))
+        (insert "#+begin_src R\n")
+        (ess-end-of-function)
+        (insert "\n#+end_src\n")))
+    (org-mode))
+#+end_src
+	
+******* reset test table macro
+
+   # 2*C-k <up> C-y <up> M-x r e - s e a r <tab> b a c <tab> RET T B L N A M
+   # E RET <down> C-a C-SPC M-x r e - s e r DEL a r c h <tab> f o <tab> RET
+   # T B L F M RET C-a M-x r e - r e p <tab> 4*DEL p l <tab> i n <tab>
+   # 3*M-DEL <tab> r e <tab> g <tab> RET \ [ \ ] 2*RET M-x 2*<up> RET T B L
+   # F M RET C-a 2*C-k <down> C-y <up>
+
+#+srcname: name
+#+begin_src emacs-lisp 
+  (fset 'reset-tests
+     (lambda (&optional arg) "Keyboard
+     macro." (interactive "p") (kmacro-exec-ring-item (quote ([11
+     11 up 25 up 134217848 114 101 45 115 101 97 114 tab 98 97 99
+     tab return 84 66 76 78 65 77 69 return down 1 67108896
+     134217848 114 101 45 115 101 114 backspace 97 114 99 104 tab
+     102 111 tab return 84 66 76 70 77 return 1 134217848 114 101
+     45 114 101 112 tab backspace backspace backspace backspace 112
+     108 tab 105 110 tab M-backspace M-backspace M-backspace tab
+     114 101 tab 103 tab return 92 91 92 93 return return 134217848
+     up up return 84 66 76 70 77 return 1 11 11 down 25 up]
+     0 "%d")) arg)))
+#+end_src
+
 *** Fireforg
 #+begin_src emacs-lisp :tangle no
 (add-to-list 'load-path "/usr/local/src/org-etc/org-fireforg/lisp")
@@ -279,7 +420,8 @@
 (org-fireforg-registry-insinuate)
 
 #+end_src
-*** Extra functions
+
+*** Etc
 ***** org-insert-link-maybe
 #+begin_src emacs-lisp
   (defun org-insert-link-maybe ()
@@ -292,11 +434,32 @@
               (looking-at "\\[?\\[?file:?\\(?:[ \t\n]\\|\\'\\)")))
           (progn (replace-match "") (org-insert-link '(4)) t)
         nil)))
+
+    (add-hook 'org-tab-first-hook 'org-insert-link-maybe)
 #+end_src
+***** Link to magit mode
+      [[mairix:t:@@4A86B7D9.6080805@cs.tu-berlin.de][Email from Stephan Schmitt: {Orgmode} link to magit-status]]
+#+begin_src emacs-lisp
+(defun org-magit-store-link ()
+  "Store a link to a directory to open with magit."
+  (when (eq major-mode 'magit-mode)
+    (let* ((dir default-directory)
+           (link (org-make-link "magit:" dir))
+	   (desc (abbreviate-file-name dir)))
+      (org-store-link-props :type "magit" :link link :description desc)
+      link)))
+
+(defun org-magit-open (dir)
+  "Follow a magit link to DIR."
+  (require 'magit)
+  (magit-status dir))
+
+(org-add-link-type "magit" 'org-magit-open nil)
+(add-hook 'org-store-link-functions 'org-magit-store-link)
+#+end_src
+
 ***** Etc
 #+begin_src emacs-lisp
-    (add-hook 'org-tab-first-hook 'org-insert-link-maybe)
-    
     (defun org-dan-read-subtrees ()
       "Return subtrees as a list of strings"
       (let ((subtrees))
@@ -319,6 +482,19 @@
         (insert (mapconcat 'identity (nreverse subtrees) "\n"))))
 #+end_src
 
+* ESS
+#+begin_src emacs-lisp
+  (defun ded/ess-execute-command-on-region (cmd)
+    (interactive "sEnter function name: \n")
+    (ess-execute
+     (concat cmd "(" (buffer-substring (point) (mark)) ")")))
+#+end_src
+
+* Flyspell
+#+begin_src emacs-lisp
+(setq flyspell-issue-message-flag nil)
+#+end_src
+
 * Minor modes
 #+begin_src emacs-lisp 
 (show-paren-mode t)
@@ -330,30 +506,26 @@
 
 * Completion
 #+begin_src emacs-lisp
-;; ;; Things that I'm not really interested in seeing in emacs
-;; ;; (you can still open them explicitly)
-(setq dan-ignored-extensions
-      '(".html" ".csv" ".ps" ".bst" ".cls" ".sty" ".backup" ".log"
-	".fdf" ".spl" ".aux" ".ppt" ".doc" ".xls" ".mp3"))
-
-(mapc (lambda(extension)
-	(add-to-list 'completion-ignored-extensions extension))
-	dan-ignored-extensions)
-(ido-mode t) ;; (iswitchb-mode t)
-(setq ido-separator " ")
-
-;; As regexps, these should really have terminal $
-(mapc (lambda(extension)
-	(add-to-list 'ido-ignore-buffers (regexp-quote extension))
-	(add-to-list 'ido-ignore-files (regexp-quote extension)))
-      dan-ignored-extensions) 
-
-(add-to-list 'ido-ignore-buffers "\\*") ;; if you want *scratch* or *R* just type it
-;; (add-to-list 'ido-ignore-files "^[^.]+$") ;; files must have a . in their name (experimental)
-
-
-
-
+  ;; ;; Things that I'm not really interested in seeing in emacs
+  ;; ;; (you can still open them explicitly)
+  (setq dan-ignored-extensions
+        '(".html" ".csv" ".ps" ".bst" ".cls" ".sty" ".backup" ".log"
+          ".fdf" ".spl" ".aux" ".ppt" ".doc" ".xls" ".mp3" ".org"))
+  
+  (mapc (lambda(extension)
+          (add-to-list 'completion-ignored-extensions extension))
+          dan-ignored-extensions)
+  (ido-mode t) ;; (iswitchb-mode t)
+  (setq ido-separator " ")
+  
+  ;; As regexps, these should really have terminal $
+  (mapc (lambda(extension)
+          (add-to-list 'ido-ignore-buffers (regexp-quote extension))
+          (add-to-list 'ido-ignore-files (regexp-quote extension)))
+        dan-ignored-extensions) 
+  
+  (add-to-list 'ido-ignore-buffers "\\*") ;; if you want *scratch* or *R* just type it
+  ;; (add-to-list 'ido-ignore-files "^[^.]+$") ;; files must have a . in their name (experimental)
 #+end_src
 
 * Key bindings
@@ -370,40 +542,53 @@
   (dan-set-keys)
   (define-key emacs-lisp-mode-map "\C-cd" 'edebug-defun)
   (define-key ctl-x-4-map "t" 'toggle-window-split)
+  
+  (define-key org-src-mode-map [(control \')] 'org-edit-src-exit)
+  ;; (define-key org-src-mode-map "C-cC-c" 'org-src-execute)
 #+end_src
 
 * Variables
+*** Elisp programming
+#+srcname: name
+#+begin_src emacs-lisp 
+(setq eval-expression-debug-on-error nil)
+#+end_src
+*** Etc
 #+begin_src emacs-lisp
-(setq case-fold-search nil)
-(setq comint-input-ring-size 1024)
-(setq default-major-mode 'org-mode)
-(setq diff-switches "-u")
-(setq frame-title-format "emacs:%b") ;;      (concat  "%b - emacs@" (system-name)))
-(setq kill-read-only-ok t)
-(setq initial-scratch-message nil)
-(setq minibuffer-message-timeout 0.5)
-(setq nuke-trailing-whitespace-p t)
-(setq parens-require-spaces nil)
-(setq require-final-newline 'visit-save)
-(setq tags-file-name "~/src/.tags")
-(setq vc-follow-symlinks t)
-(setq x-alt-keysym 'meta)
-;; (visit-tags-table tags-file-name)
-;; (setq font-lock-always-fontify-immediately t) where did I get that from?
-
-(fset 'yes-or-no-p 'y-or-n-p) ;; http://www.xsteve.at/prg/emacs/.emacs.txt -- replace y-e-s by y
-(put 'narrow-to-region 'disabled nil)
-
-;; put back-up files in a single (invisible) directory in the original file's directory
-(setq backup-directory-alist '(("." . ".emacs-backups")))
-;; put back-up files in a single (invisible) directory in home directory -- doesn't work
-;; (setq backup-directory-alist '(("~/.emacs-backups"))) 
-(put 'upcase-region 'disabled nil)
-(put 'downcase-region 'disabled nil)
-
-;; (setq kill-buffer-query-functions '(lambda() t))
-
-;; (transient-mark-mode t) ;; something turns it off
+  (setq case-fold-search nil)
+  (setq comint-input-ring-size 1024)
+  (setq default-major-mode 'org-mode)
+  (setq diff-switches "-u")
+  (setq frame-title-format "emacs:%b") ;;      (concat  "%b - emacs@" (system-name)))
+  (setq kill-read-only-ok t)
+  (setq initial-scratch-message nil)
+  (setq minibuffer-message-timeout 0.5)
+  (setq nuke-trailing-whitespace-p t)
+  (setq parens-require-spaces nil)
+  (setq require-final-newline 'visit-save)
+  (setq tags-file-name "~/src/.tags")
+  (setq vc-follow-symlinks t)
+  (setq x-alt-keysym 'meta)
+  (setq backup-inhibited t)
+  
+  ;; (visit-tags-table tags-file-name)
+  ;; (setq font-lock-always-fontify-immediately t) where did I get that from?
+  
+  (fset 'yes-or-no-p 'y-or-n-p) ;; http://www.xsteve.at/prg/emacs/.emacs.txt -- replace y-e-s by y
+  (put 'narrow-to-region 'disabled nil)
+  (setq pop-up-windows t)
+  
+  
+  ;; put back-up files in a single (invisible) directory in the original file's directory
+  ;; (setq backup-directory-alist '(("." . ".emacs-backups")))
+  ;; put back-up files in a single (invisible) directory in home directory -- doesn't work
+  ;; (setq backup-directory-alist '(("~/.emacs-backups"))) 
+  (put 'upcase-region 'disabled nil)
+  (put 'downcase-region 'disabled nil)
+  
+  ;; (setq kill-buffer-query-functions '(lambda() t))
+  
+  ;; (transient-mark-mode t) ;; something turns it off
 #+end_src
   
 * Browser
@@ -419,11 +604,11 @@
 
 * Hooks
 #+begin_src emacs-lisp
-(add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
-
-; (add-hook 'local-write-file-hooks (lambda () (nuke-trailing-whitespace))))
-(autoload 'ansi-color-for-comint-mode-on "ansi-color" nil t)
-(add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
+  (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
+  
+  (add-hook 'local-write-file-hooks (lambda () (nuke-trailing-whitespace)))
+  (autoload 'ansi-color-for-comint-mode-on "ansi-color" nil t)
+  (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
 #+end_src
 
 * Language modes
@@ -437,7 +622,6 @@
 (add-hook 'emacs-lisp-mode-hook 'dan-emacs-lisp-mode-hook)
 
 #+end_src
-
 
 
 *** C & C++
@@ -459,24 +643,28 @@
 
 #+end_src
 
-*** Python
-#+begin_src emacs-lisp
-(defun dan-python-mode-hook ()
-  (local-set-key "\C-c\C-l" 'py-execute-buffer)
-  (other-window 1)) ;; should really be change to buffer named *Python*
-
-(add-hook 'python-mode-hook 'dan-python-mode-hook)
-#+end_src
-
 *** Lua
 #+begin_src emacs-lisp
 (setq auto-mode-alist (cons '("\\.lua$" . lua-mode) auto-mode-alist))
 (setq auto-mode-alist (cons '("\\.pyw$" . python-mode) auto-mode-alist))
-(autoload 'lua-mode "/usr/local/src/lua-mode/lua-mode" "Lua editing mode." t)
+;; (autoload 'lua-mode "/usr/local/src/lua-mode/lua-mode" "Lua editing mode." t)
 ;; (add-hook 'lua-mode-hook 'turn-on-font-lock)
 #+end_src
 
 * Functions
+*** Revert all elisp buffers
+    #+begin_src emacs-lisp
+      (defun ded/revert-elisp-buffers ()
+        "Revert all elisp buffers"
+        (interactive)
+        (save-excursion
+          (dolist (buf (buffer-list))
+            (set-buffer buf)
+            (if (eq major-mode 'emacs-lisp-mode)
+                (revert-buffer)))))
+    #+end_src
+
+
 #+begin_src emacs-lisp
   (defun ded/looking-at-string (string)
     (interactive)
@@ -675,23 +863,35 @@
        (load file))
 #+end_src
 
-* Faces
-#+begin_src emacs-lisp
-(if nil
-    (custom-set-faces
-     ;; custom-set-faces was added by Custom.
-     ;; If you edit it by hand, you could mess it up, so be careful.
-     ;; Your init file should contain only one such instance.
-     ;; If there is more than one, they won't work right.
-     '(default ((t (:inherit nil :stipple nil :background "Grey15" :foreground "Grey" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 110 :width normal :foundry "unknown" :family "DejaVu Sans Mono"))))))
+* Safe local variables
+#+begin_src emacs-lisp :results pp
+  (setq safe-local-variable-values
+        '(
+          (org-babel-default-header-args
+           (:tangle . "wtccc2-pca.py")
+           (:exports . "code"))
+          (org-babel-default-header-args
+           (:tangle . "yes"))
+          (org-babel-default-header-args
+           (:results . "replace output")
+           (:session . "*R - jsmr*")
+           (:exports . "none"))
+          (org-babel-default-header-args
+           (:results . "replace output")
+           (:session . "*R: wtccc2*")
+           (:exports . "none"))
+          (noweb-default-code-mode . R-mode)
+          (org-src-preserve-indentation . t)
+          (org-edit-src-content-indentation . 0)
+          (outline-minor-mode)))
 #+end_src
 
 * Start-up
 #+begin_src emacs-lisp
 (when (string-match "^23\.*" emacs-version)
   ;; temp hack to make w3m work with emacs23
-  (require 'w3m-e21)
-  (provide 'w3m-e23)
+  ;; (require 'w3m-e21)
+  ;; (provide 'w3m-e23)
   (org-agenda-list)
   (delete-other-windows))
 
