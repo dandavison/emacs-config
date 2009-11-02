@@ -9,11 +9,18 @@
 
 
 * Group buffer
-| mairix search              | G b m |
-| mairix update              | G b u |
-| gnus-group-list-all-groups | L     |
+| mairix search                | G b m |
+| mairix update                | G b u |
+| gnus-group-list-all-groups   | L     |
+| gnus-group-enter-server-mode | ^     |
 
-  
+* Server buffer
+<enter> to view groups for a server
+
+* Gnus browse server mode
+| gnus-browse-unsubscribe-current-group | u |
+
+
 * Summary buffer
 | limit to author regexp    | / a            |
 | wide reply                | S r, S R       |
