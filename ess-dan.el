@@ -1,7 +1,7 @@
 ;;; ESS
 ;; see http://ess.r-project.org/Manual/readme.html
 
-(add-to-list 'load-path "/usr/local/src/ess/ess/lisp")
+(add-to-list 'load-path "/usr/local/src/elisp-library/ess/ess/lisp")
 (require 'ess-site)
 ;; (load "/usr/local/src/ess/ess/lisp/ess-site")
 
