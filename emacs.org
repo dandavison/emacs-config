@@ -161,6 +161,236 @@
   (setq org-return-follows-link t)
 #+end_src
     See also [[mairix:t:@@20524da70908071211y4aeb4c0se9a465e2ebe27a8f@mail.gmail.com][Email from Samuel Wales: {Orgmode} Arrow + RET navigati]]
+
+***** Speed commands
+#+begin_src emacs-lisp 
+  (setq org-use-speed-commands t)
+  
+  (defun ded/org-show-next-heading-tidily ()
+    "Show next entry, keeping other entries closed."
+    (if (save-excursion (end-of-line) (outline-invisible-p))
+        (progn (org-show-entry) (show-children))
+      (outline-next-heading)
+      (unless (and (bolp) (org-on-heading-p))
+        (org-up-heading-safe)
+        (hide-subtree)
+        (error "Boundary reached"))
+      (org-overview)
+      (org-reveal t)
+      (org-show-entry)
+      (show-children)))
+  
+  (defun ded/org-show-previous-heading-tidily ()
+    "Show previous entry, keeping other entries closed."
+    (let ((pos (point)))
+      (outline-previous-heading)
+      (unless (and (< (point) pos) (bolp) (org-on-heading-p))
+        (goto-char pos)
+        (hide-subtree)
+        (error "Boundary reached"))
+      (org-overview)
+      (org-reveal t)
+      (org-show-entry)
+      (show-children)))
+  
+  (setq org-use-speed-commands t)
+  (add-to-list 'org-speed-commands-user
+               '("n" ded/org-show-next-heading-tidily))
+  (add-to-list 'org-speed-commands-user 
+               '("p" ded/org-show-previous-heading-tidily))
+#+end_src
+******* Old versions
+	#+begin_src emacs-lisp :tangle no
+          (defun ded/org-show-previous-heading-tidily-6 ()
+            "Show previous entry, keeping other entries closed."
+            (unless (save-excursion (end-of-line) (outline-invisible-p))
+              (org-cycle))
+            (let ((pos (point)))
+              (outline-previous-heading)
+              (unless (and (bolp) (org-on-heading-p))
+                (goto-char pos)
+                (error "Boundary reached"))
+              (org-show-entry)))
+          
+          
+                ;; 
+                ;; (setq next-level (org-current-level))
+                ;; (cond ((< next-level level) ;; Close the subtree we just left
+                ;;             (save-excursion
+                ;;               (outline-backward-same-level 1)
+                ;;               (hide-subtree)))
+                ;;            ((= next-level level) ;; Close the sibling we just left
+                ;;             (save-excursion
+                ;;               (goto-char pos)
+                ;;               (hide-subtree)))))))
+          
+          (defun ded/org-show-next-heading-tidily-5 ()
+            "Show next entry, keeping other entries closed."
+            ;; seems to work well, get ... at bol
+            (if (save-excursion (end-of-line) (outline-invisible-p))
+                (org-show-entry)
+              (let ((pos (point))
+                    (level (org-current-level))
+                    next-level)
+                (outline-next-heading)
+                (unless (and (bolp) (org-on-heading-p))
+                  (outline-up-heading 1 t)
+                  (org-cycle)
+                  (error "Boundary reached"))
+                (org-show-entry)
+                (setq next-level (org-current-level))
+                (cond ((< next-level level) ;; Close the subtree we just left
+                       (save-excursion
+                         (outline-backward-same-level 1)
+                         (hide-subtree)))
+                      ((= next-level level) ;; Close the sibling we just left
+                       (save-excursion
+                         (goto-char pos)
+                         (hide-subtree)))))))
+          
+          (defun ded/org-show-next-heading-tidily-4 ()
+            "Show next entry, keeping other entries closed."
+            (flet ((heading-closed-p
+                    nil (save-excursion (end-of-line) (outline-invisible-p))))
+              (if (heading-closed-p)
+                  (org-cycle)
+                (let ((pos (point))
+                      (level (org-current-level))
+                      (next-level
+                       (progn (outline-next-heading) (org-current-level))))
+                  (cond ((< next-level level)
+                         (save-excursion
+                           (outline-backward-same-level 1) (org-cycle)))
+                        ((= next-level level)
+                         (save-excursion (goto-char pos) (org-cycle))))
+                  (if (and (bolp) (org-on-heading-p))
+                      (if (heading-closed-p) (org-cycle))
+                    (outline-up-heading 1 t)
+                    (org-cycle)
+                    (error "Boundary reached"))))))
+          
+                    
+                ;;     (level (org-current-level))
+                ;;     (prev-level
+                ;;      (progn (outline-previous-heading) (org-current-level))))
+                ;; (unless prev-level
+                ;;   (goto-char pos)
+                ;;   (error "Boundary reached"))
+                ;; (org-reveal))))
+          
+          
+          (defun ded/org-show-previous-heading-tidily-2 ()
+            "Show previous entry, keeping other entries closed."
+            (flet ((heading-closed-p
+                    nil (save-excursion (end-of-line) (outline-invisible-p))))
+              (unless (heading-closed-p) (org-cycle))
+              (let ((pos (point))
+                    (level (org-current-level))
+                    (prev-level
+                     (progn (outline-previous-heading) (org-current-level))))
+                (unless prev-level
+                  (goto-char pos)
+                  (error "Boundary reached"))
+                (message "point is %d" (point))
+                (cond ((> prev-level level)
+                       (save-excursion
+                         (outline-up-heading 1 t)
+                         (if (heading-closed-p) (org-cycle)))))
+                (message "point is %d" (point))
+                (if (and (bolp) (org-on-heading-p))
+                    (progn
+                      (message "point is %d" (point))
+                      (if (heading-closed-p) (save-excursion (org-cycle))))))))
+          
+          (defun ded/org-show-next-heading-tidily-2 ()
+            "Show next entry, keeping other entries closed."
+            (if (save-excursion (end-of-line) (outline-invisible-p))
+                (org-cycle)
+              (let ((pos (point))
+                    (level (org-current-level))
+                    (next-level
+                     (progn (outline-next-heading) (org-current-level))))
+                (cond ((< next-level level)
+                       (save-excursion
+                         (outline-backward-same-level 1) (org-cycle)))
+                      ((= next-level level)
+                       (save-excursion (goto-char pos) (org-cycle))))
+                (if (and (bolp) (org-on-heading-p))
+                    (org-cycle)
+                  (outline-up-heading 1 t)
+                  (org-cycle)
+                  (error "Boundary reached")))))
+          
+          
+          (defun ded/org-show-next-heading-tidily-0 ()
+            "Show next entry, keeping other entries closed."
+            (if (save-excursion (end-of-line) (outline-invisible-p))
+                (org-cycle)
+              (let ((level (org-current-level)))
+                (unless (org-heading-has-child-p) (org-cycle))
+                (outline-next-heading)
+                (if (< (org-current-level) level)
+                    (save-excursion
+                      (outline-backward-same-level 1)
+                      (org-cycle)))
+                (if (and (bolp) (org-on-heading-p))
+                    (org-cycle)
+                  (outline-up-heading 1 t)
+                  (org-cycle)
+                  (error "Boundary reached")))))
+          
+          (defun ded/org-show-previous-heading-tidily-0 ()
+            "Show previous entry, keeping other entries closed."
+            (flet ((heading-closed-p
+                    nil (save-excursion (end-of-line) (outline-invisible-p))))
+              (unless (heading-closed-p) (org-cycle))
+              (let ((pos (point))
+                    (level (org-current-level))
+                    (prev-level
+                     (progn (outline-previous-heading) (org-current-level))))
+                (cond ((> prev-level level)
+                       (save-excursion
+                         (outline-up-heading 1 t)
+                         (if (heading-closed-p) (org-cycle)))))
+                (if (and (bolp) (org-on-heading-p))
+                    (if (heading-closed-p) (org-cycle))
+                  (goto-char pos)
+                  (error "Boundary reached")))))
+          
+          
+          (defun ded/org-close-and-show-next-heading-0 ()
+            "Show next entry"
+            (interactive)
+            (let ((pos (point))
+                  (level (org-current-level)))
+              (unless (org-heading-has-child-p) (org-cycle))
+              (outline-next-heading)
+              (if (and (bolp) (org-on-heading-p))
+                  (progn ;; if on last heading of current subtree, close subtree
+                    (if (< (org-current-level) level)
+                        (save-excursion
+                          (outline-backward-same-level 1)
+                          (org-cycle)))
+                    (org-cycle))
+                (goto-char pos)
+                (error "Boundary reached"))))
+          
+          (defun ded/org-close-and-show-next-heading-1 ()
+            "Show next entry"
+            (let ((pos (point))
+                  (level (org-current-level)))
+              (unless (org-heading-has-child-p) (org-cycle))
+              (outline-next-heading)
+              (if (< (org-current-level) level)
+                  (save-excursion
+                    (outline-backward-same-level 1)
+                    (org-cycle)))
+              (if (and (bolp) (org-on-heading-p))
+                  (org-cycle)
+                (outline-up-heading 1 t)
+                (org-cycle)
+                (error "Boundary reached"))))
+	#+end_src
 ***** Eric's outline navigation bindings
 [[mairix:t:@@m2eirnzhb4.fsf@gmail.com][Email from Eric Schulte: Re: {Orgmode} Go to top node]]
 #+begin_src emacs-lisp
