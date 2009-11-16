@@ -137,10 +137,6 @@
   
   (setq org-completion-use-ido t)    
   ;; (setq org-startup-folded nil)    
-  (setq org-cycle-emulate-tab t)
-  (setq org-special-ctrl-a t)
-  (setq org-special-ctrl-e t)
-  (setq org-return-follows-link t)
   ;;* refiling
   ;; http://doc.norang.ca/org-mode.html#Refiling
   
@@ -156,7 +152,14 @@
   ;; Targets complete in steps so we start with filename, TAB shows the next level of targets etc 
   (setq org-outline-path-complete-in-steps t)
 #+end_src
-*** Navigation
+*** Structure & Navigation
+#+begin_src emacs-lisp 
+  (setq org-empty-line-terminates-plain-lists t)
+  (setq org-cycle-emulate-tab t)
+  (setq org-special-ctrl-a t)
+  (setq org-special-ctrl-e t)
+  (setq org-return-follows-link t)
+#+end_src
     See also [[mairix:t:@@20524da70908071211y4aeb4c0se9a465e2ebe27a8f@mail.gmail.com][Email from Samuel Wales: {Orgmode} Arrow + RET navigati]]
 ***** Eric's outline navigation bindings
 [[mairix:t:@@m2eirnzhb4.fsf@gmail.com][Email from Eric Schulte: Re: {Orgmode} Go to top node]]
