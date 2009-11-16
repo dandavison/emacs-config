@@ -385,7 +385,7 @@
   (defun ded/org-babel-configure-language (lang)
     (require (intern (concat "org-babel-" lang))))
   
-  (setq ded/org-babel-languages '("R" "python" "ruby" "ditaa" "latex" "asymptote" "sass"))
+  (setq ded/org-babel-languages '("R" "python" "ruby" "ditaa" "latex" "asymptote" "dot" "sass" "perl"))
   (mapc 'ded/org-babel-configure-language ded/org-babel-languages)
 #+end_src
 ***** Variables
