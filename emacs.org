@@ -78,11 +78,10 @@
    '(default ((t 
                (:inherit nil :stipple nil :background "Grey15" :foreground "Grey"
                          :inverse-video nil :box nil :strike-through nil :overline nil
-                         :underline nil :slant normal :weight normal :height 89
+                         :underline nil :slant normal :weight normal :height 100
                          :width normal :foundry "unknown" :family "DejaVu Sans Mono"))))
                '(gnus-cite-1 ((((class color) (background light)) (:foreground "deep sky blue")))))
 #+end_src
-
 
 * Org
 *** Basics
