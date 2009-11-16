@@ -56,7 +56,6 @@
 * Load config files
 #+begin_src emacs-lisp
 (load "~/src/config/emacs/vanilla")
-(load "org-dan")
 (load "outline-dan")
 (load "ess-dan")
 (load "latex-dan")
