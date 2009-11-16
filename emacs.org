@@ -337,7 +337,7 @@
   (setq org-export-htmlize-output-type (if t 'inline-css 'css))
   
   ;; from Eric
-  (setq org-export-html-style-default
+  (setq org-export-html-style
   "<style type=\"text/css\">
   pre {
       border: 1pt solid #AEBDCC;
