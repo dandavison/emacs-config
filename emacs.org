@@ -1,14 +1,14 @@
 * Load path
 #+begin_src emacs-lisp
-  (add-to-list 'load-path "/usr/local/src/elisp-library")
-  ;; (add-to-list 'load-path "/usr/local/src/elisp-library/egg")
-  (add-to-list 'load-path "/usr/local/src/elisp-library/magit")
-  (add-to-list 'load-path "/usr/local/src/elisp-library/yasnippet")
-  ;; (add-to-list 'load-path "/usr/local/src/elisp-library/icicles")
-  ;; (add-to-list 'load-path "/usr/local/src/elisp-library/orgfold")
-  ;; (add-to-list 'load-path "/usr/local/src/elisp-library/ruby-emacs")
+  (add-to-list 'load-path "/usr/local/src/emacs")
+  ;; (add-to-list 'load-path "/usr/local/src/emacs/egg")
+  (add-to-list 'load-path "/usr/local/src/emacs/magit")
+  (add-to-list 'load-path "/usr/local/src/emacs/yasnippet")
+  ;; (add-to-list 'load-path "/usr/local/src/emacs/icicles")
+  ;; (add-to-list 'load-path "/usr/local/src/emacs/orgfold")
+  ;; (add-to-list 'load-path "/usr/local/src/emacs/ruby-emacs")
 #+end_src
-
+  
 * ELPA
 #+begin_src emacs-lisp
 ;;; This was installed by package-install.el.
@@ -42,9 +42,9 @@
   (require 'boxquote)
   (require 'yasnippet)
   (yas/initialize)
-  (yas/load-directory "/usr/local/src/elisp-library/yasnippet/snippets")
+  (yas/load-directory "/usr/local/src/emacs/yasnippet/snippets")
   (require 'recentf)
-  ;; (load "/usr/local/src/elisp-library/nxhtml/autostart.el")
+  ;; (load "/usr/local/src/emacs/nxhtml/autostart.el")
   ;; (load "R-anything-config")
   ;; (load "icicles/icicles")
   ;; (icy-mode t)
