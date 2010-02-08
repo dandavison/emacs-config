@@ -7,6 +7,7 @@
   ;; (add-to-list 'load-path "/usr/local/src/emacs/icicles")
   ;; (add-to-list 'load-path "/usr/local/src/emacs/orgfold")
   ;; (add-to-list 'load-path "/usr/local/src/emacs/ruby-emacs")
+  (add-to-list 'load-path "/usr/local/src/emacs/org-fstree")
 #+end_src
   
 * ELPA
@@ -29,6 +30,7 @@
   (require 'regex-tool)
   (require 'unbound)
   ;; (require 'zenburn)
+  (require 'color-theme-chocolate-rain)
   (require 'windresize)
   (require 'xclip)
   (require 'highlight-parentheses)
@@ -51,6 +53,8 @@
   (require 'pp)
   ;; (require 'orgfold)
   (require 'sass-mode)
+  (require 'ssh)
+  (require 'google-search)
 #+end_src
 
 * Load config files
@@ -100,7 +104,7 @@
   (load "~/src/org/org-util.el")
   ;; (load "~/src/org/org-R/org-R.el")
   
-  (require 'org-git-link)
+  ;; (require 'org-git-link)
   
   (global-set-key "\C-cl" 'org-store-link)
   (global-set-key "\C-ca" 'org-agenda)
@@ -127,6 +131,18 @@
   ;;                 "\\begin{frame}\\frametitle{%s}\\begin{itemize}" "\\end{itemize}\\end{frame}")
   ;;                ("\\item{%s}" . "\\item*{%s}")
   ;;                ("\\end{itemize}\\note{" "}")))
+  
+  ;; (add-to-list 'org-export-latex-classes
+  ;;              '("beamer"
+  ;;                "\\documentclass[11pt]{beamer}\n\\usepackage[utf8]{inputenc}\n\\usepackage[T1]{fontenc}\n\\usepackage{hyperref}\n\\usepackage{verbatim}\n\\setbeameroption{show notes}\n\\usetheme{Goettingen}\n\\useoutertheme{infolines}"
+  ;;                ("\\section{%s}" . "\\section*{%s}")
+  ;;                ("\\begin{frame}\\frametitle{%s}" "\\end{frame}"
+  ;;                 "\\begin{frame}\\frametitle{%s}" "\\end{frame}")
+  ;;                ("\\begin{columns} \% %s" "\\end{columns}"
+  ;;                 "\\begin{columns} \% %s" "\\end{columns}")
+  ;;                ("\\begin{column}{%s\\textwidth}" "\\end{column}"
+  ;;                 "\\begin{column}{%s\\textwidth}" "\\end{column}")))
+  
   
   ;; (setq org-dan-expert t)
   (defun dan-org-mode-hook ()
@@ -164,8 +180,6 @@
 
 ***** Speed commands
 #+begin_src emacs-lisp 
-  (setq org-use-speed-commands t)
-  
   (defun ded/org-show-next-heading-tidily ()
     "Show next entry, keeping other entries closed."
     (if (save-excursion (end-of-line) (outline-invisible-p))
@@ -227,7 +241,10 @@
           ("people" ?p "* x %?\nSCHEDULED: %^T\n  %i" "~/org/people.org" 'top)
           ("info" ?i "* %?\n %i" "~/zzz/info.org" 'top)
           ))
-  
+#+end_src
+
+***** Quick schedule task with link
+#+begin_src emacs-lisp
   (defun org-dan-schedule-task-with-link (remember-target-char &optional arg)
     "Schedule a task with a link to current buffer.
      This uses org-remember. The task is scheduled for today, and
@@ -243,9 +260,33 @@
       (?p (kmacro-exec-ring-item 
            (quote ([3 108 f8 ?p return 3 12 up return return 3 3] 0 "%d")) arg))))
 #+end_src
+	   Or maybe I can use fset like in the following?
+******* Tiago Magalhaes ess-help post
+	From: Luis F <respostas17@gmail.com>
+	Subject: [ESS] Pushing Lines from one Window to Another
+	Date: Sat, 14 Nov 2009 16:32:42 +0000
+	To: ess-help@stat.math.ethz.ch
+	
+	Dear Mailing list,
+
+	2 questions:
+
+	A)
+	Some time ago I asked whether it was possible to push a line from one window
+	to a bottom window. (post here:
+	https://stat.ethz.ch/pipermail/ess-help/2008-November/004949.html)
+
+	Charles C. Berry suggested the following command (written by Tim Hesterberg)
+	
+#+begin_src emacs-lisp :tangle no
+	(fset 'push-line-other-window
+        "\C-@\C-e\M-w\C-n\C-a\C-xo\M->\C-y\C-m\C-xo")
+	(global-set-key "\C-xp" 'push-line-other-window )
+#+end_src
+
 *** Footnotes
 #+begin_src emacs-lisp
-(setq org-footnote-auto-label 'plain)
+;; (setq org-footnote-auto-label 'plain)
 #+end_src
 
 *** Agenda
@@ -335,6 +376,7 @@
 *** Export
 #+begin_src emacs-lisp
   (setq org-export-htmlize-output-type (if t 'inline-css 'css))
+  (setq org-export-copy-to-kill-ring nil)
   
   ;; from Eric
   (setq org-export-html-style
@@ -357,15 +399,15 @@
     (outline-minor-mode -1)
     (if (eq major-mode 'python-mode)
         (setq python-indent 4)))
-  ;;  (message "hello from org-src-mode-hook")
-  ;;    (color-theme-dark-green))
-  ;;  (color-theme-charcoal-black))
   
   (add-hook 'org-src-mode-hook 'ded/org-src-mode-hook)
   ;; (remove-hook 'org-src-mode-hook 'ded/org-src-mode-hook)
   
+  (add-to-list 'org-src-lang-modes '("C" . c))
+  
   (setq org-hide-block-startup t)
-  (setq org-src-window-setup 'reorganize-frame)
+  
+  (setq org-src-window-setup 'current-window) 'current-window 'other-window 'other-frame 'reorganize-frame
   (setq org-src-ask-before-returning-to-edit-buffer nil)
 #+end_src
 *** Appearance
@@ -385,18 +427,29 @@
   (defun ded/org-babel-configure-language (lang)
     (require (intern (concat "org-babel-" lang))))
   
-  (setq ded/org-babel-languages '("R" "python" "ruby" "ditaa" "latex" "asymptote" "dot" "sass" "perl"))
+  (setq ded/org-babel-languages '("R" "python" "ruby" "ditaa" "latex" "asymptote" "dot" "sass" "perl" "sql"))
   (mapc 'ded/org-babel-configure-language ded/org-babel-languages)
+  
+  (org-babel-add-interpreter "C")
+  (add-to-list 'org-babel-tangle-langs '("C" "c"))
+  
+  (org-babel-add-interpreter "makefile")
+  (add-to-list 'org-babel-tangle-langs '("makefile"))
 #+end_src
 ***** Variables
 #+begin_src emacs-lisp
-  (setq org-babel-timestamp-results t)      
+  (setq org-babel-tangle-include-shebang t)
+  (setq org-babel-tangle-include-org-coordinates nil)
+  
+  ;; (setq org-babel-timestamp-results t)
+  ;; (setq org-babel-allow-variable-references t)
 #+end_src
-***** Etc
-******* yasnippets
+***** Yasnippets
 #+begin_src emacs-lisp
   (yas/load-directory "/usr/local/src/Worg/org-contrib/babel/snippets")
 #+end_src
+
+***** Etc
 ******* Execute src block from lang mode buffer
 	Haven't tested this out much.
 #+begin_src emacs-lisp
@@ -452,6 +505,15 @@
      0 "%d")) arg)))
 #+end_src
 
+***** Two-mode mode
+#+begin_src emacs-lisp :tangle no
+  (setq default-mode (list "org-mode" 'org-mode))
+  (setq second-modes '(("python" "#+begin_src python" "#+end_src" python-mode)
+                         ("emacs-lisp" "#+begin_src emacs-lisp" "#+end_src" emacs-lisp-mode)
+                         ("ess" "#+begin_src R" "#+end_src" ess-mode)
+                         ))
+#+end_src
+
 *** Fireforg
 #+begin_src emacs-lisp :tangle no
 (add-to-list 'load-path "/usr/local/src/org-etc/org-fireforg/lisp")
@@ -460,7 +522,51 @@
 
 #+end_src
 
+*** Support for viewing images
+   Taken from Eric's Emacs Starter Kit
+
+This allows for the viewing of images in-line in Org-mode documents.
+
+#+begin_src emacs-lisp
+  (require 'iimage)
+  (setq iimage-mode-image-search-path (expand-file-name "~/"))
+  ;;Match org file: links
+  (add-to-list 'iimage-mode-image-regex-alist
+               (cons (concat "\\[\\[file:\\(~?" iimage-mode-image-filename-regex
+                             "\\)\\]")  1))
+  (defun ems/org-toggle-iimage-in-org ()
+    (interactive)
+    (if (face-underline-p 'org-link)
+        (set-face-underline-p 'org-link nil)
+      (set-face-underline-p 'org-link t))
+    (iimage-mode))
+  
+  (defun ded/org-toggle-iimage-in-org ()
+    (interactive)
+    (let ((turning-on (not iimage-mode)))
+      (set-face-underline-p 'org-link (not turning-on))
+      (iimage-mode (or turning-on 0))))
+#+end_src
+
 *** Etc
+***** ded/org-edit-special
+      Needs more work to keep point in sensible location, and to
+      detect when inside a block.
+
+#+begin_src emacs-lisp
+  (defun ded/org-edit-special ()
+    (interactive)
+    (if (save-excursion
+          (re-search-forward
+           (concat "\\("
+                   org-babel-src-block-regexp
+                   "\\|"
+                   "^[ \t]*|" ;; table
+                   "\\)") nil t))
+        (org-edit-special)
+      (message "No target found")))
+#+end_src
+
 ***** org-insert-link-maybe
 #+begin_src emacs-lisp
   (defun org-insert-link-maybe ()
@@ -473,7 +579,7 @@
               (looking-at "\\[?\\[?file:?\\(?:[ \t\n]\\|\\'\\)")))
           (progn (replace-match "") (org-insert-link '(4)) t)
         nil)))
-
+  
     (add-hook 'org-tab-first-hook 'org-insert-link-maybe)
 #+end_src
 ***** Link to magit mode
@@ -534,13 +640,60 @@
 (setq flyspell-issue-message-flag nil)
 #+end_src
 
+* Email
+*** Message Mode
+#+begin_src emacs-lisp 
+(setq message-send-mail-partially nil)
+#+end_src
+
+* Language modes
+*** Elisp
+#+begin_src emacs-lisp
+(defun dan-emacs-lisp-mode-hook ()
+  "Dan's settings for emacs-lisp mode"
+  ;; (set 'lisp-indent-offset 4)
+  (local-set-key "\C-c\C-l" 'dan-eval-buffer-confirm))
+
+(add-hook 'emacs-lisp-mode-hook 'dan-emacs-lisp-mode-hook)
+
+#+end_src
+
+
+*** C & C++
+#+begin_src emacs-lisp
+  ;; Dan Feb 2006: See http://www.xemacs.org/Links/tutorials_1.html
+  (defun dan-c-c++-mode-hook ()
+    "Dan's local settings for c-mode and c++-mode"
+    ;; add font-lock to function calls (but also gets if() and while() etc)
+    ;; (font-lock-add-keywords
+    ;; ? ?nil `(("\\([[:alpha:]_][[:alnum:]_]*\\)(" ?1 font-lock-function-name-face)))
+    (setq c-basic-offset 4)
+    (setq line-number-mode t)
+    (mapc (lambda (pair) (local-set-key (car pair) (cdr pair)))
+          dan-c-c++-mode-keybindings))
+  
+  ;; (add-hook 'c-mode-hook 'c++-mode) ;; I want C++ comments, but that seems a bit heavy-handed?
+  (add-hook 'c-mode-hook 'dan-c-c++-mode-hook)
+  (add-hook 'c++-mode-hook 'dan-c-c++-mode-hook)
+  
+  (setq compilation-read-command nil)
+#+end_src
+
+*** Lua
+#+begin_src emacs-lisp
+(setq auto-mode-alist (cons '("\\.lua$" . lua-mode) auto-mode-alist))
+(setq auto-mode-alist (cons '("\\.pyw$" . python-mode) auto-mode-alist))
+;; (autoload 'lua-mode "/usr/local/src/lua-mode/lua-mode" "Lua editing mode." t)
+;; (add-hook 'lua-mode-hook 'turn-on-font-lock)
+#+end_src
+
 * Minor modes
 #+begin_src emacs-lisp 
-(show-paren-mode t)
-(winner-mode t)
-(recentf-mode t)
-(global-font-lock-mode t)
-;; (desktop-save-mode t)
+  (show-paren-mode t)
+  (winner-mode t)
+  (recentf-mode t)
+  (global-font-lock-mode t)
+  ;; (desktop-save-mode t)
 #+end_src
 
 * Completion
@@ -648,46 +801,6 @@
   (add-hook 'local-write-file-hooks (lambda () (nuke-trailing-whitespace)))
   (autoload 'ansi-color-for-comint-mode-on "ansi-color" nil t)
   (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
-#+end_src
-
-* Language modes
-*** Elisp
-#+begin_src emacs-lisp
-(defun dan-emacs-lisp-mode-hook ()
-  "Dan's settings for emacs-lisp mode"
-  ;; (set 'lisp-indent-offset 4)
-  (local-set-key "\C-c\C-l" 'dan-eval-buffer-confirm))
-
-(add-hook 'emacs-lisp-mode-hook 'dan-emacs-lisp-mode-hook)
-
-#+end_src
-
-
-*** C & C++
-#+begin_src emacs-lisp
-;; Dan Feb 2006: See http://www.xemacs.org/Links/tutorials_1.html
-(defun dan-c-c++-mode-hook ()
-  "Dan's local settings for c-mode and c++-mode"
-  ;; add font-lock to function calls (but also gets if() and while() etc)
-  ;; (font-lock-add-keywords
-  ;; ? ?nil `(("\\([[:alpha:]_][[:alnum:]_]*\\)(" ?1 font-lock-function-name-face)))
-  (setq c-basic-offset 4)
-  (setq line-number-mode t)
-  (mapc (lambda (pair) (local-set-key (car pair) (cdr pair)))
-	dan-c-c++-mode-keybindings))
-
-;; (add-hook 'c-mode-hook 'c++-mode) ;; I want C++ comments, but that seems a bit heavy-handed?
-(add-hook 'c-mode-hook 'dan-c-c++-mode-hook)
-(add-hook 'c++-mode-hook 'dan-c-c++-mode-hook)
-
-#+end_src
-
-*** Lua
-#+begin_src emacs-lisp
-(setq auto-mode-alist (cons '("\\.lua$" . lua-mode) auto-mode-alist))
-(setq auto-mode-alist (cons '("\\.pyw$" . python-mode) auto-mode-alist))
-;; (autoload 'lua-mode "/usr/local/src/lua-mode/lua-mode" "Lua editing mode." t)
-;; (add-hook 'lua-mode-hook 'turn-on-font-lock)
 #+end_src
 
 * Functions
