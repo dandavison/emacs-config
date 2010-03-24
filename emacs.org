@@ -613,14 +613,11 @@ This allows for the viewing of images in-line in Org-mode documents.
            (setq file (iimage-locate-file file (list default-directory)))
            (setq image (create-image file))
            (add-text-properties (match-beginning 0) (match-end 0) (list 'display image))
-           (image-refresh image)
+           (clear-image-cache)
            t)))
   
-  (add-hook 'org-font-lock-hook 'dan/org-fontify-image-links)
-  ;; (remove-hook 'org-font-lock-hook 'dan/org-fontify-image-links)
-  
   (set-face-underline-p 'org-link nil)
-  
+  (add-hook 'org-font-lock-hook 'dan/org-fontify-image-links)
   
   (defun dan/org-iimage-refresh ()
     (interactive)
@@ -968,7 +965,8 @@ by Vitalie S.
 *** Elisp programming
 #+srcname: name
 #+begin_src emacs-lisp 
-(setq eval-expression-debug-on-error nil)
+  (setq eval-expression-debug-on-error nil)
+  (setq find-function-C-source-directory "/usr/local/src/emacs/emacs-23.1/src")
 #+end_src
 *** Etc
 #+begin_src emacs-lisp
