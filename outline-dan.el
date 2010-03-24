@@ -3,8 +3,7 @@
 (defun prompt-for-outline-regexp (new-regexp)
   "ask the user for a local value of outline-regexp in this buffer"
   (interactive "Outline regexp: ")
-  (set (make-local-variable 'outline-regexp) new-regexp)
-)
+  (set (make-local-variable 'outline-regexp) new-regexp))
 
 ;; (global-set-key (kbd "<f9>") 'prompt-for-outline-regexp)
 
@@ -55,7 +54,7 @@
     (define-key outline-mode-map [(tab)] 'org-cycle)
     (define-key outline-mode-map [(backtab)] 'org-global-cycle))) ;; (shift tab) doesn't work
 
-(defun dan-set-up-outline-minor-mode (local-outline-regexp)
+(defun dan/set-up-outline-minor-mode (local-outline-regexp)
   (when local-outline-regexp
     (setq outline-regexp local-outline-regexp))
   ;; how does scope work in lisp? What if the function arg were named
@@ -65,7 +64,7 @@
   ;; work after org-overview
   (org-content))
 
-(defun dan-maybe-org-cycle ()
+(defun dan/maybe-org-cycle ()
   "Cycle visibility if in a heading line; otherwise do what TAB would have done"
   (if (looking-at-p outline-regexp) (org-cycle)
     ;; else what?
@@ -76,18 +75,18 @@
 (add-hook 'ess-mode-hook
 	  (lambda () 
 	    (unless (eq noweb-code-mode 'R-mode)
-	      (dan-set-up-outline-minor-mode "[a-zA-Z._][a-zA-Z._0-9]* *<- *function"))))
-(add-hook 'c-mode-hook
-	  (lambda () (dan-set-up-outline-minor-mode nil)))
+	      (dan/set-up-outline-minor-mode "[a-zA-Z._[\"][a-zA-Z._0-9[\"]* *<- *function"))))
+;; (add-hook 'c-mode-hook
+;; 	  (lambda () (dan/set-up-outline-minor-mode nil)))
 ;;		      "\\(void\\|int\\|double\\|char\\|struct\\|static\\|const\\)")))
 ;; (add-hook 'emacs-lisp-mode-hook 'th-outline-minor-mode-init)
 
 (add-hook 'emacs-lisp-mode-hook
-	  (lambda () (dan-set-up-outline-minor-mode "\\((\\|;;;\\)")))
+	  (lambda () (dan/set-up-outline-minor-mode "\\((\\|;;;\\)")))
 (add-hook 'python-mode-hook
-	  (lambda () (dan-set-up-outline-minor-mode "\\( *def \\|if \\|class \\|##\\)")))
+	  (lambda () (dan/set-up-outline-minor-mode "\\( *def \\|if \\|class \\|##\\)")))
 (add-hook 'bibtex-mode-hook
-	  (lambda () (dan-set-up-outline-minor-mode "@")))
+	  (lambda () (dan/set-up-outline-minor-mode "@")))
 
 ;; It's possible I should be using outline-magic
 ;; This is the configuration recommended outline-magic.el

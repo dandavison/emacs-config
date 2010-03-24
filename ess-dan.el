@@ -1,12 +1,12 @@
-;;; ESS
+;; ESS
 ;; see http://ess.r-project.org/Manual/readme.html
 
-(add-to-list 'load-path "/usr/local/src/elisp-library/ess/ess/lisp")
+(add-to-list 'load-path "/usr/local/src/emacs/ess/lisp")
 (require 'ess-site)
 ;; (load "/usr/local/src/ess/ess/lisp/ess-site")
 
 
-(require 'ess-eldoc)
+;; (require 'ess-eldoc)
 
 (setq inferior-R-args "--no-save --no-restore-data --silent")
 (setq safe-local-variable-values '((noweb-default-code-mode . R-mode) (outline-minor-mode)))
@@ -14,20 +14,20 @@
 (setq auto-mode-alist (append (list (cons "\\.nw$" 'noweb-mode))
 			      auto-mode-alist))
 
-(defun dan-ess-and-iess-mode-hook ()
+(defun dan/ess-and-iess-mode-hook ()
   (setq ess-function-template " <- function() {\n\n}\n")
   (mapc (lambda (pair) (local-set-key (car pair) (cdr pair)))
-	  dan-ess-and-iess-keybindings))
+	  dan/ess-and-iess-keybindings))
 
-(defun dan-ess-mode-hook ()
+(defun dan/ess-mode-hook ()
   (ess-set-style 'C++))
 
-
-(add-hook 'ess-mode-hook 'dan-ess-and-iess-mode-hook)
-(add-hook 'inferior-ess-mode-hook 'dan-ess-and-iess-mode-hook)
-(add-hook 'ess-mode-hook 'dan-ess-mode-hook)
+(add-hook 'ess-mode-hook 'dan/ess-and-iess-mode-hook)
+(add-hook 'inferior-ess-mode-hook 'dan/ess-and-iess-mode-hook)
+(add-hook 'ess-mode-hook 'dan/ess-mode-hook)
 
 ;; See ess-help post by M. Maechler on 23 Mar 2006
+(setq ess-eval-visibly-p nil)
 (eval-after-load
     "comint"
   '(progn
@@ -51,22 +51,22 @@
 ;; ess-close-brace-offset            0   0   0   0   0
 
 
-(defun ess-dan-insert-function-template ()
+(defun dan/ess-insert-function-template ()
   (interactive)
   (insert ess-function-template)
   (search-backward ")"))
 
-(defun ess-dan-insert-parentheses ()
+(defun dan/ess-insert-parentheses ()
   (interactive)
   (insert-parentheses)
   (ess-r-args-show))
 
-(defun ess-dan-kill-line-and-indent ()
+(defun dan/ess-kill-line-and-indent ()
   (interactive)
   (kill-line)
   (ess-indent-command))
 
-(defun ess-dan-recover-R-process ()
+(defun dan/ess-recover-R-process ()
   "Suppose R recover()s on an error, and you're in another window. This visits the R buffer,
 exits the selector and returns"
   (interactive)
@@ -76,7 +76,7 @@ exits the selector and returns"
   (other-window 1)) ;; seems like save-excursion doesn't do what I was hoping here
 
 ;; based on Stephen Eglen post to ess-help 21 June 2007
-(defun dan-ess-list-R-function-definitions ()
+(defun dan/ess-list-R-function-definitions ()
   (interactive)
   (occur "<- function")
   (other-window 1))
@@ -111,10 +111,10 @@ exits the selector and returns"
   (ess-eval-linewise "options(width=140)")
   (recenter-top-bottom 0))
 
-(defun R-dan (&optional start-args)
-  "Start a different version of R from that in my search path"
-  (interactive "P")
-  (let ((inferior-R-program-name "/usr/src/R/R-2.5.1/bin/exec/R")) (R start-args)))
+; (defun R-dan (&optional start-args)
+;   "Start a different version of R from that in my search path"
+;   (interactive "P")
+;   (let ((inferior-R-program-name "/usr/src/R/R-2.5.1/bin/exec/R")) (R start-args)))
 
 ;; (custom-set-variables
   ;; custom-set-variables was added by Custom.
@@ -126,7 +126,7 @@ exits the selector and returns"
 ;; '(safe-local-variable-values (quote ((noweb-default-code-mode . R-mode) (outline-minor-mode)))))
 
 ;; ;; Dan Feb 2006: The following from a post by Stephen Eglen (somewhere)
-;; (defun dan-inferior-ess-mode-hook ()
+;; (defun dan/inferior-ess-mode-hook ()
 ;;   "Dan's local settings for inferior ESS mode"
 ;;   (set (make-local-variable 'comint-input-ring-size) 1024) ;; saves 1024 history commands when in inferior ESS mode
 ;;   ;; (set (make-local-variable 'comint-input-ring-file-name) '.ess-comint-input-ring-file)
@@ -137,7 +137,7 @@ exits the selector and returns"
 ;;   (local-set-key "\C-ca" 'ess-r-args-show))
 ;; ;;(local-set-key [C-up] 'comint-next-matching-input-from-input))
 
-;; (defun dan-ess-mode-hook ()
+;; (defun dan/ess-mode-hook ()
 ;;   "Dan's local settings for ESS mode, e.g. when editing a .R file"
 ;;   (setq line-number-mode t)
 ;;   (local-set-key "\C-cr" 'ess-switch-window-exit-select-and-return)
@@ -149,7 +149,7 @@ exits the selector and returns"
 ;;   (local-set-key "\C-cd" 'ess-list-R-function-definitions))
 
 ;; ;; (add-hook 'inferior-ess-mode-hook 'dan-inferior-ess-mode-hook)
-;; (add-hook 'ess-mode-hook 'dan-ess-mode-hook)
+;; (add-hook 'ess-mode-hook 'dan/ess-mode-hook)
 ;; (add-hook 'ess-mode-hook (lambda () (local-set-key "\C-cd" 'ess-list-R-function-definitions)))
 
 

@@ -84,15 +84,15 @@
 ;;
 ;;-----------------------------------------------------------------------------------------
 
-(defun gnus-dan-summary-delete-article ()
+(defun dan/gnus-summary-delete-article ()
   (interactive)
   (save-window-excursion
     (gnus-summary-delete-article)
     (gnus-summary-next-article)))
   
-(define-key gnus-summary-mode-map "\C-d" 'gnus-dan-summary-delete-article)
+(define-key gnus-summary-mode-map "\C-d" 'dan/gnus-summary-delete-article)
 
-(defun gnus-dan-get-mail ()
+(defun dan/gnus-get-mail ()
   (interactive)
   ;; a hack
   (set-buffer "*Summary INBOX*")
@@ -114,6 +114,7 @@
     (gnus-group-get-new-news)))
 
 (define-key gnus-group-mode-map "g" 'gnus-group-getmail-and-get-new-news)
+
 
 
 ;;;
