@@ -822,30 +822,6 @@ by Vitalie S.
           "\n<#multipart type=alternative>\n<#part type=text/html>%s<#/multipart>\n"
           html)))))
 #+end_src
-***** Commented out latex stuff
-  #+begin_src emacs-lisp
-    ;;* org-babel
-    
-    ;;* export latex
-    ;; (setq org-export-latex-classes nil)
-    ;; (add-to-list 'org-export-latex-classes
-    ;;              '("beamer"
-    ;;                "\\documentclass[11pt]{beamer}\n\\usepackage[utf8]{inputenc}\n\\usepackage[T1]{fontenc}\n\\usepackage{hyperref}\n\\usepackage{verbatim}\n\\setbeameroption{show notes}\n\\usetheme{Goettingen}\n\\useoutertheme{infolines}"
-    ;;                ("\\begin{frame}\\frametitle{%s}\\begin{itemize}" "\\end{itemize}\\end{frame}"
-    ;;                 "\\begin{frame}\\frametitle{%s}\\begin{itemize}" "\\end{itemize}\\end{frame}")
-    ;;                ("\\item{%s}" . "\\item*{%s}")
-    ;;                ("\\end{itemize}\\note{" "}")))
-    
-    ;; (add-to-list 'org-export-latex-classes
-    ;;              '("beamer"
-    ;;                "\\documentclass[11pt]{beamer}\n\\usepackage[utf8]{inputenc}\n\\usepackage[T1]{fontenc}\n\\usepackage{hyperref}\n\\usepackage{verbatim}\n\\setbeameroption{show notes}\n\\usetheme{Goettingen}\n\\useoutertheme{infolines}"
-    ;;                ("\\section{%s}" . "\\section*{%s}")
-    ;;                ("\\begin{frame}\\frametitle{%s}" "\\end{frame}"
-    ;;                 "\\begin{frame}\\frametitle{%s}" "\\end{frame}")
-    ;;                ("\\begin{columns} \% %s" "\\end{columns}"
-    ;;                 "\\begin{columns} \% %s" "\\end{columns}")
-    ;;                ("\\begin{column}{%s\\textwidth}" "\\end{column}"
-    ;;                 "\\begin{column}{%s\\textwidth}" "\\end{column}")))
 #+end_src
 
 * ESS
