@@ -156,6 +156,16 @@
   ;; Targets complete in steps so we start with filename, TAB shows the next level of targets etc 
   (setq org-outline-path-complete-in-steps t)
 #+end_src
+*** Appearance
+#+begin_src emacs-lisp
+  (setq org-hide-leading-stars t)
+  
+  (set-face-attribute 'org-hide nil
+                      :foreground
+                      (face-attribute 'default :background))
+  
+  (setq org-hidden-keywords '(title date))
+#+end_src
 *** Structure & Navigation
 #+begin_src emacs-lisp 
   (setq org-empty-line-terminates-plain-lists t)
@@ -413,17 +423,6 @@
         (goto-char beg)
         (org-hide-block-toggle 'hide)
         (org-edit-src-code))))
-#+end_src
-*** Appearance
-***** TODO Set org-hide face according to current background face / color theme
-#+begin_src emacs-lisp
-  (setq org-odd-levels-only t)    
-  ;; (setq org-show-entry-below t) not sure why I had this
-  (setq org-hide-leading-stars t)
-  
-  (set-face-attribute 'org-hide nil :foreground "gray15")
-  ;; (set-face-attribute 'org-hide nil :foreground "white")
-  (setq org-export-with-LaTeX-fragments t)
 #+end_src
 *** Babel
 ***** Activate languages
