@@ -432,12 +432,8 @@
 *** Babel
 ***** Activate languages
 #+begin_src emacs-lisp
-  (defun dan/org-babel-configure-language (lang)
-    (require (intern (concat "org-babel-" lang))))
-  
-  (setq dan/org-babel-languages
-        '("R" "python" "ruby" "ditaa" "latex" "asymptote" "dot" "sass" "perl" "sql" "gnuplot" "clojure"))
-  (mapc 'dan/org-babel-configure-language dan/org-babel-languages)
+  (mapc '(lambda (lang) (require (intern (format "org-babel-%s" lang))))
+        dan/org-babel-languages)
   
   (setq swank-clojure-binary "/usr/bin/clojure")
   
