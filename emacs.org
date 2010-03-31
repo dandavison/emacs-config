@@ -903,429 +903,6 @@ by Vitalie S.
 #+begin_src emacs-lisp
 (setq flyspell-issue-message-flag nil)
 #+end_src
-
-* Email
-*** Message Mode
-#+begin_src emacs-lisp 
-(setq message-send-mail-partially nil)
-#+end_src
-
-* Language modes
-*** Elisp
-#+begin_src emacs-lisp
-(defun dan/emacs-lisp-mode-hook ()
-  "Dan's settings for emacs-lisp mode"
-  ;; (set 'lisp-indent-offset 4)
-  (local-set-key "\C-c\C-l" 'dan/eval-buffer-confirm))
-
-(add-hook 'emacs-lisp-mode-hook 'dan/emacs-lisp-mode-hook)
-
-#+end_src
-
-
-*** C & C++
-#+begin_src emacs-lisp
-  ;; Dan Feb 2006: See http://www.xemacs.org/Links/tutorials_1.html
-  (defun dan/c-c++-mode-hook ()
-    "Dan's local settings for c-mode and c++-mode"
-    ;; add font-lock to function calls (but also gets if() and while() etc)
-    ;; (font-lock-add-keywords
-    ;; ? ?nil `(("\\([[:alpha:]_][[:alnum:]_]*\\)(" ?1 font-lock-function-name-face)))
-    (setq c-basic-offset 4)
-    (setq line-number-mode t)
-    (mapc (lambda (pair) (local-set-key (car pair) (cdr pair)))
-          dan/c-c++-mode-keybindings))
-  
-  ;; (add-hook 'c-mode-hook 'c++-mode) ;; I want C++ comments, but that seems a bit heavy-handed?
-  (add-hook 'c-mode-hook 'dan/c-c++-mode-hook)
-  (add-hook 'c++-mode-hook 'dan/c-c++-mode-hook)
-  
-  (setq compilation-read-command nil)
-#+end_src
-
-*** Lua
-#+begin_src emacs-lisp
-(setq auto-mode-alist (cons '("\\.lua$" . lua-mode) auto-mode-alist))
-(setq auto-mode-alist (cons '("\\.pyw$" . python-mode) auto-mode-alist))
-;; (autoload 'lua-mode "/usr/local/src/lua-mode/lua-mode" "Lua editing mode." t)
-;; (add-hook 'lua-mode-hook 'turn-on-font-lock)
-#+end_src
-
-* Minor modes
-#+begin_src emacs-lisp 
-  (show-paren-mode t)
-  (winner-mode t)
-  (recentf-mode t)
-  (global-font-lock-mode t)
-  ;; (desktop-save-mode t)
-#+end_src
-
-* Completion
-#+begin_src emacs-lisp
-  ;; ;; Things that I'm not really interested in seeing in emacs
-  ;; ;; (you can still open them explicitly)
-  (setq dan/ignored-extensions
-        '(".html" ".csv" ".ps" ".bst" ".cls" ".sty" ".backup" ".log"
-          ".fdf" ".spl" ".aux" ".ppt" ".doc" ".xls" ".mp3" ".org"))
-  
-  (mapc (lambda(extension)
-          (add-to-list 'completion-ignored-extensions extension))
-          dan/ignored-extensions)
-  (ido-mode t) ;; (iswitchb-mode t)
-  (setq ido-separator " ")
-  
-  ;; As regexps, these should really have terminal $
-  (mapc (lambda(extension)
-          (add-to-list 'ido-ignore-buffers (regexp-quote extension))
-          (add-to-list 'ido-ignore-files (regexp-quote extension)))
-        dan/ignored-extensions) 
-  
-  (add-to-list 'ido-ignore-buffers "\\*") ;; if you want *scratch* or *R* just type it
-  ;; (add-to-list 'ido-ignore-files "^[^.]+$") ;; files must have a . in their name (experimental)
-#+end_src
-
-* Key bindings
-
-#+begin_src emacs-lisp
-  (load "~/src/config/emacs/keys-dan")
-  ;; I've moved the custom-set-faces call into vanilla.el; don't know how to set the faces otherwise
-  
-  (defun dan/set-keys ()
-    (interactive)
-    (mapc (lambda(pair) (global-set-key (car pair) (cdr pair)))
-          dan/global-keybindings))
-  
-  (dan/set-keys)
-  (define-key emacs-lisp-mode-map "\C-cd" 'edebug-defun)
-  (define-key ctl-x-4-map "t" 'toggle-window-split)
-  
-  (define-key org-src-mode-map [(control \')] 'org-edit-src-exit)
-  ;; (define-key org-src-mode-map "C-cC-c" 'org-src-execute)
-#+end_src
-
-* Variables
-*** Elisp programming
-#+srcname: name
-#+begin_src emacs-lisp 
-  (setq eval-expression-debug-on-error nil)
-  (setq find-function-C-source-directory "/usr/local/src/emacs/emacs-23.1/src")
-#+end_src
-*** Etc
-#+begin_src emacs-lisp
-  (setq case-fold-search nil)
-  (setq comint-input-ring-size 1024)
-  (setq default-major-mode 'org-mode)
-  (setq diff-switches "-u")
-  (setq frame-title-format "emacs:%b") ;;      (concat  "%b - emacs@" (system-name)))
-  (setq kill-read-only-ok t)
-  (setq initial-scratch-message nil)
-  (setq minibuffer-message-timeout 0.5)
-  (setq nuke-trailing-whitespace-p t)
-  (setq parens-require-spaces nil)
-  (setq require-final-newline 'visit-save)
-  (setq tags-file-name "~/src/.tags")
-  (setq vc-follow-symlinks t)
-  (setq x-alt-keysym 'meta)
-  (setq backup-inhibited t)
-  
-  ;; (visit-tags-table tags-file-name)
-  ;; (setq font-lock-always-fontify-immediately t) where did I get that from?
-  
-  (fset 'yes-or-no-p 'y-or-n-p) ;; http://www.xsteve.at/prg/emacs/.emacs.txt -- replace y-e-s by y
-  (put 'narrow-to-region 'disabled nil)
-  (setq pop-up-windows t)
-  
-  
-  ;; put back-up files in a single (invisible) directory in the original file's directory
-  ;; (setq backup-directory-alist '(("." . ".emacs-backups")))
-  ;; put back-up files in a single (invisible) directory in home directory -- doesn't work
-  ;; (setq backup-directory-alist '(("~/.emacs-backups"))) 
-  (put 'upcase-region 'disabled nil)
-  (put 'downcase-region 'disabled nil)
-  
-  ;; (setq kill-buffer-query-functions '(lambda() t))
-  
-  ;; (transient-mark-mode t) ;; something turns it off
-#+end_src
-  
-* Browser
-#+begin_src emacs-lisp
-;; http://flash.metawaredesign.co.uk/2/.emacs
-(if window-system
-    (setq browse-url-browser-function 'browse-url-generic
-          browse-url-generic-program "firefox"))
-;; (setq browse-url-browser-function 'browse-url-firefox)
-;; (setq browse-url-browser-function 'w3m-browse-url)
-(setq browse-url-firefox-new-window-is-tab t)
-#+end_src
-
-* Hooks
-#+begin_src emacs-lisp
-  ;; This doesn't work with org-src-mode code buffers as their
-  ;; buffer-file-name doesn't correspond to a file
-  ;; (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
-  
-  (add-hook 'local-write-file-hooks (lambda () (nuke-trailing-whitespace)))
-  (autoload 'ansi-color-for-comint-mode-on "ansi-color" nil t)
-  (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
-#+end_src
-
-* Functions
-*** Revert all elisp buffers
-    #+begin_src emacs-lisp
-      (defun dan/revert-elisp-buffers ()
-        "Revert all elisp buffers"
-        (interactive)
-        (save-excursion
-          (dolist (buf (buffer-list))
-            (set-buffer buf)
-            (if (eq major-mode 'emacs-lisp-mode)
-                (revert-buffer)))))
-    #+end_src
-
-
-#+begin_src emacs-lisp
-  (defun dan/looking-at-string (string)
-    (interactive)
-    (string-equal
-     string
-     (buffer-substring-no-properties (point) (+ (point) (length string)))))
-  
-  ;; this doesn't write anything in minibuffer...
-  (defun dan/show-current-font() 
-    (interactive)
-    (frame-parameter nil 'font))
-  
-  ;; Why doesn't this work? (Says something about wrong number of arguments)
-  (defun dan/indent-buffer ()
-    "Indent whole buffer"
-    (interactive)
-    (mark-whole-buffer)
-    (indent-region))
-  
-  (defun dan/eval-buffer-confirm ()
-    (interactive)
-    (save-buffer)
-    (eval-buffer)
-    (message "loaded buffer %s" (buffer-name)))
-  
-  ;; http://blog.printf.net/ find-tag-at-point I often work on the
-  ;; kernel or Xorg, and I would be totally ridiculously lost with both
-  ;; if I wasn't using "tags" support in my editor. Here's how it works:
-  ;; you run etags over your .[ch] files (or make tags in a kernel
-  ;; source dir), and it generates a TAGS index. You load that in emacs
-  ;; with M-x visit-tags-table, and with the below keybinding, pressing
-  ;; F10 will take you to the original definition of whichever symbol
-  ;; the cursor is on, no matter where it appears in the source
-  ;; tree. Within a few presses of F10, you've escaped macro hell and
-  ;; found where the code that actually defines the function you're
-  ;; interested in is.
-  
-  
-  (defun find-tag-at-point ()
-    "*Find tag whose name contains TAGNAME.
-    Identical to `find-tag' but does not prompt for 
-    tag when called interactively;  instead, uses 
-    tag around or before point."
-      (interactive)
-      (find-tag (if current-prefix-arg
-                    (find-tag-tag "Find tag: "))
-                (find-tag (find-tag-default))))
-  
-  (defun search-forward-symbol-at-point ()
-    "Search forward to next occurrence of thing at point"
-    (interactive)
-    (search-forward (symbol-name (symbol-at-point)) nil t)
-    (backward-sexp)) ;; should be backward-symbol
-  
-  (defun dan/insert-double-quotes ()
-    (interactive)
-    (insert "\"\"")
-    (backward-char))
-  
-  (defun quote-list-of-symbols ()
-    "Place double quotes around the comma-separated,
-  parenthesis-delimited list of symbols at point"
-    (interactive)
-    (save-excursion
-      (let ((beg (search-forward "("))
-            (end (save-excursion (search-forward ")"))))
-        (insert "\"")
-        (while (replace-regexp " *, *" "\", \"" t beg end))
-        (replace-regexp " *)" "\")" t (point) (1+ end)))))
-  
-  (defun dan/find-defun (fun)
-    (interactive "a")
-    (describe-function fun)
-    (other-window 1)
-    (when (re-search-forward "`[^']+\.e")
-        (push-button)))
-  
-  (defun dan/wc-region ()
-    (interactive)
-    (shell-command-on-region (mark) (point) "wc"))
-  
-  ;; http://www.emacswiki.org/cgi-bin/wiki/ToggleWindowSplit
-  (defun toggle-window-split ()
-    (interactive)
-    (if (= (count-windows) 2)
-        (let* ((this-win-buffer (window-buffer))
-               (next-win-buffer (window-buffer (next-window)))
-               (this-win-edges (window-edges (selected-window)))
-               (next-win-edges (window-edges (next-window)))
-               (this-win-2nd (not (and (<= (car this-win-edges)
-                                           (car next-win-edges))
-                                       (<= (cadr this-win-edges)
-                                           (cadr next-win-edges)))))
-               (splitter
-                (if (= (car this-win-edges)
-                       (car (window-edges (next-window))))
-                    'split-window-horizontally
-                  'split-window-vertically)))
-          (delete-other-windows)
-          (let ((first-win (selected-window)))
-            (funcall splitter)
-            (if this-win-2nd (other-window 1))
-            (set-window-buffer (selected-window) this-win-buffer)
-            (set-window-buffer (next-window) next-win-buffer)
-            (select-window first-win)
-            (if this-win-2nd (other-window 1))))))
-  
-  
-    (defun byte-compile-dir (dir)
-      (interactive)
-      (let ((files (directory-files dir t ".*\.el" t)) file)
-        (while (setq file (pop files))
-          (byte-compile-file file))))
-    
-    
-    (defun budget-eval ()
-      ;; to eval yanked text in python-shell -- doesn't work
-      (interactive)
-      (other-buffer)
-      (yank)
-      (newline))
-    
-    ;; (defun dan/xclip-kill ()
-    ;;   "kill region and place on X clipboard"
-    ;;   (interactive)
-    ;;   (shell-command-on-region (mark) (point) "xclip")
-    ;;   (delete-region (mark) (point))) ;; don't add to kill ring
-    
-    ;; (defun dan/xclip-yank ()
-    ;;   "yank from X clipboard and insert at point"
-    ;;   (interactive)
-    ;;   (shell-command "xclip -o" t))
-    
-    (defun paste-mode ()
-      (interactive)
-      (mapc (lambda (pair) (local-set-key (car pair) (cdr pair)))
-            dan/paste-mode-keybindings))
-    
-    (defun dan/next-line-and-indent ()
-      (interactive)
-      (next-line)
-      (indent-according-to-mode))
-    
-    (defun dan/previous-line-and-indent ()
-      (interactive)
-      (previous-line)
-      (indent-according-to-mode))
-    
-    (defun dan/insert-square-brackets ()
-      (interactive)
-      (insert "[]")
-      (backward-char))
-    
-    (defun dan/insert-curly-brackets ()
-      (interactive)
-      (insert "{}")
-      (backward-char))
-    
-    (defun dan/enclose-sexp-in-parentheses ()
-      (interactive)
-      (insert "(")
-      (forward-sexp)
-      (insert ")"))
-    
-    (defun dan/enclose-rest-of-line-in-parentheses ()
-      (interactive)
-      (insert "(")
-      (end-of-line) ;; need to account for comment on same line
-      (insert ")"))
-    
-    (defun dan/insert-- ()
-      (interactive)
-      (insert "-"))
-    
-    (defun dan/quote-word ()
-      "Surround word at point with double quotes"
-      (interactive)
-      (re-search-backward "[ ,(\t]" nil t)
-      (forward-char) (insert "\"")
-      (re-search-forward "[ ,)\t]" nil t)
-      (backward-char) (insert "\""))
-    
-    (defun dan/compile-and-switch-to-iESS ()
-      (interactive)
-      (when (compile "make -k")
-        (ess-switch-to-end-of-ESS)))
-    
-    ;;  (when (shell-command "make -k")
-    
-    ;; From Sacha Chua website
-    (defun byte-compile-if-newer-and-load (file)
-       "Byte compile file.el if newer than file.elc"
-       (if (file-newer-than-file-p (concat file ".el")
-                                   (concat file ".elc"))
-           (byte-compile-file (concat file ".el")))
-       (load file))
-#+end_src
-*** Show buffer-file-name
-#+begin_src emacs-lisp
-  (defun dan/show-buffer-file-name ()
-    (interactive)
-    (let ((bfn (buffer-file-name))
-          (dd default-directory))
-      (if (and bfn (string= (file-name-directory bfn) dd))
-          (message (buffer-file-name))
-        (message "buffer-file-name: %S\tdefault-directory: %s" bfn dd))))
-#+end_src
-
-* Safe local variables
-#+begin_src emacs-lisp :results pp
-  (setq safe-local-variable-values
-        '(
-          (org-babel-default-header-args
-           (:tangle . "wtccc2-pca.py")
-           (:exports . "code"))
-          (org-babel-default-header-args
-           (:tangle . "yes"))
-          (org-babel-default-header-args
-           (:results . "replace output")
-           (:session . "*R - jsmr*")
-           (:exports . "none"))
-          (org-babel-default-header-args
-           (:results . "replace output")
-           (:session . "*R: wtccc2*")
-           (:exports . "none"))
-          (noweb-default-code-mode . R-mode)
-          (org-src-preserve-indentation . t)
-          (org-edit-src-content-indentation . 0)
-          (outline-minor-mode)))
-#+end_src
-
-* Start-up
-#+begin_src emacs-lisp :tangle no
-  (when (string-match "^23\.*" emacs-version)
-    ;; temp hack to make w3m work with emacs23
-    ;; (require 'w3m-e21)
-    ;; (provide 'w3m-e23)
-    (org-agenda-list)
-    (delete-other-windows))
-  
-  ;; (org-fireforg-registry-initialize t)
-#+end_src
 * Gnus
 *** General
 #+begin_src emacs-lisp
@@ -1650,6 +1227,424 @@ by Vitalie S.
 (setq gnus-sorted-header-list '("^From:" "^Subject:" "^User-Agent:" "^X-Newsreader:" "^Date:"))
 
 (setq message-mode-hook (quote (orgstruct++-mode)))
+#+end_src
+
+* Message Mode
+#+begin_src emacs-lisp 
+(setq message-send-mail-partially nil)
+#+end_src
+* Language modes
+*** Elisp
+#+begin_src emacs-lisp
+(defun dan/emacs-lisp-mode-hook ()
+  "Dan's settings for emacs-lisp mode"
+  ;; (set 'lisp-indent-offset 4)
+  (local-set-key "\C-c\C-l" 'dan/eval-buffer-confirm))
+
+(add-hook 'emacs-lisp-mode-hook 'dan/emacs-lisp-mode-hook)
+
+#+end_src
+
+
+*** C & C++
+#+begin_src emacs-lisp
+  ;; Dan Feb 2006: See http://www.xemacs.org/Links/tutorials_1.html
+  (defun dan/c-c++-mode-hook ()
+    "Dan's local settings for c-mode and c++-mode"
+    ;; add font-lock to function calls (but also gets if() and while() etc)
+    ;; (font-lock-add-keywords
+    ;; ? ?nil `(("\\([[:alpha:]_][[:alnum:]_]*\\)(" ?1 font-lock-function-name-face)))
+    (setq c-basic-offset 4)
+    (setq line-number-mode t)
+    (mapc (lambda (pair) (local-set-key (car pair) (cdr pair)))
+          dan/c-c++-mode-keybindings))
+  
+  ;; (add-hook 'c-mode-hook 'c++-mode) ;; I want C++ comments, but that seems a bit heavy-handed?
+  (add-hook 'c-mode-hook 'dan/c-c++-mode-hook)
+  (add-hook 'c++-mode-hook 'dan/c-c++-mode-hook)
+  
+  (setq compilation-read-command nil)
+#+end_src
+
+*** Lua
+#+begin_src emacs-lisp
+(setq auto-mode-alist (cons '("\\.lua$" . lua-mode) auto-mode-alist))
+(setq auto-mode-alist (cons '("\\.pyw$" . python-mode) auto-mode-alist))
+;; (autoload 'lua-mode "/usr/local/src/lua-mode/lua-mode" "Lua editing mode." t)
+;; (add-hook 'lua-mode-hook 'turn-on-font-lock)
+#+end_src
+* Minor modes
+#+begin_src emacs-lisp 
+  (show-paren-mode t)
+  (winner-mode t)
+  (recentf-mode t)
+  (global-font-lock-mode t)
+  ;; (desktop-save-mode t)
+#+end_src
+
+* Completion
+#+begin_src emacs-lisp
+  ;; ;; Things that I'm not really interested in seeing in emacs
+  ;; ;; (you can still open them explicitly)
+  (setq dan/ignored-extensions
+        '(".html" ".csv" ".ps" ".bst" ".cls" ".sty" ".backup" ".log"
+          ".fdf" ".spl" ".aux" ".ppt" ".doc" ".xls" ".mp3" ".org"))
+  
+  (mapc (lambda(extension)
+          (add-to-list 'completion-ignored-extensions extension))
+          dan/ignored-extensions)
+  (ido-mode t) ;; (iswitchb-mode t)
+  (setq ido-separator " ")
+  
+  ;; As regexps, these should really have terminal $
+  (mapc (lambda(extension)
+          (add-to-list 'ido-ignore-buffers (regexp-quote extension))
+          (add-to-list 'ido-ignore-files (regexp-quote extension)))
+        dan/ignored-extensions) 
+  
+  (add-to-list 'ido-ignore-buffers "\\*") ;; if you want *scratch* or *R* just type it
+  ;; (add-to-list 'ido-ignore-files "^[^.]+$") ;; files must have a . in their name (experimental)
+#+end_src
+
+* Key bindings
+
+#+begin_src emacs-lisp
+  (load "~/src/config/emacs/keys-dan")
+  ;; I've moved the custom-set-faces call into vanilla.el; don't know how to set the faces otherwise
+  
+  (defun dan/set-keys ()
+    (interactive)
+    (mapc (lambda(pair) (global-set-key (car pair) (cdr pair)))
+          dan/global-keybindings))
+  
+  (dan/set-keys)
+  (define-key emacs-lisp-mode-map "\C-cd" 'edebug-defun)
+  (define-key ctl-x-4-map "t" 'toggle-window-split)
+  
+  (define-key org-src-mode-map [(control \')] 'org-edit-src-exit)
+  ;; (define-key org-src-mode-map "C-cC-c" 'org-src-execute)
+#+end_src
+
+* Variables
+*** Elisp programming
+#+srcname: name
+#+begin_src emacs-lisp 
+  (setq eval-expression-debug-on-error nil)
+  (setq find-function-C-source-directory "/usr/local/src/emacs/emacs-23.1/src")
+#+end_src
+*** Etc
+#+begin_src emacs-lisp
+  (setq case-fold-search nil)
+  (setq comint-input-ring-size 1024)
+  (setq default-major-mode 'org-mode)
+  (setq diff-switches "-u")
+  (setq frame-title-format "emacs:%b") ;;      (concat  "%b - emacs@" (system-name)))
+  (setq kill-read-only-ok t)
+  (setq initial-scratch-message nil)
+  (setq minibuffer-message-timeout 0.5)
+  (setq nuke-trailing-whitespace-p t)
+  (setq parens-require-spaces nil)
+  (setq require-final-newline 'visit-save)
+  (setq tags-file-name "~/src/.tags")
+  (setq vc-follow-symlinks t)
+  (setq x-alt-keysym 'meta)
+  (setq backup-inhibited t)
+  
+  ;; (visit-tags-table tags-file-name)
+  ;; (setq font-lock-always-fontify-immediately t) where did I get that from?
+  
+  (fset 'yes-or-no-p 'y-or-n-p) ;; http://www.xsteve.at/prg/emacs/.emacs.txt -- replace y-e-s by y
+  (put 'narrow-to-region 'disabled nil)
+  (setq pop-up-windows t)
+  
+  
+  ;; put back-up files in a single (invisible) directory in the original file's directory
+  ;; (setq backup-directory-alist '(("." . ".emacs-backups")))
+  ;; put back-up files in a single (invisible) directory in home directory -- doesn't work
+  ;; (setq backup-directory-alist '(("~/.emacs-backups"))) 
+  (put 'upcase-region 'disabled nil)
+  (put 'downcase-region 'disabled nil)
+  
+  ;; (setq kill-buffer-query-functions '(lambda() t))
+  
+  ;; (transient-mark-mode t) ;; something turns it off
+#+end_src
+* Browser
+#+begin_src emacs-lisp
+;; http://flash.metawaredesign.co.uk/2/.emacs
+(if window-system
+    (setq browse-url-browser-function 'browse-url-generic
+          browse-url-generic-program "firefox"))
+;; (setq browse-url-browser-function 'browse-url-firefox)
+;; (setq browse-url-browser-function 'w3m-browse-url)
+(setq browse-url-firefox-new-window-is-tab t)
+#+end_src
+
+* Hooks
+#+begin_src emacs-lisp
+  ;; This doesn't work with org-src-mode code buffers as their
+  ;; buffer-file-name doesn't correspond to a file
+  ;; (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
+  
+  (add-hook 'local-write-file-hooks (lambda () (nuke-trailing-whitespace)))
+  (autoload 'ansi-color-for-comint-mode-on "ansi-color" nil t)
+  (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
+#+end_src
+
+* Functions
+*** Revert all elisp buffers
+    #+begin_src emacs-lisp
+      (defun dan/revert-elisp-buffers ()
+        "Revert all elisp buffers"
+        (interactive)
+        (save-excursion
+          (dolist (buf (buffer-list))
+            (set-buffer buf)
+            (if (eq major-mode 'emacs-lisp-mode)
+                (revert-buffer)))))
+    #+end_src
+
+
+#+begin_src emacs-lisp
+  (defun dan/looking-at-string (string)
+    (interactive)
+    (string-equal
+     string
+     (buffer-substring-no-properties (point) (+ (point) (length string)))))
+  
+  ;; this doesn't write anything in minibuffer...
+  (defun dan/show-current-font() 
+    (interactive)
+    (frame-parameter nil 'font))
+  
+  ;; Why doesn't this work? (Says something about wrong number of arguments)
+  (defun dan/indent-buffer ()
+    "Indent whole buffer"
+    (interactive)
+    (mark-whole-buffer)
+    (indent-region))
+  
+  (defun dan/eval-buffer-confirm ()
+    (interactive)
+    (save-buffer)
+    (eval-buffer)
+    (message "loaded buffer %s" (buffer-name)))
+  
+  ;; http://blog.printf.net/ find-tag-at-point I often work on the
+  ;; kernel or Xorg, and I would be totally ridiculously lost with both
+  ;; if I wasn't using "tags" support in my editor. Here's how it works:
+  ;; you run etags over your .[ch] files (or make tags in a kernel
+  ;; source dir), and it generates a TAGS index. You load that in emacs
+  ;; with M-x visit-tags-table, and with the below keybinding, pressing
+  ;; F10 will take you to the original definition of whichever symbol
+  ;; the cursor is on, no matter where it appears in the source
+  ;; tree. Within a few presses of F10, you've escaped macro hell and
+  ;; found where the code that actually defines the function you're
+  ;; interested in is.
+  
+  
+  (defun find-tag-at-point ()
+    "*Find tag whose name contains TAGNAME.
+    Identical to `find-tag' but does not prompt for 
+    tag when called interactively;  instead, uses 
+    tag around or before point."
+      (interactive)
+      (find-tag (if current-prefix-arg
+                    (find-tag-tag "Find tag: "))
+                (find-tag (find-tag-default))))
+  
+  (defun search-forward-symbol-at-point ()
+    "Search forward to next occurrence of thing at point"
+    (interactive)
+    (search-forward (symbol-name (symbol-at-point)) nil t)
+    (backward-sexp)) ;; should be backward-symbol
+  
+  (defun dan/insert-double-quotes ()
+    (interactive)
+    (insert "\"\"")
+    (backward-char))
+  
+  (defun quote-list-of-symbols ()
+    "Place double quotes around the comma-separated,
+  parenthesis-delimited list of symbols at point"
+    (interactive)
+    (save-excursion
+      (let ((beg (search-forward "("))
+            (end (save-excursion (search-forward ")"))))
+        (insert "\"")
+        (while (replace-regexp " *, *" "\", \"" t beg end))
+        (replace-regexp " *)" "\")" t (point) (1+ end)))))
+  
+  (defun dan/find-defun (fun)
+    (interactive "a")
+    (describe-function fun)
+    (other-window 1)
+    (when (re-search-forward "`[^']+\.e")
+        (push-button)))
+  
+  (defun dan/wc-region ()
+    (interactive)
+    (shell-command-on-region (mark) (point) "wc"))
+  
+  ;; http://www.emacswiki.org/cgi-bin/wiki/ToggleWindowSplit
+  (defun toggle-window-split ()
+    (interactive)
+    (if (= (count-windows) 2)
+        (let* ((this-win-buffer (window-buffer))
+               (next-win-buffer (window-buffer (next-window)))
+               (this-win-edges (window-edges (selected-window)))
+               (next-win-edges (window-edges (next-window)))
+               (this-win-2nd (not (and (<= (car this-win-edges)
+                                           (car next-win-edges))
+                                       (<= (cadr this-win-edges)
+                                           (cadr next-win-edges)))))
+               (splitter
+                (if (= (car this-win-edges)
+                       (car (window-edges (next-window))))
+                    'split-window-horizontally
+                  'split-window-vertically)))
+          (delete-other-windows)
+          (let ((first-win (selected-window)))
+            (funcall splitter)
+            (if this-win-2nd (other-window 1))
+            (set-window-buffer (selected-window) this-win-buffer)
+            (set-window-buffer (next-window) next-win-buffer)
+            (select-window first-win)
+            (if this-win-2nd (other-window 1))))))
+  
+  
+    (defun byte-compile-dir (dir)
+      (interactive)
+      (let ((files (directory-files dir t ".*\.el" t)) file)
+        (while (setq file (pop files))
+          (byte-compile-file file))))
+    
+    
+    (defun budget-eval ()
+      ;; to eval yanked text in python-shell -- doesn't work
+      (interactive)
+      (other-buffer)
+      (yank)
+      (newline))
+    
+    ;; (defun dan/xclip-kill ()
+    ;;   "kill region and place on X clipboard"
+    ;;   (interactive)
+    ;;   (shell-command-on-region (mark) (point) "xclip")
+    ;;   (delete-region (mark) (point))) ;; don't add to kill ring
+    
+    ;; (defun dan/xclip-yank ()
+    ;;   "yank from X clipboard and insert at point"
+    ;;   (interactive)
+    ;;   (shell-command "xclip -o" t))
+    
+    (defun paste-mode ()
+      (interactive)
+      (mapc (lambda (pair) (local-set-key (car pair) (cdr pair)))
+            dan/paste-mode-keybindings))
+    
+    (defun dan/next-line-and-indent ()
+      (interactive)
+      (next-line)
+      (indent-according-to-mode))
+    
+    (defun dan/previous-line-and-indent ()
+      (interactive)
+      (previous-line)
+      (indent-according-to-mode))
+    
+    (defun dan/insert-square-brackets ()
+      (interactive)
+      (insert "[]")
+      (backward-char))
+    
+    (defun dan/insert-curly-brackets ()
+      (interactive)
+      (insert "{}")
+      (backward-char))
+    
+    (defun dan/enclose-sexp-in-parentheses ()
+      (interactive)
+      (insert "(")
+      (forward-sexp)
+      (insert ")"))
+    
+    (defun dan/enclose-rest-of-line-in-parentheses ()
+      (interactive)
+      (insert "(")
+      (end-of-line) ;; need to account for comment on same line
+      (insert ")"))
+    
+    (defun dan/insert-- ()
+      (interactive)
+      (insert "-"))
+    
+    (defun dan/quote-word ()
+      "Surround word at point with double quotes"
+      (interactive)
+      (re-search-backward "[ ,(\t]" nil t)
+      (forward-char) (insert "\"")
+      (re-search-forward "[ ,)\t]" nil t)
+      (backward-char) (insert "\""))
+    
+    (defun dan/compile-and-switch-to-iESS ()
+      (interactive)
+      (when (compile "make -k")
+        (ess-switch-to-end-of-ESS)))
+    
+    ;;  (when (shell-command "make -k")
+    
+    ;; From Sacha Chua website
+    (defun byte-compile-if-newer-and-load (file)
+       "Byte compile file.el if newer than file.elc"
+       (if (file-newer-than-file-p (concat file ".el")
+                                   (concat file ".elc"))
+           (byte-compile-file (concat file ".el")))
+       (load file))
+#+end_src
+*** Show buffer-file-name
+#+begin_src emacs-lisp
+  (defun dan/show-buffer-file-name ()
+    (interactive)
+    (let ((bfn (buffer-file-name))
+          (dd default-directory))
+      (if (and bfn (string= (file-name-directory bfn) dd))
+          (message (buffer-file-name))
+        (message "buffer-file-name: %S\tdefault-directory: %s" bfn dd))))
+#+end_src
+* Safe local variables
+#+begin_src emacs-lisp :results pp
+  (setq safe-local-variable-values
+        '(
+          (org-babel-default-header-args
+           (:tangle . "wtccc2-pca.py")
+           (:exports . "code"))
+          (org-babel-default-header-args
+           (:tangle . "yes"))
+          (org-babel-default-header-args
+           (:results . "replace output")
+           (:session . "*R - jsmr*")
+           (:exports . "none"))
+          (org-babel-default-header-args
+           (:results . "replace output")
+           (:session . "*R: wtccc2*")
+           (:exports . "none"))
+          (noweb-default-code-mode . R-mode)
+          (org-src-preserve-indentation . t)
+          (org-edit-src-content-indentation . 0)
+          (outline-minor-mode)))
+#+end_src
+
+* Start-up
+#+begin_src emacs-lisp :tangle no
+  (when (string-match "^23\.*" emacs-version)
+    ;; temp hack to make w3m work with emacs23
+    ;; (require 'w3m-e21)
+    ;; (provide 'w3m-e23)
+    (org-agenda-list)
+    (delete-other-windows))
+  
+  ;; (org-fireforg-registry-initialize t)
 #+end_src
 
 * Customize stuff
