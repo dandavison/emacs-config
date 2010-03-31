@@ -443,9 +443,6 @@
   
   (org-babel-add-interpreter "makefile")
   (add-to-list 'org-babel-tangle-langs '("makefile"))
-  
-  (require 'org-babel-octave)
-  (require 'org-babel-matlab)
 #+end_src
 ***** Variables
 #+begin_src emacs-lisp
