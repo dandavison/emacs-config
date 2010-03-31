@@ -383,6 +383,7 @@
 *** Export
 #+begin_src emacs-lisp
   (setq org-export-htmlize-output-type (if t 'inline-css 'css))
+  (setq org-export-with-LaTeX-fragments t)
   (setq org-export-copy-to-kill-ring nil)
   
   ;; from Eric
