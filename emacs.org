@@ -674,6 +674,18 @@ This allows for the viewing of images in-line in Org-mode documents.
 #+end_src
 
 *** Etc
+***** Search in org source code
+#+begin_src emacs-lisp
+  (setq dan/org-mode-src-dir "/usr/local/src/emacs/org-mode")
+  
+  (defun dan/lgrep-in-org-src (beg end)
+    (interactive "r")
+    (save-restriction
+      (narrow-to-region beg end)
+      (lgrep (buffer-string) "*.el" (concat dan/org-mode-src-dir "/lisp"))
+      (widen)))
+#+end_src
+
 ***** dan/org-edit-src-code-current-window
 #+begin_src emacs-lisp
   (defun dan/org-edit-src-code (config)
