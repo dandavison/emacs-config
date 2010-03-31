@@ -841,6 +841,25 @@ by Vitalie S.
           "\n<#multipart type=alternative>\n<#part type=text/html>%s<#/multipart>\n"
           html)))))
 #+end_src
+* Dired
+#+begin_src emacs-lisp
+  (setq dired-listing-switches "-lAX")
+  (setq dired-no-confirm
+        '(byte-compile chgrp chmod chown compress copy hardlink load move print shell symlink
+                       touch uncompress))
+  
+  (defun dan/dired-delete-total-line ()
+    (let ((bro buffer-read-only)
+          (kill-whole-line t))
+      (save-excursion
+        (goto-char (point-min))
+        (forward-line)
+        (when (looking-at "^ *total used in directory")
+          (if bro (setq buffer-read-only nil))
+          (kill-line)
+          (setq buffer-read-only bro)))))
+  
+  (add-hook 'dired-after-readin-hook 'dan/dired-delete-total-line)
 #+end_src
 
 * ESS
