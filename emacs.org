@@ -74,8 +74,11 @@
 * Appearance
 *** Windows & frames
 #+begin_src emacs-lisp 
-  (setq split-window-preferred-function 'split-window-sensibly
-      split-width-threshold 1000)
+  (setq 
+   pop-up-windows t
+   split-window-preferred-function 'split-window-sensibly
+   split-width-threshold nil
+   split-height-threshold nil)
 #+end_src
 
 *** Faces
