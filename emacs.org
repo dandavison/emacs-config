@@ -335,14 +335,14 @@
     
     (setq org-agenda-custom-commands
           '(
-            ("W" "Search for work items in state" todo "x"
+            ("W" "Search for work items in state" todo "TODO"
              ((org-agenda-files '("~/org/work.org"
                                   "~/org/wtccc2.org"
                                   "~/org/pobi.org"
                                   "~/org/shellfish.org"))))
-            ("T" "Search for tasks items in state" todo "x"
+            ("T" "Search for tasks items in state" todo "TODO"
              ((org-agenda-files '("~/org/tasks.org"))))
-            ("C" "Search for computing items in state" todo "x"
+            ("C" "Search for computing items in state" todo "TODO"
              ((org-agenda-files '("~/org/computing.org"))))
             ))
     
