@@ -862,8 +862,10 @@ by Vitalie S.
   (add-hook 'dired-after-readin-hook 'dan/dired-delete-total-line)
 #+end_src
 
-* ESS
+* Buffer Menu
 #+begin_src emacs-lisp
+(setq Buffer-menu-sort-column 4)
+#+end_src
 * ESS
   :PROPERTIES:
   :tangle: no
