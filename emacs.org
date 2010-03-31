@@ -173,6 +173,7 @@
 #+end_src
 *** Structure & Navigation
 #+begin_src emacs-lisp 
+  (setq org-odd-levels-only t)
   (setq org-empty-line-terminates-plain-lists t)
   (setq org-cycle-emulate-tab t)
   (setq org-special-ctrl-a t)
