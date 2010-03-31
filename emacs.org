@@ -291,7 +291,7 @@
 
 *** Footnotes
 #+begin_src emacs-lisp
-;; (setq org-footnote-auto-label 'plain)
+(setq org-footnote-auto-label 'plain)
 #+end_src
 
 *** Agenda
