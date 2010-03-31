@@ -889,12 +889,13 @@ by Vitalie S.
     'font-lock-function-name-face))
 #+end_src
 
+*** Etc
+#+begin_src emacs-lisp :tangle no
   (defun dan/ess-execute-command-on-region (cmd)
     (interactive "sEnter function name: \n")
     (ess-execute
      (concat cmd "(" (buffer-substring (point) (mark)) ")")))
 #+end_src
-
 * Flyspell
 #+begin_src emacs-lisp
 (setq flyspell-issue-message-flag nil)
