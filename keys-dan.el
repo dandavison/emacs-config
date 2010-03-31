@@ -5,6 +5,7 @@
 	; ("[" . dan/insert-square-brackets)
 	; ("{" . dan/insert-curly-brackets)
 	;; (global-set-key (kbd "[") #'insert-pair) use this strategy instead?
+	("\C-x\C-b" . org-buffers-list)
 	("\C-n" . dan/next-line-and-indent)
 	("\C-p" . dan/previous-line-and-indent)
 	("\C-ca" . org-agenda)
