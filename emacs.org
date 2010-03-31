@@ -864,6 +864,31 @@ by Vitalie S.
 
 * ESS
 #+begin_src emacs-lisp
+* ESS
+  :PROPERTIES:
+  :tangle: no
+  :END:
+
+*** Add R builtins to font lock
+    :PROPERTIES:
+    :tangle: no
+    :END:
+    
+# #+source: R-builtins
+# #+begin_src R :tangle no
+#  obj <- unlist(sapply(c("package:base", "package:stats","package:utils"), objects, all.names=TRUE))
+#  re <- "(^[^.[:alpha:][:digit:]]|<-|__)"  ## to remove "weird" functions
+#  obj[-grep(re, obj)]
+# #+end_src
+#
+#+begin_src emacs-lisp :tangle no :eval no :expand yes :results silent :var R-builtins=R-builtins()
+  (add-to-list
+   'ess-R-mode-font-lock-keywords
+   (cons 
+    (concat "\\<" (regexp-opt (mapcar #'car R-builtins) 'enc-paren) "\\>")
+    'font-lock-function-name-face))
+#+end_src
+
   (defun dan/ess-execute-command-on-region (cmd)
     (interactive "sEnter function name: \n")
     (ess-execute
