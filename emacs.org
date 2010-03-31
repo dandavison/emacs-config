@@ -605,17 +605,25 @@ This allows for the viewing of images in-line in Org-mode documents.
   otherwise do nothing. This function is intended to be called
   during font-lock fontification."
     (let ((case-fold-search t) file image)
-      (and (re-search-forward
+      (and dan/org-display-inline-images
+           (re-search-forward
             (concat "\\[\\[file:\\(" iimage-mode-image-filename-regex "\\)\\]\\]") limit t)
            (setq file (match-string 1))
            (setq file (iimage-locate-file file (list default-directory)))
            (setq image (create-image file))
            (add-text-properties (match-beginning 0) (match-end 0) (list 'display image))
-           (clear-image-cache)
-           t)))
+           ;; (clear-image-cache)
+           (image-refresh image)
+           ;; (redisplay)
+           ;; (redraw-frame)
+           ;; (redraw-display)
+           ;; (image-refresh image)
+           )))
+  
+  (setq dan/org-display-inline-images nil)
+  (add-hook 'org-font-lock-hook 'dan/org-fontify-image-links)
   
   (set-face-underline-p 'org-link nil)
-  (add-hook 'org-font-lock-hook 'dan/org-fontify-image-links)
   
   (defun dan/org-iimage-refresh ()
     (interactive)
