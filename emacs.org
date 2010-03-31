@@ -62,6 +62,8 @@
   (require 'w3m)
   (require 'gnuplot)
   (require 'matlab)
+  (add-to-list 'load-path "/usr/local/src/emacs/org-buffers")
+  (require 'org-buffers)
 #+end_src
 
 * Load config files
