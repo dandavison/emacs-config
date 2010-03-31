@@ -41,7 +41,7 @@
 
 (add-to-list 'load-path "/usr/local/src/emacs")
 (add-to-list 'load-path "~/src/config/emacs")
-(setq dan/custom-appearance nil)
+(setq dan/custom-appearance t)
 (if dan/custom-appearance
     (if (not window-system)
 	(custom-set-faces
