@@ -983,6 +983,8 @@ by Vitalie S.
   ;;-----------------------------------------------------------------------------------------
   
   (defun dan/gnus-summary-delete-article ()
+    ;; How come this deletes all articles in the active region?
+  
     (interactive)
     (save-window-excursion
       (gnus-summary-delete-article)
