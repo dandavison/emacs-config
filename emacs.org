@@ -1078,8 +1078,8 @@ by Vitalie S.
         'gnus-gather-threads-by-references)
   
   (setq gnus-user-date-format-alist
-        '(((gnus-seconds-today) . "    %H:%M")
-          (604800 . "%a %H:%M")
+        '(((gnus-seconds-today) . "    %k:%M")
+          (604800 . "%a %k:%M")
           ((gnus-seconds-month)
            . "%a %d")
           ((gnus-seconds-year)
