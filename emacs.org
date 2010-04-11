@@ -1,3 +1,4 @@
+
 * Load path
 #+begin_src emacs-lisp
   (add-to-list 'load-path "~/src/config/emacs")
@@ -34,7 +35,7 @@
   (require 'regex-tool)
   (require 'unbound)
   ;; (require 'zenburn)
-  (require 'color-theme-chocolate-rain)
+  ;; (require 'color-theme-chocolate-rain)
   (require 'windresize)
   (require 'xclip)
   (require 'highlight-parentheses)
@@ -49,12 +50,10 @@
   (require 'yasnippet)
   (yas/initialize)
   (yas/load-directory "/usr/local/src/emacs/yasnippet/snippets")
-  (require 'recentf)
   ;; (load "/usr/local/src/emacs/nxhtml/autostart.el")
   ;; (load "R-anything-config")
   ;; (load "icicles/icicles")
   ;; (icy-mode t)
-  (require 'pp)
   ;; (require 'orgfold)
   (require 'sass-mode)
   (require 'ssh)
@@ -64,6 +63,12 @@
   (require 'matlab)
   (add-to-list 'load-path "/usr/local/src/emacs/org-buffers")
   (require 'org-buffers)
+  (require 'org-mime)
+  (add-to-list 'load-path "/usr/local/src/emacs/color-theme-6.6.0")
+  (require 'color-theme)
+  
+  ;; (require 'recentf) ;; in emacs23
+  ;; (require 'pp) ;; in emacs23
 #+end_src
 
 * Load config files
@@ -75,65 +80,97 @@
 #+end_src
 * Appearance
 #+begin_src emacs-lisp
-(defun dan/sanitise-faces ()
-  (interactive)
-  (set-face-background 'region (face-background 'default)) ;; don't highlight region
-  (set-face-background 'fringe (face-background 'default)) ;; don't have different color fringe
-  (set-face-background 'highlight (face-background 'default))
-  (set-face-foreground 'highlight (face-foreground 'font-lock-comment-face))
-  (font-lock-fontify-buffer)
-  ;; (set-face-foreground 'cursor (face-foreground 'font-lock-comment-face))
-  (set-cursor-color (face-foreground 'font-lock-comment-face)))
-      
-(defun dan/set-show-paren-style ()
-  (interactive)
-  (setq show-paren-delay .125)
-  (setq show-paren-style 'parenthesis)
-  ;; use these in a mode hook function
-  ;; (make-variable-buffer-local 'show-paren-mode)
-  ;; (show-paren-mode t)
-  (set-face-attribute 'show-paren-match-face nil :weight 'extra-bold)
-  (set-face-background 'show-paren-match-face (face-background 'default))
-  (if (boundp 'font-lock-comment-face)
+  (defun dan/sanitise-faces ()
+    (interactive)
+    ;; (set-face-background 'region (face-background 'default)) ;; don't highlight region
+    (set-face-background 'fringe (face-background 'default)) ;; don't have different color fringe
+    (set-face-background 'highlight (face-background 'default))
+    (set-face-foreground 'highlight (face-foreground 'font-lock-comment-face))
+    (font-lock-fontify-buffer)
+    ;; (set-face-foreground 'cursor (face-foreground 'font-lock-comment-face))
+    (set-cursor-color (face-foreground 'font-lock-comment-face)))
+        
+  (defun dan/set-show-paren-style ()
+    (interactive)
+    (setq show-paren-delay .125)
+    (setq show-paren-style 'parenthesis)
+    ;; use these in a mode hook function
+    ;; (make-variable-buffer-local 'show-paren-mode)
+    ;; (show-paren-mode t)
+    (set-face-attribute 'show-paren-match-face nil :weight 'extra-bold)
+    (set-face-background 'show-paren-match-face (face-background 'default))
+    (if (boundp 'font-lock-comment-face)
+        (set-face-foreground 'show-paren-match-face 
+                             (face-foreground 'font-lock-comment-face))
       (set-face-foreground 'show-paren-match-face 
-			   (face-foreground 'font-lock-comment-face))
-    (set-face-foreground 'show-paren-match-face 
-			 (face-foreground 'default))))
-      
-(add-hook 'find-file-hook 'dan/sanitise-faces)
-(add-hook 'find-file-hook 'dan/set-show-paren-style)
-
-;; this is a workaround for http://bugzilla.gnome.org/show_bug.cgi?id=514632
-;; dunno about that, it did seem to work for a bit, but not really any longer
-;; (setq column-number-mode t) 
-
-(set-face-attribute 'org-hide nil
-                    :foreground
-                    (face-attribute 'default :background))
+                           (face-foreground 'default))))
+        
+  (add-hook 'find-file-hook 'dan/sanitise-faces)
+  (add-hook 'find-file-hook 'dan/set-show-paren-style)
+  
+  ;; this is a workaround for http://bugzilla.gnome.org/show_bug.cgi?id=514632
+  ;; dunno about that, it did seem to work for a bit, but not really any longer
+  ;; (setq column-number-mode t) 
+  
+  (set-face-attribute 'org-hide nil
+                      :foreground
+                      (face-attribute 'default :background))
+#+end_src
+*** Save faces
+#+begin_src emacs-lisp
+    (defun dan/save-faces (&optional restore-p)
+      (interactive "P")
+      (let ((faces (face-list)) orig)
+        (dolist (face (face-list))
+          (unless (string-match "__original$" (symbol-name face))
+            (setq orig (intern (concat (symbol-name face) "__original")))
+            (if restore-p
+                (condition-case nil
+                    (copy-face orig face)
+                  (error "Failed to restore face %s from %s" face orig))
+              (condition-case nil
+                  (copy-face face orig)
+                (error "Failed to save face %s as %s" face orig)))))))
+    
+    (dan/save-faces)
+  
+  (setq color-theme-is-cumulative t)
 #+end_src
 
-*** Windows & frames
+* Windows and Frames
 #+begin_src emacs-lisp 
-  (setq 
-   pop-up-windows nil
-   split-window-preferred-function 'split-window-sensibly
-   split-width-threshold nil
-   split-height-threshold nil)
+  (setq pop-up-windows nil
+        split-window-preferred-function 'split-window-sensibly
+        split-width-threshold nil
+        split-height-threshold nil)
+  
+  (if nil
+      (defun dan/display-buffer-whole-frame (buffer &rest ignored)
+        ;; (switch-to-buffer buffer)
+        (delete-other-windows))
+  
+    (setq special-display-function 'dan/display-buffer-whole-frame)
+  
+    (setq special-display-buffer-names `(,org-buffers-buffer-name))
+    
+    ;; (setq special-display-function (lambda (buffer &rest ignored) (switch-to-buffer buffer) (delete-other-windows))))
+    (setq special-display-function (lambda (buffer &rest ignored) (delete-other-windows)))
+  )
 #+end_src
 
 *** Faces
 #+begin_src emacs-lisp :tangle no
-  (custom-set-faces
-   ;; custom-set-faces was added by Custom.
-   ;; If you edit it by hand, you could mess it up, so be careful.
-   ;; Your init file should contain only one such instance.
-   ;; If there is more than one, they won't work right.
-   '(default ((t 
-               (:inherit nil :stipple nil :background "Grey15" :foreground "Grey"
-                         :inverse-video nil :box nil :strike-through nil :overline nil
-                         :underline nil :slant normal :weight normal :height 100
-                         :width normal :foundry "unknown" :family "DejaVu Sans Mono"))))
-               '(gnus-cite-1 ((((class color) (background light)) (:foreground "deep sky blue")))))
+  ;; (custom-set-faces
+  ;;  ;; custom-set-faces was added by Custom.
+  ;;  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;;  ;; Your init file should contain only one such instance.
+  ;;  ;; If there is more than one, they won't work right.
+  ;;  '(default ((t 
+  ;;              (:inherit nil :stipple nil :background "Grey15" :foreground "Grey"
+  ;;                        :inverse-video nil :box nil :strike-through nil :overline nil
+  ;;                        :underline nil :slant normal :weight normal :height 100
+  ;;                        :width normal :foundry "unknown" :family "DejaVu Sans Mono"))))
+  ;;              '(gnus-cite-1 ((((class color) (background light)) (:foreground "deep sky blue")))))
 #+end_src
 
 * Org
@@ -203,7 +240,22 @@
 #+begin_src emacs-lisp
   (setq org-hide-leading-stars t)
   (setq org-hidden-keywords '(title date))
+  (copy-face 'shadow 'org-meta-line)
 #+end_src
+***** Set outline colors
+#+function: outline-colours
+#+begin_src R
+  require("RColorBrewer")
+  brewer.pal(n=8, name="Set1")
+#+end_src
+
+#+begin_src emacs-lisp :tangle no :expand yes :var colours=outline-colours()
+  (dotimes (level 8)
+    (set-face-foreground
+     (intern (concat "outline-" (number-to-string (1+ level))))
+     (car (nth level colours))))
+#+end_src
+
 *** Structure & Navigation
 #+begin_src emacs-lisp 
   (setq org-odd-levels-only t)
@@ -449,7 +501,7 @@
   
   (setq org-hide-block-startup t)
   
-  (setq org-src-window-setup 'current-window) ;; 'current-window 'other-window 'other-frame 'reorganize-frame
+  (setq org-src-window-setup 'reorganize-frame) ;; 'current-window 'other-window 'other-frame 'reorganize-frame
   (setq org-src-ask-before-returning-to-edit-buffer nil)
   
   (define-key org-src-mode-map [C-tab] 'org-edit-src-exit)
@@ -458,7 +510,14 @@
 #+begin_src emacs-lisp
   (defun dan/org-hide-block-and-switch-to-code-buffer ()
     (interactive)
-    (let ((beg (org-babel-where-is-src-block-head)))
+    (let* ((org-babel-src-block-regexp
+            (concat "^[ \t]*#\\+begin_src[ \t]+\\("                     ;; (1)   lang
+                    (mapconcat 'regexp-quote org-babel-interpreters "\\|")
+                    "\\)[ \t]*"
+                    "\\([^\":\n]*\"[^\"\n*]*\"[^\":\n]*\\|[^\":\n]*\\)" ;; (2)   switches
+                    "\\([^\n]*\\)\n"                                    ;; (3)   header arguments
+                    "\\([^\000]*?\n\\)[ \t]*#\\+end_src"))
+          (beg (org-babel-where-is-src-block-head)))
       (when beg
         (goto-char beg)
         (org-hide-block-toggle 'hide)
@@ -477,6 +536,17 @@
   
   (org-babel-add-interpreter "makefile")
   (add-to-list 'org-babel-tangle-langs '("makefile"))
+  
+  (setq
+   org-babel-tangle-langs
+   (cons '("perl" "pl" "#!/usr/bin/env perl" t)
+         (remove-if (lambda (el) (equal (car el) "perl"))
+                    org-babel-tangle-langs))
+   org-babel-default-header-args:perl
+   '((:results . "output")))
+  
+  (org-babel-add-interpreter "elisp")
+  (add-to-list 'org-babel-tangle-langs '("elisp" "el"))
 #+end_src
 ***** Variables
 #+begin_src emacs-lisp
@@ -495,11 +565,11 @@
 ***** Etc
 ******* Display session and switch to code buffer
 #+begin_src emacs-lisp
-  (defun dan/org-babel-switch-to-code-with-session (&optional arg info)
+  (defun dan/org-babel-switch-to-code-with-session (&optional arg)
       "Switch to code edit buffer and display session"
-      (interactive)
+      (interactive "P")
       (save-excursion
-        (org-babel-switch-to-session arg info))
+        (org-babel-switch-to-session arg nil))
       (org-edit-src-code))
 #+end_src
 ******* Edit buffer instead of block unhiding
@@ -707,17 +777,61 @@ This allows for the viewing of images in-line in Org-mode documents.
   (org-icons-mode)
 #+end_src
 
+*** Org-buffers
+#+begin_src emacs-lisp
+  (defun dan/set-org-buffers-visibility ()
+    (if (org-buffers-state-eq :atom 'heading)
+        (org-overview)))
+  
+ ;; (add-hook 'org-buffers-mode-hook 'dan/set-org-buffers-visibility)
+#+end_src
+
+*** Org-mime
+#+begin_src emacs-lisp
+(add-hook 'message-mode-hook
+          (lambda ()
+            (local-set-key "\C-c\M-o" 'org-mime-htmlize)))
+
+(add-hook 'org-mode-hook
+          (lambda ()
+            (local-set-key "\C-c\M-o" 'org-mime-org-buffer-htmlize)))
+#+end_src
+
 *** Etc
+***** Show all including blocks
+#+begin_src emacs-lisp
+  (defun dan/org-show-all ()
+    (interactive)
+    (let ((org-hide-block-startup nil))
+      (org-mode)
+      (show-all)))
+#+end_src
+
+***** Temp org file
+#+begin_src emacs-lisp
+  (defun dan/org-switch-to-org-scratch ()
+    "Put me in a new org buffer now!"
+    (interactive)
+    (let ((name "*Scratch Org*"))
+      (pop-to-buffer
+       (or (get-buffer name)
+           (get-buffer-create (make-temp-file "org-scratch-buffer"))))
+      (rename-buffer name))
+    (unless (org-mode-p) (org-mode)))
+#+end_src
+
 ***** Search in org source code
 #+begin_src emacs-lisp
   (setq dan/org-mode-src-dir "/usr/local/src/emacs/org-mode")
   
-  (defun dan/lgrep-in-org-src (beg end)
-    (interactive "r")
-    (save-restriction
-      (narrow-to-region beg end)
-      (lgrep (buffer-string) "*.el" (concat dan/org-mode-src-dir "/lisp"))
-      (widen)))
+  (defun dan/org-search-src ()
+    "Search for REGEXP in Org-mode source code."
+    (interactive)
+    (lgrep
+     (if (region-active-p)
+         (buffer-substring (region-beginning) (region-end))
+       (org-completing-read "Regexp: "))
+     "*.el" (concat dan/org-mode-src-dir "/lisp")))
 #+end_src
 
 ***** dan/org-edit-src-code-current-window
@@ -896,28 +1010,47 @@ by Vitalie S.
   (add-hook 'dired-after-readin-hook 'dan/dired-delete-total-line)
 #+end_src
 
+* ibuffer
+#+begin_src emacs-lisp
+  (setq ibuffer-saved-filter-groups
+        '(("default"
+           ("dired" (mode . dired-mode))
+           ("elisp" (mode . emacs-lisp-mode))
+           ("org" (mode . org-mode))
+           ("perl" (mode . cperl-mode))
+           ("erc" (mode . erc-mode))
+           ("emacs" (or
+                     (name . "^\\*scratch\\*$")
+                     (name . "^\\*Messages\\*$")))
+           ("gnus" (or
+                    (mode . message-mode)
+                    (mode . bbdb-mode)
+                    (mode . mail-mode)
+                    (mode . gnus-group-mode)
+                    (mode . gnus-summary-mode)
+                    (mode . gnus-article-mode)
+                    (name . "^\\.bbdb$")
+                    (name . "^\\.newsrc-dribble"))))))
+  
+  (add-hook 'ibuffer-mode-hook
+            (lambda ()
+              (ibuffer-switch-to-saved-filter-groups "default")))
+#+end_src
+
 * Buffer Menu
 #+begin_src emacs-lisp
 (setq Buffer-menu-sort-column 4)
 #+end_src
 * ESS
-  :PROPERTIES:
-  :tangle: no
-  :END:
-
 *** Add R builtins to font lock
-    :PROPERTIES:
-    :tangle: no
-    :END:
-    
-# #+source: R-builtins
-# #+begin_src R :tangle no
-#  obj <- unlist(sapply(c("package:base", "package:stats","package:utils"), objects, all.names=TRUE))
-#  re <- "(^[^.[:alpha:][:digit:]]|<-|__)"  ## to remove "weird" functions
-#  obj[-grep(re, obj)]
-# #+end_src
-#
-#+begin_src emacs-lisp :tangle no :eval no :expand yes :results silent :var R-builtins=R-builtins()
+#+source: R-builtins
+#+begin_src R
+ obj <- unlist(sapply(c("package:base", "package:stats","package:utils"), objects, all.names=TRUE))
+ re <- "(^[^.[:alpha:][:digit:]]|<-|__)"  ## to remove "weird" functions
+ obj[-grep(re, obj)]
+#+end_src
+
+#+begin_src emacs-lisp :tangle no :expand yes :var R-builtins=R-builtins()
   (add-to-list
    'ess-R-mode-font-lock-keywords
    (cons 
@@ -931,10 +1064,13 @@ by Vitalie S.
     (interactive "sEnter function name: \n")
     (ess-execute
      (concat cmd "(" (buffer-substring (point) (mark)) ")")))
-#+end_src
+#+end_#+begin_src language 
+      
+      #+end_src
+      
 * Flyspell
 #+begin_src emacs-lisp
-(setq flyspell-issue-message-flag nil)
+  (setq flyspell-issue-message-flag nil)
 #+end_src
 * Gnus
 *** General
@@ -1084,11 +1220,12 @@ by Vitalie S.
 #+end_src
 *** Sending
 #+begin_src emacs-lisp
-(setq
- send-mail-function 'sendmail-send-it ;; generates properly-formed email and sends it with
- sendmail-program "~/bin/sendmail-dan" ;; passes email over ssh to remote sendmail in Oxford
- gnus-message-archive-group "nnimap+dc:INBOX" ;; save outgoing mail into my default mail box
- )
+  (setq
+   mail-user-agent 'message-user-agent ;; so that org-mime-org-buffer-htmlize uses message-mode
+   send-mail-function 'sendmail-send-it ;; generates properly-formed email and sends it with
+   sendmail-program "~/bin/sendmail-dan" ;; passes email over ssh to remote sendmail in Oxford
+   gnus-message-archive-group "nnimap+dc:INBOX" ;; save outgoing mail into my default mail box
+   )
 #+end_src
 
 *** Summary buffer
@@ -1149,14 +1286,13 @@ by Vitalie S.
   
   ;; http://groups.google.com/group/gnu.emacs.gnus/browse_thread/thread/a673a74356e7141f
   (when window-system
-    (setq gnus-sum-thread-tree-indent "  ")
-    (setq gnus-sum-thread-tree-root "") ;; "● ")
-    (setq gnus-sum-thread-tree-false-root "") ;; "◯ ")
-    (setq gnus-sum-thread-tree-single-indent "") ;; "◎ ")
-    (setq gnus-sum-thread-tree-vertical        "│")
-    (setq gnus-sum-thread-tree-leaf-with-other "├─► ")
-    (setq gnus-sum-thread-tree-single-leaf     "╰─► "))
-  
+    (setq gnus-sum-thread-tree-indent " ") "  "
+    (setq gnus-sum-thread-tree-root "") ; "● " "⚈ "
+    (setq gnus-sum-thread-tree-false-root "") ; "◯ " " ♽ "
+    (setq gnus-sum-thread-tree-single-indent "") ; "◎ "
+    (setq gnus-sum-thread-tree-vertical        "│") ; "┆" "┋" "┆"
+    (setq gnus-sum-thread-tree-leaf-with-other "├─► ") ; "┣━► "  "▶"
+    (setq gnus-sum-thread-tree-single-leaf     "╰─► ")) ; "┗━► "
   
   ;; > The gnus screenshot at http://en.wikipedia.org/wiki/Gnus
   ;; > is awesome! How can I get my gnus to look like that?
@@ -1263,13 +1399,15 @@ by Vitalie S.
 
 *** Article buffer
 #+begin_src emacs-lisp
-;;; Article buffer
-;;;
-(setq gnus-visible-headers "^From:\\|^To:\\|^Cc:\\|^Subject:\\|^Date:\\|^User-Agent:\\|^X-Newsreader:")
-;; Specify the order of the header lines
-(setq gnus-sorted-header-list '("^From:" "^Subject:" "^User-Agent:" "^X-Newsreader:" "^Date:"))
-
-(setq message-mode-hook (quote (orgstruct++-mode)))
+  ;;; Article buffer
+  ;;;
+  (require 'gnus-art) ; ??
+  
+  (setq gnus-visible-headers "^From:\\|^To:\\|^Cc:\\|^Subject:\\|^Date:\\|^User-Agent:\\|^X-Newsreader:")
+  ;; Specify the order of the header lines
+  (setq gnus-sorted-header-list '("^From:" "^Subject:" "^User-Agent:" "^X-Newsreader:" "^Date:"))
+  
+  (setq message-mode-hook (quote (orgstruct++-mode)))
 #+end_src
 
 * Message Mode
@@ -1385,7 +1523,6 @@ by Vitalie S.
   (setq kill-read-only-ok t)
   (setq initial-scratch-message nil)
   (setq minibuffer-message-timeout 0.5)
-  (setq nuke-trailing-whitespace-p t)
   (setq parens-require-spaces nil)
   (setq require-final-newline 'visit-save)
   (setq tags-file-name "~/src/.tags")
@@ -1429,7 +1566,6 @@ by Vitalie S.
   ;; buffer-file-name doesn't correspond to a file
   ;; (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
   
-  (add-hook 'local-write-file-hooks (lambda () (nuke-trailing-whitespace)))
   (autoload 'ansi-color-for-comint-mode-on "ansi-color" nil t)
   (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
 #+end_src
@@ -1691,25 +1827,25 @@ by Vitalie S.
 #+end_src
 
 * Customize stuff
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   ;; (custom-set-variables
   ;;   ;; custom-set-variables was added by Custom.
   ;;   ;; If you edit it by hand, you could mess it up, so be careful.
   ;;   ;; Your init file should contain only one such instance.
   ;;   ;; If there is more than one, they won't work right.
-  ;;  '(safe-local-variable-values (quote ((org-export-latex-image-default-option . "width=30em") (org-export-latex-image-default-option . "width=100em") (org-babel-default-header-args (:tangle . "wtccc2-pca.py")) (org-babel-default-header-args (:tangle . "wtccc2-pca.py") (:exports . "code")) (org-babel-default-header-args (:results . "replace output") (:session . "*R - jsmr*") (:exports . "none")) (org-babel-default-header-args (:results . "replace output") (:session . "*R: wtccc2*") (:exports . "none")) (noweb-default-code-mode . R-mode) (org-src-preserve-indentation . t) (org-edit-src-content-indentation . 0) (outline-minor-mode)))))
-  (custom-set-faces
-    ;; custom-set-faces was added by Custom.
-    ;; If you edit it by hand, you could mess it up, so be careful.
-    ;; Your init file should contain only one such instance.
-    ;; If there is more than one, they won't work right.
-   '(default ((t (:inherit nil :stipple nil
-                           :background "Grey15" :foreground "Grey"
-                           :inverse-video nil :box nil
-                           :strike-through nil :overline nil :underline nil :slant normal 
-                           :weight normal :height 120 :width normal
-                           :foundry "unknown" :family "DejaVu Sans Mono"))))
-   '(gnus-cite-1 ((((class color) (background light)) (:foreground "deep sky blue")))))
+  ;;  '(safe-local-variable-values (quote ((org-export-latex-image-default-option . "width=30em") (org-export-latex-image-default-option . "width=100em") (org-babel-default-header-args (:tangle . "wtccc2-pca.py")) (org-babel-default-header-args (:tangle . "wtccc2-pca.py") (:exports . "code")) (org-babel-default-header-args (:results . "replace output") (:session . "*R - jsmr*") (:exports . "none")) (org-babel-default-header-args (:results . "replace output") (:session . "*R: wtccc2*") (:exports . "none")) (noweb-default-code-mode . R-mode) (org-src-preserve-indentation . t) (org-edit-src-content;; -indentation . 0) (outline-minor-mode)))))
+  ;; (custom-set-faces
+  ;;   ;; custom-set-faces was added by Custom.
+  ;;   ;; If you edit it by hand, you could mess it up, so be careful.
+  ;;   ;; Your init file should contain only one such instance.
+  ;;   ;; If there is more than one, they won't work right.
+  ;;  '(default ((t (:inherit nil :stipple nil
+  ;;                          :background "Grey15" :foreground "Grey"
+  ;;                          :inverse-video nil :box nil
+  ;;                          :strike-through nil :overline nil :underline nil :slant normal 
+  ;;                          :weight normal :height 120 :width normal
+  ;;                          :foundry "unknown" :family "DejaVu Sans Mono"))))
+  ;;  '(gnus-cite-1 ((((class color) (background light)) (:foreground "deep sky blue")))))
 #+end_src
 
 * Etc
@@ -1738,4 +1874,3 @@ by Vitalie S.
     (widen))
 #+end_src
 
-#+property: results silent
