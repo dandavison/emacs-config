@@ -1256,19 +1256,7 @@ by Vitalie S.
            . "%b %d")
           (t . "%b %d '%y")))
   
-  (setq dan/gnus-summary-line-format
-        (concat
-         "%0{%U%R%z%}"
-         "%3{│%}" "%1{%d%}" "%3{│%}" ;; date
-         "  "
-         "%4{%-20,20f%}"               ;; name
-         "  "
-         "%3{│%}"
-         " "
-         "%1{%B%}"
-         "%s\n"))
-  
-  (setq dan/gnus-summary-line-format:henri-paul-indiogine
+  (setq gnus-summary-line-format
         (concat
          "%0{%U%R%z%}"
          "%3{│%}" "%1{%~(pad-right 9)&user-date;%}" "%3{│%}" ;; date
@@ -1279,8 +1267,6 @@ by Vitalie S.
          " "
          "%1{%B%}"
          "%s\n"))
-  
-  (setq gnus-summary-line-format dan/gnus-summary-line-format:henri-paul-indiogine)
   
   (setq gnus-summary-display-arrow t)
   
