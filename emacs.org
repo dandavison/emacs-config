@@ -1465,6 +1465,22 @@ by Vitalie S.
 #+end_src
 
 * Functions
+*** Toggle modeline
+#+begin_src emacs-lisp 
+  (defun dan/toggle-mode-line (&optional buffer)
+    (interactive)
+    (if buffer (set-buffer buffer))
+    (if (not mode-line-format)
+        (if (boundp 'dan/saved-mode-line-format)
+            (setq mode-line-format dan/saved-mode-line-format)
+          (error "No saved mode line format"))
+      (set (make-local-variable 'dan/saved-mode-line-format) mode-line-format)
+      (setq mode-line-format nil)))
+  
+  (defun dan/toggle-mode-line-all-buffers ()
+    (interactive)
+    (mapc 'dan/toggle-mode-line (buffer-list)))
+#+end_src
 *** Revert all elisp buffers
     #+begin_src emacs-lisp
       (defun dan/revert-elisp-buffers ()
