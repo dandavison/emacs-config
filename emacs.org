@@ -1684,6 +1684,20 @@ by Vitalie S.
           (message (buffer-file-name))
         (message "buffer-file-name: %S\tdefault-directory: %s" bfn dd))))
 #+end_src
+*** Format post
+#+begin_src emacs-lisp
+  (defun dan/format-region-for-post (start end)
+    (interactive "r")
+    (narrow-to-region start end)
+    (goto-char (point-min))
+    (while (re-search-forward "^[ \t]+" nil t)
+      (replace-match ""))
+    (goto-char (point-min))
+    (while (re-search-forward "\\([a-zA-Z]\\)\n\\([a-zA-Z]\\)" nil t)
+      (replace-match "\1 \2" t t))
+    (widen))
+#+end_src
+
 * Safe local variables
 #+begin_src emacs-lisp :results pp
   (setq safe-local-variable-values
@@ -1753,17 +1767,3 @@ by Vitalie S.
   ;; (add-hook 'pre-command-hook 'eldoc-pre-command-refresh-echo-area t)
   ;; (setq eldoc-timer [nil 1000000 0 500000 t eldoc-print-current-symbol-info nil t]) ;;
 #+end_src
-*** Format post
-#+begin_src emacs-lisp
-  (defun dan/format-region-for-post (start end)
-    (interactive "r")
-    (narrow-to-region start end)
-    (goto-char (point-min))
-    (while (re-search-forward "^[ \t]+" nil t)
-      (replace-match ""))
-    (goto-char (point-min))
-    (while (re-search-forward "\\([a-zA-Z]\\)\n\\([a-zA-Z]\\)" nil t)
-      (replace-match "\1 \2" t t))
-    (widen))
-#+end_src
-
