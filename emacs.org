@@ -1354,6 +1354,7 @@ by Vitalie S.
   (recentf-mode t)
   (global-font-lock-mode t)
   ;; (desktop-save-mode t)
+  (display-battery-mode t)
 #+end_src
 
 * Completion
