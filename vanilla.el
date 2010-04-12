@@ -8,7 +8,7 @@
 (blink-cursor-mode -1)
 (add-to-list 'load-path "/usr/local/src/emacs")
 (add-to-list 'load-path "~/src/config/emacs")
-(setq dan/custom-appearance t)
+(setq dan/custom-appearance nil)
 (if dan/custom-appearance
     (if (not window-system)
 	(custom-set-faces
@@ -16,6 +16,9 @@
 	 '(org-agenda-date-weekend ((t (:foreground "red"))) t)
 	 '(org-hide ((((background light)) (:foreground "black")))))
       (progn
+	(add-to-list 'load-path "/usr/local/src/emacs/color-theme-6.6.0")
 	(require 'color-theme)
-	(unless color-theme-initialized (color-theme-initialize))
-	(color-theme-charcoal-black))))
+	(eval-after-load "color-theme"
+	  '(progn
+	     (color-theme-initialize)
+	     (color-theme-charcoal-black))))))
