@@ -14,7 +14,6 @@
   (add-to-list 'load-path "/usr/local/src/emacs/gnuplot-mode.0.6.0")
   (add-to-list 'load-path "/usr/local/src/emacs/matlab")
 #+end_src
-  
 * ELPA
 #+begin_src emacs-lisp
   ;;; This was installed by package-install.el.
@@ -61,8 +60,13 @@
   (require 'w3m)
   (require 'gnuplot)
   (require 'matlab)
+  
   (add-to-list 'load-path "/usr/local/src/emacs/org-buffers")
   (require 'org-buffers)
+  
+  (add-to-list 'load-path "/usr/local/src/emacs/buffer-join")
+  ;; (require 'buffer-join)
+  
   (require 'org-mime)
   (add-to-list 'load-path "/usr/local/src/emacs/color-theme-6.6.0")
   (require 'color-theme)
@@ -84,11 +88,12 @@
     (interactive)
     ;; (set-face-background 'region (face-background 'default)) ;; don't highlight region
     (set-face-background 'fringe (face-background 'default)) ;; don't have different color fringe
-    (set-face-background 'highlight (face-background 'default))
-    (set-face-foreground 'highlight (face-foreground 'font-lock-comment-face))
+    ;; (set-face-background 'highlight (face-background 'default))
+    ;; (set-face-foreground 'highlight (face-foreground 'font-lock-comment-face))
     (font-lock-fontify-buffer)
     ;; (set-face-foreground 'cursor (face-foreground 'font-lock-comment-face))
-    (set-cursor-color (face-foreground 'font-lock-comment-face)))
+    ;; (set-cursor-color (face-foreground 'font-lock-comment-face))
+    )
         
   (defun dan/set-show-paren-style ()
     (interactive)
@@ -107,10 +112,6 @@
         
   (add-hook 'find-file-hook 'dan/sanitise-faces)
   (add-hook 'find-file-hook 'dan/set-show-paren-style)
-  
-  ;; this is a workaround for http://bugzilla.gnome.org/show_bug.cgi?id=514632
-  ;; dunno about that, it did seem to work for a bit, but not really any longer
-  ;; (setq column-number-mode t) 
   
   (set-face-attribute 'org-hide nil
                       :foreground
@@ -1316,7 +1317,6 @@ by Vitalie S.
 
 #+end_src
 
-
 *** C & C++
 #+begin_src emacs-lisp
   ;; Dan Feb 2006: See http://www.xemacs.org/Links/tutorials_1.html
@@ -1537,8 +1537,6 @@ by Vitalie S.
   
   (fset 'yes-or-no-p 'y-or-n-p) ;; http://www.xsteve.at/prg/emacs/.emacs.txt -- replace y-e-s by y
   (put 'narrow-to-region 'disabled nil)
-  (setq pop-up-windows t)
-  
   
   ;; put back-up files in a single (invisible) directory in the original file's directory
   ;; (setq backup-directory-alist '(("." . ".emacs-backups")))
@@ -1570,25 +1568,32 @@ by Vitalie S.
   
   (autoload 'ansi-color-for-comint-mode-on "ansi-color" nil t)
   (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
+  (add-hook 'change-major-mode-hook 'dan/toggle-mode-line)
 #+end_src
 
-* Functions
-*** Toggle modeline
+* Mode line
 #+begin_src emacs-lisp 
-  (defun dan/toggle-mode-line (&optional buffer)
-    (interactive)
+  (defun dan/toggle-mode-line (&optional restore buffer)
+    "Get rid of mode line. With prefix arg, restore mode line."
+    (interactive "P")
     (if buffer (set-buffer buffer))
-    (if (not mode-line-format)
-        (if (boundp 'dan/saved-mode-line-format)
-            (setq mode-line-format dan/saved-mode-line-format)
-          (error "No saved mode line format"))
-      (set (make-local-variable 'dan/saved-mode-line-format) mode-line-format)
-      (setq mode-line-format nil)))
+    (if restore (if (boundp 'dan/saved-mode-line-format)
+                    (setq mode-line-format dan/saved-mode-line-format)
+                  (message "No saved mode line format"))
+      (when mode-line-format
+        (set (make-local-variable 'dan/saved-mode-line-format) mode-line-format)
+        (setq mode-line-format nil)))
+    (if (interactive-p) 
+        (redraw-frame (window-frame (selected-window)))))
   
-  (defun dan/toggle-mode-line-all-buffers ()
-    (interactive)
-    (mapc 'dan/toggle-mode-line (buffer-list)))
+  (defun dan/toggle-mode-line-all-buffers (&optional restore)
+    (interactive "P")
+    (mapc (lambda (buffer) (dan/toggle-mode-line restore buffer))
+          (buffer-list))
+    (if (interactive-p) 
+        (redraw-frame (window-frame (selected-window)))))
 #+end_src
+* Functions
 *** Revert all elisp buffers
     #+begin_src emacs-lisp
       (defun dan/revert-elisp-buffers ()
@@ -1734,11 +1739,6 @@ by Vitalie S.
     ;;   "yank from X clipboard and insert at point"
     ;;   (interactive)
     ;;   (shell-command "xclip -o" t))
-    
-    (defun paste-mode ()
-      (interactive)
-      (mapc (lambda (pair) (local-set-key (car pair) (cdr pair)))
-            dan/paste-mode-keybindings))
     
     (defun dan/next-line-and-indent ()
       (interactive)
@@ -1892,3 +1892,5 @@ by Vitalie S.
   ;; (add-hook 'pre-command-hook 'eldoc-pre-command-refresh-echo-area t)
   ;; (setq eldoc-timer [nil 1000000 0 500000 t eldoc-print-current-symbol-info nil t]) ;;
 #+end_src
+* Config
+#+STARTUP: hideblocks
