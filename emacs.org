@@ -204,17 +204,6 @@
 #+end_src
 *** Misc
 #+begin_src emacs-lisp
-  (defun dan/org-set-keybindings ()
-    (interactive)
-    (mapc (lambda (pair) (local-set-key (car pair) (cdr pair)))
-          dan/org-mode-keybindings))
-  
-  ;; (setq dan/org-expert t)
-  (defun dan/org-mode-hook ()
-    (dan/org-set-keybindings))
-  
-  (add-hook 'org-mode-hook 'dan/org-mode-hook)
-
   (setq org-hide-block-startup t)
   
   (setq org-completion-use-ido t)    
@@ -304,15 +293,6 @@
 #+results:
 | p | dan/org-show-previous-heading-tidily |
 | n | dan/org-show-next-heading-tidily     |
-***** Eric's outline navigation bindings
-[[mairix:t:@@m2eirnzhb4.fsf@gmail.com][Email from Eric Schulte: Re: {Orgmode} Go to top node]]
-#+begin_src emacs-lisp
-(add-hook 'org-mode-hook
-	  (lambda ()
-	    (local-set-key (kbd "\M-\C-n") 'outline-next-visible-heading)
-	    (local-set-key (kbd "\M-\C-p") 'outline-previous-visible-heading)
-	    (local-set-key (kbd "\M-\C-u") 'outline-up-heading)))
-#+end_src
 *** Remember
 #+begin_src emacs-lisp
   ;;* remember
@@ -1008,7 +988,7 @@ by Vitalie S.
   (add-hook 'dired-after-readin-hook 'dan/dired-delete-total-line)
 #+end_src
 
-* ibuffer
+* Ibuffer
 #+begin_src emacs-lisp
   (setq ibuffer-saved-filter-groups
         '(("default"
@@ -1379,126 +1359,155 @@ by Vitalie S.
 #+end_src
 
 * Key bindings
-*** Bindings
+*** dan/set-keys
 #+begin_src emacs-lisp
   (defun dan/set-keys ()
     (mapc (lambda (pair)
-            (let* ((mode (car pair)) (bindings (cdr pair))
-                   (map (intern (concat (symbol-name mode) "-mode-map"))))
-              (mapc
-               (if (eq mode 'global)
-                   (lambda (binding) (global-set-key (car binding) (cdr binding)))
-                 (lambda (binding) (define-key map (car binding) (cdr binding))))
-               bindings)))
+            (let* ((map (car pair)) (bindings (cdr pair)))
+              (if (stringp map) (setq map (intern (concat map "-mode-map"))))
+              (mapc (lambda (binding) (define-key (eval map) (car binding) (cdr binding))) bindings)))
           dan/key-bindings))
   
-  (dan/set-keys)
-  (define-key emacs-lisp-mode-map "\C-cd" 'edebug-defun)
-  (define-key ctl-x-4-map "t" 'toggle-window-split)
-  (define-key org-src-mode-map [(control \')] 'org-edit-src-exit)
+  (defvar dan/key-bindings nil
+    "List of all key bindings.
+  This is an alist of alists. The key of the top level alist
+  references a key map. If the key is a string, the string
+  \"-mode-map\" is appended to it when finding the mode-map. If it
+  is a symbol, it is used as is.")
 #+end_src
-
+*** Bindings
 ***** global
 #+begin_src emacs-lisp
-    (global-set-key "\C-cl" 'org-store-link)
-    (global-set-key "\C-ca" 'org-agenda)
-    (global-set-key "\C-cb" 'org-iswitchb)
-  
-  (setq dan/global-keybindings
-        '(("\C-x\C-b" . org-buffers-list)
-          ("\C-n" . dan/next-line-and-indent)
-          ("\C-p" . dan/previous-line-and-indent)
-          ("\C-ca" . org-agenda)
-          ("\C-cf" . find-function)
-          ("\C-cg" . magit-status)
-          ("\C-cm" . dan/toggle-mode-line)
-          ("\C-cn" . dan/show-buffer-file-name)
-          ("\C-co" . dan/org-switch-to-org-scratch)
-          ("\C-cr" . replace-regexp)
-          ("\C-cs" . search-forward-symbol-at-point)
-          ("\C-cv" . revert-buffer)
-          ("\C-\M-g" . lgrep)
-          ([(control next)] . end-of-buffer)
-          ([(control prior)] . beginning-of-buffer) 
-          ([(s tab)] . lisp-complete-symbol) 
-          ("\M-(" . dan/enclose-rest-of-line-in-parentheses)
-          ("\M-n" . forward-paragraph)
-          ("\M-p" . backward-paragraph)
-          ("\M-2" . dan/insert-double-quotes)
-          ([(meta left)] . winner-undo)
-          ([(meta right)] . winner-redo)
-          ([f1] . org-buffers-list)
-          ([f2] . (lambda () (interactive) (switch-to-buffer "*Group*")))
-          ([f3] . (lambda () (interactive) (switch-to-buffer "*Org Agenda*")))
-          ([f4] . (lambda () (interactive) (switch-to-buffer "*shell*")))
-          ([f5] . (lambda () (interactive) (switch-to-buffer "*Python*")))
-          ([f7] . dan/org-schedule-task-with-link)
-          ([f8] . org-remember)
-          ([f9] . find-tag-at-point)
-          ([f10] . delete-other-windows)
-          ([f11] . delete-window)
-          ([delete] . kill-buffer)
-          ([escape] . other-window)))
+  (add-to-list 'dan/key-bindings
+        '(global-map . 
+                 (("\C-x\C-b" . org-buffers-list)
+                 ("\C-ca" . 'org-agenda)
+                 ("\C-cb" . 'org-iswitchb)
+                 ("\C-n" . dan/next-line-and-indent)
+                 ("\C-p" . dan/previous-line-and-indent)
+                 ("\C-ca" . org-agenda)
+                 ("\C-cf" . find-function)
+                 ("\C-cg" . magit-status)
+                 ("\C-cl" 'org-store-link)
+                 ("\C-cm" . dan/toggle-mode-line)
+                 ("\C-cn" . dan/show-buffer-file-name)
+                 ("\C-co" . dan/org-switch-to-org-scratch)
+                 ("\C-cr" . replace-regexp)
+                 ("\C-cs" . search-forward-symbol-at-point)
+                 ("\C-cv" . revert-buffer)
+                 ("\C-\M-g" . lgrep)
+                 ([(control next)] . end-of-buffer)
+                 ([(control prior)] . beginning-of-buffer) 
+                 ([(s tab)] . lisp-complete-symbol) 
+                 ("\M-(" . dan/enclose-rest-of-line-in-parentheses)
+                 ("\M-n" . forward-paragraph)
+                 ("\M-p" . backward-paragraph)
+                 ("\M-2" . dan/insert-double-quotes)
+                 ([(meta left)] . winner-undo)
+                 ([(meta right)] . winner-redo)
+                 ([f1] . org-buffers-list)
+                 ([f2] . (lambda () (interactive) (switch-to-buffer "*Group*")))
+                 ([f3] . (lambda () (interactive) (switch-to-buffer "*Org Agenda*")))
+                 ([f4] . (lambda () (interactive) (switch-to-buffer "*shell*")))
+                 ([f5] . (lambda () (interactive) (switch-to-buffer "*Python*")))
+                 ([f7] . dan/org-schedule-task-with-link)
+                 ([f8] . org-remember)
+                 ([f9] . find-tag-at-point)
+                 ([f10] . delete-other-windows)
+                 ([f11] . delete-window)
+                 ([delete] . kill-buffer)
+                 ([escape] . other-window))))
 #+end_src
 ***** C
 #+begin_src emacs-lisp
-(setq dan/c-c++-mode-keybindings
-      '(("\C-c\C-l" . dan/compile-and-switch-to-iESS)))
+  (add-to-list 'dan/key-bindings
+               '("c" . nil))
+#+end_src
+***** Ctrl-x-4
+#+begin_src emacs-lisp
+  (add-to-list
+   'dan/key-bindings
+   '(ctl-x-4-map . (("t" . 'toggle-window-split))))
 #+end_src
 ***** Elisp
 #+begin_src emacs-lisp
-  (setq dan/emacs-lisp-mode-keybindings
-        '(("\C-cd" . edebug-defun)))
+  (add-to-list 'dan/key-bindings
+               '("emacs-lisp" .
+                            (("\C-cd" . edebug-defun))))
 #+end_src
-
 ***** ESS
 #+begin_src emacs-lisp 
-(setq dan/ess-and-iess-keybindings
-      '(("\C-c?" . ess-display-help-on-object)
-	("\C-ca" . ess-r-args-show)
-	("\C-cd" . dan/ess-list-R-function-definitions)
-	("\C-cf" . dan/ess-insert-function-template)
-	("\C-ck" . dan/ess-kill-line-and-indent)
-	("\C-cx" . dan/ess-recover-R-process)
-	([(control return)] . ess-eval-line-and-step)
-	([(shift tab)] . ess-complete-object-name)))
-
+  (add-to-list
+   'dan/key-bindings
+   '("ess" . 
+     (("\C-c?" . ess-display-help-on-object)
+      ("\C-ca" . ess-r-args-show)
+      ("\C-cd" . dan/ess-list-R-function-definitions)
+      ("\C-cf" . dan/ess-insert-function-template)
+      ("\C-ck" . dan/ess-kill-line-and-indent)
+      ("\C-cx" . dan/ess-recover-R-process)
+      ([(control return)] . ess-eval-line-and-step)
+      ([(shift tab)] . ess-complete-object-name))))
+  
+  (add-to-list
+   'dan/key-bindings
+   `("inferior-ess" .
+     ,(cdr (assoc "ess" dan/key-bindings))))
 #+end_src
 ***** Latex
 #+begin_src emacs-lisp
-(setq dan/latex-mode-keybindings
-      '(([C-tab] . TeX-complete-symbol)
-	("\C-ct" . org-toggle-latex-org)
-	("\C-c=" . reftex-toc-dan)))
+  (add-to-list
+   'dan/key-bindings
+   '("latex" .
+     (([C-tab] . TeX-complete-symbol)
+      ("\C-ct" . org-toggle-latex-org)
+      ("\C-c=" . reftex-toc-dan))))
 #+end_src
 ***** Org
 #+begin_src emacs-lisp 
-(setq dan/org-mode-keybindings
-      '(([(control down)] . org-insert-heading)
-	([(control left)] . org-metaleft)
-	([(control right)] . org-metaright)
-	([(meta left)] . winner-undo)
-	([(meta right)] . winner-redo)
-	("\C-ch" . hide-subtree)
-	("\C-ct" . org-hide-block-toggle)
-	("\C-ci" . dan/org-toggle-iimage-in-org)
-	("\C-cz" . dan/org-babel-switch-to-code-with-session)
-	([(control \')] . dan/org-hide-block-and-switch-to-code-buffer)))
+  (add-to-list
+   'dan/key-bindings
+   '("org" .
+     (([(control down)] . org-insert-heading)
+      ([(control left)] . org-metaleft)
+      ([(control right)] . org-metaright)
+      ([(meta left)] . winner-undo)
+      ([(meta right)] . winner-redo)
+      ("\C-ch" . hide-subtree)
+      ("\C-ct" . org-hide-block-toggle)
+      ("\C-ci" . dan/org-toggle-iimage-in-org)
+      ("\C-cz" . dan/org-babel-switch-to-code-with-session)
+      ([(control \')] . dan/org-hide-block-and-switch-to-code-buffer))))
+#+end_src
+******* Eric's outline navigation bindings
+	[[mairix:t:@@m2eirnzhb4.fsf@gmail.com][Email from Eric Schulte: Re: {Orgmode} Go to top node]]
+#+begin_src emacs-lisp
+(add-hook 'org-mode-hook
+	  (lambda ()
+	    (local-set-key (kbd "\M-\C-n") 'outline-next-visible-heading)
+	    (local-set-key (kbd "\M-\C-p") 'outline-previous-visible-heading)
+	    (local-set-key (kbd "\M-\C-u") 'outline-up-heading)))
+#+end_src
+
+***** Org Src
+#+begin_src emacs-lisp
+  (add-to-list
+   'dan/key-bindings
+   '("org-src" . (([(control \')] . org-edit-src-exit))))
 #+end_src
 ***** Python
 #+begin_src emacs-lisp
-(setq dan/python-mode-keybindings
-      '(()))
+  (add-to-list
+   'dan/key-bindings
+   '("python" . nil))
 #+end_src
 ***** Texinfo
 #+begin_src emacs-lisp
-  (setq dan/texinfo-mode-keybindings
-        '(("\C-c\C-s" . dan/texinfo-show-structure)
-          ("(" . self-insert-command)
-          ("[" . self-insert-command)
-          ("-" . self-insert-command)
-          ("_" . self-insert-command)))
-      
+  (add-to-list
+   'dan/key-bindings
+   '("texinfo" .
+             (("\C-c\C-s" . dan/texinfo-show-structure))))
+  
   (defun dan/texinfo-show-structure (&optional nodes-too)
     (interactive)
     (texinfo-show-structure)
@@ -1845,19 +1854,6 @@ by Vitalie S.
           (org-edit-src-content-indentation . 0)
           (outline-minor-mode)))
 #+end_src
-
-* Start-up
-#+begin_src emacs-lisp :tangle no
-  (when (string-match "^23\.*" emacs-version)
-    ;; temp hack to make w3m work with emacs23
-    ;; (require 'w3m-e21)
-    ;; (provide 'w3m-e23)
-    (org-agenda-list)
-    (delete-other-windows))
-  
-  ;; (org-fireforg-registry-initialize t)
-#+end_src
-
 * Customize stuff
 #+begin_src emacs-lisp :tangle no
   ;; (custom-set-variables
@@ -1892,5 +1888,21 @@ by Vitalie S.
   ;; (add-hook 'pre-command-hook 'eldoc-pre-command-refresh-echo-area t)
   ;; (setq eldoc-timer [nil 1000000 0 500000 t eldoc-print-current-symbol-info nil t]) ;;
 #+end_src
-* Config
-#+STARTUP: hideblocks
+
+* Start-up
+#+begin_src emacs-lisp :tangle no
+  ;;(when (string-match "^23\.*" emacs-version)
+  ;; temp hack to make w3m work with emacs23
+  ;; (require 'w3m-e21)
+  ;; (provide 'w3m-e23))
+  
+  ;; (org-fireforg-registry-initialize t)
+  
+  (dan/set-keys)
+  (if nil
+      (org-agenda-list)
+    (delete-other-windows))
+#+end_src
+* File Config
+#+startup: hideblocks
+#+property: results silent
