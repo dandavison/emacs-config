@@ -1520,9 +1520,11 @@ by Vitalie S.
                  ([f7] . dan/org-schedule-task-with-link)
                  ([f8] . org-remember)
                  ([f9] . find-tag-at-point)
+                 ([delete] . kill-buffer)
                  ([f10] . delete-other-windows)
                  ([f11] . delete-window)
-                 ([delete] . kill-buffer)
+                 ([(control escape)] . delete-window)
+                 ([(meta escape)] . delete-other-windows)
                  ([escape] . other-window))))
 #+end_src
 ***** C
