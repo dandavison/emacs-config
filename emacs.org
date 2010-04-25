@@ -619,7 +619,6 @@
 #+end_src
 
 *** Src
-***** org-src-mode-hook
 #+begin_src emacs-lisp
   (defun dan/org-src-mode-hook ()
     (outline-minor-mode -1)
@@ -633,7 +632,7 @@
   
   (setq org-hide-block-startup t)
   
-  (setq org-src-window-setup 'reorganize-frame) ;; 'current-window 'other-window 'other-frame 'reorganize-frame
+  (setq org-src-window-setup 'current-window) ;; 'current-window 'other-window 'other-frame 'reorganize-frame
   (setq org-src-ask-before-returning-to-edit-buffer nil)
   
   (define-key org-src-mode-map [C-tab] 'org-edit-src-exit)
@@ -655,7 +654,6 @@
         (org-hide-block-toggle 'hide)
         (org-edit-src-code))))
 #+end_src
-*** Babel
 ***** Activate languages
 #+begin_src emacs-lisp
   (mapc '(lambda (lang) (require (intern (format "org-babel-%s" lang))))
