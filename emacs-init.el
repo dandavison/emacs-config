@@ -8,4 +8,5 @@
       '(R))
 (mapc '(lambda (lang) (require (intern (format "org-babel-%s" lang))))
       dan/org-babel-early-load-languages)
+(setq max-mini-window-height nil)
 (org-babel-load-file "~/config/emacs/emacs.org")
