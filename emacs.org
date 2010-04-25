@@ -353,7 +353,7 @@
 *** Appearance
 #+begin_src emacs-lisp
   (setq org-hide-leading-stars t)
-  (setq org-hidden-keywords '(title date))
+  (setq org-hidden-keywords '(title date author))
   (copy-face 'shadow 'org-meta-line)
 #+end_src
 ***** Set outline colors
