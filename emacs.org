@@ -1496,14 +1496,14 @@ by Vitalie S.
   (add-to-list 'dan/key-bindings
         '(global-map . 
                  (("\C-x\C-b" . org-buffers-list)
-                 ("\C-ca" . 'org-agenda)
-                 ("\C-cb" . 'org-iswitchb)
+                 ("\C-ca" . org-agenda)
+                 ("\C-cb" . org-iswitchb)
                  ("\C-n" . dan/next-line-and-indent)
                  ("\C-p" . dan/previous-line-and-indent)
                  ("\C-ca" . org-agenda)
                  ("\C-cf" . find-function)
                  ("\C-cg" . magit-status)
-                 ("\C-cl" 'org-store-link)
+                 ("\C-cl" . org-store-link)
                  ("\C-cm" . dan/toggle-mode-line)
                  ("\C-cn" . dan/show-buffer-file-name)
                  ("\C-co" . dan/org-switch-to-org-scratch)
@@ -1544,7 +1544,7 @@ by Vitalie S.
 #+begin_src emacs-lisp
   (add-to-list
    'dan/key-bindings
-   '(ctl-x-4-map . (("t" . 'toggle-window-split))))
+   '(ctl-x-4-map . (("t" . toggle-window-split))))
 #+end_src
 ***** Elisp
 #+begin_src emacs-lisp
@@ -1553,7 +1553,6 @@ by Vitalie S.
                             (("\C-cd" . edebug-defun))))
 #+end_src
 ***** ESS
-
 #+begin_src emacs-lisp 
   (add-to-list
    'dan/key-bindings
