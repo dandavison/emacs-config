@@ -1,4 +1,9 @@
 
+* Early
+#+begin_src emacs-lisp
+(setq max-mini-window-height nil)
+#+end_src
+
 * Load path
 #+begin_src emacs-lisp
   (add-to-list 'load-path "~/src/config/emacs")
@@ -1090,8 +1095,11 @@ by Vitalie S.
   (add-hook 'dired-after-readin-hook 'dan/dired-delete-total-line)
 #+end_src
 
-* Ibuffer
+* Buffer lists
+*** Ibuffer
 #+begin_src emacs-lisp
+  (setq ibuffer-show-empty-filter-groups nil)
+  
   (setq ibuffer-saved-filter-groups
         '(("default"
            ("dired" (mode . dired-mode))
@@ -1117,12 +1125,18 @@ by Vitalie S.
               (ibuffer-switch-to-saved-filter-groups "default")))
 #+end_src
 
-* Buffer Menu
+*** Buffer Menu
 #+begin_src emacs-lisp
 (setq Buffer-menu-sort-column 4)
 #+end_src
 * ESS
+#+begin_src emacs-lisp
+  (add-to-list 'load-path "/usr/local/src/emacs/ess/lisp")
+  (require 'ess-site)
+#+end_src
+
 *** Add R builtins to font lock
+
 #+source: R-builtins
 #+begin_src R
  obj <- unlist(sapply(c("package:base", "package:stats","package:utils"), objects, all.names=TRUE))
@@ -1462,6 +1476,7 @@ by Vitalie S.
 *** dan/set-keys
 #+begin_src emacs-lisp
   (defun dan/set-keys ()
+    (interactive)
     (mapc (lambda (pair)
             (let* ((map (car pair)) (bindings (cdr pair)))
               (if (stringp map) (setq map (intern (concat map "-mode-map"))))
@@ -1538,10 +1553,11 @@ by Vitalie S.
                             (("\C-cd" . edebug-defun))))
 #+end_src
 ***** ESS
+
 #+begin_src emacs-lisp 
   (add-to-list
    'dan/key-bindings
-   '("ess" . 
+   '("ess" .
      (("\C-c?" . ess-display-help-on-object)
       ("\C-ca" . ess-r-args-show)
       ("\C-cd" . dan/ess-list-R-function-definitions)
@@ -1992,7 +2008,7 @@ by Vitalie S.
 #+end_src
 
 * Start-up
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
   ;;(when (string-match "^23\.*" emacs-version)
   ;; temp hack to make w3m work with emacs23
   ;; (require 'w3m-e21)
@@ -2000,10 +2016,19 @@ by Vitalie S.
   
   ;; (org-fireforg-registry-initialize t)
   
+  (require 'texinfo)
+  (require 'tex-mode)
+  
   (dan/set-keys)
   (if nil
       (org-agenda-list)
     (delete-other-windows))
+  
+  (add-hook
+   'magit-mode-hook
+   (lambda ()
+     (local-set-key [(meta left)] 'winner-undo)
+     (local-set-key [(meta right)] 'winner-redo)))
 #+end_src
 * File Config
 #+startup: hideblocks
