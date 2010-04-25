@@ -590,6 +590,33 @@
   }
   </style>")
 #+end_src
+  
+***** Latex export hook
+      [[mairix:t:@@87iq7fy0q0.fsf@totally-fudged-out-message-id][Email from Dan Davison: Re: {Orgmode} export-latex-fin]]
+#+begin_src emacs-lisp
+  (defun  dan/push-latex-to-odt ()
+    "Convert exported .text to .odt and open in openoffice."
+    (let* ((file-name (file-name-sans-extension (buffer-name)))
+           (output-buffer "*latex-to-odt output*")
+           (cmd (format  "mk4ht oolatex %s.tex && ooffice %s.odt"
+                        file-name file-name)))
+      (message "Converting latex to odt")
+      (start-process-shell-command
+       "latex-to-odt" output-buffer cmd)))
+  
+  (defun  dan/compile-latex ()
+    "Convert exported .text to dvi"
+    (let* ((file-name (file-name-sans-extension (buffer-name)))
+           (output-buffer "*latex-to-dvi output*")
+           (cmd (format  "latex %s.tex"
+                         file-name file-name)))
+      (message cmd)
+      (start-process-shell-command
+       "latex" output-buffer cmd)))
+  
+  (add-hook 'org-export-latex-after-save-hook
+            'dan/compile-latex)
+#+end_src
 
 *** Src
 ***** org-src-mode-hook
