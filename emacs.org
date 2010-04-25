@@ -1591,8 +1591,7 @@ by Vitalie S.
                  ("\M-n" . forward-paragraph)
                  ("\M-p" . backward-paragraph)
                  ("\M-2" . dan/insert-double-quotes)
-                 ([(meta left)] . winner-undo)
-                 ([(meta right)] . winner-redo)
+                 ([delete] . winner-undo)
                  ([f1] . org-buffers-list)
                  ([f2] . (lambda () (interactive) (switch-to-buffer "*Group*")))
                  ([f3] . (lambda () (interactive) (switch-to-buffer "*Org Agenda*")))
@@ -1601,7 +1600,6 @@ by Vitalie S.
                  ([f7] . dan/org-schedule-task-with-link)
                  ([f8] . org-remember)
                  ([f9] . find-tag-at-point)
-                 ([delete] . kill-buffer)
                  ([f10] . delete-other-windows)
                  ([f11] . delete-window)
                  ([(control escape)] . delete-window)
@@ -1658,16 +1656,11 @@ by Vitalie S.
   (add-to-list
    'dan/key-bindings
    '("org" .
-     (([(control down)] . org-insert-heading)
-      ([(control left)] . org-metaleft)
-      ([(control right)] . org-metaright)
-      ([(meta left)] . winner-undo)
-      ([(meta right)] . winner-redo)
-      ("\C-ch" . hide-subtree)
-      ("\C-ct" . org-hide-block-toggle)
-      ("\C-ci" . dan/org-toggle-iimage-in-org)
-      ("\C-cz" . dan/org-babel-switch-to-code-with-session)
-      ([(control \')] . dan/org-hide-block-and-switch-to-code-buffer))))
+     (("\C-ch" . hide-subtree)
+     ("\C-ct" . org-hide-block-toggle)
+     ("\C-ci" . dan/org-toggle-iimage-in-org)
+     ("\C-cz" . dan/org-babel-switch-to-code-with-session)
+     ([(control \')] . dan/org-hide-block-and-switch-to-code-buffer))))
 #+end_src
 ******* Eric's outline navigation bindings
 	[[mairix:t:@@m2eirnzhb4.fsf@gmail.com][Email from Eric Schulte: Re: {Orgmode} Go to top node]]
@@ -2095,12 +2088,6 @@ by Vitalie S.
   (if nil
       (org-agenda-list)
     (delete-other-windows))
-  
-  (add-hook
-   'magit-mode-hook
-   (lambda ()
-     (local-set-key [(meta left)] 'winner-undo)
-     (local-set-key [(meta right)] 'winner-redo)))
   
   (dan/sanitise-faces)
   (dan/set-show-paren-style)
