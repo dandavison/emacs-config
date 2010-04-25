@@ -1429,13 +1429,13 @@ by Vitalie S.
   
   ;; http://groups.google.com/group/gnu.emacs.gnus/browse_thread/thread/a673a74356e7141f
   (when window-system
-    (setq gnus-sum-thread-tree-indent " ") "  "
-    (setq gnus-sum-thread-tree-root "● " ) ; "● " "⚈ " ""
-    (setq gnus-sum-thread-tree-false-root "") ; "◯ " " ♽ " ""
-    (setq gnus-sum-thread-tree-single-indent "") ; "◎ "
-    (setq gnus-sum-thread-tree-vertical        "│") ; "┆" "┋" "┆"
-    (setq gnus-sum-thread-tree-leaf-with-other "├─► ") ; "┣━► "  "▶"
-    (setq gnus-sum-thread-tree-single-leaf     "╰─► ")) ; "┗━► "
+    (setq gnus-sum-thread-tree-indent " ")
+    (setq gnus-sum-thread-tree-root "♽ " )              ; ●  ⚈  
+    (setq gnus-sum-thread-tree-false-root "")           ; ◯   ♽  
+    (setq gnus-sum-thread-tree-single-indent "")        ; ◎ 
+    (setq gnus-sum-thread-tree-vertical        "│")     ; ┆ ┋ ┆
+    (setq gnus-sum-thread-tree-leaf-with-other "├─► ")  ; ┣━►   ▶
+    (setq gnus-sum-thread-tree-single-leaf     "╰─► ")) ; ┗━► 
   
   ;; seems like you can't use propertize to create colour in the summary
   ;; lines. I.e. the following don't work
