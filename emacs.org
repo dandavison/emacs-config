@@ -1600,6 +1600,12 @@ by Vitalie S.
               (mapc (lambda (binding) (define-key (eval map) (car binding) (cdr binding))) bindings)))
           dan/key-bindings))
   
+  (add-hook 'after-change-major-mode-hook
+            (lambda ()
+              (local-set-key [delete] 'winner-undo)
+              (local-set-key [(super left)] 'winner-undo)
+              (local-set-key [(super right)] 'winner-redo)))
+  
   (defvar dan/key-bindings nil
     "List of all key bindings.
   This is an alist of alists. The key of the top level alist
@@ -1691,9 +1697,7 @@ by Vitalie S.
   (add-to-list
    'dan/key-bindings
    '("latex" .
-     (([C-tab] . TeX-complete-symbol)
-      ("\C-ct" . org-toggle-latex-org)
-      ("\C-c=" . reftex-toc-dan))))
+     (([C-tab] . TeX-complete-symbol))))
 #+end_src
 ***** Org
 #+begin_src emacs-lisp 
@@ -1720,7 +1724,9 @@ by Vitalie S.
 #+begin_src emacs-lisp
   (add-to-list
    'dan/key-bindings
-   '("org-src" . (([(control \')] . org-edit-src-exit))))
+   '("org-src" .
+     (([(control \')] . org-edit-src-exit)
+      ([delete] . org-edit-src-exit))))
 #+end_src
 ***** Python
 #+begin_src emacs-lisp
