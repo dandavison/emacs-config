@@ -2091,6 +2091,7 @@ by Vitalie S.
   
   (dan/sanitise-faces)
   (dan/set-show-paren-style)
+  (set-face-attribute 'default nil :height 110 :family "DejaVu Sans Mono")
 #+end_src
 * File Config
 #+startup: hideblocks
