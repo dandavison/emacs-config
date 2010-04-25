@@ -2048,6 +2048,9 @@ by Vitalie S.
    (lambda ()
      (local-set-key [(meta left)] 'winner-undo)
      (local-set-key [(meta right)] 'winner-redo)))
+  
+  (dan/sanitise-faces)
+  (dan/set-show-paren-style)
 #+end_src
 * File Config
 #+startup: hideblocks
