@@ -78,8 +78,6 @@
 * Load config files
 #+begin_src emacs-lisp
   (load "~/src/config/emacs/vanilla")
-  (load "outline-dan")
-  (load "ess-dan")
   ;; (load "latex-dan")
 #+end_src
 * Appearance
@@ -1124,9 +1122,6 @@ by Vitalie S.
 (setq Buffer-menu-sort-column 4)
 #+end_src
 * ESS
-*** Config
-#+begin_src emacs-lisp
-#+end_src
 *** Add R builtins to font lock
 #+source: R-builtins
 #+begin_src R
@@ -1135,7 +1130,7 @@ by Vitalie S.
  obj[-grep(re, obj)]
 #+end_src
 
-#+begin_src emacs-lisp :tangle no :expand yes :var R-builtins=R-builtins()
+#+begin_src emacs-lisp :var R-builtins=R-builtins()
   (add-to-list
    'ess-R-mode-font-lock-keywords
    (cons 
@@ -1145,13 +1140,11 @@ by Vitalie S.
 
 *** Etc
 #+begin_src emacs-lisp :tangle no
-  (defun dan/ess-execute-command-on-region (cmd)
-    (interactive "sEnter function name: \n")
-    (ess-execute
-     (concat cmd "(" (buffer-substring (point) (mark)) ")")))
-#+end_#+begin_src language 
-      
-      #+end_src
+    (defun dan/ess-execute-command-on-region (cmd)
+      (interactive "sEnter function name: \n")
+      (ess-execute
+       (concat cmd "(" (buffer-substring (point) (mark)) ")")))
+#+end_src
       
 * Flyspell
 #+begin_src emacs-lisp
