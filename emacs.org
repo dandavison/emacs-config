@@ -1657,6 +1657,8 @@ by Vitalie S.
                  ("\M-p" . backward-paragraph)
                  ("\M-2" . dan/insert-double-quotes)
                  ([delete] . winner-undo)
+                 ([(hyper left)] . winner-undo)
+                 ([(hyper right)] . winner-undo)
                  ([f1] . org-buffers-list)
                  ([f2] . (lambda () (interactive) (switch-to-buffer "*Group*")))
                  ([f3] . (lambda () (interactive) (switch-to-buffer "*Org Agenda*")))
