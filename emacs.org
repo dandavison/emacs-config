@@ -1849,6 +1849,18 @@ by Vitalie S.
         (redraw-frame (window-frame (selected-window)))))
 #+end_src
 * Functions
+*** Trace functions
+#+begin_src emacs-lisp
+  (defun dan/trace-functions (regexp)
+    "Trace functions with names matching regexp"
+    ;; TODO: read regexp from minibuffer
+    (interactive)
+    (mapc 'trace-function
+          (loop for x being the symbols
+                if (and (fboundp x) (string-match regexp (symbol-name x)))
+                collect x)))
+#+end_src
+
 *** Revert all elisp buffers
     #+begin_src emacs-lisp
       (defun dan/revert-elisp-buffers ()
