@@ -113,11 +113,13 @@
     (set-face-background 'fringe (face-background 'default)) ;; don't have different color fringe
     ;; (set-face-background 'highlight (face-background 'default))
     ;; (set-face-foreground 'highlight (face-foreground 'font-lock-comment-face))
-    (font-lock-fontify-buffer)
     ;; (set-face-foreground 'cursor (face-foreground 'font-lock-comment-face))
     ;; (set-cursor-color (face-foreground 'font-lock-comment-face))
-    )
-        
+    (set-face-attribute 'org-hide nil
+			:foreground
+			(face-attribute 'default :background))
+    (font-lock-fontify-buffer))
+
   (defun dan/set-show-paren-style ()
     (interactive)
     (setq show-paren-delay .125)
@@ -135,10 +137,6 @@
         
   (add-hook 'find-file-hook 'dan/sanitise-faces)
   (add-hook 'find-file-hook 'dan/set-show-paren-style)
-  
-  (set-face-attribute 'org-hide nil
-                      :foreground
-                      (face-attribute 'default :background))
 #+end_src
 *** Save faces
 #+begin_src emacs-lisp
