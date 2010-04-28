@@ -1591,9 +1591,7 @@ by Vitalie S.
     ;; (font-lock-add-keywords
     ;; ? ?nil `(("\\([[:alpha:]_][[:alnum:]_]*\\)(" ?1 font-lock-function-name-face)))
     (setq c-basic-offset 4)
-    (setq line-number-mode t)
-    (mapc (lambda (pair) (local-set-key (car pair) (cdr pair)))
-          dan/c-c++-mode-keybindings))
+    (setq line-number-mode t))
   
   ;; (add-hook 'c-mode-hook 'c++-mode) ;; I want C++ comments, but that seems a bit heavy-handed?
   (add-hook 'c-mode-hook 'dan/c-c++-mode-hook)
