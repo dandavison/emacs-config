@@ -352,6 +352,7 @@
   ;; Targets complete in steps so we start with filename, TAB shows the next level of targets etc 
   (setq org-outline-path-complete-in-steps t)
 #+end_src
+
 *** Appearance
 #+begin_src emacs-lisp
   (setq org-hide-leading-stars t)
@@ -577,6 +578,7 @@
   (setq org-export-htmlize-output-type (if t 'inline-css 'css))
   (setq org-export-with-LaTeX-fragments t)
   (setq org-export-copy-to-kill-ring nil)
+  (setq org-export-allow-BIND t)
   
   ;; from Eric
   (setq org-export-html-style
