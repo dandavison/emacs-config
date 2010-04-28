@@ -1178,25 +1178,48 @@ by Vitalie S.
 #+begin_src emacs-lisp
   (setq ibuffer-show-empty-filter-groups nil)
   
+  (defalias 'list-buffers 'ibuffer)
+    
   (setq ibuffer-saved-filter-groups
-        '(("default"
-           ("dired" (mode . dired-mode))
-           ("elisp" (mode . emacs-lisp-mode))
-           ("org" (mode . org-mode))
-           ("perl" (mode . cperl-mode))
-           ("erc" (mode . erc-mode))
-           ("emacs" (or
-                     (name . "^\\*scratch\\*$")
-                     (name . "^\\*Messages\\*$")))
-           ("gnus" (or
-                    (mode . message-mode)
-                    (mode . bbdb-mode)
-                    (mode . mail-mode)
-                    (mode . gnus-group-mode)
-                    (mode . gnus-summary-mode)
-                    (mode . gnus-article-mode)
-                    (name . "^\\.bbdb$")
-                    (name . "^\\.newsrc-dribble"))))))
+        '(("default"      
+           ("VBPL"
+            (or
+             (name . "Papers/structure")
+             (name . "^dan\.bib$")))
+           ("PoBI"
+            (name . "pobi"))
+           ("MSG"
+            (name . "simsec"))
+           ("Org-babel"
+            (name . "babel"))
+           ("Org-mode"
+            (or (name . "org-mode")
+                (name . "^org\.org$")))
+           ("Org-buffers"
+            (name . "org-buffers"))
+           ("Email"
+            (or  ;; mail-related buffers
+             (mode . message-mode)
+             (mode . mail-mode)
+             (mode . gnus-group-mode)
+             (mode . gnus-summary-mode)
+             (mode . gnus-article-mode)
+             (name . "newsrc")))
+           ("Elisp"
+            (or
+             (name . "config/emacs")
+             (name . "^\\*scratch\\*$")
+             (name . "^\\*eshell\\*$")))
+           ("Emacs"
+            (or
+             (name . "^\\*scratch\\*$")
+             (name . "^\\*Messages\\*$")))
+           ("Org"
+            (mode . org-mode))  
+           ("ERC"
+            (mode . erc-mode))
+           ("Etc"
+            (name . ".")))))
   
   (add-hook 'ibuffer-mode-hook
             (lambda ()
