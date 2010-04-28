@@ -809,10 +809,7 @@
 #+end_src
 
 *** Support for viewing images
-   Taken from Eric's Emacs Starter Kit
-
-This allows for the viewing of images in-line in Org-mode documents.
-
+    See [[*Font%20lock][Font-lock]] section for more recent iimage fontification.
 #+begin_src emacs-lisp
   (require 'iimage)
   (setq iimage-mode-image-search-path (expand-file-name "~/"))
@@ -851,30 +848,6 @@ This allows for the viewing of images in-line in Org-mode documents.
                   (remove-text-properties (match-beginning 0) (match-end 0) '(display)))))))
       (set-buffer-modified-p modp)))
   
-  
-  (defun dan/org-fontify-image-links (limit)
-    "Display links to images as images.
-  If the description part of the link is empty display the image,
-  otherwise do nothing. This function is intended to be called
-  during font-lock fontification."
-    (let ((case-fold-search t) file image)
-      (and dan/org-display-inline-images
-           (re-search-forward
-            (concat "\\[\\[file:\\(" iimage-mode-image-filename-regex "\\)\\]\\]") limit t)
-           (setq file (match-string 1))
-           (setq file (iimage-locate-file file (list default-directory)))
-           (setq image (create-image file))
-           (add-text-properties (match-beginning 0) (match-end 0) (list 'display image))
-           ;; (clear-image-cache)
-           (image-refresh image)
-           ;; (redisplay)
-           ;; (redraw-frame)
-           ;; (redraw-display)
-           ;; (image-refresh image)
-           )))
-  
-  (setq dan/org-display-inline-images nil)
-  (add-hook 'org-font-lock-hook 'dan/org-fontify-image-links)
   
   (set-face-underline-p 'org-link nil)
   
@@ -918,6 +891,47 @@ This allows for the viewing of images in-line in Org-mode documents.
               (image-refresh (create-image file))))))
       (set-buffer-modified-p modp))
     (redisplay))
+#+end_src
+
+*** Font-lock
+:PROPERTIES:
+:ID: 6fde328d-fb5a-4d28-a9ec-8b82e51b5d82
+:END:
+#+begin_src emacs-lisp
+  (defun dan/org-fontify-image-links (limit)
+    "Display links to images as images.
+  If the description part of the link is empty display the image,
+  otherwise do nothing. This function is intended to be called
+  during font-lock fontification."
+    (let ((case-fold-search t) file image)
+      (and dan/org-display-inline-images
+           (re-search-forward
+            (concat "\\[\\[file:\\(" iimage-mode-image-filename-regex "\\)\\]\\]") limit t)
+           (setq file (match-string 1))
+           (setq file (iimage-locate-file file (list default-directory)))
+           (setq image (create-image file))
+           (add-text-properties (match-beginning 0) (match-end 0) (list 'display image))
+           ;; (clear-image-cache)
+           (image-refresh image)
+           ;; (redisplay)
+           ;; (redraw-frame)
+           ;; (redraw-display)
+           ;; (image-refresh image)
+           )))
+  
+  (setq dan/org-display-inline-images t)
+  (add-hook 'org-font-lock-hook 'dan/org-fontify-image-links)
+  
+  (set-face-underline-p 'org-link nil)
+  
+  (defun dan/org-fontify-latex-commands (limit)
+    (let ((case-fold-search t))
+      (and (re-search-forward "\\\\[A-Za-z-_]+" limit t)
+           (add-text-properties
+            (match-beginning 0) (match-end 0)
+            '(font-lock-fontified t face font-lock-function-name-face)))))
+  
+  (add-hook 'org-font-lock-hook 'dan/org-fontify-latex-commands)
 #+end_src
 
 *** Org-icons
