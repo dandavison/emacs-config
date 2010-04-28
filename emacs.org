@@ -1859,6 +1859,9 @@ by Vitalie S.
 #+end_src
 
 * Hooks
+:PROPERTIES:
+:ID: 20eb729f-8509-4e78-bf5a-9b250b189b9b
+:END:
 #+begin_src emacs-lisp
   ;; This doesn't work with org-src-mode code buffers as their
   ;; buffer-file-name doesn't correspond to a file
