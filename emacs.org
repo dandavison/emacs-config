@@ -1592,6 +1592,7 @@ by Vitalie S.
 * Language modes
 *** Elisp
 #+begin_src emacs-lisp
+  (add-hook 'emacs-lisp-mode-hook 'pretty-lambdas)
 #+end_src
 
 *** C & C++
