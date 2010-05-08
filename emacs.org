@@ -1883,9 +1883,9 @@ by Vitalie S.
   
   (autoload 'ansi-color-for-comint-mode-on "ansi-color" nil t)
   (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
-  (add-hook 'change-major-mode-hook 'dan/toggle-mode-line)
+  (add-hook 'after-change-major-mode-hook 'dan/toggle-mode-line)
 #+end_src
-
+  
 * Mode line
 #+begin_src emacs-lisp 
   (defun dan/toggle-mode-line (&optional restore buffer)
