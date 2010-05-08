@@ -55,49 +55,42 @@
 * Extra packages
 #+srcname: name
 #+begin_src emacs-lisp
-  (require 'htmlize)
-  (require 'regex-tool)
-  (require 'unbound)
-  ;; (require 'zenburn)
-  ;; (require 'color-theme-chocolate-rain)
-  (require 'windresize)
-  (require 'xclip)
-  (require 'highlight-parentheses)
-  (highlight-parentheses-mode)
-  (require 'magit)
-  ;; (require 'egg)
-  (setq egg-enable-tooltip t)
-  ;; (require 'bbdb)
-  ;; (bbdb-initialize)
-  ;; (require 'ido)
-  (require 'boxquote)
-  (require 'yasnippet)
-  (yas/initialize)
-  (yas/load-directory "/usr/local/src/emacs/yasnippet/snippets")
-  ;; (load "/usr/local/src/emacs/nxhtml/autostart.el")
-  ;; (load "R-anything-config")
-  ;; (load "icicles/icicles")
-  ;; (icy-mode t)
-  ;; (require 'orgfold)
-  (require 'sass-mode)
-  (require 'ssh)
-  (require 'google-search)
-  (require 'w3m)
-  (require 'gnuplot)
-  (require 'matlab)
-  
-  (add-to-list 'load-path "/usr/local/src/emacs/org-buffers")
-  (require 'org-buffers)
-  
-  (add-to-list 'load-path "/usr/local/src/emacs/buffer-join")
-  ;; (require 'buffer-join)
-  
-  (require 'org-mime)
-  (add-to-list 'load-path "/usr/local/src/emacs/color-theme-6.6.0")
-  (require 'color-theme)
-  
-  ;; (require 'recentf) ;; in emacs23
-  ;; (require 'pp) ;; in emacs23
+    (require 'htmlize)
+    (require 'regex-tool)
+    (require 'unbound)
+    (require 'windresize)
+    (require 'xclip)
+    (require 'highlight-parentheses)
+    (highlight-parentheses-mode)
+    (require 'magit)
+    (setq egg-enable-tooltip t)
+    ;; (require 'ido)
+    (require 'boxquote)
+    (require 'yasnippet)
+    (yas/initialize)
+    (yas/load-directory "/usr/local/src/emacs/yasnippet/snippets")
+    ;; (load "/usr/local/src/emacs/nxhtml/autostart.el")
+    ;; (load "R-anything-config")
+    ;; (require 'orgfold)
+    (require 'sass-mode)
+    (require 'ssh)
+    (require 'google-search)
+    ;; (require 'w3m)
+    ;; (require 'gnuplot)
+    (require 'matlab)
+    
+    (add-to-list 'load-path "/usr/local/src/emacs/org-buffers")
+    (require 'org-buffers)
+    
+    (add-to-list 'load-path "/usr/local/src/emacs/buffer-join")
+    ;; (require 'buffer-join)
+    
+    (require 'org-mime)
+    (add-to-list 'load-path "/usr/local/src/emacs/color-theme-6.6.0")
+    (require 'color-theme)
+    ;; (require 'zenburn)
+    ;; (require 'color-theme-chocolate-rain)
+  ;; (require 'filladapt)
 #+end_src
 
 * Load config files
@@ -392,7 +385,7 @@
 
 *** Structure & Navigation
 #+begin_src emacs-lisp 
-  (setq org-odd-levels-only t)
+  ;; (setq org-odd-levels-only t)
   (setq org-empty-line-terminates-plain-lists t)
   (setq org-cycle-emulate-tab t)
   (setq org-special-ctrl-a t)
@@ -660,8 +653,8 @@
       #+end_src
 ***** Hide block and switch to edit buffer
 #+begin_src emacs-lisp
-  (defun dan/org-hide-block-and-switch-to-code-buffer ()
-    (interactive)
+  (defun dan/org-hide-block-and-switch-to-code-buffer (&optional arg)
+    (interactive "P")
     (let* ((org-babel-src-block-regexp
             (concat "^[ \t]*#\\+begin_src[ \t]+\\("                     ;; (1)   lang
                     (mapconcat 'regexp-quote org-babel-interpreters "\\|")
@@ -673,7 +666,7 @@
       (when beg
         (goto-char beg)
         (org-hide-block-toggle 'hide)
-        (org-edit-src-code))))
+        (if arg (org-edit-src-code)))))
 #+end_src
 ***** Activate languages
 #+begin_src emacs-lisp
@@ -713,9 +706,18 @@
 #+begin_src emacs-lisp
   (yas/load-directory "/usr/local/src/emacs/Worg/org-contrib/babel/snippets")
 #+end_src
+
+***** dan/indent-src-block
+#+begin_src emacs-lisp
+(defun dan/indent-src-block ()
+  (interactive)
+  (org-edit-src-code)
+  (indent-region (point-min) (point-max))
+  (org-edit-src-exit))
+#+end_src
 ***** dan/enclose-region-in-src-block
 #+begin_src emacs-lisp
-  (defun dan/enclose-region-in-src-block ()
+  (defun dan/enclose-region-in-src-block (&optional lang)
     (interactive)
     (let* ((beg (if (region-active-p) (region-beginning) (point)))
            (end (if (region-active-p) (region-end) (point))))
@@ -1224,6 +1226,8 @@ by Vitalie S.
             (name . "pobi"))
            ("MSG"
             (name . "simsec"))
+           ("shellfish"
+            (name . "shellfish"))
            ("Org-babel"
             (name . "babel"))
            ("Org-mode"
@@ -1279,9 +1283,9 @@ by Vitalie S.
 
 #+source: R-builtins
 #+begin_src R
- obj <- unlist(sapply(c("package:base", "package:stats","package:utils"), objects, all.names=TRUE))
- re <- "(^[^.[:alpha:][:digit:]]|<-|__)"  ## to remove "weird" functions
- obj[-grep(re, obj)]
+  obj <- unlist(sapply(c("package:base","package:stats","package:utils","package:grDevices"), objects, all.names=TRUE))
+  re <- "(^[^.[:alpha:][:digit:]]|<-|__)"  ## to remove "weird" functions
+  obj[-grep(re, obj)]
 #+end_src
 
 #+begin_src emacs-lisp :var R-builtins=R-builtins()
@@ -1294,12 +1298,12 @@ by Vitalie S.
 
 *** Etc
 #+begin_src emacs-lisp :tangle no
-    (defun dan/ess-execute-command-on-region (cmd)
-      (interactive "sEnter function name: \n")
-      (ess-execute
-       (concat cmd "(" (buffer-substring (point) (mark)) ")")))
+  (defun dan/ess-execute-command-on-region (cmd)
+    (interactive "sEnter function name: \n")
+    (ess-execute
+     (concat cmd "(" (buffer-substring (point) (mark)) ")")))
 #+end_src
-      
+       
 * Flyspell
 #+begin_src emacs-lisp
   (setq flyspell-issue-message-flag nil)
@@ -1635,7 +1639,7 @@ by Vitalie S.
   ;; ;; Things that I'm not really interested in seeing in emacs
   ;; ;; (you can still open them explicitly)
   (setq dan/ignored-extensions
-        '(".html" ".csv" ".ps" ".bst" ".cls" ".sty" ".backup" ".log"
+        '(".html" ".csv" ".ps" ".bst" ".cls"
           ".fdf" ".spl" ".aux" ".ppt" ".doc" ".xls" ".mp3" ".org"))
   
   (mapc (lambda(extension)
