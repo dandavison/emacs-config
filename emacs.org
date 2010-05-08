@@ -373,6 +373,23 @@
      (car (nth level colours))))
 #+end_src
 
+*** Entities
+[[mairix:t:@@87zl0e2ue7.fsf@gmail.com][Email from Eric Schulte: {Orgmode} Pretty org-entities ]]
+#+begin_src emacs-lisp :results silent
+  (defun org-pretty-entities ()
+    (interactive)
+    (font-lock-add-keywords
+     nil (mapcar
+          (lambda (el)
+            (list
+             (concat "(?\\(" (regexp-quote "\\") (nth 0 el) "[\s]" "\\)")
+             `(0 (progn (compose-region (match-beginning 1) (- (match-end 1) 1)
+                                        ,(nth 6 el)) nil))))
+          org-entities)))
+  
+  (org-pretty-entities)
+#+end_src
+
 *** Structure & Navigation
 #+begin_src emacs-lisp 
   (setq org-odd-levels-only t)
