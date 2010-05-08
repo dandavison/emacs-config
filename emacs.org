@@ -1592,13 +1592,6 @@ by Vitalie S.
 * Language modes
 *** Elisp
 #+begin_src emacs-lisp
-(defun dan/emacs-lisp-mode-hook ()
-  "Dan's settings for emacs-lisp mode"
-  ;; (set 'lisp-indent-offset 4)
-  (local-set-key "\C-c\C-l" 'dan/eval-buffer-confirm))
-
-(add-hook 'emacs-lisp-mode-hook 'dan/emacs-lisp-mode-hook)
-
 #+end_src
 
 *** C & C++
@@ -1744,9 +1737,11 @@ by Vitalie S.
 #+end_src
 ***** Elisp
 #+begin_src emacs-lisp
-  (add-to-list 'dan/key-bindings
-               '("emacs-lisp" .
-                            (("\C-cd" . edebug-defun))))
+  (add-to-list
+   'dan/key-bindings
+   '("emacs-lisp" .
+     (("\C-cd" . edebug-defun)
+      ("\C-c\C-l" . dan/eval-buffer-confirm))))
 #+end_src
 ***** ESS
 #+begin_src emacs-lisp 
@@ -1783,7 +1778,7 @@ by Vitalie S.
      ("\C-ct" . org-hide-block-toggle)
      ("\C-ci" . dan/org-toggle-iimage-in-org)
      ("\C-cz" . dan/org-babel-switch-to-code-with-session)
-     ([(control \')] . dan/org-hide-block-and-switch-to-code-buffer))))
+     ([(control \')] . org-edit-special))))
 #+end_src
 ******* Eric's outline navigation bindings
 	[[mairix:t:@@m2eirnzhb4.fsf@gmail.com][Email from Eric Schulte: Re: {Orgmode} Go to top node]]
