@@ -1368,7 +1368,6 @@ by Vitalie S.
         (fill-paragraph)
         (widen))))
   
-  (define-key mml-mode-map "\M-q" 'ded/mml-fill-paragraph)
   ;;
   ;;-----------------------------------------------------------------------------------------
   
@@ -1380,7 +1379,6 @@ by Vitalie S.
       (gnus-summary-delete-article)
       (gnus-summary-next-article)))
     
-  (define-key gnus-summary-mode-map "\C-d" 'dan/gnus-summary-delete-article)
   ;;;
   ;;; Expiry
   ;;;
@@ -1740,12 +1738,26 @@ by Vitalie S.
    `("inferior-ess" .
      ,(cdr (assoc "ess" dan/key-bindings))))
 #+end_src
+***** Gnus
+#+begin_src emacs-lisp
+  (add-to-list
+   'dan/key-bindings
+   '("gnus-summary" .
+     (("\C-d" . dan/gnus-summary-delete-article))))
+#+end_src
 ***** Latex
 #+begin_src emacs-lisp
   (add-to-list
    'dan/key-bindings
    '("latex" .
      (([C-tab] . TeX-complete-symbol))))
+#+end_src
+***** Mml
+#+begin_src emacs-lisp
+(add-to-list
+ 'dan/key-bindings
+ '("mml" .
+   (("\M-q" . ded/mml-fill-paragraph))))
 #+end_src
 ***** Org
 #+begin_src emacs-lisp 
