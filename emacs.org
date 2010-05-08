@@ -2207,6 +2207,19 @@ by Vitalie S.
   ;;  '(gnus-cite-1 ((((class color) (background light)) (:foreground "deep sky blue")))))
 #+end_src
 
+* Starter kit
+#+begin_src emacs-lisp
+  (setq dan/starter-kit-components-all '(bindings defuns eshell lisp misc org perl registers ruby yasnippet))
+  (setq dan/starter-kit-components '(defuns))
+  
+  (let ((dotfiles-dir "~/emacs/emacs-starter-kit"))
+    (mapcar
+     'org-babel-load-file
+     (mapcar
+      (lambda (x) (format "%s/starter-kit-%s.org" dotfiles-dir (symbol-name x)))
+      dan/starter-kit-components)))
+#+end_src
+
 * Start-up
 #+begin_src emacs-lisp
   ;;(when (string-match "^23\.*" emacs-version)
