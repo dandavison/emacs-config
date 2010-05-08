@@ -295,34 +295,34 @@
 * Org
 *** Hook
 #+begin_src emacs-lisp
-(defun dan/org-mode-hook-function ()
-  ;; yasnippet
-  (make-variable-buffer-local 'yas/trigger-key)
-  (setq yas/trigger-key [tab])
-  (define-key yas/keymap [tab] 'yas/next-field-group)
-  (org-indent-mode t))
-
-(add-hook 'org-mode-hook 'dan/org-mode-hook-function)
+  (defun dan/org-mode-hook-function ()
+    ;; yasnippet
+    (make-variable-buffer-local 'yas/trigger-key)
+    (setq yas/trigger-key [tab])
+    (define-key yas/keymap [tab] 'yas/next-field-group)
+    (org-indent-mode t))
+  
+  (add-hook 'org-mode-hook 'dan/org-mode-hook-function)
 #+end_src
 *** Basics
 #+begin_src emacs-lisp
-;;* Org-mode settings
-
-(add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
-
-(require 'org-mairix)
-
-;; (or (server-running-p) (server-start))
-;; (add-to-list 'load-path "~/path/to/org/protocol/")
-(require 'org-protocol)
-
-;; (require 'org-R)
-(load "~/src/org/org-util.el")
-;; (load "~/src/org/org-R/org-R.el")
-
-;; (require 'org-git-link)
-
-;; (load "~/website/website.el")
+  ;;* Org-mode settings
+  
+  (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
+  
+  (require 'org-mairix)
+  
+  ;; (or (server-running-p) (server-start))
+  ;; (add-to-list 'load-path "~/path/to/org/protocol/")
+  (require 'org-protocol)
+  
+  ;; (require 'org-R)
+  (load "~/src/org/org-util.el")
+  ;; (load "~/src/org/org-R/org-R.el")
+  
+  ;; (require 'org-git-link)
+  
+  ;; (load "~/website/website.el")
 #+end_src
 *** Misc
 #+begin_src emacs-lisp
@@ -385,7 +385,7 @@
 
 *** Structure & Navigation
 #+begin_src emacs-lisp 
-  ;; (setq org-odd-levels-only t)
+    ;; (setq org-odd-levels-only t)
   (setq org-empty-line-terminates-plain-lists t)
   (setq org-cycle-emulate-tab t)
   (setq org-special-ctrl-a t)
@@ -1381,32 +1381,6 @@ by Vitalie S.
       (gnus-summary-next-article)))
     
   (define-key gnus-summary-mode-map "\C-d" 'dan/gnus-summary-delete-article)
-  
-  (defun dan/gnus-get-mail ()
-    (interactive)
-    ;; a hack
-    (set-buffer "*Summary INBOX*")
-    (gnus-summary-exit)
-    (set-buffer "*Group*")
-    (gnus-group-get-new-news)
-    (beginning-of-buffer)
-    (re-search-forward "INBOX")
-    (gnus-group-select-group 200))
-  
-  
-  (defun dan/gnus-group-getmail-and-get-new-news ()
-    (interactive)
-    (save-window-excursion
-      (let ((buf (generate-new-buffer "*getmail output*")))
-        (pop-to-buffer buf)
-        (shell-command "getmail-dan" buf buf))
-      (switch-to-buffer "*Group*")
-      (gnus-group-get-new-news)))
-  
-  (define-key gnus-group-mode-map "g" 'dan/gnus-group-getmail-and-get-new-news)
-  
-  
-  
   ;;;
   ;;; Expiry
   ;;;
@@ -1510,7 +1484,6 @@ by Vitalie S.
   (defun gnus-user-format-function-z (x)
     (propertize "hello" 'face '(:foreground "red")))
 #+end_src
-
 *** Correct counts
 #+begin_src emacs-lisp
   ;;; dim-gnus-imap-count.el --- Dimitri Fontaine
