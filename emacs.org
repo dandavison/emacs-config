@@ -1451,6 +1451,19 @@ by Vitalie S.
    )
 #+end_src
 
+*** Group buffer
+#+begin_src emacs-lisp
+  (defun dan/gnus-group-sort (info1 info2)
+    "Sort alphabetically."
+    (cond
+     ((string= info1 "email") nil)
+     ((string= info2 "email") t)
+     (t (not (gnus-group-sort-by-alphabet info1 info2)))))
+  
+  (setq gnus-group-sort-function 'dan/gnus-group-sort)
+#+end_src
+
+
 *** Summary buffer
 #+begin_src emacs-lisp
   ;;; Summary Buffer
