@@ -996,6 +996,12 @@
             (local-set-key "\C-c\M-o" 'org-mime-org-buffer-htmlize)))
 #+end_src
 
+*** Org-fold
+#+begin_src emacs-lisp
+  (add-to-list 'load-path "~/emacs/org-fold")
+  (require 'org-fold)
+#+end_src
+
 *** Etc
 ***** Show all including blocks
 #+begin_src emacs-lisp
