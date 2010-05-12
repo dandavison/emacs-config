@@ -1228,6 +1228,11 @@ by Vitalie S.
   (add-hook 'dired-after-readin-hook 'dan/dired-delete-total-line)
 #+end_src
 
+* Info
+#+begin_src emacs-lisp
+  (add-to-list 'Info-directory-list "/usr/share/info/emacs-snapshot")
+#+end_src
+
 * Buffer lists
 *** Ibuffer
 #+begin_src emacs-lisp
