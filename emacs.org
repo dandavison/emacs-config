@@ -1851,6 +1851,19 @@ by Vitalie S.
   
   ;; (transient-mark-mode t) ;; something turns it off
 #+end_src
+* Save place
+#+begin_src emacs-lisp :tangle no
+  (require 'saveplace)
+  (setq-default save-place t)
+  
+  (add-hook 'org-mode-hook
+            (lambda ()
+              (when (outline-invisible-p)
+                (save-excursion
+                  (outline-previous-visible-heading 1)
+                  (org-show-subtree)))))
+#+end_src
+
 * Browser
 #+begin_src emacs-lisp
 ;; http://flash.metawaredesign.co.uk/2/.emacs
