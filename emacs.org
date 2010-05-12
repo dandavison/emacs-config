@@ -2272,8 +2272,8 @@ by Vitalie S.
     (delete-other-windows))
   
   (set-face-attribute 'default nil :height 110 :family "DejaVu Sans Mono")
-  (color-theme-initialize)
-  (color-theme-gtk-ide)
+  ;; (color-theme-initialize)
+  ;; (color-theme-gtk-ide)
   (dan/sanitise-faces)
   (dan/set-show-paren-style)
 #+end_src
