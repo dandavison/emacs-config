@@ -1292,6 +1292,12 @@ by Vitalie S.
 #+begin_src emacs-lisp
 (setq Buffer-menu-sort-column 4)
 #+end_src
+* Recentf
+#+begin_src emacs-lisp
+  ;; recentf-exclude
+  (setq recentf-max-saved-items nil)
+#+end_src
+
 * LaTeX
 #+begin_src emacs-lisp
   (add-hook 'latex-mode-hook 'reftex-mode)
