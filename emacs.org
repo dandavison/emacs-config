@@ -1341,6 +1341,9 @@ by Vitalie S.
 * Gnus
 *** General
 #+begin_src emacs-lisp
+  (add-to-list 'load-path "~/emacs/gnus/lisp")
+  (require 'gnus-load)
+  
   (require 'nnmairix)
   (setq user-mail-address "davison@stats.ox.ac.uk")
   (setq user-full-name "Dan Davison")
