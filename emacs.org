@@ -2246,6 +2246,7 @@ by Vitalie S.
   (require 'texinfo)
   (require 'tex-mode)
   
+  (nnmairix-update-database)
   (dan/set-keys)
   (if nil
       (org-agenda-list)
