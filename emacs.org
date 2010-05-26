@@ -908,6 +908,7 @@
     (redisplay t))
   
   ;; (add-hook 'org-babel-after-execute-hook 'dan/org-iimage-refresh)
+  (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
 #+end_src
 
 ***** Etc
