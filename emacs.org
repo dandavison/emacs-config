@@ -1964,6 +1964,13 @@ by Vitalie S.
                 collect x)))
 #+end_src
 
+*** Debug on error
+#+begin_src emacs-lisp
+  (defun dan/toggle-debug-on-error ()
+    (interactive)
+    (setq debug-on-error (not debug-on-error)))
+#+end_src
+
 *** Revert all elisp buffers
     #+begin_src emacs-lisp
       (defun dan/revert-elisp-buffers ()
