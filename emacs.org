@@ -35,7 +35,6 @@
   ;; (add-to-list 'load-path "/usr/local/src/emacs/orgfold")
   ;; (add-to-list 'load-path "/usr/local/src/emacs/ruby-emacs")
   (add-to-list 'load-path "/usr/local/src/emacs/org-fstree")
-  (add-to-list 'load-path "/usr/local/src/emacs/emacs-w3m")
   (add-to-list 'load-path "/usr/local/src/emacs/gnuplot-mode.0.6.0")
   (add-to-list 'load-path "/usr/local/src/emacs/matlab")
 #+end_src
