@@ -658,7 +658,7 @@
   
   (setq org-hide-block-startup t)
   
-  (setq org-src-window-setup 'current-window) ;; 'current-window 'other-window 'other-frame 'reorganize-frame
+  (setq org-src-window-setup 'reorganize-frame) ;; 'current-window 'other-window 'other-frame 'reorganize-frame
   (setq org-src-ask-before-returning-to-edit-buffer nil)
   
   (define-key org-src-mode-map [C-tab] 'org-edit-src-exit)
@@ -900,7 +900,7 @@
     (redisplay t))
   
   ;; (add-hook 'org-babel-after-execute-hook 'dan/org-iimage-refresh)
-  (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
+  ;; (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
 #+end_src
 
 ***** Etc
@@ -2279,11 +2279,26 @@ by Vitalie S.
     (delete-other-windows))
   
   (set-face-attribute 'default nil :height 110 :family "DejaVu Sans Mono")
-  ;; (color-theme-initialize)
-  ;; (color-theme-gtk-ide)
+  (color-theme-initialize)
+  (color-theme-charcoal-black)
   (dan/sanitise-faces)
   (dan/set-show-paren-style)
 #+end_src
+* Experimental
+#+begin_src emacs-lisp
+  (setq scroll-preserve-screen-position :always
+        scroll-conservatively           most-positive-fixnum
+        scroll-step                     0)
+#+end_src
+** Redefine message
+#+begin_src emacs-lisp :tangle no
+  (defun message (format-string &rest args)
+    "Redfine message to write to *Messages* buffer only"
+    (set-buffer "*Messages*")
+    (goto-char (point-max))
+    (insert (apply 'format format-string args)))
+#+end_src
+
 * File Config
 #+startup: hideblocks
 #+property: results silent
