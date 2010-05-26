@@ -1241,6 +1241,8 @@ by Vitalie S.
              (name . "^dan\.bib$")))
            ("PoBI"
             (name . "pobi"))
+           ("WTCCC2"
+            (name . "wtccc2"))
            ("MSG"
             (name . "simsec"))
            ("shellfish"
@@ -1458,7 +1460,6 @@ by Vitalie S.
   
   (setq gnus-group-sort-function 'dan/gnus-group-sort)
 #+end_src
-
 
 *** Summary buffer
 #+begin_src emacs-lisp
