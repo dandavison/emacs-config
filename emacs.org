@@ -667,18 +667,11 @@
 #+begin_src emacs-lisp
   (defun dan/org-hide-block-and-switch-to-code-buffer (&optional arg)
     (interactive "P")
-    (let* ((org-babel-src-block-regexp
-            (concat "^[ \t]*#\\+begin_src[ \t]+\\("                     ;; (1)   lang
-                    (mapconcat 'regexp-quote org-babel-interpreters "\\|")
-                    "\\)[ \t]*"
-                    "\\([^\":\n]*\"[^\"\n*]*\"[^\":\n]*\\|[^\":\n]*\\)" ;; (2)   switches
-                    "\\([^\n]*\\)\n"                                    ;; (3)   header arguments
-                    "\\([^\000]*?\n\\)[ \t]*#\\+end_src"))
-          (beg (org-babel-where-is-src-block-head)))
+    (let* ((beg (org-babel-where-is-src-block-head)))
       (when beg
         (goto-char beg)
         (org-hide-block-toggle 'hide)
-        (if arg (org-edit-src-code)))))
+        (unless arg (org-edit-src-code)))))
 #+end_src
 ***** Activate languages
 #+begin_src emacs-lisp
