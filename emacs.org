@@ -1810,7 +1810,7 @@ by Vitalie S.
      ("\C-ct" . org-hide-block-toggle)
      ("\C-ci" . dan/org-toggle-iimage-in-org)
      ("\C-cz" . dan/org-babel-switch-to-code-with-session)
-     ([(control \')] . org-edit-special))))
+     ([(control \')] . dan/org-hide-block-and-switch-to-code-buffer))))
 #+end_src
 ******* Eric's outline navigation bindings
 	[[mairix:t:@@m2eirnzhb4.fsf@gmail.com][Email from Eric Schulte: Re: {Orgmode} Go to top node]]
