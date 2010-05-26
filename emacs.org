@@ -1598,6 +1598,8 @@ by Vitalie S.
   (setq gnus-sorted-header-list '("^From:" "^Subject:" "^User-Agent:" "^X-Newsreader:" "^Date:"))
   
   (setq message-mode-hook (quote (orgstruct++-mode)))
+  
+  (setq mm-discouraged-alternatives '("text/html" "text/richtext"))
 #+end_src
 
 * Message Mode
