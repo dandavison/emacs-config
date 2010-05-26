@@ -1772,6 +1772,7 @@ by Vitalie S.
       ("\C-cf" . dan/ess-insert-function-template)
       ("\C-ck" . dan/ess-kill-line-and-indent)
       ("\C-cx" . dan/ess-recover-R-process)
+      ([(meta return)] . dan/ess-insert-function-template)
       ([(control return)] . ess-eval-line-and-step)
       ([(shift tab)] . ess-complete-object-name))))
   
