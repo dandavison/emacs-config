@@ -278,7 +278,8 @@
   (add-hook 'ess-mode-hook
             (lambda () 
               (unless (eq noweb-code-mode 'R-mode)
-                (dan/set-up-outline-minor-mode "[a-zA-Z._[\"][a-zA-Z._0-9[\"]* *<- *function"))))
+                ;; (dan/set-up-outline-minor-mode "^\\(###\\|[a-zA-Z._[\"][a-zA-Z._0-9[\"]* *<- *function\\)"))))
+                (dan/set-up-outline-minor-mode "^[a-zA-Z._[\"][a-zA-Z._0-9[\"]* *<- *function"))))
   ;; (add-hook 'c-mode-hook
   ;;        (lambda () (dan/set-up-outline-minor-mode nil)))
   ;;                    "\\(void\\|int\\|double\\|char\\|struct\\|static\\|const\\)")))
@@ -514,85 +515,86 @@
 
 *** Agenda
 #+begin_src emacs-lisp
-    ;;* agenda
+  ;;* agenda
   ;;  (org-defkey org-agenda-mode-map [(right)] 'forward-char)
   ;;  (org-defkey org-agenda-mode-map [(left)] 'backward-char)
-    
+  
     ;;;;
-    
-    
-    (setq dan/org-todo-keyword "TODO")
-    (setq dan/org-started-keyword "STARTED")
-    (setq dan/org-done-keyword "DONE")
-    (setq dan/org-cancelled-keyword "CANCELLED")
-    
-    (setq org-todo-keywords 
-          '((sequence 
-             "TODO(t!@/!@)" "STARTED(s!@/!@)" "|" "DONE(d!@/!@)" "CANCELLED(c!@/!@)")))
-    ;; (setq org-todo-keyword-faces
-    ;;       `(
-    ;;         (,dan/org-todo-keyword . (:foreground "red" :weight bold))
-    ;;         (,dan/org-started-keyword . (:foreground "darkorange" :weight bold))
-    ;;         (,dan/org-done-keyword . (:foreground "green" :weight bold))
-    ;;         (,dan/org-cancelled-keyword . (:foreground "black" :weight bold))
-    ;;         ))
-    (setq org-edit-src-persistent-message nil)
-    (setq org-enforce-todo-dependencies t)
-    (setq org-enforce-todo-checkbox-dependencies t)
-    
-    (setq org-directory "~/org")
-    (setq org-agenda-files (list org-directory))
-    (setq org-agenda-start-on-weekday nil)
-    (setq org-agenda-ndays 30)
-    (setq org-agenda-compact-blocks t)
-    (setq org-deadline-warning-days 7)
-    ;; (set-face-foreground 'org-agenda-date-weekend "red")
-    ;; (setq org-agenda-remove-tags t) not sure why I had this
-    
-    (setq org-agenda-custom-commands
-          '(
-            ("W" "Search for work items in state" todo "TODO"
-             ((org-agenda-files '("~/org/work.org"
-                                  "~/org/wtccc2.org"
-                                  "~/org/pobi.org"
-                                  "~/org/shellfish.org"))))
-            ("T" "Search for tasks items in state" todo "TODO"
-             ((org-agenda-files '("~/org/tasks.org"))))
-            ("C" "Search for computing items in state" todo "TODO"
-             ((org-agenda-files '("~/org/computing.org"))))
-            ))
-    
-    (defun org-agenda-format-date-aligned-dan (date)
-      "Dan's modified version of `org-agenda-format-date-aligned'.
+  
+  
+  (setq dan/org-todo-keyword "TODO")
+  (setq dan/org-started-keyword "STARTED")
+  (setq dan/org-done-keyword "DONE")
+  (setq dan/org-cancelled-keyword "CANCELLED")
+  
+  (setq org-todo-keywords 
+        '((sequence 
+           "TODO(t!@/!@)" "STARTED(s!@/!@)" "|" "DONE(d!@/!@)" "CANCELLED(c!@/!@)")))
+  ;; (setq org-todo-keyword-faces
+  ;;       `(
+  ;;         (,dan/org-todo-keyword . (:foreground "red" :weight bold))
+  ;;         (,dan/org-started-keyword . (:foreground "darkorange" :weight bold))
+  ;;         (,dan/org-done-keyword . (:foreground "green" :weight bold))
+  ;;         (,dan/org-cancelled-keyword . (:foreground "black" :weight bold))
+  ;;         ))
+  (setq org-edit-src-persistent-message nil)
+  (setq org-enforce-todo-dependencies t)
+  (setq org-enforce-todo-checkbox-dependencies t)
+  
+  (setq org-directory "~/org")
+  ;; (setq org-agenda-files (list org-directory))
+  (setq org-agenda-files (list "~/org/fifa-worldcup-2010.org"))
+  (setq org-agenda-start-on-weekday nil)
+  (setq org-agenda-ndays 30)
+  (setq org-agenda-compact-blocks t)
+  (setq org-deadline-warning-days 7)
+  ;; (set-face-foreground 'org-agenda-date-weekend "red")
+  ;; (setq org-agenda-remove-tags t) not sure why I had this
+  
+  (setq org-agenda-custom-commands
+        '(
+          ("W" "Search for work items in state" todo "TODO"
+           ((org-agenda-files '("~/org/work.org"
+                                "~/org/wtccc2.org"
+                                "~/org/pobi.org"
+                                "~/org/shellfish.org"))))
+          ("T" "Search for tasks items in state" todo "TODO"
+           ((org-agenda-files '("~/org/tasks.org"))))
+          ("C" "Search for computing items in state" todo "TODO"
+           ((org-agenda-files '("~/org/computing.org"))))
+          ))
+  
+  (defun org-agenda-format-date-aligned-dan (date)
+    "Dan's modified version of `org-agenda-format-date-aligned'.
     
     Format a date string for display in the daily/weekly agenda, or
     timeline.  This function makes sure that dates are aligned for
     easy reading.
     "
-      (require 'cal-iso)
-      (let* ((dayname (calendar-day-name date))
-             (day (cadr date))
-             (day-of-week (calendar-day-of-week date))
-             (month (car date))
-             (monthname (calendar-month-name month))
-             (year (nth 2 date))
-             (iso-week (org-days-to-iso-week
-                        (calendar-absolute-from-gregorian date)))
-             (weekyear (cond ((and (= month 1) (>= iso-week 52))
-                              (1- year))
-                             ((and (= month 12) (<= iso-week 1))
-                              (1+ year))
-                             (t year)))
-             (weekstring (if (= day-of-week 1)
-                             (format " W%02d" iso-week)
-                           "")))
+    (require 'cal-iso)
+    (let* ((dayname (calendar-day-name date))
+           (day (cadr date))
+           (day-of-week (calendar-day-of-week date))
+           (month (car date))
+           (monthname (calendar-month-name month))
+           (year (nth 2 date))
+           (iso-week (org-days-to-iso-week
+                      (calendar-absolute-from-gregorian date)))
+           (weekyear (cond ((and (= month 1) (>= iso-week 52))
+                            (1- year))
+                           ((and (= month 12) (<= iso-week 1))
+                            (1+ year))
+                           (t year)))
+           (weekstring (if (= day-of-week 1)
+                           (format " W%02d" iso-week)
+                         "")))
     ;;;     (format "%-10s %2d %s %4d%s"
     ;;;         dayname day monthname year weekstring)
-        
-        (format "%s %2d %s"
-                (substring dayname 0 3) day (substring monthname 0 3))))
-    
-    (setq org-agenda-format-date 'org-agenda-format-date-aligned-dan)
+      
+      (format "%s %2d %s"
+              (substring dayname 0 3) day (substring monthname 0 3))))
+  
+  (setq org-agenda-format-date 'org-agenda-format-date-aligned-dan)
 #+end_src
 
 *** Export
@@ -658,7 +660,7 @@
   
   (setq org-hide-block-startup t)
   
-  (setq org-src-window-setup 'reorganize-frame) ;; 'current-window 'other-window 'other-frame 'reorganize-frame
+  (setq org-src-window-setup 'current-window) ;; 'current-window 'other-window 'other-frame 'reorganize-frame
   (setq org-src-ask-before-returning-to-edit-buffer nil)
   
   (define-key org-src-mode-map [C-tab] 'org-edit-src-exit)
@@ -1003,7 +1005,7 @@
 #+end_src
 
 *** Org-fold
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (add-to-list 'load-path "~/emacs/org-fold")
   (require 'org-fold)
 #+end_src
@@ -1244,7 +1246,8 @@ by Vitalie S.
            ("WTCCC2"
             (name . "wtccc2"))
            ("MSG"
-            (name . "simsec"))
+            (name . "simsec")
+            (name . "Papers/msg"))
            ("shellfish"
             (name . "shellfish"))
            ("Org-babel"
@@ -1298,10 +1301,58 @@ by Vitalie S.
   (add-hook 'latex-mode-hook 'reftex-mode)
 #+end_src
 
+* Comint
+#+begin_src emacs-lisp
+;; See ess-help post by M. Maechler on 23 Mar 2006
+(eval-after-load
+    "comint"
+  '(progn
+     (setq comint-scroll-to-bottom-on-output 'others) ; not current
+     ;;=default: (setq comint-scroll-to-bottom-on-input nil)
+     (setq comint-scroll-show-maximum-output t) ;;; this is the key
+     (define-key comint-mode-map [C-up]
+       'comint-previous-matching-input-from-input)
+     (define-key comint-mode-map [C-down]
+       'comint-next-matching-input-from-input)
+     (define-key comint-mode-map "\C-a" 'comint-bol)))
+#+end_src
+
 * ESS
 #+begin_src emacs-lisp
   (add-to-list 'load-path "/usr/local/src/emacs/ess/lisp")
   (require 'ess-site)
+  
+  ;; (require 'ess-eldoc)
+  
+  (setq inferior-R-args "--no-save --no-restore-data --silent")
+  (setq safe-local-variable-values '((noweb-default-code-mode . R-mode) (outline-minor-mode)))
+  (autoload 'noweb-mode "noweb-mode" "Editing noweb files." t) ;; see noweb-mode.el in ESS;
+  (setq auto-mode-alist (append (list (cons "\\.nw$" 'noweb-mode))
+                                auto-mode-alist))
+  
+  ;; (defun dan/ess-and-iess-mode-hook ()
+  ;;   (setq ess-function-template " <- function() {\n\n}\n")
+  ;;   (mapc (lambda (pair) (local-set-key (car pair) (cdr pair)))
+  ;;        dan/ess-and-iess-keybindings))
+  
+  (defun dan/ess-mode-hook ()
+    (ess-set-style 'C++))
+  
+  ;; (add-hook 'ess-mode-hook 'dan/ess-and-iess-mode-hook)
+  ;; (add-hook 'inferior-ess-mode-hook 'dan/ess-and-iess-mode-hook)
+  (add-hook 'ess-mode-hook 'dan/ess-mode-hook)
+  
+  (setq ess-eval-visibly-p nil)
+  
+  
+  ;;                                 DEF GNU BSD K&R C++
+  ;; ess-indent-level                  2   2   8   5   4
+  ;; ess-continued-statement-offset    2   2   8   5   4
+  ;; ess-brace-offset                  0   0  -8  -5  -4
+  ;; ess-arg-function-offset           2   4   0   0   0
+  ;; ess-expression-offset             4   2   8   5   4
+  ;; ess-else-offset                   0   0   0   0   0
+  ;; ess-close-brace-offset            0   0   0   0   0
 #+end_src
 
 *** Add R builtins to font lock
@@ -1340,7 +1391,7 @@ by Vitalie S.
   (require 'gnus-load)
   
   (require 'nnmairix)
-  (setq user-mail-address "davison@stats.ox.ac.uk")
+  (setq user-mail-address "davison@stats.ox.ac.uk") ;; dandavison7@gmail.com
   (setq user-full-name "Dan Davison")
   
   (setq gnus-select-method 
@@ -2283,6 +2334,7 @@ by Vitalie S.
   (color-theme-charcoal-black)
   (dan/sanitise-faces)
   (dan/set-show-paren-style)
+  (server-start)
 #+end_src
 * Experimental
 #+begin_src emacs-lisp
@@ -2297,6 +2349,14 @@ by Vitalie S.
     (set-buffer "*Messages*")
     (goto-char (point-max))
     (insert (apply 'format format-string args)))
+#+end_src
+
+** Mode line
+#+begin_src emacs-lisp :tangle no
+(setq mode-line-format (propertize "gggg" 'face 'small))
+
+(defface small '((t :height 50)) "")
+
 #+end_src
 
 * File Config
