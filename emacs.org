@@ -27,6 +27,7 @@
 * Load path
 #+begin_src emacs-lisp
   (add-to-list 'load-path "~/src/config/emacs")
+  (add-to-list 'load-path "/usr/local/src/emacs/org-mode/contrib/lisp")
   (add-to-list 'load-path "/usr/local/src/emacs")
   ;; (add-to-list 'load-path "/usr/local/src/emacs/egg")
   (add-to-list 'load-path "/usr/local/src/emacs/magit")
@@ -677,33 +678,17 @@
 #+end_src
 ***** Activate languages
 #+begin_src emacs-lisp
-  (mapc '(lambda (lang) (require (intern (format "org-babel-%s" lang))))
+  (mapc '(lambda (lang) (require (intern (format "ob-%s" lang))))
         dan/org-babel-languages)
   
   (setq swank-clojure-binary "/usr/bin/clojure")
   
-  (org-babel-add-interpreter "C")
-  (add-to-list 'org-babel-tangle-langs '("C" "c"))
+  (setq org-confirm-babel-evaluate nil)
   
-  (org-babel-add-interpreter "makefile")
-  (add-to-list 'org-babel-tangle-langs '("makefile"))
-  
-  (setq
-   org-babel-tangle-langs
-   (cons '("perl" "pl" "#!/usr/bin/env perl" t)
-         (remove-if (lambda (el) (equal (car el) "perl"))
-                    org-babel-tangle-langs))
-   org-babel-default-header-args:perl
-   '((:results . "output")))
-  
-  (org-babel-add-interpreter "elisp")
-  (add-to-list 'org-babel-tangle-langs '("elisp" "el"))
+  (setq org-babel-default-header-args:perl '((:results . "output")))
 #+end_src
 ***** Variables
 #+begin_src emacs-lisp
-  (setq c-p-r (symbol-function 'call-process-region))
-  (setq org-babel-tangle-include-shebang t)
-  (setq org-babel-tangle-include-org-coordinates nil)
   (setq org-babel-min-lines-for-block-output 10)
   
   ;; (setq org-babel-timestamp-results t)
