@@ -722,16 +722,16 @@
         (insert "#+begin_latex\n")
         (dan/indent-src-block))))
 #+end_src
-
-***** Etc
-******* Display session and switch to code buffer
+**** Display session and switch to code buffer
 #+begin_src emacs-lisp
   (defun dan/org-babel-switch-to-code-with-session (&optional arg)
       "Switch to code edit buffer and display session"
       (interactive "P")
       (save-excursion
         (org-babel-switch-to-session arg nil))
-      (org-edit-src-code))
+      (org-edit-src-code)
+      (dan/switch-windows)
+      (other-window 1))
 #+end_src
 ******* Edit buffer instead of block unhiding
 #+begin_src emacs-lisp
