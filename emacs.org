@@ -1347,10 +1347,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
         dan/org-babel-languages)
   
   (setq swank-clojure-binary "/usr/bin/clojure")
-  
   (setq org-confirm-babel-evaluate nil)
-  
-  (setq org-babel-default-header-args:perl '((:results . "output")))
 #+end_src
 **** Variables
 #+begin_src emacs-lisp
