@@ -14,8 +14,6 @@
   
     (setq special-display-function 'dan/display-buffer-whole-frame)
   
-    (setq special-display-buffer-names `(,org-buffers-buffer-name))
-    
     ;; (setq special-display-function (lambda (buffer &rest ignored) (switch-to-buffer buffer) (delete-other-windows))))
     (setq special-display-function (lambda (buffer &rest ignored) (delete-other-windows)))
   )
@@ -367,7 +365,25 @@ http://www.emacswiki.org/emacs/TransparentEmacs
        (set-frame-parameter nil 'alpha '(85 60))))
    (global-set-key (kbd "C-c t") 'toggle-transparency)
 #+end_src
-* Internal modules
+  (defun dan/org-src-mode-hook ()
+    (outline-minor-mode -1)
+    (if (eq major-mode 'python-mode)
+        (setq python-indent 4)))
+  
+  (add-hook 'org-src-mode-hook 'dan/org-src-mode-hook)
+  ;; (remove-hook 'org-src-mode-hook 'dan/org-src-mode-hook)
+  
+  (add-to-list 'org-src-lang-modes '("C" . c))
+  
+  (setq org-hide-block-startup t)
+  
+  ;; (setq org-src-window-setup 'reorganize-frame) ;; 'current-window 'other-window 'other-frame 'reorganize-frame
+  (setq org-src-window-setup 'current-window) ;; 'current-window 'other-window 'other-frame 'reorganize-frame
+  
+  
+  (setq org-src-ask-before-returning-to-edit-buffer nil)
+  
+  (define-key org-src-mode-map [C-tab] 'org-edit-src-exit)* Internal modules
 ** Info
 #+begin_src emacs-lisp :tangle no
   (add-to-list 'Info-directory-list "/usr/share/info/emacs-snapshot")
@@ -517,8 +533,14 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+end_src
 *** LaTeX
 #+begin_src emacs-lisp
+  (require 'tex-mode)
   (add-hook 'latex-mode-hook 'reftex-mode)
 #+end_src
+*** TeXinfo
+#+begin_src emacs-lisp
+(require 'texinfo)
+#+end_src
+
 ** Browser
 #+begin_src emacs-lisp
   ;; http://flash.metawaredesign.co.uk/2/.emacs
@@ -547,13 +569,13 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+begin_src emacs-lisp
   (add-to-list 'load-path "/usr/local/src/emacs")
 #+end_src
-** buffer-join
+** Buffer-join
 #+begin_src emacs-lisp
   (add-to-list 'load-path "/usr/local/src/emacs/buffer-join")
   ;; (require 'buffer-join)
 #+end_src
 
-** color-theme
+** Color-theme
 #+begin_src emacs-lisp
   (add-to-list 'load-path "/usr/local/src/emacs/color-theme-6.6.0")
   (require 'color-theme)
@@ -561,7 +583,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   ;; (require 'color-theme-chocolate-rain)
 #+end_src
 
-** elpa
+** Elpa
 #+begin_src emacs-lisp
   ;;; This was installed by package-install.el.
   ;;; This provides support for the package system and
@@ -573,7 +595,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
        (expand-file-name "~/.emacs.d/elpa/package.el"))
     (package-initialize))
 #+end_src
-** ess
+** ESS
 #+begin_src emacs-lisp
   (add-to-list 'load-path "/usr/local/src/emacs/ess/lisp")
   (require 'ess-site)
@@ -636,7 +658,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
     (ess-execute
      (concat cmd "(" (buffer-substring (point) (mark)) ")")))
 #+end_src
-** gnus
+** Gnus
 *** General
 #+begin_src emacs-lisp
   (add-to-list 'load-path "~/emacs/gnus/lisp")
@@ -906,23 +928,22 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   
   (setq mm-discouraged-alternatives '("text/html" "text/richtext"))
 #+end_src
-** languages
+** Languages
 #+begin_src emacs-lisp
   ;; (add-to-list 'load-path "/usr/local/src/emacs/ruby-emacs")
   (add-to-list 'load-path "/usr/local/src/emacs/gnuplot-mode.0.6.0")
   (add-to-list 'load-path "/usr/local/src/emacs/matlab")
 #+end_src
 
-** magit
+** Magit
 #+begin_src emacs-lisp
   (add-to-list 'load-path "/usr/local/src/emacs/magit")
   (require 'magit)
   (setq egg-enable-tooltip t)
   (setq magit-save-some-buffers nil)
 #+end_src
-** misc
+** Misc
 #+begin_src emacs-lisp
-    (require 'htmlize)
     (require 'regex-tool)
     (require 'unbound)
     (require 'windresize)
@@ -933,16 +954,14 @@ http://www.emacswiki.org/emacs/TransparentEmacs
     (require 'boxquote)
     ;; (load "/usr/local/src/emacs/nxhtml/autostart.el")
     ;; (load "R-anything-config")
-    (require 'sass-mode)
     (require 'ssh)
-    (require 'google-search)
+    ;; (require 'google-search)
     ;; (require 'w3m)
     ;; (require 'gnuplot)
-    (require 'matlab)
-      ;; (require 'filladapt)
+    ;; (require 'filladapt)
 #+end_src
 
-** minimal
+** Minimal
 #+begin_src emacs-lisp
   (add-to-list 'load-path "/usr/local/src/emacs/minimal")
   (require 'minimal)
@@ -951,7 +970,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   (setq minimal-mode-line-inactive-background "dim grey")
 #+end_src
 
-** org
+** Org
 *** Hook
 #+begin_src emacs-lisp
   (defun dan/org-mode-hook-function ()
@@ -969,19 +988,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   
   (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
   
-  (require 'org-mairix)
-  
   ;; (or (server-running-p) (server-start))
-  ;; (add-to-list 'load-path "~/path/to/org/protocol/")
-  (require 'org-protocol)
-  
-  ;; (require 'org-R)
-  (load "~/src/org/org-util.el")
-  ;; (load "~/src/org/org-R/org-R.el")
-  
-  ;; (require 'org-git-link)
-  
-  ;; (load "~/website/website.el")
 #+end_src
 *** Misc
 #+begin_src emacs-lisp
@@ -1228,42 +1235,44 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+end_src
 
 *** Export
+**** General
 #+begin_src emacs-lisp
   (setq org-export-htmlize-output-type (if t 'inline-css 'css))
-  ;; (unless (member "svg" org-export-html-inline-image-extensions)
-  ;;   (setq org-export-html-inline-image-extensions
-  ;;         (cons "svg" org-export-html-inline-image-extensions)))
+  (unless (member "svg" org-export-html-inline-image-extensions)
+    (setq org-export-html-inline-image-extensions
+          (cons "svg" org-export-html-inline-image-extensions)))
+  
   (setq org-export-with-LaTeX-fragments t)
   (setq org-export-copy-to-kill-ring nil)
   (setq org-export-allow-BIND t)
   
   ;; from Eric
-  ;; (setq org-export-html-style
-  ;; "<style type=\"text/css\">
-  ;; pre {
-  ;;     border: 1pt solid #AEBDCC;
-  ;;     background-color: #232323;
-  ;;     color: #E6E1DC;
-  ;;     padding: 5pt;
-  ;;     font-family: courier, monospace;
-  ;;     font-size: 90%;
-  ;;     overflow:auto;
-  ;; }
-  ;; </style>")
-  
   (setq org-export-html-style
   "<style type=\"text/css\">
   pre {
       border: 1pt solid #AEBDCC;
+      background-color: #232323;
+      color: #E6E1DC;
       padding: 5pt;
       font-family: courier, monospace;
       font-size: 90%;
       overflow:auto;
   }
   </style>")
-#+end_src
   
-**** Latex export hook
+  ;; (setq org-export-html-style
+  ;; "<style type=\"text/css\">
+  ;; pre {
+  ;;     border: 1pt solid #AEBDCC;
+  ;;     padding: 5pt;
+  ;;     font-family: courier, monospace;
+  ;;     font-size: 90%;
+  ;;     overflow:auto;
+  ;; }
+  ;; </style>")
+#+end_src
+**** Latex
+***** Latex export hook
       [[mairix:t:@@87iq7fy0q0.fsf@totally-fudged-out-message-id][Email from Dan Davison: Re: {Orgmode} export-latex-fin]]
 #+begin_src emacs-lisp
   (defun  dan/push-latex-to-odt ()
@@ -1286,10 +1295,20 @@ http://www.emacswiki.org/emacs/TransparentEmacs
       (start-process-shell-command
        "latex" output-buffer cmd)))
   
-  (add-hook 'org-export-latex-after-save-hook
-            'dan/compile-latex)
+  ;; (add-hook 'org-export-latex-after-save-hook
+  ;;           'dan/compile-latex)
 #+end_src
 
+***** Listings
+***** Minted
+#+begin_src emacs-lisp :tangle no :results silent
+  (setq org-export-latex-minted t)
+  (add-to-list 'org-export-latex-packages-alist '("" "minted"))
+  (setq org-latex-to-pdf-process
+        '("pdflatex --shell-escape -interaction nonstopmode %s"))
+#+end_src
+
+**** HTML
 *** Src
 #+begin_src emacs-lisp
   (defun dan/org-src-mode-hook ()
@@ -1340,11 +1359,6 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   ;; (setq org-babel-timestamp-results t)
   ;; (setq org-babel-allow-variable-references t)
 #+end_src
-**** Yasnippets
-#+begin_src emacs-lisp
-  (yas/load-directory "/usr/local/src/emacs/Worg/org-contrib/babel/snippets")
-#+end_src
-
 **** dan/indent-src-block
 #+begin_src emacs-lisp
 (defun dan/indent-src-block ()
@@ -1604,24 +1618,27 @@ this. see :tangle no below and in font-lock tree
   (add-hook 'org-font-lock-hook 'dan/org-fontify-latex-commands)
 #+end_src
 
-*** Org-mime
-#+begin_src emacs-lisp
-(require 'org-mime)
-
-(add-hook 'message-mode-hook
-          (lambda ()
-            (local-set-key "\C-c\M-o" 'org-mime-htmlize)))
-
-(add-hook 'org-mode-hook
-          (lambda ()
-            (local-set-key "\C-c\M-o" 'org-mime-org-buffer-htmlize)))
-#+end_src
-
 *** Contrib
 **** Load path
 #+begin_src emacs-lisp
 (add-to-list 'load-path "/usr/local/src/emacs/org-mode/contrib/lisp")
+#+end_src
+**** Htmlize
+#+begin_src emacs-lisp
+(require 'htmlize)
+#+end_src
 
+**** Org-mime
+#+begin_src emacs-lisp
+  (require 'org-mime)
+  
+  (add-hook 'message-mode-hook
+            (lambda ()
+              (local-set-key "\C-c\M-o" 'org-mime-htmlize)))
+  
+  (add-hook 'org-mode-hook
+            (lambda ()
+              (local-set-key "\C-c\M-o" 'org-mime-org-buffer-htmlize)))
 #+end_src
 *** External
 **** Org-fold
@@ -1833,7 +1850,7 @@ by Vitalie S.
           "\n<#multipart type=alternative>\n<#part type=text/html>%s<#/multipart>\n"
           html)))))
 #+end_src
-** org-buffers
+** Org-buffers
 #+begin_src emacs-lisp
   (add-to-list 'load-path "/usr/local/src/emacs/org-buffers")
   (require 'org-buffers)
@@ -1841,9 +1858,10 @@ by Vitalie S.
    (if (org-buffers-state-eq :atom 'heading)
        (org-overview)))
  ;; (add-hook 'org-buffers-mode-hook 'dan/set-org-buffers-visibility)
-#+end_src
+ ;; (setq special-display-buffer-names `(,org-buffers-buffer-name))
+ #+end_src
 
-** starter kit
+** Starter kit
 #+begin_src emacs-lisp
   (setq dan/starter-kit-components-all '(bindings defuns eshell lisp misc org perl registers ruby yasnippet))
   (setq dan/starter-kit-components '(defuns))
@@ -1856,12 +1874,13 @@ by Vitalie S.
       dan/starter-kit-components)))
 #+end_src
 
-** yasnippet
+** Yasnippet
 #+begin_src emacs-lisp
   (add-to-list 'load-path "/usr/local/src/emacs/yasnippet")
   (require 'yasnippet)
   (yas/initialize)
   (yas/load-directory "/usr/local/src/emacs/yasnippet/snippets")
+  (yas/load-directory "/usr/local/src/emacs/Worg/org-contrib/babel/snippets")
 #+end_src
 * Key bindings
 ** dan/set-keys
@@ -1887,7 +1906,7 @@ by Vitalie S.
   \"-mode-map\" is appended to it when finding the mode-map. If it
   is a symbol, it is used as is.")
 #+end_src
-** Bindings
+** bindings
 *** global
 #+begin_src emacs-lisp
   (add-to-list 'dan/key-bindings
@@ -2339,9 +2358,6 @@ by Vitalie S.
   
   ;; (org-fireforg-registry-initialize t)
   
-  (require 'texinfo)
-  (require 'tex-mode)
-  
   (nnmairix-update-database)
   (dan/set-keys)
   (if nil
@@ -2371,7 +2387,10 @@ by Vitalie S.
     (goto-char (point-max))
     (insert (apply 'format format-string args)))
 #+end_src
-* Junk
+* Not used
+:PROPERTIES:
+:tangle: no
+:END:
 ** Customize stuff
 #+begin_src emacs-lisp :tangle no
   ;; (custom-set-variables
@@ -2392,26 +2411,4 @@ by Vitalie S.
   ;;                          :weight normal :height 120 :width normal
   ;;                          :foundry "unknown" :family "DejaVu Sans Mono"))))
   ;;  '(gnus-cite-1 ((((class color) (background light)) (:foreground "deep sky blue")))))
-#+end_src
-** Mode line
-#+begin_src emacs-lisp :tangle no
-  (defun dan/toggle-mode-line (&optional restore buffer)
-    "Get rid of mode line. With prefix arg, restore mode line."
-    (interactive "P")
-    (if buffer (set-buffer buffer))
-    (if restore (if (boundp 'dan/saved-mode-line-format)
-                    (setq mode-line-format dan/saved-mode-line-format)
-                  (message "No saved mode line format"))
-      (when mode-line-format
-        (set (make-local-variable 'dan/saved-mode-line-format) mode-line-format)
-        (setq mode-line-format nil)))
-    (if (interactive-p) 
-        (redraw-frame (window-frame (selected-window)))))
-  
-  (defun dan/toggle-mode-line-all-buffers (&optional restore)
-    (interactive "P")
-    (mapc (lambda (buffer) (dan/toggle-mode-line restore buffer))
-          (buffer-list))
-    (if (interactive-p) 
-        (redraw-frame (window-frame (selected-window)))))
 #+end_src
