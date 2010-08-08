@@ -2,7 +2,7 @@
 * Vanilla
 #+begin_src emacs-lisp
   (nconc default-frame-alist '((cursor-type . bar)))
-  (tool-bar-mode -1)
+  ;; (tool-bar-mode -1)
   (scroll-bar-mode -1)
   (menu-bar-mode -1)
   (setq inhibit-startup-message t)
@@ -82,6 +82,9 @@
     (add-to-list 'load-path "/usr/local/src/emacs/org-buffers")
     (require 'org-buffers)
     
+    (add-to-list 'load-path "/usr/local/src/emacs/minimal")
+    (require 'minimal)
+    
     (add-to-list 'load-path "/usr/local/src/emacs/buffer-join")
     ;; (require 'buffer-join)
     
@@ -92,7 +95,7 @@
     ;; (require 'color-theme-chocolate-rain)
   ;; (require 'filladapt)
 #+end_src
-
+  
 * Load config files
 #+begin_src emacs-lisp
   (load "~/src/config/emacs/vanilla")
@@ -144,7 +147,7 @@
   (add-hook 'find-file-hook 'dan/sanitise-faces)
   (add-hook 'find-file-hook 'dan/set-show-paren-style)
 #+end_src
-*** Save faces
+** Save faces
 #+begin_src emacs-lisp
     (defun dan/save-faces (&optional restore-p)
       (interactive "P")
@@ -163,6 +166,32 @@
     (dan/save-faces)
   
   (setq color-theme-is-cumulative t)
+#+end_src
+
+** Transparency
+http://www.emacswiki.org/emacs/TransparentEmacs
+#+begin_src emacs-lisp
+   ;;(set-frame-parameter (selected-frame) 'alpha '(<active> [<inactive>]))
+   (setq dan/frame-alpha '(90 50)) ;; 85 50
+
+  (set-frame-parameter (selected-frame) 'alpha dan/frame-alpha)
+  (add-to-list 'default-frame-alist (cons 'alpha dan/frame-alpha))
+
+  ;; no transparency:
+  ;; (set-frame-parameter (selected-frame) 'alpha '(100 100))
+  ;; (add-to-list 'default-frame-alist '(alpha 100 100))
+  
+  ;; You can use the following snippet after you’ve set the alpha as above to assign a toggle to “C-c t”:
+  
+   (eval-when-compile (require 'cl))
+   (defun dan/toggle-transparency ()
+     (interactive)
+     (if (/=
+          (cadr (find 'alpha (frame-parameters nil) :key #'car))
+          100)
+         (set-frame-parameter nil 'alpha '(100 100))
+       (set-frame-parameter nil 'alpha '(85 60))))
+   (global-set-key (kbd "C-c t") 'toggle-transparency)
 #+end_src
 
 * Windows and Frames
@@ -186,7 +215,7 @@
   )
 #+end_src
 
-*** Faces
+** Faces
 #+begin_src emacs-lisp :tangle no
   ;; (custom-set-faces
   ;;  ;; custom-set-faces was added by Custom.
@@ -279,8 +308,10 @@
   (add-hook 'ess-mode-hook
             (lambda () 
               (unless (eq noweb-code-mode 'R-mode)
-                ;; (dan/set-up-outline-minor-mode "^\\(###\\|[a-zA-Z._[\"][a-zA-Z._0-9[\"]* *<- *function\\)"))))
-                (dan/set-up-outline-minor-mode "^[a-zA-Z._[\"][a-zA-Z._0-9[\"]* *<- *function"))))
+                ;; (dan/set-up-outline-minor-mode "^\\(###\\|[a-zA-Z._[\"][a-zA-Z._0-9[\"]* *<- *function\\)")
+                ;; (dan/set-up-outline-minor-mode "^[a-zA-Z._[\"][a-zA-Z._0-9[\"]* *<- *function")
+		(dan/set-up-outline-minor-mode "^[a-zA-Z._][a-zA-Z._0-9]* *<- *function")
+		)))
   ;; (add-hook 'c-mode-hook
   ;;        (lambda () (dan/set-up-outline-minor-mode nil)))
   ;;                    "\\(void\\|int\\|double\\|char\\|struct\\|static\\|const\\)")))
@@ -307,7 +338,7 @@
 #+end_src
 
 * Org
-*** Hook
+** Hook
 #+begin_src emacs-lisp
   (defun dan/org-mode-hook-function ()
     ;; yasnippet
@@ -318,7 +349,7 @@
   
   (add-hook 'org-mode-hook 'dan/org-mode-hook-function)
 #+end_src
-*** Basics
+** Basics
 #+begin_src emacs-lisp
   ;;* Org-mode settings
   
@@ -338,9 +369,9 @@
   
   ;; (load "~/website/website.el")
 #+end_src
-*** Misc
+** Misc
 #+begin_src emacs-lisp
-  (setq org-hide-block-startup t)
+(setq org-hide-block-startup nil)
   
   (setq org-completion-use-ido t)    
   ;; (setq org-startup-folded nil)    
@@ -360,14 +391,14 @@
   (setq org-outline-path-complete-in-steps t)
 #+end_src
 
-*** Appearance
+** Appearance
 #+begin_src emacs-lisp
   (setq org-hide-leading-stars t)
   (setq org-hidden-keywords '(title date author))
   (copy-face 'shadow 'org-meta-line)
   (setq org-pretty-entities t)
 #+end_src
-***** Set outline colors
+*** Set outline colors
 #+function: outline-colours
 #+begin_src R
   require("RColorBrewer")
@@ -381,7 +412,7 @@
      (car (nth level colours))))
 #+end_src
 
-*** Structure & Navigation
+** Structure & Navigation
 #+begin_src emacs-lisp 
     ;; (setq org-odd-levels-only t)
   (setq org-empty-line-terminates-plain-lists t)
@@ -392,7 +423,7 @@
 #+end_src
     See also [[mairix:t:@@20524da70908071211y4aeb4c0se9a465e2ebe27a8f@mail.gmail.com][Email from Samuel Wales: {Orgmode} Arrow + RET navigati]]
 
-***** Speed commands
+*** Speed commands
 #+begin_src emacs-lisp 
   (defun dan/org-show-next-heading-tidily ()
     "Show next entry, keeping other entries closed."
@@ -431,7 +462,7 @@
 #+results:
 | p | dan/org-show-previous-heading-tidily |
 | n | dan/org-show-next-heading-tidily     |
-*** Remember
+** Remember
 #+begin_src emacs-lisp
   ;;* remember
   (org-remember-insinuate)
@@ -452,7 +483,7 @@
           ))
 #+end_src
 
-***** Quick schedule task with link
+*** Quick schedule task with link
 #+begin_src emacs-lisp
   (defun dan/org-schedule-task-with-link (remember-target-char &optional arg)
     "Schedule a task with a link to current buffer.
@@ -470,7 +501,7 @@
            (quote ([3 108 f8 ?p return 3 12 up return return 3 3] 0 "%d")) arg))))
 #+end_src
 	   Or maybe I can use fset like in the following?
-******* Tiago Magalhaes ess-help post
+**** Tiago Magalhaes ess-help post
 	From: Luis F <respostas17@gmail.com>
 	Subject: [ESS] Pushing Lines from one Window to Another
 	Date: Sat, 14 Nov 2009 16:32:42 +0000
@@ -493,12 +524,12 @@
 	(global-set-key "\C-xp" 'push-line-other-window )
 #+end_src
 
-*** Footnotes
+** Footnotes
 #+begin_src emacs-lisp
 (setq org-footnote-auto-label 'plain)
 #+end_src
 
-*** Agenda
+** Agenda
 #+begin_src emacs-lisp
   ;;* agenda
   ;;  (org-defkey org-agenda-mode-map [(right)] 'forward-char)
@@ -582,20 +613,34 @@
   (setq org-agenda-format-date 'org-agenda-format-date-aligned-dan)
 #+end_src
 
-*** Export
+** Export
 #+begin_src emacs-lisp
   (setq org-export-htmlize-output-type (if t 'inline-css 'css))
+  ;; (unless (member "svg" org-export-html-inline-image-extensions)
+  ;;   (setq org-export-html-inline-image-extensions
+  ;;         (cons "svg" org-export-html-inline-image-extensions)))
   (setq org-export-with-LaTeX-fragments t)
   (setq org-export-copy-to-kill-ring nil)
   (setq org-export-allow-BIND t)
   
   ;; from Eric
+  ;; (setq org-export-html-style
+  ;; "<style type=\"text/css\">
+  ;; pre {
+  ;;     border: 1pt solid #AEBDCC;
+  ;;     background-color: #232323;
+  ;;     color: #E6E1DC;
+  ;;     padding: 5pt;
+  ;;     font-family: courier, monospace;
+  ;;     font-size: 90%;
+  ;;     overflow:auto;
+  ;; }
+  ;; </style>")
+  
   (setq org-export-html-style
   "<style type=\"text/css\">
   pre {
       border: 1pt solid #AEBDCC;
-      background-color: #232323;
-      color: #E6E1DC;
       padding: 5pt;
       font-family: courier, monospace;
       font-size: 90%;
@@ -604,7 +649,7 @@
   </style>")
 #+end_src
   
-***** Latex export hook
+*** Latex export hook
       [[mairix:t:@@87iq7fy0q0.fsf@totally-fudged-out-message-id][Email from Dan Davison: Re: {Orgmode} export-latex-fin]]
 #+begin_src emacs-lisp
   (defun  dan/push-latex-to-odt ()
@@ -631,7 +676,7 @@
             'dan/compile-latex)
 #+end_src
 
-*** Src
+** Src
 #+begin_src emacs-lisp
   (defun dan/org-src-mode-hook ()
     (outline-minor-mode -1)
@@ -645,12 +690,15 @@
   
   (setq org-hide-block-startup t)
   
-  (setq org-src-window-setup 'current-window) ;; 'current-window 'other-window 'other-frame 'reorganize-frame
+  (setq org-src-window-setup 'reorganize-frame) ;; 'current-window 'other-window 'other-frame 'reorganize-frame
+  ;; (setq org-src-window-setup 'current-window) ;; 'current-window 'other-window 'other-frame 'reorganize-frame
+  
+  
   (setq org-src-ask-before-returning-to-edit-buffer nil)
   
   (define-key org-src-mode-map [C-tab] 'org-edit-src-exit)
       #+end_src
-***** Hide block and switch to edit buffer
+*** Hide block and switch to edit buffer
 #+begin_src emacs-lisp
   (defun dan/org-hide-block-and-switch-to-code-buffer (&optional arg)
     (interactive "P")
@@ -660,7 +708,7 @@
         (org-hide-block-toggle 'hide)
         (unless arg (org-edit-src-code)))))
 #+end_src
-***** Activate languages
+*** Activate languages
 #+begin_src emacs-lisp
   (mapc '(lambda (lang) (require (intern (format "ob-%s" lang))))
         dan/org-babel-languages)
@@ -671,19 +719,19 @@
   
   (setq org-babel-default-header-args:perl '((:results . "output")))
 #+end_src
-***** Variables
+*** Variables
 #+begin_src emacs-lisp
   (setq org-babel-min-lines-for-block-output 10)
   
   ;; (setq org-babel-timestamp-results t)
   ;; (setq org-babel-allow-variable-references t)
 #+end_src
-***** Yasnippets
+*** Yasnippets
 #+begin_src emacs-lisp
   (yas/load-directory "/usr/local/src/emacs/Worg/org-contrib/babel/snippets")
 #+end_src
 
-***** dan/indent-src-block
+*** dan/indent-src-block
 #+begin_src emacs-lisp
 (defun dan/indent-src-block ()
   (interactive)
@@ -691,7 +739,7 @@
   (indent-region (point-min) (point-max))
   (org-edit-src-exit))
 #+end_src
-***** dan/enclose-region-in-src-block
+*** dan/enclose-region-in-src-block
 #+begin_src emacs-lisp
   (defun dan/enclose-region-in-src-block (&optional lang)
     (interactive)
@@ -722,18 +770,8 @@
         (insert "#+begin_latex\n")
         (dan/indent-src-block))))
 #+end_src
-**** Display session and switch to code buffer
-#+begin_src emacs-lisp
-  (defun dan/org-babel-switch-to-code-with-session (&optional arg)
-      "Switch to code edit buffer and display session"
-      (interactive "P")
-      (save-excursion
-        (org-babel-switch-to-session arg nil))
-      (org-edit-src-code)
-      (dan/switch-windows)
-      (other-window 1))
-#+end_src
-******* Edit buffer instead of block unhiding
+*** Etc
+**** Edit buffer instead of block unhiding
 #+begin_src emacs-lisp
   (defun org-babel-edit-special-maybe ()
     "Switch to edit buffer for block at point"
@@ -748,7 +786,7 @@
   
   (add-hook 'org-tab-first-hook 'org-babel-edit-special-maybe)
 #+end_src
-******* Execute src block from lang mode buffer
+**** Execute src block from lang mode buffer
 	Haven't tested this out much.
 #+begin_src emacs-lisp
   (defun dan/org-src-execute ()
@@ -764,7 +802,7 @@
       
 #+resname:
 | "R" | "python" | "ruby" | "ditaa" | "sass" |
-******* R -> org
+**** R -> org
 #+begin_src emacs-lisp :tangle no
   (defun dan/wrap-R-functions-in-source-blocks ()
     (interactive)
@@ -779,7 +817,7 @@
     (org-mode))
 #+end_src
 	
-******* reset test table macro
+**** reset test table macro
 
    # 2*C-k <up> C-y <up> M-x r e - s e a r <tab> b a c <tab> RET T B L N A M
    # E RET <down> C-a C-SPC M-x r e - s e r DEL a r c h <tab> f o <tab> RET
@@ -803,7 +841,7 @@
      0 "%d")) arg)))
 #+end_src
 
-******* Two-mode mode
+**** Two-mode mode
 #+begin_src emacs-lisp :tangle no
   (setq default-mode (list "org-mode" 'org-mode))
   (setq second-modes '(("python" "#+begin_src python" "#+end_src" python-mode)
@@ -812,7 +850,8 @@
                          ))
 #+end_src
 
-*** Fireforg
+
+** Fireforg
 #+begin_src emacs-lisp :tangle no
 (add-to-list 'load-path "/usr/local/src/org-etc/org-fireforg/lisp")
 (require 'org-fireforg)
@@ -820,9 +859,12 @@
 
 #+end_src
 
-*** Support for viewing images
+** Support for viewing images
+I think all the below is obsolete since Carsten worked on
+this. see :tangle no below and in font-lock tree
+
     See [[*Font%20lock][Font-lock]] section for more recent iimage fontification.
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (require 'iimage)
   (setq iimage-mode-image-search-path (expand-file-name "~/"))
   ;;Match org file: links
@@ -874,8 +916,8 @@
   ;; (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
 #+end_src
 
-***** Etc
-#+begin_src emacs-lisp
+*** Etc
+#+begin_src emacs-lisp :tangle no
   (defun dan/org-iimage (&optional arg)
     "Turn on iimage in org.
   With prefix argument, turn it off."
@@ -906,11 +948,13 @@
     (redisplay))
 #+end_src
 
-*** Font-lock
+** Font-lock
 :PROPERTIES:
 :ID: 6fde328d-fb5a-4d28-a9ec-8b82e51b5d82
 :END:
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
+  
+  
   (defun dan/org-fontify-image-links (limit)
     "Display links to images as images.
   If the description part of the link is empty display the image,
@@ -947,13 +991,13 @@
   (add-hook 'org-font-lock-hook 'dan/org-fontify-latex-commands)
 #+end_src
 
-*** Org-icons
+** Org-icons
 #+begin_src emacs-lisp :tangle no
   (require 'org-icons)
   (org-icons-mode)
 #+end_src
 
-*** Org-buffers
+** Org-buffers
 #+begin_src emacs-lisp
   (defun dan/set-org-buffers-visibility ()
     (if (org-buffers-state-eq :atom 'heading)
@@ -962,7 +1006,7 @@
  ;; (add-hook 'org-buffers-mode-hook 'dan/set-org-buffers-visibility)
 #+end_src
 
-*** Org-mime
+** Org-mime
 #+begin_src emacs-lisp
 (add-hook 'message-mode-hook
           (lambda ()
@@ -973,14 +1017,14 @@
             (local-set-key "\C-c\M-o" 'org-mime-org-buffer-htmlize)))
 #+end_src
 
-*** Org-fold
+** Org-fold
 #+begin_src emacs-lisp :tangle no
   (add-to-list 'load-path "~/emacs/org-fold")
   (require 'org-fold)
 #+end_src
 
-*** Etc
-***** Show all including blocks
+** Etc
+*** Show all including blocks
 #+begin_src emacs-lisp
   (defun dan/org-show-all ()
     (interactive)
@@ -989,7 +1033,7 @@
       (show-all)))
 #+end_src
 
-***** Temp org file
+*** Temp org file
 #+begin_src emacs-lisp
   (defun dan/org-switch-to-org-scratch ()
     "Put me in a new org buffer now!"
@@ -1002,7 +1046,7 @@
     (unless (org-mode-p) (org-mode)))
 #+end_src
 
-***** Search in org source code
+*** Search in org source code
 #+begin_src emacs-lisp
   (setq dan/org-mode-src-dir "/usr/local/src/emacs/org-mode")
   
@@ -1016,7 +1060,7 @@
      "*.el" (concat dan/org-mode-src-dir "/lisp")))
 #+end_src
 
-***** dan/org-edit-src-code-current-window
+*** dan/org-edit-src-code-current-window
 #+begin_src emacs-lisp
   (defun dan/org-edit-src-code (config)
     (let ((org-src-window-setup config))
@@ -1031,7 +1075,7 @@
     (dan/org-edit-src-code 'reorganize-frame))
 #+end_src
 
-***** dan/org-edit-special
+*** dan/org-edit-special
       Needs more work to keep point in sensible location, and to
       detect when inside a block.
 
@@ -1049,7 +1093,7 @@
       (message "No target found")))
 #+end_src
 
-***** org-insert-link-maybe
+*** org-insert-link-maybe
 #+begin_src emacs-lisp
   (defun org-insert-link-maybe ()
     "Insert a file link depending on the context"
@@ -1064,7 +1108,7 @@
   
     (add-hook 'org-tab-first-hook 'org-insert-link-maybe)
 #+end_src
-***** Link to magit mode
+*** Link to magit mode
       [[mairix:t:@@4A86B7D9.6080805@cs.tu-berlin.de][Email from Stephan Schmitt: {Orgmode} link to magit-status]]
 #+begin_src emacs-lisp
 (defun org-magit-store-link ()
@@ -1085,7 +1129,7 @@
 (add-hook 'org-store-link-functions 'org-magit-store-link)
 #+end_src
 
-***** Etc
+*** Etc
 #+begin_src emacs-lisp
     (defun dan/org-read-subtrees ()
       "Return subtrees as a list of strings"
@@ -1109,12 +1153,12 @@
         (insert (mapconcat 'identity (nreverse subtrees) "\n"))))
 #+end_src
 
-***** Htmlize with images
+*** Htmlize with images
 Based on
 https://stat.ethz.ch/pipermail/ess-help/2009-August/005478.html
 by Vitalie S.
 #+begin_src emacs-lisp 
-  (defun htmlize-buffer-with-org-images ()
+  (defun dan/htmlize-buffer-with-org-images ()
     "Convert buffer to html, including embedded images."
     (interactive)
     (require 'htmlize)
@@ -1125,7 +1169,7 @@ by Vitalie S.
         (replace-match (concat "<img src='\\1'/>")))))
 #+end_src
 
-***** HTML email
+*** HTML email
 #+begin_src emacs-lisp
   ;; Eric Schulte
   ;; 2010-03-23
@@ -1190,15 +1234,29 @@ by Vitalie S.
           (setq buffer-read-only bro)))))
   
   (add-hook 'dired-after-readin-hook 'dan/dired-delete-total-line)
+  
+#+end_src
+** Dired for git repo
+[[mairix:t:@@m1630s27or.fsf@65-070.eduroam.rwth-aachen.de][Email from Andrea Crotti: Re: Simple useful function]]
+#+begin_src emacs-lisp
+  (defun dan/dired-git-files ()
+    (interactive)
+    (dired (cons (format "%s [git]" default-dqirectory)
+                 (dan/ls-git-files))))
+  
+  (defun dan/ls-git-files ()
+    (if (file-exists-p ".git")
+        (split-string (shell-command-to-string "git ls-files"))
+      (error "Not a git repo")))
 #+end_src
 
 * Info
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (add-to-list 'Info-directory-list "/usr/share/info/emacs-snapshot")
 #+end_src
 
 * Buffer lists
-*** Ibuffer
+** Ibuffer
 #+begin_src emacs-lisp
   (setq ibuffer-show-empty-filter-groups nil)
   
@@ -1255,7 +1313,7 @@ by Vitalie S.
               (ibuffer-switch-to-saved-filter-groups "default")))
 #+end_src
 
-*** Buffer Menu
+** Buffer Menu
 #+begin_src emacs-lisp
 (setq Buffer-menu-sort-column 4)
 #+end_src
@@ -1293,6 +1351,7 @@ by Vitalie S.
   
   ;; (require 'ess-eldoc)
   
+;; (setq ess-ask-for-ess-directory nil)
   (setq inferior-R-args "--no-save --no-restore-data --silent")
   (setq safe-local-variable-values '((noweb-default-code-mode . R-mode) (outline-minor-mode)))
   (autoload 'noweb-mode "noweb-mode" "Editing noweb files." t) ;; see noweb-mode.el in ESS;
@@ -1324,7 +1383,7 @@ by Vitalie S.
   ;; ess-close-brace-offset            0   0   0   0   0
 #+end_src
 
-*** Add R builtins to font lock
+** Add R builtins to font lock
 
 #+source: R-builtins
 #+begin_src R
@@ -1333,7 +1392,7 @@ by Vitalie S.
   obj[-grep(re, obj)]
 #+end_src
 
-#+begin_src emacs-lisp :var R-builtins=R-builtins()
+#+begin_src emacs-lisp :var R-builtins=R-builtins() :tangle no
   (add-to-list
    'ess-R-mode-font-lock-keywords
    (cons 
@@ -1341,7 +1400,7 @@ by Vitalie S.
     'font-lock-function-name-face))
 #+end_src
 
-*** Etc
+** Etc
 #+begin_src emacs-lisp :tangle no
   (defun dan/ess-execute-command-on-region (cmd)
     (interactive "sEnter function name: \n")
@@ -1354,7 +1413,7 @@ by Vitalie S.
   (setq flyspell-issue-message-flag nil)
 #+end_src
 * Gnus
-*** General
+** General
 #+begin_src emacs-lisp
   (add-to-list 'load-path "~/emacs/gnus/lisp")
   (require 'gnus-load)
@@ -1368,7 +1427,9 @@ by Vitalie S.
                  (nnimap-address "localhost")
                  (nnimap-authinfo-file "~/config/email/authinfo")))
   
-  (setq gnus-secondary-select-methods '((nntp "news.gmane.org")))
+  (setq gnus-secondary-select-methods
+        '((nntp "news.gmane.org")
+          (nntp "news.eternal-september.org")))
   
   (setq gnus-save-newsrc-file nil)
   (setq gnus-play-startup-jingle t)
@@ -1459,7 +1520,7 @@ by Vitalie S.
   ;;;
   ;;;
 #+end_src
-*** Sending
+** Sending
 #+begin_src emacs-lisp
   (setq
    mail-user-agent 'message-user-agent ;; so that org-mime-org-buffer-htmlize uses message-mode
@@ -1469,7 +1530,7 @@ by Vitalie S.
    )
 #+end_src
 
-*** Group buffer
+** Group buffer
 #+begin_src emacs-lisp
   (defun dan/gnus-group-sort (info1 info2)
     "Sort alphabetically."
@@ -1481,7 +1542,7 @@ by Vitalie S.
   (setq gnus-group-sort-function 'dan/gnus-group-sort)
 #+end_src
 
-*** Summary buffer
+** Summary buffer
 #+begin_src emacs-lisp
   ;;; Summary Buffer
   ;;;
@@ -1542,7 +1603,7 @@ by Vitalie S.
   (defun gnus-user-format-function-z (x)
     (propertize "hello" 'face '(:foreground "red")))
 #+end_src
-*** Correct counts
+** Correct counts
 #+begin_src emacs-lisp
   ;;; dim-gnus-imap-count.el --- Dimitri Fontaine
   ;;
@@ -1607,7 +1668,7 @@ by Vitalie S.
   (provide 'dim-gnus-imap-count)
 #+end_src
 
-*** Article buffer
+** Article buffer
 #+begin_src emacs-lisp
   ;;; Article buffer
   ;;;
@@ -1622,17 +1683,22 @@ by Vitalie S.
   (setq mm-discouraged-alternatives '("text/html" "text/richtext"))
 #+end_src
 
+* Magit
+#+begin_src emacs-lisp
+  (setq magit-save-some-buffers nil)
+#+end_src
+
 * Message Mode
 #+begin_src emacs-lisp 
 (setq message-send-mail-partially nil)
 #+end_src
 * Language modes
-*** Elisp
+** Elisp
 #+begin_src emacs-lisp
   (add-hook 'emacs-lisp-mode-hook 'pretty-lambdas)
 #+end_src
 
-*** C & C++
+** C & C++
 #+begin_src emacs-lisp
   ;; Dan Feb 2006: See http://www.xemacs.org/Links/tutorials_1.html
   (defun dan/c-c++-mode-hook ()
@@ -1650,7 +1716,7 @@ by Vitalie S.
   (setq compilation-read-command nil)
 #+end_src
 
-*** Lua
+** Lua
 #+begin_src emacs-lisp
 (setq auto-mode-alist (cons '("\\.lua$" . lua-mode) auto-mode-alist))
 (setq auto-mode-alist (cons '("\\.pyw$" . python-mode) auto-mode-alist))
@@ -1663,8 +1729,11 @@ by Vitalie S.
   (winner-mode t)
   (recentf-mode t)
   (global-font-lock-mode t)
+  (minimal-mode t)
   ;; (desktop-save-mode t)
   ;; (display-battery-mode t)
+  ;; (global-auto-revert-mode nil)
+  ;; (setq global-auto-revert-mode-text "")
 #+end_src
 
 * Completion
@@ -1692,7 +1761,7 @@ by Vitalie S.
 #+end_src
 
 * Key bindings
-*** dan/set-keys
+** dan/set-keys
 #+begin_src emacs-lisp
   (defun dan/set-keys ()
     (interactive)
@@ -1715,8 +1784,8 @@ by Vitalie S.
   \"-mode-map\" is appended to it when finding the mode-map. If it
   is a symbol, it is used as is.")
 #+end_src
-*** Bindings
-***** global
+** Bindings
+*** global
 #+begin_src emacs-lisp
   (add-to-list 'dan/key-bindings
         '(global-map . 
@@ -1762,18 +1831,18 @@ by Vitalie S.
                  ([(meta escape)] . delete-other-windows)
                  ([escape] . other-window))))
 #+end_src
-***** C
+*** C
 #+begin_src emacs-lisp
   (add-to-list 'dan/key-bindings
                '("c" . nil))
 #+end_src
-***** Ctrl-x-4
+*** Ctrl-x-4
 #+begin_src emacs-lisp
   (add-to-list
    'dan/key-bindings
    '(ctl-x-4-map . (("t" . toggle-window-split))))
 #+end_src
-***** Elisp
+*** Elisp
 #+begin_src emacs-lisp
   (add-to-list
    'dan/key-bindings
@@ -1781,7 +1850,7 @@ by Vitalie S.
      (("\C-cd" . edebug-defun)
       ("\C-c\C-l" . dan/eval-buffer-confirm))))
 #+end_src
-***** ESS
+*** ESS
 #+begin_src emacs-lisp 
   (add-to-list
    'dan/key-bindings
@@ -1801,28 +1870,28 @@ by Vitalie S.
    `("inferior-ess" .
      ,(cdr (assoc "ess" dan/key-bindings))))
 #+end_src
-***** Gnus
+*** Gnus
 #+begin_src emacs-lisp
   (add-to-list
    'dan/key-bindings
    '("gnus-summary" .
      (("\C-d" . dan/gnus-summary-delete-article))))
 #+end_src
-***** Latex
+*** Latex
 #+begin_src emacs-lisp
   (add-to-list
    'dan/key-bindings
    '("latex" .
      (([C-tab] . TeX-complete-symbol))))
 #+end_src
-***** Mml
+*** Mml
 #+begin_src emacs-lisp
 (add-to-list
  'dan/key-bindings
  '("mml" .
    (("\M-q" . ded/mml-fill-paragraph))))
 #+end_src
-***** Org
+*** Org
 #+begin_src emacs-lisp 
   (add-to-list
    'dan/key-bindings
@@ -1833,7 +1902,7 @@ by Vitalie S.
      ("\C-cz" . dan/org-babel-switch-to-code-with-session)
      ([(control \')] . dan/org-hide-block-and-switch-to-code-buffer))))
 #+end_src
-******* Eric's outline navigation bindings
+**** Eric's outline navigation bindings
 	[[mairix:t:@@m2eirnzhb4.fsf@gmail.com][Email from Eric Schulte: Re: {Orgmode} Go to top node]]
 #+begin_src emacs-lisp
 (add-hook 'org-mode-hook
@@ -1843,7 +1912,7 @@ by Vitalie S.
 	    (local-set-key (kbd "\M-\C-u") 'outline-up-heading)))
 #+end_src
 
-***** Org Src
+*** Org Src
 #+begin_src emacs-lisp
   (add-to-list
    'dan/key-bindings
@@ -1851,13 +1920,13 @@ by Vitalie S.
      (([(control \')] . org-edit-src-exit)
       ([delete] . org-edit-src-exit))))
 #+end_src
-***** Python
+*** Python
 #+begin_src emacs-lisp
   (add-to-list
    'dan/key-bindings
    '("python" . nil))
 #+end_src
-***** Texinfo
+*** Texinfo
 #+begin_src emacs-lisp
   (add-to-list
    'dan/key-bindings
@@ -1874,13 +1943,13 @@ by Vitalie S.
 #+end_src
 
 * Variables
-*** Elisp programming
+** Elisp programming
 #+srcname: name
 #+begin_src emacs-lisp 
   (setq eval-expression-debug-on-error nil)
   (setq find-function-C-source-directory "/usr/local/src/emacs/emacs-23.1/src")
 #+end_src
-*** Etc
+** Etc
 #+begin_src emacs-lisp
   (setq case-fold-search nil)
   (setq comint-input-ring-size 1024)
@@ -1949,7 +2018,7 @@ by Vitalie S.
   
   (autoload 'ansi-color-for-comint-mode-on "ansi-color" nil t)
   (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
-  (add-hook 'after-change-major-mode-hook 'dan/toggle-mode-line)
+  ;; (add-hook 'after-change-major-mode-hook 'dan/toggle-mode-line)
 #+end_src
   
 * Mode line
@@ -1975,7 +2044,7 @@ by Vitalie S.
         (redraw-frame (window-frame (selected-window)))))
 #+end_src
 * Functions
-*** Trace functions
+** Trace functions
 #+begin_src emacs-lisp
   (defun dan/trace-functions (regexp)
     "Trace functions with names matching regexp"
@@ -1987,14 +2056,14 @@ by Vitalie S.
                 collect x)))
 #+end_src
 
-*** Debug on error
+** Debug on error
 #+begin_src emacs-lisp
   (defun dan/toggle-debug-on-error ()
     (interactive)
     (setq debug-on-error (not debug-on-error)))
 #+end_src
 
-*** Revert all elisp buffers
+** Revert all elisp buffers
     #+begin_src emacs-lisp
       (defun dan/revert-elisp-buffers ()
         "Revert all elisp buffers"
@@ -2199,17 +2268,32 @@ by Vitalie S.
            (byte-compile-file (concat file ".el")))
        (load file))
 #+end_src
-*** Show buffer-file-name
+** Show buffer-file-name
 #+begin_src emacs-lisp
   (defun dan/show-buffer-file-name ()
     (interactive)
-    (let ((bfn (buffer-file-name))
+    (let ((bn (buffer-name (current-buffer)))
+          (bfn (buffer-file-name))
           (dd default-directory))
-      (if (and bfn (string= (file-name-directory bfn) dd))
-          (message (buffer-file-name))
-        (message "buffer-file-name: %S\tdefault-directory: %s" bfn dd))))
+      (if bfn
+          ;; file buffer
+          (if (string= (file-name-nondirectory bfn) bn)
+              ;; expected buffer name
+              (if (string= (file-name-directory bfn) dd)
+                  ;; expected default-directory
+                  (message bn)
+                ;; unexpected default-directory
+                (message "buffer-file-name: %s\tdefault-directory: %s" bn dd))
+            ;; unexpected buffer name
+            (if (string= (file-name-directory bfn) dd)
+                ;; expected default-directory
+                (message "buffer-file-name: %s\tbuffer-name: %s" bfn bn)
+              ;; unexpected default-directory
+              (message "buffer-file-name: %s\tbuffer-name: %s\tdefault-directory: %s" bfn bn dd)))
+        ;; non-file buffer
+        (message "buffer-file-name: %S\tbuffer-name: %s\tdefault-directory: %s" bfn bn dd))))
 #+end_src
-*** Format post
+** Format post
 #+begin_src emacs-lisp
   (defun dan/format-region-for-post (start end)
     (interactive "r")
@@ -2223,7 +2307,17 @@ by Vitalie S.
     (widen))
 #+end_src
 
-*** Etc
+** Switch windows
+#+begin_src emacs-lisp
+  (defun dan/switch-windows ()
+    "Switch the buffers between windows"
+    (interactive)
+    (let ((other-window-buffer (window-buffer (next-window))))
+      (set-window-buffer (next-window) (current-buffer))
+      (set-window-buffer (selected-window) other-window-buffer)))
+#+end_src
+
+** Etc
 #+begin_src emacs-lisp
   ;; (setq custom-file "~/src/config/emacs/emacs.el") ;; now code
   ;; generated by emacs' customisation buffers will go in this file rather
@@ -2310,6 +2404,8 @@ by Vitalie S.
   (setq scroll-preserve-screen-position :always
         scroll-conservatively           most-positive-fixnum
         scroll-step                     0)
+  
+  (setq org-src-fontify-natively t)
 #+end_src
 ** Redefine message
 #+begin_src emacs-lisp :tangle no
@@ -2318,14 +2414,6 @@ by Vitalie S.
     (set-buffer "*Messages*")
     (goto-char (point-max))
     (insert (apply 'format format-string args)))
-#+end_src
-
-** Mode line
-#+begin_src emacs-lisp :tangle no
-(setq mode-line-format (propertize "gggg" 'face 'small))
-
-(defface small '((t :height 50)) "")
-
 #+end_src
 
 * File Config
