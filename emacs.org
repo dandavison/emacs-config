@@ -2420,3 +2420,6 @@ by Vitalie S.
   ;;                          :foundry "unknown" :family "DejaVu Sans Mono"))))
   ;;  '(gnus-cite-1 ((((class color) (background light)) (:foreground "deep sky blue")))))
 #+end_src
+
+* File config
+#+babel: results silent
