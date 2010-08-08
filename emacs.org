@@ -1944,6 +1944,7 @@ by Vitalie S.
                  ([f3] . (lambda () (interactive) (switch-to-buffer "*Org Agenda*")))
                  ([f4] . (lambda () (interactive) (switch-to-buffer "*shell*")))
                  ([f5] . (lambda () (interactive) (switch-to-buffer "*Python*")))
+                 ([f6] . dan/find-file-emacs-config)
                  ([f7] . dan/org-schedule-task-with-link)
                  ([f8] . org-remember)
                  ([f9] . find-tag-at-point)
@@ -2335,6 +2336,13 @@ by Vitalie S.
     (let ((other-window-buffer (window-buffer (next-window))))
       (set-window-buffer (next-window) (current-buffer))
       (set-window-buffer (selected-window) other-window-buffer)))
+#+end_src
+
+** Find-file emacs.org
+#+begin_src emacs-lisp
+  (defun dan/find-file-emacs-config ()
+    (interactive)
+    (find-file "~/.emacs.org"))
 #+end_src
 
 ** Etc
