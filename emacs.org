@@ -1897,12 +1897,14 @@ by Vitalie S.
 #+end_src
 
 ** Multiple major modes
-:PROPERTIES:
-:tangle: no
-:END:
+*** Mumamo
+#+begin_src emacs-lisp
+  (load "/usr/local/src/emacs/nxhtml/autostart.el")
+  (require 'mumamo)
+#+end_src
 *** Multi-mode
 I didn't get this to work.
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (add-to-list 'load-path "/usr/local/src/emacs/multi-mode")
   (require 'multi-mode)
   
@@ -1916,35 +1918,6 @@ I didn't get this to work.
   (defun org-src-turn-on-multi-mode ()
     (setq multi-chunk-fns
           (list org-src-get-block-info-for-multi-mode)))
-#+end_src
-*** Mumamo
-I didn't get this to work either.
-[[http://thread.gmane.org/gmane.emacs.orgmode/8112]]
-#+begin_src emacs-lisp
-  (load "/usr/local/src/emacs/nxhtml/autostart.el")
-  (require 'mumamo)
-  (defvar mumamo-org-modes
-    '(R emacs-lisp sh)
-    "Modes to include in org-files")
-  
-  (defvar mumamo-org-chunk-functions
-    (mapcar
-     (lambda (mode)
-       (eval `(defun ,(intern (format "mumamo-chunk-org-%S" mode)) (pos min max)
-                ,(format "%s support inside org code blocks" mode)
-                (mumamo-quick-static-chunk
-                 pos min max ,(format "#+begin_src %S" mode) "#+end_src"
-                 t (quote ,mode) nil))))
-     mumamo-org-modes)
-    "The automatically defined mumamo-chunk-org-* functions for use
-  cramming other modes into org-mode.  See `mumamo-org-modes'
-  `mumamo-quick-static-chunk'.")
-  
-  (eval `(define-mumamo-multi-major-mode org-mumamo-mode
-           ,(format "Turn on multiple major modes with main major mode org-mode.\n\n%s"
-                    (mapconcat (lambda (el) (format "- %S" el))
-                               mumamo-org-modes "\n"))
-           ("Org Source Blocks Family" org-mode ,mumamo-org-chunk-functions)))
 #+end_src
 
 *** Org-noweb
