@@ -53,7 +53,7 @@
   
   (defun dan/th-outline-minor-mode-init ()
     (interactive)
-    (setq outline-regexp (th-outline-regexp))
+    (setq outline-regexp (dan/th-outline-regexp))
   
     ;; highlight the headings
     ;; see http://www.gnu.org/software/emacs/manual/html_node/emacs/Font-Lock.html
@@ -140,22 +140,23 @@
   ;;             (define-key outline-minor-mode-map [(f10)] 'outline-cycle)))
 #+end_src
 ** Completion
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   ;; ;; Things that I'm not really interested in seeing in emacs
   ;; ;; (you can still open them explicitly)
   (setq dan/ignored-extensions
         '(".html" ".csv" ".ps" ".bst" ".cls"
           ".fdf" ".spl" ".aux" ".ppt" ".doc" ".xls" ".mp3" ".org"))
-  
+
   (mapc (lambda(extension)
           (add-to-list 'completion-ignored-extensions extension))
           dan/ignored-extensions)
-  (ido-mode t) ;; (iswitchb-mode t)
+  (require 'ido)
+  (ido-mode +1) ;; (iswitchb-mode t)
   (setq ido-separator " ")
   
   ;; As regexps, these should really have terminal $
-  (mapc (lambda(extension)
-          (add-to-list 'ido-ignore-buffers (regexp-quote extension))
+  (mapc (lambda (extension)
+            (add-to-list 'ido-ignore-buffers (regexp-quote extension))
           (add-to-list 'ido-ignore-files (regexp-quote extension)))
         dan/ignored-extensions) 
   
@@ -315,6 +316,9 @@
 #+end_src
 *** Vanilla
 #+begin_src emacs-lisp
+  (tool-bar-mode -1)
+  (menu-bar-mode -1)
+  (scroll-bar-mode -1)
   (nconc default-frame-alist '((cursor-type . bar)))
   (setq inhibit-startup-message t)
   (blink-cursor-mode -1)
@@ -551,6 +555,11 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   ;; (setq browse-url-browser-function 'w3m-browse-url)
   ;; (setq browse-url-firefox-new-window-is-tab t)
 #+end_src
+** Ediff
+#+begin_src emacs-lisp
+(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+#+end_src
+
 ** Non-default
 *** Saveplace
 #+begin_src emacs-lisp :tangle no
@@ -564,6 +573,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
                   (outline-previous-visible-heading 1)
                   (org-show-subtree)))))
 #+end_src
+
 * External modules
 ** Load path
 #+begin_src emacs-lisp
@@ -597,41 +607,41 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+end_src
 ** ESS
 #+begin_src emacs-lisp
-  (add-to-list 'load-path "/usr/local/src/emacs/ess/lisp")
-  (require 'ess-site)
-  
-  ;; (require 'ess-eldoc)
-  
-;; (setq ess-ask-for-ess-directory nil)
-  (setq inferior-R-args "--no-save --no-restore-data --silent")
-  (setq safe-local-variable-values '((noweb-default-code-mode . R-mode) (outline-minor-mode)))
-  (autoload 'noweb-mode "noweb-mode" "Editing noweb files." t) ;; see noweb-mode.el in ESS;
-  (setq auto-mode-alist (append (list (cons "\\.nw$" 'noweb-mode))
-                                auto-mode-alist))
-  
-  ;; (defun dan/ess-and-iess-mode-hook ()
-  ;;   (setq ess-function-template " <- function() {\n\n}\n")
-  ;;   (mapc (lambda (pair) (local-set-key (car pair) (cdr pair)))
-  ;;        dan/ess-and-iess-keybindings))
-  
-  (defun dan/ess-mode-hook ()
-    (ess-set-style 'C++))
-  
-  ;; (add-hook 'ess-mode-hook 'dan/ess-and-iess-mode-hook)
-  ;; (add-hook 'inferior-ess-mode-hook 'dan/ess-and-iess-mode-hook)
-  (add-hook 'ess-mode-hook 'dan/ess-mode-hook)
-  
-  (setq ess-eval-visibly-p nil)
-  
-  
-  ;;                                 DEF GNU BSD K&R C++
-  ;; ess-indent-level                  2   2   8   5   4
-  ;; ess-continued-statement-offset    2   2   8   5   4
-  ;; ess-brace-offset                  0   0  -8  -5  -4
-  ;; ess-arg-function-offset           2   4   0   0   0
-  ;; ess-expression-offset             4   2   8   5   4
-  ;; ess-else-offset                   0   0   0   0   0
-  ;; ess-close-brace-offset            0   0   0   0   0
+    (add-to-list 'load-path "/usr/local/src/emacs/ess/lisp")
+    (require 'ess-site)
+    
+    ;; (require 'ess-eldoc)
+    
+  ;; (setq ess-ask-for-ess-directory nil)
+    (setq inferior-R-args "--no-save --no-restore-data --silent")
+    (setq safe-local-variable-values '((noweb-default-code-mode . R-mode) (outline-minor-mode)))
+    (autoload 'noweb-mode "noweb-mode" "Editing noweb files." t) ;; see noweb-mode.el in ESS;
+    (setq auto-mode-alist (append (list (cons "\\.nw$" 'noweb-mode))
+                                  auto-mode-alist))
+    
+    ;; (defun dan/ess-and-iess-mode-hook ()
+    ;;   (setq ess-function-template " <- function() {\n\n}\n")
+    ;;   (mapc (lambda (pair) (local-set-key (car pair) (cdr pair)))
+    ;;        dan/ess-and-iess-keybindings))
+    
+    (defun dan/ess-mode-hook ()
+      (ess-set-style 'C++))
+    
+    ;; (add-hook 'ess-mode-hook 'dan/ess-and-iess-mode-hook)
+    ;; (add-hook 'inferior-ess-mode-hook 'dan/ess-and-iess-mode-hook)
+    (add-hook 'ess-mode-hook 'dan/ess-mode-hook)
+    
+    (setq ess-eval-visibly-p t)
+    
+    
+    ;;                                 DEF GNU BSD K&R C++
+    ;; ess-indent-level                  2   2   8   5   4
+    ;; ess-continued-statement-offset    2   2   8   5   4
+    ;; ess-brace-offset                  0   0  -8  -5  -4
+    ;; ess-arg-function-offset           2   4   0   0   0
+    ;; ess-expression-offset             4   2   8   5   4
+    ;; ess-else-offset                   0   0   0   0   0
+    ;; ess-close-brace-offset            0   0   0   0   0
 #+end_src
 
 *** Add R builtins to font lock
@@ -950,7 +960,6 @@ http://www.emacswiki.org/emacs/TransparentEmacs
     (require 'xclip)
     (require 'highlight-parentheses)
     (highlight-parentheses-mode)
-    ;; (require 'ido)
     (require 'boxquote)
     ;; (load "/usr/local/src/emacs/nxhtml/autostart.el")
     ;; (load "R-anything-config")
@@ -978,23 +987,19 @@ http://www.emacswiki.org/emacs/TransparentEmacs
     (make-variable-buffer-local 'yas/trigger-key)
     (setq yas/trigger-key [tab])
     (define-key yas/keymap [tab] 'yas/next-field-group)
-    (org-indent-mode t))
+    ;; (org-indent-mode t)
+    )
   
   (add-hook 'org-mode-hook 'dan/org-mode-hook-function)
 #+end_src
 *** Basics
 #+begin_src emacs-lisp
-  ;;* Org-mode settings
-  
   (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
-  
-  ;; (or (server-running-p) (server-start))
 #+end_src
 *** Misc
 #+begin_src emacs-lisp
 (setq org-hide-block-startup nil)
   
-  (setq org-completion-use-ido t)    
   ;; (setq org-startup-folded nil)    
   ;;* refiling
   ;; http://doc.norang.ca/org-mode.html#Refiling
@@ -1015,9 +1020,9 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 *** Appearance
 #+begin_src emacs-lisp
   (setq org-hide-leading-stars t)
-  (setq org-hidden-keywords '(title date author))
+  (setq org-hidden-keywords nil) ;; '(title date author))
   (copy-face 'shadow 'org-meta-line)
-  (setq org-pretty-entities t)
+;;  (setq org-pretty-entities t)
 #+end_src
 **** Set outline colors
 #+function: outline-colours
@@ -1045,7 +1050,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
     See also [[mairix:t:@@20524da70908071211y4aeb4c0se9a465e2ebe27a8f@mail.gmail.com][Email from Samuel Wales: {Orgmode} Arrow + RET navigati]]
 
 **** Speed commands
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp :tangle no
   (defun dan/org-show-next-heading-tidily ()
     "Show next entry, keeping other entries closed."
     (if (save-excursion (end-of-line) (outline-invisible-p))
@@ -1080,9 +1085,6 @@ http://www.emacswiki.org/emacs/TransparentEmacs
                '("p" dan/org-show-previous-heading-tidily))
 #+end_src
 
-#+results:
-| p | dan/org-show-previous-heading-tidily |
-| n | dan/org-show-next-heading-tidily     |
 *** Remember
 #+begin_src emacs-lisp
   ;;* remember
@@ -1237,6 +1239,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 *** Export
 **** General
 #+begin_src emacs-lisp
+  (require 'org-html)
   (setq org-export-htmlize-output-type (if t 'inline-css 'css))
   (unless (member "svg" org-export-html-inline-image-extensions)
     (setq org-export-html-inline-image-extensions
@@ -1311,31 +1314,32 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 **** HTML
 *** Src
 #+begin_src emacs-lisp
-  (defun dan/org-src-mode-hook ()
-    (outline-minor-mode -1)
-    (if (eq major-mode 'python-mode)
-        (setq python-indent 4)))
-  
-  (add-hook 'org-src-mode-hook 'dan/org-src-mode-hook)
-  ;; (remove-hook 'org-src-mode-hook 'dan/org-src-mode-hook)
-  
-  (add-to-list 'org-src-lang-modes '("C" . c))
-  
-  (setq org-hide-block-startup t)
-  
-  (setq org-src-window-setup 'reorganize-frame) ;; 'current-window 'other-window 'other-frame 'reorganize-frame
-  ;; (setq org-src-window-setup 'current-window) ;; 'current-window 'other-window 'other-frame 'reorganize-frame
-  
-  
-  (setq org-src-ask-before-returning-to-edit-buffer nil)
-  
-  (define-key org-src-mode-map [C-tab] 'org-edit-src-exit)
-      #+end_src
+    (defun dan/org-src-mode-hook ()
+      (outline-minor-mode -1)
+      (if (eq major-mode 'python-mode)
+          (setq python-indent 4)))
+    
+  (add-hook 'org-src-mode-hook
+               (lambda () (define-key org-src-mode-map "\C-c\C-v"
+                       'org-src-do-key-sequence-at-code-block)))
+    
+    (add-hook 'org-src-mode-hook 'dan/org-src-mode-hook)
+    
+    (add-to-list 'org-src-lang-modes '("C" . c))
+    
+    (setq org-hide-block-startup t)
+    
+    ;; (setq org-src-window-setup 'reorganize-frame) ;; 'current-window 'other-window 'other-frame 'reorganize-frame
+    (setq org-src-window-setup 'current-window) ;; 'current-window 'other-window 'other-frame 'reorganize-frame
+    
+    (setq org-src-ask-before-returning-to-edit-buffer nil)
+#+end_src
 **** Hide block and switch to edit buffer
 #+begin_src emacs-lisp
   (defun dan/org-hide-block-and-switch-to-code-buffer (&optional arg)
     (interactive "P")
-    (let* ((beg (org-babel-where-is-src-block-head)))
+    (let* ((beg (org-babel-where-is-src-block-head))
+    (org-src-window-setup 'current-window))
       (when beg
         (goto-char beg)
         (org-hide-block-toggle 'hide)
@@ -1355,6 +1359,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   
   ;; (setq org-babel-timestamp-results t)
   ;; (setq org-babel-allow-variable-references t)
+  (setq org-export-babel-evaluate t)
 #+end_src
 **** dan/indent-src-block
 #+begin_src emacs-lisp
@@ -1401,7 +1406,8 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   (defun org-babel-edit-special-maybe ()
     "Switch to edit buffer for block at point"
     (interactive)
-    (let ((case-fold-search t))
+    (let ((case-fold-search t)
+          (org-src-window-setup 'current-window))
       (if (save-excursion
             (beginning-of-line 1)
             (looking-at org-babel-src-block-regexp))
@@ -1409,7 +1415,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
                  t) ;; to signal that we took action
         nil))) ;; to signal that we did not
   
-  (add-hook 'org-tab-first-hook 'org-babel-edit-special-maybe)
+  ;; (add-hook 'org-tab-first-hook 'org-babel-edit-special-maybe)
 #+end_src
 ***** Execute src block from lang mode buffer
 	Haven't tested this out much.
@@ -1738,7 +1744,7 @@ this. see :tangle no below and in font-lock tree
           (progn (replace-match "") (org-insert-link '(4)) t)
         nil)))
   
-    (add-hook 'org-tab-first-hook 'org-insert-link-maybe)
+    ;; (add-hook 'org-tab-first-hook 'org-insert-link-maybe)
 #+end_src
 **** Link to magit mode
       [[mairix:t:@@4A86B7D9.6080805@cs.tu-berlin.de][Email from Stephan Schmitt: {Orgmode} link to magit-status]]
@@ -1879,6 +1885,17 @@ by Vitalie S.
   (yas/load-directory "/usr/local/src/emacs/yasnippet/snippets")
   (yas/load-directory "/usr/local/src/emacs/Worg/org-contrib/babel/snippets")
 #+end_src
+** Smex
+#+begin_src emacs-lisp
+  (add-to-list 'load-path "/usr/local/src/emacs/smex")
+  (require 'smex)
+  (smex-initialize)
+  (global-set-key (kbd "M-x") 'smex)
+  (global-set-key (kbd "M-X") 'smex-major-mode-commands)
+  ;; This is your old M-x.
+  (global-set-key (kbd "C-c C-x M-x") 'execute-extended-command)
+#+end_src
+
 ** Multiple major modes
 :PROPERTIES:
 :tangle: no
@@ -1890,8 +1907,8 @@ I didn't get this to work.
   (require 'multi-mode)
   
   (defun org-src-get-block-info-for-multi-mode (pos)
-    (save-excursion
-      (goto-char pos)
+     (save-excursion
+     (goto-char pos)
       (let ((info (org-edit-src-find-region-and-lang)))
         (list (org-src-get-lang-mode (nth 2 info))
               (nth 0 info) (nth 1 info)))))
@@ -1928,6 +1945,15 @@ I didn't get this to work either.
                     (mapconcat (lambda (el) (format "- %S" el))
                                mumamo-org-modes "\n"))
            ("Org Source Blocks Family" org-mode ,mumamo-org-chunk-functions)))
+#+end_src
+
+*** Org-noweb
+#+begin_src emacs-lisp :tangle no
+  (require 'noweb-mode)
+  (setq noweb-default-code-mode 'fundamental-mode)
+  (setq noweb-default-doc-mode 'org-mode)
+  
+  (setq noweb-code-mode noweb-default-code-mode)
 #+end_src
 
 * Key bindings
@@ -1967,6 +1993,7 @@ I didn't get this to work either.
                  ("\C-ca" . org-agenda)
                  ("\C-cf" . find-function)
                  ("\C-cg" . magit-status)
+                 ("\C-ci" . dan/current-column-line)
                  ("\C-cl" . org-store-link)
                  ("\C-cm" . dan/toggle-mode-line)
                  ("\C-cn" . dan/show-buffer-file-name)
@@ -2047,6 +2074,11 @@ I didn't get this to work either.
    'dan/key-bindings
    '("gnus-summary" .
      (("\C-d" . dan/gnus-summary-delete-article))))
+  
+  (add-to-list
+   'dan/key-bindings
+   '("gnus-article" .
+     (("\C-n" . dan/gnus-article-goto-next-article))))
 #+end_src
 *** Latex
 #+begin_src emacs-lisp
@@ -2069,7 +2101,6 @@ I didn't get this to work either.
    '("org" .
      (("\C-ch" . hide-subtree)
      ("\C-ct" . org-hide-block-toggle)
-     ("\C-ci" . dan/org-toggle-iimage-in-org)
      ("\C-cz" . dan/org-babel-switch-to-code-with-session)
      ([(control \')] . dan/org-hide-block-and-switch-to-code-buffer))))
 #+end_src
@@ -2112,6 +2143,7 @@ I didn't get this to work either.
       (if (re-search-forward "^ +[0-9]+:" nil t)
           (delete-region (point-min) (point-at-bol)))))
 #+end_src
+
 * My functions
 ** Trace functions
 #+begin_src emacs-lisp
@@ -2350,7 +2382,7 @@ I didn't get this to work either.
               ;; expected buffer name
               (if (string= (file-name-directory bfn) dd)
                   ;; expected default-directory
-                  (message bn)
+                  (message bfn)
                 ;; unexpected default-directory
                 (message "buffer-file-name: %s\tdefault-directory: %s" bn dd))
             ;; unexpected buffer name
@@ -2405,29 +2437,50 @@ I didn't get this to work either.
   ;; (add-hook 'pre-command-hook 'eldoc-pre-command-refresh-echo-area t)
   ;; (setq eldoc-timer [nil 1000000 0 500000 t eldoc-print-current-symbol-info nil t]) ;;
 #+end_src
+** Gnus go to next article
+#+begin_src emacs-lisp
+  (defun dan/gnus-article-goto-next-article ()
+    (interactive)
+    (with-current-buffer gnus-summary-buffer
+      (gnus-summary-goto-article (gnus-summary-next-article))))
+#+end_src
+
+** Current line and column
+#+begin_src emacs-lisp
+  (defun dan/current-column-line (&optional arg)
+    (interactive "P")
+    (let ((line (line-number-at-pos (point)))
+          (col (current-column)))
+      (message "line: %d\tcolumn: %d" line col)
+      (list line col)))
+#+end_src
+
 * Start-up
 #+begin_src emacs-lisp
-  ;;(when (string-match "^23\.*" emacs-version)
-  ;; temp hack to make w3m work with emacs23
-  ;; (require 'w3m-e21)
-  ;; (provide 'w3m-e23))
-  
-  ;; (org-fireforg-registry-initialize t)
-  
-  (nnmairix-update-database)
-  (dan/set-keys)
-  (if nil
-      (org-agenda-list)
-    (delete-other-windows))
-  (color-theme-initialize)
-  (color-theme-charcoal-black)
-  (set-face-attribute 'default nil :height 110 :family "DejaVu Sans Mono")
-  (dan/sanitise-faces)
-  (dan/set-show-paren-style)
-  (server-start)
+   ;;(when (string-match "^23\.*" emacs-version)
+   ;; temp hack to make w3m work with emacs23
+   ;; (require 'w3m-e21)
+   ;; (provide 'w3m-e23))
+   
+   ;; (org-fireforg-registry-initialize t)
+   
+   (nnmairix-update-database)
+   (dan/set-keys)
+   (if nil
+       (org-agenda-list)
+     (delete-other-windows))
+   (color-theme-initialize)
+   (color-theme-charcoal-black)
+   (set-face-attribute 'default nil :height 110 :family "DejaVu Sans Mono")
+   (dan/sanitise-faces)
+   (dan/set-show-paren-style)
+  (require 'server)
+  (unless (server-running-p) (server-start))
 #+end_src
 
 * Experimental
+
+(org-fontify-meta-lines-and-blocks 84237)
 #+begin_src emacs-lisp
   (setq scroll-preserve-screen-position :always
         scroll-conservatively           most-positive-fixnum
@@ -2435,6 +2488,7 @@ I didn't get this to work either.
   
   (setq org-src-fontify-natively t)
 #+end_src
+
 ** Redefine message
 #+begin_src emacs-lisp :tangle no
   (defun message (format-string &rest args)
