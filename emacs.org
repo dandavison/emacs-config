@@ -189,7 +189,7 @@
   
   ;; (desktop-save-mode t)
   ;; (display-battery-mode t)
-  ;; (global-auto-revert-mode nil)
+  (global-auto-revert-mode t)
   ;; (setq global-auto-revert-mode-text "")
 #+end_src
 *** Elisp programming
@@ -213,6 +213,7 @@
   (setq vc-follow-symlinks t)
   (setq x-alt-keysym 'meta)
   (setq backup-inhibited t)
+  (setq font-lock-verbose nil)
   
   ;; (visit-tags-table tags-file-name)
   ;; (setq font-lock-always-fontify-immediately t) where did I get that from?
@@ -264,7 +265,6 @@
   
   (autoload 'ansi-color-for-comint-mode-on "ansi-color" nil t)
   (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
-  ;; (add-hook 'after-change-major-mode-hook 'dan/toggle-mode-line)
 #+end_src
 ** Appearance
 #+begin_src emacs-lisp
@@ -369,25 +369,6 @@ http://www.emacswiki.org/emacs/TransparentEmacs
        (set-frame-parameter nil 'alpha '(85 60))))
    (global-set-key (kbd "C-c t") 'toggle-transparency)
 #+end_src
-  (defun dan/org-src-mode-hook ()
-    (outline-minor-mode -1)
-    (if (eq major-mode 'python-mode)
-        (setq python-indent 4)))
-  
-  (add-hook 'org-src-mode-hook 'dan/org-src-mode-hook)
-  ;; (remove-hook 'org-src-mode-hook 'dan/org-src-mode-hook)
-  
-  (add-to-list 'org-src-lang-modes '("C" . c))
-  
-  (setq org-hide-block-startup t)
-  
-  ;; (setq org-src-window-setup 'reorganize-frame) ;; 'current-window 'other-window 'other-frame 'reorganize-frame
-  (setq org-src-window-setup 'current-window) ;; 'current-window 'other-window 'other-frame 'reorganize-frame
-  
-  
-  (setq org-src-ask-before-returning-to-edit-buffer nil)
-  
-  (define-key org-src-mode-map [C-tab] 'org-edit-src-exit)* Internal modules
 ** Info
 #+begin_src emacs-lisp :tangle no
   (add-to-list 'Info-directory-list "/usr/share/info/emacs-snapshot")
@@ -1314,36 +1295,54 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 **** HTML
 *** Src
 #+begin_src emacs-lisp
-    (defun dan/org-src-mode-hook ()
-      (outline-minor-mode -1)
-      (if (eq major-mode 'python-mode)
-          (setq python-indent 4)))
-    
+  (defun dan/org-src-mode-hook ()
+    (save-excursion
+      (outline-minor-mode -1)))
+  ;; why this python indent stuff?
+  ;; (if (eq major-mode 'python-mode)
+  ;;     (setq python-indent 4)))
+  
+  (add-hook 'org-src-mode-hook 'dan/org-src-mode-hook)
+  
   (add-hook 'org-src-mode-hook
-               (lambda () (define-key org-src-mode-map "\C-c\C-v"
-                       'org-src-do-key-sequence-at-code-block)))
-    
-    (add-hook 'org-src-mode-hook 'dan/org-src-mode-hook)
-    
-    (add-to-list 'org-src-lang-modes '("C" . c))
-    
-    (setq org-hide-block-startup t)
-    
-    ;; (setq org-src-window-setup 'reorganize-frame) ;; 'current-window 'other-window 'other-frame 'reorganize-frame
-    (setq org-src-window-setup 'current-window) ;; 'current-window 'other-window 'other-frame 'reorganize-frame
-    
-    (setq org-src-ask-before-returning-to-edit-buffer nil)
+            (lambda () (define-key org-src-mode-map "\C-c\C-v"
+                         'org-src-do-key-sequence-at-code-block)))
+  
+  (defun dan/org-underscore-command ()
+    (interactive)
+    (or (org-babel-do-key-sequence-in-edit-buffer "_")
+        (org-self-insert-command 1)))
+  
+  (defun dan/org-comment-dwim (&optional arg)
+    (interactive "P")
+    (or (org-babel-do-key-sequence-in-edit-buffer "\M-;")
+        (comment-dwim arg)))
+  
+  (defun dan/org-indent-region ()
+    (interactive)
+    (or (org-babel-do-key-sequence-in-edit-buffer "\C-\M-\\")
+        (indent-region)))
+  
+  (setq org-src-tab-acts-natively t)
+  
+  (add-to-list 'org-src-lang-modes '("C" . c))
+  
+  (setq org-src-window-setup 'current-window) ;; 'current-window 'other-window 'other-frame 'reorganize-frame
+  
+  (setq org-src-ask-before-returning-to-edit-buffer nil)
+  
+  (setq org-src-strip-leading-and-trailing-blank-lines nil)
 #+end_src
 **** Hide block and switch to edit buffer
 #+begin_src emacs-lisp
-  (defun dan/org-hide-block-and-switch-to-code-buffer (&optional arg)
+  (defun dan/org-hide-block-and-switch-to-code-buffer ()
     (interactive "P")
     (let* ((beg (org-babel-where-is-src-block-head))
-    (org-src-window-setup 'current-window))
+           (org-src-window-setup 'reorganize-frame))
       (when beg
         (goto-char beg)
         (org-hide-block-toggle 'hide)
-        (unless arg (org-edit-src-code)))))
+        (org-edit-src-code))))
 #+end_src
 **** Activate languages
 #+begin_src emacs-lisp
@@ -1401,6 +1400,15 @@ http://www.emacswiki.org/emacs/TransparentEmacs
         (dan/indent-src-block))))
 #+end_src
 **** Etc
+***** TAB indents natively
+#+begin_src emacs-lisp :tangle no
+  (defun dan/indent-natively-maybe ()
+  (interactive)
+  (org-babel-do-key-sequence-in-edit-buffer "TAB"))
+  
+  (remove-hook 'org-tab-first-hook 'dan/indent-natively-maybe)
+#+end_src
+
 ***** Edit buffer instead of block unhiding
 #+begin_src emacs-lisp
   (defun org-babel-edit-special-maybe ()
@@ -1854,6 +1862,10 @@ by Vitalie S.
           html)))))
 #+end_src
 ** Org-buffers
+   :PROPERTIES:
+   :tangle: no
+   :END:
+
 #+begin_src emacs-lisp
   (add-to-list 'load-path "/usr/local/src/emacs/org-buffers")
   (require 'org-buffers)
@@ -1890,17 +1902,18 @@ by Vitalie S.
   (add-to-list 'load-path "/usr/local/src/emacs/smex")
   (require 'smex)
   (smex-initialize)
-  (global-set-key (kbd "M-x") 'smex)
-  (global-set-key (kbd "M-X") 'smex-major-mode-commands)
+  ;;(global-set-key (kbd "M-x") 'smex)
+  ;; (global-set-key (kbd "M-X") 'smex-major-mode-commands)
   ;; This is your old M-x.
-  (global-set-key (kbd "C-c C-x M-x") 'execute-extended-command)
+  ;; (global-set-key (kbd "C-c C-x M-x") 'execute-extended-command)
 #+end_src
 
 ** Multiple major modes
 *** Mumamo
 #+begin_src emacs-lisp
-  (load "/usr/local/src/emacs/nxhtml/autostart.el")
-  (require 'mumamo)
+(load "/usr/local/src/emacs/nxhtml/autostart.el")
+(require 'mumamo)
+(add-hook 'org-mumamo-mode-hook (lambda () (mumamo-no-chunk-coloring +1)))
 #+end_src
 *** Multi-mode
 I didn't get this to work.
@@ -1930,9 +1943,9 @@ I didn't get this to work.
 #+end_src
 
 * Key bindings
-** dan/set-keys
+** dan/set-key-bindings
 #+begin_src emacs-lisp
-  (defun dan/set-keys ()
+  (defun dan/set-key-bindings ()
     (interactive)
     (mapc (lambda (pair)
             (let* ((map (car pair)) (bindings (cdr pair)))
@@ -1952,11 +1965,29 @@ I didn't get this to work.
   references a key map. If the key is a string, the string
   \"-mode-map\" is appended to it when finding the mode-map. If it
   is a symbol, it is used as is.")
+  
+  (defun dan/register-key-bindings (bindings-alist)
+    "Add bindings in"
+    (setq
+     dan/key-bindings
+     (cons
+      bindings-alist
+      (delq nil
+            (mapcar
+             (lambda (el) (unless (equal (car el) (car bindings-alist))
+                       el))
+             dan/key-bindings)))))
+  
+  (defun dan/assoc-delete-all (key alist)
+    "Like `assq-delete-all' but using `equal' for comparison"
+    (delq nil
+          (mapcar (lambda (el) (unless (equal (car el) key) el))
+                  alist)))
 #+end_src
 ** bindings
 *** global
 #+begin_src emacs-lisp
-  (add-to-list 'dan/key-bindings
+  (dan/register-key-bindings
         '(global-map . 
                  (("\C-x\C-b" . org-buffers-list)
                  ("\C-ca" . org-agenda)
@@ -1964,11 +1995,10 @@ I didn't get this to work.
                  ("\C-n" . dan/next-line-and-indent)
                  ("\C-p" . dan/previous-line-and-indent)
                  ("\C-ca" . org-agenda)
-                 ("\C-cf" . find-function)
+                 ("\C-cf" . dan/find-function-or-library)
                  ("\C-cg" . magit-status)
                  ("\C-ci" . dan/current-column-line)
                  ("\C-cl" . org-store-link)
-                 ("\C-cm" . dan/toggle-mode-line)
                  ("\C-cn" . dan/show-buffer-file-name)
                  ("\C-co" . dan/org-switch-to-org-scratch)
                  ("\C-cr" . replace-regexp)
@@ -2004,79 +2034,73 @@ I didn't get this to work.
 #+end_src
 *** C
 #+begin_src emacs-lisp
-  (add-to-list 'dan/key-bindings
-               '("c" . nil))
+  (dan/register-key-bindings
+   '("c" . nil))
 #+end_src
 *** Ctrl-x-4
 #+begin_src emacs-lisp
-  (add-to-list
-   'dan/key-bindings
+  (dan/register-key-bindings
    '(ctl-x-4-map . (("t" . toggle-window-split))))
 #+end_src
 *** Elisp
 #+begin_src emacs-lisp
-  (add-to-list
-   'dan/key-bindings
+  (dan/register-key-bindings
    '("emacs-lisp" .
      (("\C-cd" . edebug-defun)
       ("\C-c\C-l" . dan/eval-buffer-confirm))))
 #+end_src
 *** ESS
 #+begin_src emacs-lisp 
-  (add-to-list
-   'dan/key-bindings
+  (dan/register-key-bindings
    '("ess" .
      (("\C-c?" . ess-display-help-on-object)
       ("\C-ca" . ess-r-args-show)
       ("\C-cd" . dan/ess-list-R-function-definitions)
-      ("\C-cf" . dan/ess-insert-function-template)
       ("\C-ck" . dan/ess-kill-line-and-indent)
       ("\C-cx" . dan/ess-recover-R-process)
-      ([(meta return)] . dan/ess-insert-function-template)
       ([(control return)] . ess-eval-line-and-step)
       ([(shift tab)] . ess-complete-object-name))))
   
-  (add-to-list
-   'dan/key-bindings
+  (dan/register-key-bindings
    `("inferior-ess" .
      ,(cdr (assoc "ess" dan/key-bindings))))
 #+end_src
 *** Gnus
 #+begin_src emacs-lisp
-  (add-to-list
-   'dan/key-bindings
+  (dan/register-key-bindings
    '("gnus-summary" .
      (("\C-d" . dan/gnus-summary-delete-article))))
   
-  (add-to-list
-   'dan/key-bindings
+  (dan/register-key-bindings
    '("gnus-article" .
      (("\C-n" . dan/gnus-article-goto-next-article))))
 #+end_src
 *** Latex
 #+begin_src emacs-lisp
-  (add-to-list
-   'dan/key-bindings
+  (dan/register-key-bindings
    '("latex" .
      (([C-tab] . TeX-complete-symbol))))
 #+end_src
 *** Mml
 #+begin_src emacs-lisp
-(add-to-list
- 'dan/key-bindings
+(dan/register-key-bindings
  '("mml" .
    (("\M-q" . ded/mml-fill-paragraph))))
 #+end_src
 *** Org
 #+begin_src emacs-lisp 
-  (add-to-list
-   'dan/key-bindings
+  (dan/register-key-bindings
    '("org" .
      (("\C-ch" . hide-subtree)
-     ("\C-ct" . org-hide-block-toggle)
-     ("\C-cz" . dan/org-babel-switch-to-code-with-session)
+      ("\C-cp" . org-insert-property-drawer)
+      ("\C-ct" . org-hide-block-toggle)
+      ("\C-cz" . dan/org-babel-switch-to-code-with-session)
+      ("_" . dan/org-underscore-command)
+      ("\M-;" . dan/org-comment-dwim)
+      ("\C-\M-\\" dan/org-indent-region)
      ([(control \')] . dan/org-hide-block-and-switch-to-code-buffer))))
 #+end_src
+
 **** Eric's outline navigation bindings
 	[[mairix:t:@@m2eirnzhb4.fsf@gmail.com][Email from Eric Schulte: Re: {Orgmode} Go to top node]]
 #+begin_src emacs-lisp
@@ -2089,22 +2113,19 @@ I didn't get this to work.
 
 *** Org Src
 #+begin_src emacs-lisp
-  (add-to-list
-   'dan/key-bindings
+  (dan/register-key-bindings
    '("org-src" .
      (([(control \')] . org-edit-src-exit)
       ([delete] . org-edit-src-exit))))
 #+end_src
 *** Python
 #+begin_src emacs-lisp
-  (add-to-list
-   'dan/key-bindings
+  (dan/register-key-bindings
    '("python" . nil))
 #+end_src
 *** Texinfo
 #+begin_src emacs-lisp
-  (add-to-list
-   'dan/key-bindings
+  (dan/register-key-bindings
    '("texinfo" .
              (("\C-c\C-s" . dan/texinfo-show-structure))))
   
@@ -2428,6 +2449,14 @@ I didn't get this to work.
       (list line col)))
 #+end_src
 
+** Find function or library
+#+begin_src emacs-lisp
+(defun dan/find-function-or-library (&optional arg)
+  (interactive "P")
+  (call-interactively
+   (if arg 'find-library 'find-function)))
+#+end_src
+   
 * Start-up
 #+begin_src emacs-lisp
    ;;(when (string-match "^23\.*" emacs-version)
@@ -2438,7 +2467,7 @@ I didn't get this to work.
    ;; (org-fireforg-registry-initialize t)
    
    (nnmairix-update-database)
-   (dan/set-keys)
+   (dan/set-key-bindings)
    (if nil
        (org-agenda-list)
      (delete-other-windows))
@@ -2453,7 +2482,6 @@ I didn't get this to work.
 
 * Experimental
 
-(org-fontify-meta-lines-and-blocks 84237)
 #+begin_src emacs-lisp
   (setq scroll-preserve-screen-position :always
         scroll-conservatively           most-positive-fixnum
