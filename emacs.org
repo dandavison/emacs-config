@@ -1945,6 +1945,13 @@ I didn't get this to work.
 * Key bindings
 ** dan/set-key-bindings
 #+begin_src emacs-lisp
+  (defvar dan/key-bindings nil
+    "List of all key bindings.
+  This is an alist of alists. The key of the top level alist
+  references a key map. If the key is a string, the string
+  \"-mode-map\" is appended to it when finding the mode-map. If it
+  is a symbol, it is used as is.")
+  
   (defun dan/set-key-bindings ()
     (interactive)
     (mapc (lambda (pair)
@@ -1953,36 +1960,25 @@ I didn't get this to work.
               (mapc (lambda (binding) (define-key (eval map) (car binding) (cdr binding))) bindings)))
           dan/key-bindings))
   
-  (add-hook 'after-change-major-mode-hook
-            (lambda ()
-              (local-set-key [delete] 'winner-undo)
-              (local-set-key [(super left)] 'winner-undo)
-              (local-set-key [(super right)] 'winner-redo)))
-  
-  (defvar dan/key-bindings nil
-    "List of all key bindings.
-  This is an alist of alists. The key of the top level alist
-  references a key map. If the key is a string, the string
-  \"-mode-map\" is appended to it when finding the mode-map. If it
-  is a symbol, it is used as is.")
-  
-  (defun dan/register-key-bindings (bindings-alist)
-    "Add bindings in"
-    (setq
-     dan/key-bindings
-     (cons
-      bindings-alist
-      (delq nil
-            (mapcar
-             (lambda (el) (unless (equal (car el) (car bindings-alist))
-                       el))
-             dan/key-bindings)))))
-  
   (defun dan/assoc-delete-all (key alist)
     "Like `assq-delete-all' but using `equal' for comparison"
     (delq nil
           (mapcar (lambda (el) (unless (equal (car el) key) el))
                   alist)))
+  
+  (defun dan/register-key-bindings (bindings-alist)
+    "Add bindings in dan/key-bindings"
+    (setq
+     dan/key-bindings
+     (cons
+      bindings-alist
+      (dan/assoc-delete-all (car bindings-alist) dan/key-bindings))))
+  
+  (add-hook 'after-change-major-mode-hook
+            (lambda ()
+              (local-set-key [delete] 'winner-undo)
+              (local-set-key [(super left)] 'winner-undo)
+              (local-set-key [(super right)] 'winner-redo)))
 #+end_src
 ** bindings
 *** global
@@ -2097,7 +2093,7 @@ I didn't get this to work.
       ("\C-cz" . dan/org-babel-switch-to-code-with-session)
       ("_" . dan/org-underscore-command)
       ("\M-;" . dan/org-comment-dwim)
-      ("\C-\M-\\" dan/org-indent-region)
+      ("\C-\M-\\" . dan/org-indent-region)
      ([(control \')] . dan/org-hide-block-and-switch-to-code-buffer))))
 #+end_src
 
