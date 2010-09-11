@@ -1023,9 +1023,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+begin_src emacs-lisp 
     ;; (setq org-odd-levels-only t)
   (setq org-empty-line-terminates-plain-lists t)
-  (setq org-cycle-emulate-tab t)
-  (setq org-special-ctrl-a t)
-  (setq org-special-ctrl-e t)
+  (setq org-special-ctrl-a/e t)
   (setq org-return-follows-link t)
 #+end_src
     See also [[mairix:t:@@20524da70908071211y4aeb4c0se9a465e2ebe27a8f@mail.gmail.com][Email from Samuel Wales: {Orgmode} Arrow + RET navigati]]
@@ -1370,7 +1368,6 @@ http://www.emacswiki.org/emacs/TransparentEmacs
         dan/org-babel-languages)
   
   (setq swank-clojure-binary "/usr/bin/clojure")
-  (setq org-confirm-babel-evaluate nil)
 #+end_src
 **** Variables
 #+begin_src emacs-lisp
