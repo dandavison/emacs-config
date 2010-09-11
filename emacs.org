@@ -1323,6 +1323,26 @@ http://www.emacswiki.org/emacs/TransparentEmacs
     (or (org-babel-do-key-sequence-in-edit-buffer "\C-\M-\\")
         (indent-region)))
   
+  (defun dan/org-fill-paragraph-no-op-in-code-block ()
+    (interactive)
+    (if (org-babel-where-is-src-block-head)
+        (message "In code block: doing nothing")
+      (call-interactively 'fill-paragraph)))
+  
+  (defun dan/org-fill-paragraph-natively-maybe ()
+    (interactive)
+    (or (org-babel-do-key-sequence-in-edit-buffer "\M-q")
+      (call-interactively 'fill-paragraph)))
+  
+  (defun dan/org-babel-edit-src-code (&optional arg)
+    (interactive "P")
+    (if arg
+        (org-babel-do-in-edit-buffer
+         (org-edit-src-exit))
+      (call-interactively 'org-edit-src-code)))
+  
+  (define-key org-babel-map "'" 'dan/org-babel-edit-src-code)
+  
   (setq org-src-tab-acts-natively t)
   
   (add-to-list 'org-src-lang-modes '("C" . c))
@@ -2092,6 +2112,7 @@ I didn't get this to work.
       ("\C-ct" . org-hide-block-toggle)
       ("\C-cz" . dan/org-babel-switch-to-code-with-session)
       ("_" . dan/org-underscore-command)
+      ("\M-q" . dan/org-fill-paragraph-natively-maybe)
       ("\M-;" . dan/org-comment-dwim)
       ("\C-\M-\\" . dan/org-indent-region)
      ([(control \')] . dan/org-hide-block-and-switch-to-code-buffer))))
