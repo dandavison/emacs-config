@@ -1,19 +1,19 @@
 
 * Core
 ** Windows and Frames
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
   (setq pop-up-windows t
         split-window-preferred-function 'split-window-sensibly
         split-width-threshold nil
         split-height-threshold nil)
-  
+
   (if nil
       (defun dan/display-buffer-whole-frame (buffer &rest ignored)
         ;; (switch-to-buffer buffer)
         (delete-other-windows))
-  
+
     (setq special-display-function 'dan/display-buffer-whole-frame)
-  
+
     ;; (setq special-display-function (lambda (buffer &rest ignored) (switch-to-buffer buffer) (delete-other-windows))))
     (setq special-display-function (lambda (buffer &rest ignored) (delete-other-windows)))
   )
@@ -26,7 +26,7 @@
   ;;  ;; If you edit it by hand, you could mess it up, so be careful.
   ;;  ;; Your init file should contain only one such instance.
   ;;  ;; If there is more than one, they won't work right.
-  ;;  '(default ((t 
+  ;;  '(default ((t
   ;;              (:inherit nil :stipple nil :background "Grey15" :foreground "Grey"
   ;;                        :inverse-video nil :box nil :strike-through nil :overline nil
   ;;                        :underline nil :slant normal :weight normal :height 100
@@ -40,9 +40,9 @@
     "ask the user for a local value of outline-regexp in this buffer"
     (interactive "Outline regexp: ")
     (set (make-local-variable 'outline-regexp) new-regexp))
-  
+
   ;; (global-set-key (kbd "<f9>") 'prompt-for-outline-regexp)
-  
+
   (defun dan/th-outline-regexp ()
    "Calculate the outline regexp for the current mode."
    (let ((comment-starter (replace-regexp-in-string
@@ -50,11 +50,11 @@
      (when (string= comment-start ";")
        (setq comment-starter ";;"))
      (concat "^" comment-starter "\\*+")))
-  
+
   (defun dan/th-outline-minor-mode-init ()
     (interactive)
     (setq outline-regexp (dan/th-outline-regexp))
-  
+
     ;; highlight the headings
     ;; see http://www.gnu.org/software/emacs/manual/html_node/emacs/Font-Lock.html
     ;; use M-x customize-apropos face to customize faces
@@ -70,26 +70,26 @@
          (,heading-2-regexp 1 'org-level-2 t)
          (,heading-3-regexp 1 'org-level-3 t)
          (,heading-4-regexp 1 'org-level-4 t)))))
-  
+
   ;; (add-hook 'outline-minor-mode-hook
   ;;           'th-outline-minor-mode-init)
-  
-  
+
+
   ;; (org-level-1 ((t (:foreground "cornflower blue" :weight bold :height 1.8 :family "Arial"))))
   ;; (org-level-2 ((t (:foreground "LimeGreen" :weight bold :height 1.6 :family "Arial"))))
   ;; (org-level-3 ((t (:foreground "orange" :weight bold :height 1.3 :family "Arial"))))
-  
+
   ;;* non-elisp modes
   (add-hook 'outline-minor-mode-hook
     (lambda ()
       (define-key outline-minor-mode-map [(control tab)] 'org-cycle)
       (define-key outline-minor-mode-map [(backtab)] 'org-global-cycle))) ;; (shift tab) doesn't work
-  
+
   (add-hook 'outline-mode-hook
     (lambda ()
       (define-key outline-mode-map [(tab)] 'org-cycle)
       (define-key outline-mode-map [(backtab)] 'org-global-cycle))) ;; (shift tab) doesn't work
-  
+
   (defun dan/set-up-outline-minor-mode (local-outline-regexp)
     (when local-outline-regexp
       (setq outline-regexp local-outline-regexp))
@@ -99,17 +99,17 @@
     (org-overview) ;; hack -- in this context, org-content only seems to
     ;; work after org-overview
     (org-content))
-  
+
   (defun dan/maybe-org-cycle ()
     "Cycle visibility if in a heading line; otherwise do what TAB would have done"
     (if (looking-at-p outline-regexp) (org-cycle)
       ;; else what?
   ))
-  
+
   ;; where are the regexps used by font-lock kept? Should use them
   ;; rather than random home-grown ones.
   (add-hook 'ess-mode-hook
-            (lambda () 
+            (lambda ()
               (unless (eq noweb-code-mode 'R-mode)
                 ;; (dan/set-up-outline-minor-mode "^\\(###\\|[a-zA-Z._[\"][a-zA-Z._0-9[\"]* *<- *function\\)")
                 ;; (dan/set-up-outline-minor-mode "^[a-zA-Z._[\"][a-zA-Z._0-9[\"]* *<- *function")
@@ -119,23 +119,23 @@
   ;;        (lambda () (dan/set-up-outline-minor-mode nil)))
   ;;                    "\\(void\\|int\\|double\\|char\\|struct\\|static\\|const\\)")))
   ;; (add-hook 'emacs-lisp-mode-hook 'th-outline-minor-mode-init)
-  
+
   (add-hook 'emacs-lisp-mode-hook
             (lambda () (dan/set-up-outline-minor-mode "\\((\\|;;;\\)")))
   (add-hook 'python-mode-hook
             (lambda () (dan/set-up-outline-minor-mode "\\( *def \\|if \\|class \\|##\\)")))
   (add-hook 'bibtex-mode-hook
             (lambda () (dan/set-up-outline-minor-mode "@")))
-  
+
   ;; It's possible I should be using outline-magic
   ;; This is the configuration recommended outline-magic.el
   ;;
-  ;; (add-hook 'outline-mode-hook 
-  ;;           (lambda () 
+  ;; (add-hook 'outline-mode-hook
+  ;;           (lambda ()
   ;;             (require 'outline-cycle)))
-              
-  ;; (add-hook 'outline-minor-mode-hook 
-  ;;           (lambda () 
+
+  ;; (add-hook 'outline-minor-mode-hook
+  ;;           (lambda ()
   ;;             (require 'outline-magic)
   ;;             (define-key outline-minor-mode-map [(f10)] 'outline-cycle)))
 #+end_src
@@ -153,20 +153,20 @@
   (require 'ido)
   (ido-mode +1) ;; (iswitchb-mode t)
   (setq ido-separator " ")
-  
+
   ;; As regexps, these should really have terminal $
   (mapc (lambda (extension)
             (add-to-list 'ido-ignore-buffers (regexp-quote extension))
           (add-to-list 'ido-ignore-files (regexp-quote extension)))
-        dan/ignored-extensions) 
-  
+        dan/ignored-extensions)
+
   (add-to-list 'ido-ignore-buffers "\\*") ;; if you want *scratch* or *R* just type it
   ;; (add-to-list 'ido-ignore-files "^[^.]+$") ;; files must have a . in their name (experimental)
 #+end_src
 ** Comint
 #+begin_src emacs-lisp
   (setq comint-input-ring-size 1024)
-  
+
   ;; See ess-help post by M. Maechler on 23 Mar 2006
   (eval-after-load
       "comint"
@@ -182,11 +182,11 @@
 #+end_src
 ** Config
 *** Minor modes
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
   (show-paren-mode t)
   (winner-mode t)
   (global-font-lock-mode t)
-  
+
   ;; (desktop-save-mode t)
   ;; (display-battery-mode t)
   (global-auto-revert-mode t)
@@ -194,7 +194,7 @@
 #+end_src
 *** Elisp programming
 #+srcname: name
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
   (setq eval-expression-debug-on-error nil)
   (setq find-function-C-source-directory "/usr/local/src/emacs/emacs-23.1/src")
 #+end_src
@@ -214,22 +214,23 @@
   (setq x-alt-keysym 'meta)
   (setq backup-inhibited t)
   (setq font-lock-verbose nil)
-  
+  (setq show-trailing-whitespace t)
+
   ;; (visit-tags-table tags-file-name)
   ;; (setq font-lock-always-fontify-immediately t) where did I get that from?
-  
+
   (fset 'yes-or-no-p 'y-or-n-p) ;; http://www.xsteve.at/prg/emacs/.emacs.txt -- replace y-e-s by y
   (put 'narrow-to-region 'disabled nil)
-  
+
   ;; put back-up files in a single (invisible) directory in the original file's directory
   ;; (setq backup-directory-alist '(("." . ".emacs-backups")))
   ;; put back-up files in a single (invisible) directory in home directory -- doesn't work
-  ;; (setq backup-directory-alist '(("~/.emacs-backups"))) 
+  ;; (setq backup-directory-alist '(("~/.emacs-backups")))
   (put 'upcase-region 'disabled nil)
   (put 'downcase-region 'disabled nil)
-  
+
   ;; (setq kill-buffer-query-functions '(lambda() t))
-  
+
   ;; (transient-mark-mode t) ;; something turns it off
 #+end_src
 *** Safe local variables
@@ -262,7 +263,7 @@
   ;; This doesn't work with org-src-mode code buffers as their
   ;; buffer-file-name doesn't correspond to a file
   ;; (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
-  
+
   (autoload 'ansi-color-for-comint-mode-on "ansi-color" nil t)
   (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
 #+end_src
@@ -280,7 +281,7 @@
                         :foreground
                         (face-attribute 'default :background))
     (font-lock-fontify-buffer))
-  
+
   (defun dan/set-show-paren-style ()
     (interactive)
     (setq show-paren-delay .125)
@@ -291,14 +292,14 @@
     (set-face-attribute 'show-paren-match-face nil :weight 'extra-bold)
     (set-face-background 'show-paren-match-face (face-background 'default))
     (if (boundp 'font-lock-comment-face)
-        (set-face-foreground 'show-paren-match-face 
+        (set-face-foreground 'show-paren-match-face
                              (face-foreground 'font-lock-comment-face))
-      (set-face-foreground 'show-paren-match-face 
+      (set-face-foreground 'show-paren-match-face
                            (face-foreground 'default))))
-        
+
   (add-hook 'find-file-hook 'dan/sanitise-faces)
   (add-hook 'find-file-hook 'dan/set-show-paren-style)
-  
+
   (setq dan/custom-appearance nil)
   (if dan/custom-appearance
       (if (not window-system)
@@ -338,9 +339,9 @@
               (condition-case nil
                   (copy-face face orig)
                 (error "Failed to save face %s as %s" face orig)))))))
-    
+
     (dan/save-faces)
-  
+
   (setq color-theme-is-cumulative t)
 #+end_src
 
@@ -356,9 +357,9 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   ;; no transparency:
   ;; (set-frame-parameter (selected-frame) 'alpha '(100 100))
   ;; (add-to-list 'default-frame-alist '(alpha 100 100))
-  
+
   ;; You can use the following snippet after you’ve set the alpha as above to assign a toggle to “C-c t”:
-  
+
    (eval-when-compile (require 'cl))
    (defun dan/toggle-transparency ()
      (interactive)
@@ -379,7 +380,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   (setq dired-no-confirm
         '(byte-compile chgrp chmod chown compress copy hardlink load move print shell symlink
                        touch uncompress))
-  
+
   (defun dan/dired-delete-total-line ()
     (let ((bro buffer-read-only)
           (kill-whole-line t))
@@ -390,9 +391,9 @@ http://www.emacswiki.org/emacs/TransparentEmacs
           (if bro (setq buffer-read-only nil))
           (kill-line)
           (setq buffer-read-only bro)))))
-  
+
   (add-hook 'dired-after-readin-hook 'dan/dired-delete-total-line)
-  
+
 #+end_src
 *** Dired for git repo
 [[mairix:t:@@m1630s27or.fsf@65-070.eduroam.rwth-aachen.de][Email from Andrea Crotti: Re: Simple useful function]]
@@ -401,7 +402,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
     (interactive)
     (dired (cons (format "%s [git]" default-dqirectory)
                  (dan/ls-git-files))))
-  
+
   (defun dan/ls-git-files ()
     (if (file-exists-p ".git")
         (split-string (shell-command-to-string "git ls-files"))
@@ -411,11 +412,11 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 *** Ibuffer
 #+begin_src emacs-lisp
   (setq ibuffer-show-empty-filter-groups nil)
-  
+
   (defalias 'list-buffers 'ibuffer)
-    
+
   (setq ibuffer-saved-filter-groups
-        '(("default"      
+        '(("default"
            ("VBPL"
             (or
              (name . "Papers/structure")
@@ -454,12 +455,12 @@ http://www.emacswiki.org/emacs/TransparentEmacs
              (name . "^\\*scratch\\*$")
              (name . "^\\*Messages\\*$")))
            ("Org"
-            (mode . org-mode))  
+            (mode . org-mode))
            ("ERC"
             (mode . erc-mode))
            ("Etc"
             (name . ".")))))
-  
+
   (add-hook 'ibuffer-mode-hook
             (lambda ()
               (ibuffer-switch-to-saved-filter-groups "default")))
@@ -477,10 +478,10 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+end_src
 
 ** Message Mode
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
   (setq message-send-mail-partially nil)
 #+end_src
-       
+
 ** Flyspell
 #+begin_src emacs-lisp
   (setq flyspell-issue-message-flag nil)
@@ -501,11 +502,11 @@ http://www.emacswiki.org/emacs/TransparentEmacs
     ;; ? ?nil `(("\\([[:alpha:]_][[:alnum:]_]*\\)(" ?1 font-lock-function-name-face)))
     (setq c-basic-offset 4)
     (setq line-number-mode t))
-  
+
   ;; (add-hook 'c-mode-hook 'c++-mode) ;; I want C++ comments, but that seems a bit heavy-handed?
   (add-hook 'c-mode-hook 'dan/c-c++-mode-hook)
   (add-hook 'c++-mode-hook 'dan/c-c++-mode-hook)
-  
+
   (setq compilation-read-command nil)
 #+end_src
 
@@ -546,7 +547,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+begin_src emacs-lisp :tangle no
   (require 'saveplace)
   (setq-default save-place t)
-  
+
   (add-hook 'org-mode-hook
             (lambda ()
               (when (outline-invisible-p)
@@ -590,31 +591,30 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+begin_src emacs-lisp
     (add-to-list 'load-path "/usr/local/src/emacs/ess/lisp")
     (require 'ess-site)
-    
+
     ;; (require 'ess-eldoc)
-    
+
   ;; (setq ess-ask-for-ess-directory nil)
     (setq inferior-R-args "--no-save --no-restore-data --silent")
     (setq safe-local-variable-values '((noweb-default-code-mode . R-mode) (outline-minor-mode)))
     (autoload 'noweb-mode "noweb-mode" "Editing noweb files." t) ;; see noweb-mode.el in ESS;
     (setq auto-mode-alist (append (list (cons "\\.nw$" 'noweb-mode))
                                   auto-mode-alist))
-    
+
     ;; (defun dan/ess-and-iess-mode-hook ()
     ;;   (setq ess-function-template " <- function() {\n\n}\n")
     ;;   (mapc (lambda (pair) (local-set-key (car pair) (cdr pair)))
     ;;        dan/ess-and-iess-keybindings))
-    
+
     (defun dan/ess-mode-hook ()
       (ess-set-style 'C++))
-    
+
     ;; (add-hook 'ess-mode-hook 'dan/ess-and-iess-mode-hook)
     ;; (add-hook 'inferior-ess-mode-hook 'dan/ess-and-iess-mode-hook)
     (add-hook 'ess-mode-hook 'dan/ess-mode-hook)
-    
+
     (setq ess-eval-visibly-p t)
-    
-    
+
     ;;                                 DEF GNU BSD K&R C++
     ;; ess-indent-level                  2   2   8   5   4
     ;; ess-continued-statement-offset    2   2   8   5   4
@@ -634,10 +634,10 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   obj[-grep(re, obj)]
 #+end_src
 
-#+begin_src emacs-lisp :var R-builtins=R-builtins() :tangle no
+#+begin_src emacs-lisp :var R-builtins=R-builtins()
   (add-to-list
    'ess-R-mode-font-lock-keywords
-   (cons 
+   (cons
     (concat "\\<" (regexp-opt (mapcar #'car R-builtins) 'enc-paren) "\\>")
     'font-lock-function-name-face))
 #+end_src
@@ -654,55 +654,53 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+begin_src emacs-lisp
   (add-to-list 'load-path "~/emacs/gnus/lisp")
   (require 'gnus-load)
-  
+
   (require 'nnmairix)
   (setq user-mail-address "davison@stats.ox.ac.uk") ;; dandavison7@gmail.com
   (setq user-full-name "Dan Davison")
-  
-  (setq gnus-select-method 
+
+  (setq gnus-select-method
         '(nnimap "dc"
                  (nnimap-address "localhost")
                  (nnimap-authinfo-file "~/config/email/authinfo")))
-  
+
   (setq gnus-secondary-select-methods
         '((nntp "news.gmane.org")
           (nntp "news.eternal-september.org")))
-  
+
   (setq gnus-save-newsrc-file nil)
   (setq gnus-play-startup-jingle t)
   (setq gnus-novice-user nil)
   (setq gnus-expert-user t)
-  
+
   ;; (setq gnus-always-read-dribble-file t) TMP
-  
+
   ;; ;; (mail-source-delete-incoming t)
-  
-  
   ;;------------------------------------------------------------------------------------------
   ;;;
   ;;; Misc
   ;;;
   ;; http://people.orangeandbronze.com/~jmibanez/dotgnus.el
-  
+
   ;; w3m absent on dell, atm
   ;; (require 'w3m-load)
   ;; (setq mm-text-html-renderer 'w3m)
   ;; (setq mm-text-html-renderer 'html2text)
-  
+
   ;; http://flash.metawaredesign.co.uk/2/.gnus
   ;; (add-hook 'gnus-group-mode-hook 'color-theme-charcoal-black)
-  
+
   ;;(setq gnus-read-active-file nil)
   ;;(setq gnus-check-new-newsgroups nil)
-  
-  
+
+
   ;; trying to get rid of duplicates don't know why they occur -- seems
   ;; that repeated downloads from server sometimes gets previously
   ;; downloaded messages
   ;; (setq gnus-suppress-duplicates nil)
   ;; (setq nnmail-treat-duplicates nil)
   ;; (setq gnus-summary-ignore-duplicates t)
-  
+
   (defun ded/mml-fill-paragraph ()
     "Fill paragraph, but without messing with the email header"
     (interactive)
@@ -713,45 +711,45 @@ http://www.emacswiki.org/emacs/TransparentEmacs
         (narrow-to-region beg (point-max))
         (fill-paragraph)
         (widen))))
-  
+
   ;;
   ;;-----------------------------------------------------------------------------------------
-  
+
   (defun dan/gnus-summary-delete-article ()
     ;; How come this deletes all articles in the active region?
-  
+
     (interactive)
     (save-window-excursion
       (gnus-summary-delete-article)
       (gnus-summary-next-article)))
-    
+
   ;;;
   ;;; Expiry
   ;;;
   ;; http://www.xemacs.org/Links/tutorials_3.html
   ;; turn off expiry
   (remove-hook 'gnus-summary-prepare-exit-hook 'gnus-summary-expire-articles)
-  
+
   ;; http://flash.metawaredesign.co.uk/2/.gnus
   ;; Don't make email expirable by default
   (remove-hook 'gnus-mark-article-hook
                'gnus-summary-mark-read-and-unread-as-read)
   ;; (add-hook 'gnus-mark-article-hook 'gnus-summary-mark-unread-as-read) ;; don't get it
-  
+
   ;; Only mails in these groups will expire, meaning they'll be deleted after a
   ;; week so long as I've read them.
   (setq gnus-auto-expirable-newsgroups nil)
   ;; "junk\\|forums\\|gentoo-announce\\|bradsucks\\|bots\\|system\\|nnrss:.*")
-  
+
   ;; But when I mark stuff as expireable, delete it immediately
-  
+
   ;; (setq nnmail-expiry-wait 'immediate) ;;TMP
-  
+
   ;; TMP
   ;; (setq gnus-parameters
   ;;       '((".*INBOX.*"
   ;;          (expiry-wait . 'immediate))))
-  
+
   ;;
   ;;------------------------------------------------------------------------------------------
   ;;;
@@ -775,7 +773,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
      ((string= info1 "email") nil)
      ((string= info2 "email") t)
      (t (not (gnus-group-sort-by-alphabet info1 info2)))))
-  
+
   (setq gnus-group-sort-function 'dan/gnus-group-sort)
 #+end_src
 
@@ -784,20 +782,20 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   ;;; Summary Buffer
   ;;;
   (when nil
-    (add-hook 'gnus-summary-prepare-hook 
+    (add-hook 'gnus-summary-prepare-hook
               (lambda () (end-of-buffer) (forward-line -1)))
-  
-    (add-hook 'gnus-summary-prepared-hook 
+
+    (add-hook 'gnus-summary-prepared-hook
               (lambda () (end-of-buffer) (forward-line -1)))
     )
-  
+
   (setq gnus-thread-sort-functions
         '(gnus-thread-sort-by-number
           gnus-thread-sort-by-most-recent-date))
-  
+
   (setq gnus-summary-thread-gathering-function
         'gnus-gather-threads-by-references)
-  
+
   (setq gnus-user-date-format-alist
         '(((gnus-seconds-today) . "    %k:%M")
           (604800 . "%a %k:%M")
@@ -806,7 +804,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
           ((gnus-seconds-year)
            . "%b %d")
           (t . "%b %d '%y")))
-  
+
   (setq gnus-summary-line-format
         (concat
          "%0{%U%R%z%}"
@@ -818,25 +816,25 @@ http://www.emacswiki.org/emacs/TransparentEmacs
          " "
          "%1{%B%}"
          "%s\n"))
-  
+
   (setq gnus-summary-display-arrow t)
-  
+
   ;; http://groups.google.com/group/gnu.emacs.gnus/browse_thread/thread/a673a74356e7141f
   (when window-system
     (setq gnus-sum-thread-tree-indent " ")
-    (setq gnus-sum-thread-tree-root "♽ " )              ; ●  ⚈  
-    (setq gnus-sum-thread-tree-false-root "")           ; ◯   ♽  
-    (setq gnus-sum-thread-tree-single-indent "")        ; ◎ 
+    (setq gnus-sum-thread-tree-root "♽ " )              ; ●  ⚈
+    (setq gnus-sum-thread-tree-false-root "")           ; ◯   ♽
+    (setq gnus-sum-thread-tree-single-indent "")        ; ◎
     (setq gnus-sum-thread-tree-vertical        "│")     ; ┆ ┋ ┆
     (setq gnus-sum-thread-tree-leaf-with-other "├─► ")  ; ┣━►   ▶
-    (setq gnus-sum-thread-tree-single-leaf     "╰─► ")) ; ┗━► 
-  
+    (setq gnus-sum-thread-tree-single-leaf     "╰─► ")) ; ┗━►
+
   ;; seems like you can't use propertize to create colour in the summary
   ;; lines. I.e. the following don't work
   (defun gnus-user-format-function-a (x)
     (string-match "From: \\(.*\\)" x)
     (propertize (match-string 1 x) 'face '(:foreground "blue")))
-    
+
   (defun gnus-user-format-function-z (x)
     (propertize "hello" 'face '(:foreground "red")))
 #+end_src
@@ -845,7 +843,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   ;;; dim-gnus-imap-count.el --- Dimitri Fontaine
   ;;
   ;; http://www.emacswiki.org/emacs/GnusNiftyTricks#toc2
-  
+
   (defun dim/gnus-user-format-function-t (dummy)
     (case (car gnus-tmp-method)
       (nnimap
@@ -857,7 +855,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
            "?")))
       (t
        gnus-tmp-number-total)))
-  
+
   (defun dim/gnus-user-format-function-y (dummy)
     (case (car gnus-tmp-method)
       (nnimap
@@ -868,23 +866,23 @@ http://www.emacswiki.org/emacs/TransparentEmacs
            "?")))
       (t
        gnus-tmp-number-of-unread)))
-  
+
   (defvar dim/nnimap-message-count-cache-alist nil)
-  
+
   (defun dim/nnimap-message-count-cache-clear nil
     (setq dim/nnimap-message-count-cache-alist nil))
-  
+
   (defun dim/nnimap-message-count-cache-get (mbox &optional server)
     (when (nnimap-possibly-change-server server)
       (cadr (assoc (concat nnimap-current-server ":" mbox)
                    nnimap-message-count-cache-alist))))
-  
+
   (defun dim/nnimap-message-count-cache-set (mbox count &optional server)
     (when (nnimap-possibly-change-server server)
       (push (list (concat nnimap-current-server ":" mbox)
                   count) nnimap-message-count-cache-alist))
     count)
-  
+
   (defun dim/nnimap-request-message-count (mbox &optional server)
     (let ((count (or (dim/nnimap-message-count-cache-get mbox server)
                      (and (nnimap-possibly-change-server server)
@@ -899,9 +897,9 @@ http://www.emacswiki.org/emacs/TransparentEmacs
       (when count
         (dim/nnimap-message-count-cache-set mbox count server))
       count))
-  
+
   (add-hook 'gnus-after-getting-new-news-hook 'dim/nnimap-message-count-cache-clear)
-  
+
   (provide 'dim-gnus-imap-count)
 #+end_src
 
@@ -910,13 +908,13 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   ;;; Article buffer
   ;;;
   (require 'gnus-art) ; ??
-  
+
   (setq gnus-visible-headers "^From:\\|^To:\\|^Cc:\\|^Subject:\\|^Date:\\|^User-Agent:\\|^X-Newsreader:")
   ;; Specify the order of the header lines
   (setq gnus-sorted-header-list '("^From:" "^Subject:" "^User-Agent:" "^X-Newsreader:" "^Date:"))
-  
+
   (setq message-mode-hook (quote (orgstruct++-mode)))
-  
+
   (setq mm-discouraged-alternatives '("text/html" "text/richtext"))
 #+end_src
 ** Languages
@@ -970,7 +968,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
     (define-key yas/keymap [tab] 'yas/next-field-group)
     ;; (org-indent-mode t)
     )
-  
+
   (add-hook 'org-mode-hook 'dan/org-mode-hook-function)
 #+end_src
 *** Basics
@@ -980,21 +978,21 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 *** Misc
 #+begin_src emacs-lisp
 (setq org-hide-block-startup nil)
-  
-  ;; (setq org-startup-folded nil)    
+
+  ;; (setq org-startup-folded nil)
   ;;* refiling
   ;; http://doc.norang.ca/org-mode.html#Refiling
-  
+
   ;; Use IDO for target completion
   (setq org-completion-use-ido t)
-  
+
   ;; Targets include this file and any file contributing to the agenda - up to 5 levels deep
   (setq org-refile-targets (quote ((org-agenda-files :maxlevel . 5) (nil :maxlevel . 5))))
-  
+
   ;; Targets start with the file name - allows creating level 1 tasks
   (setq org-refile-use-outline-path 'file)
-  
-  ;; Targets complete in steps so we start with filename, TAB shows the next level of targets etc 
+
+  ;; Targets complete in steps so we start with filename, TAB shows the next level of targets etc
   (setq org-outline-path-complete-in-steps t)
 #+end_src
 
@@ -1007,7 +1005,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+end_src
 **** Set outline colors
 #+function: outline-colours
-#+begin_src R
+#+begin_src R :tangle no
   require("RColorBrewer")
   brewer.pal(n=8, name="Set1")
 #+end_src
@@ -1020,7 +1018,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+end_src
 
 *** Structure & Navigation
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
     ;; (setq org-odd-levels-only t)
   (setq org-empty-line-terminates-plain-lists t)
   (setq org-special-ctrl-a/e t)
@@ -1043,7 +1041,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
       (org-reveal t)
       (org-show-entry)
       (show-children)))
-  
+
   (defun dan/org-show-previous-heading-tidily ()
     "Show previous entry, keeping other entries closed."
     (let ((pos (point)))
@@ -1056,11 +1054,11 @@ http://www.emacswiki.org/emacs/TransparentEmacs
       (org-reveal t)
       (org-show-entry)
       (show-children)))
-  
+
   (setq org-use-speed-commands t)
   (add-to-list 'org-speed-commands-user
                '("n" dan/org-show-next-heading-tidily))
-  (add-to-list 'org-speed-commands-user 
+  (add-to-list 'org-speed-commands-user
                '("p" dan/org-show-previous-heading-tidily))
 #+end_src
 
@@ -1093,13 +1091,13 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   may use one of several remember targets"
     (interactive "cSelect remember target: [w]ork [t]asks [p]eople [c]omputing")
     (case remember-target-char
-      (?w (kmacro-exec-ring-item 
+      (?w (kmacro-exec-ring-item
            (quote ([3 108 f8 ?w return 3 12 up return return 3 3] 0 "%d")) arg))
-      (?t (kmacro-exec-ring-item 
+      (?t (kmacro-exec-ring-item
            (quote ([3 108 f8 ?t return 3 12 up return return 3 3] 0 "%d")) arg))
-      (?c (kmacro-exec-ring-item 
+      (?c (kmacro-exec-ring-item
            (quote ([3 108 f8 ?c return 3 12 up return return 3 3] 0 "%d")) arg))
-      (?p (kmacro-exec-ring-item 
+      (?p (kmacro-exec-ring-item
            (quote ([3 108 f8 ?p return 3 12 up return return 3 3] 0 "%d")) arg))))
 #+end_src
 	   Or maybe I can use fset like in the following?
@@ -1108,7 +1106,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 	Subject: [ESS] Pushing Lines from one Window to Another
 	Date: Sat, 14 Nov 2009 16:32:42 +0000
 	To: ess-help@stat.math.ethz.ch
-	
+
 	Dear Mailing list,
 
 	2 questions:
@@ -1119,7 +1117,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 	https://stat.ethz.ch/pipermail/ess-help/2008-November/004949.html)
 
 	Charles C. Berry suggested the following command (written by Tim Hesterberg)
-	
+
 #+begin_src emacs-lisp :tangle no
 	(fset 'push-line-other-window
         "\C-@\C-e\M-w\C-n\C-a\C-xo\M->\C-y\C-m\C-xo")
@@ -1136,17 +1134,17 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   ;;* agenda
   ;;  (org-defkey org-agenda-mode-map [(right)] 'forward-char)
   ;;  (org-defkey org-agenda-mode-map [(left)] 'backward-char)
-  
+
     ;;;;
-  
-  
+
+
   (setq dan/org-todo-keyword "TODO")
   (setq dan/org-started-keyword "STARTED")
   (setq dan/org-done-keyword "DONE")
   (setq dan/org-cancelled-keyword "CANCELLED")
-  
-  (setq org-todo-keywords 
-        '((sequence 
+
+  (setq org-todo-keywords
+        '((sequence
            "TODO(t!@/!@)" "STARTED(s!@/!@)" "|" "DONE(d!@/!@)" "CANCELLED(c!@/!@)")))
   ;; (setq org-todo-keyword-faces
   ;;       `(
@@ -1158,7 +1156,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   (setq org-edit-src-persistent-message nil)
   (setq org-enforce-todo-dependencies t)
   (setq org-enforce-todo-checkbox-dependencies t)
-  
+
   (setq org-directory "~/org")
   ;; (setq org-agenda-files (list org-directory))
   (setq org-agenda-files (list "~/org/fifa-worldcup-2010.org"))
@@ -1168,7 +1166,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   (setq org-deadline-warning-days 7)
   ;; (set-face-foreground 'org-agenda-date-weekend "red")
   ;; (setq org-agenda-remove-tags t) not sure why I had this
-  
+
   (setq org-agenda-custom-commands
         '(
           ("W" "Search for work items in state" todo "TODO"
@@ -1181,10 +1179,10 @@ http://www.emacswiki.org/emacs/TransparentEmacs
           ("C" "Search for computing items in state" todo "TODO"
            ((org-agenda-files '("~/org/computing.org"))))
           ))
-  
+
   (defun org-agenda-format-date-aligned-dan (date)
     "Dan's modified version of `org-agenda-format-date-aligned'.
-    
+
     Format a date string for display in the daily/weekly agenda, or
     timeline.  This function makes sure that dates are aligned for
     easy reading.
@@ -1208,10 +1206,10 @@ http://www.emacswiki.org/emacs/TransparentEmacs
                          "")))
     ;;;     (format "%-10s %2d %s %4d%s"
     ;;;         dayname day monthname year weekstring)
-      
+
       (format "%s %2d %s"
               (substring dayname 0 3) day (substring monthname 0 3))))
-  
+
   (setq org-agenda-format-date 'org-agenda-format-date-aligned-dan)
 #+end_src
 
@@ -1223,11 +1221,11 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   (unless (member "svg" org-export-html-inline-image-extensions)
     (setq org-export-html-inline-image-extensions
           (cons "svg" org-export-html-inline-image-extensions)))
-  
+
   (setq org-export-with-LaTeX-fragments t)
   (setq org-export-copy-to-kill-ring nil)
   (setq org-export-allow-BIND t)
-  
+
   ;; from Eric
   (setq org-export-html-style
   "<style type=\"text/css\">
@@ -1241,7 +1239,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
       overflow:auto;
   }
   </style>")
-  
+
   ;; (setq org-export-html-style
   ;; "<style type=\"text/css\">
   ;; pre {
@@ -1266,7 +1264,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
       (message "Converting latex to odt")
       (start-process-shell-command
        "latex-to-odt" output-buffer cmd)))
-  
+
   (defun  dan/compile-latex ()
     "Convert exported .text to dvi"
     (let* ((file-name (file-name-sans-extension (buffer-name)))
@@ -1276,7 +1274,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
       (message cmd)
       (start-process-shell-command
        "latex" output-buffer cmd)))
-  
+
   ;; (add-hook 'org-export-latex-after-save-hook
   ;;           'dan/compile-latex)
 #+end_src
@@ -1299,56 +1297,56 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   ;; why this python indent stuff?
   ;; (if (eq major-mode 'python-mode)
   ;;     (setq python-indent 4)))
-  
+
   (add-hook 'org-src-mode-hook 'dan/org-src-mode-hook)
-  
+
   (add-hook 'org-src-mode-hook
             (lambda () (define-key org-src-mode-map "\C-c\C-v"
                          'org-src-do-key-sequence-at-code-block)))
-  
+
   (defun dan/org-underscore-command ()
     (interactive)
     (or (org-babel-do-key-sequence-in-edit-buffer "_")
         (org-self-insert-command 1)))
-  
+
   (defun dan/org-comment-dwim (&optional arg)
     (interactive "P")
     (or (org-babel-do-key-sequence-in-edit-buffer "\M-;")
         (comment-dwim arg)))
-  
+
   (defun dan/org-indent-region ()
     (interactive)
     (or (org-babel-do-key-sequence-in-edit-buffer "\C-\M-\\")
         (indent-region)))
-  
+
   (defun dan/org-fill-paragraph-no-op-in-code-block ()
     (interactive)
     (if (org-babel-where-is-src-block-head)
         (message "In code block: doing nothing")
       (call-interactively 'fill-paragraph)))
-  
+
   (defun dan/org-fill-paragraph-natively-maybe ()
     (interactive)
     (or (org-babel-do-key-sequence-in-edit-buffer "\M-q")
       (call-interactively 'fill-paragraph)))
-  
+
   (defun dan/org-babel-edit-src-code (&optional arg)
     (interactive "P")
     (if arg
         (org-babel-do-in-edit-buffer
          (org-edit-src-exit))
       (call-interactively 'org-edit-src-code)))
-  
+
   (define-key org-babel-map "'" 'dan/org-babel-edit-src-code)
-  
+
   (setq org-src-tab-acts-natively t)
-  
+
   (add-to-list 'org-src-lang-modes '("C" . c))
-  
+
   (setq org-src-window-setup 'current-window) ;; 'current-window 'other-window 'other-frame 'reorganize-frame
-  
+
   (setq org-src-ask-before-returning-to-edit-buffer nil)
-  
+
   (setq org-src-strip-leading-and-trailing-blank-lines nil)
 #+end_src
 **** Hide block and switch to edit buffer
@@ -1366,13 +1364,13 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+begin_src emacs-lisp
   (mapc '(lambda (lang) (require (intern (format "ob-%s" lang))))
         dan/org-babel-languages)
-  
+
   (setq swank-clojure-binary "/usr/bin/clojure")
 #+end_src
 **** Variables
 #+begin_src emacs-lisp
   (setq org-babel-min-lines-for-block-output 10)
-  
+
   ;; (setq org-babel-timestamp-results t)
   ;; (setq org-babel-allow-variable-references t)
   (setq org-export-babel-evaluate t)
@@ -1402,7 +1400,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
                  (dan/indent-src-block))
         (insert "\n")
         (backward-char))))
-  
+
   (defun dan/enclose-region-in-latex-block ()
     (interactive)
     (let* ((beg (if (region-active-p) (region-beginning) (point)))
@@ -1422,7 +1420,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   (defun dan/indent-natively-maybe ()
   (interactive)
   (org-babel-do-key-sequence-in-edit-buffer "TAB"))
-  
+
   (remove-hook 'org-tab-first-hook 'dan/indent-natively-maybe)
 #+end_src
 
@@ -1439,7 +1437,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
           (progn (org-edit-special)
                  t) ;; to signal that we took action
         nil))) ;; to signal that we did not
-  
+
   ;; (add-hook 'org-tab-first-hook 'org-babel-edit-special-maybe)
 #+end_src
 ***** Execute src block from lang mode buffer
@@ -1455,7 +1453,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
         (goto-char beg)
         (org-babel-execute-src-block))))
 #+end_src
-      
+
 #+resname:
 | "R" | "python" | "ruby" | "ditaa" | "sass" |
 ***** R -> org
@@ -1472,7 +1470,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
         (insert "\n#+end_src\n")))
     (org-mode))
 #+end_src
-	
+
 ***** reset test table macro
 
    # 2*C-k <up> C-y <up> M-x r e - s e a r <tab> b a c <tab> RET T B L N A M
@@ -1482,7 +1480,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
    # F M RET C-a 2*C-k <down> C-y <up>
 
 #+srcname: name
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
   (fset 'reset-tests
      (lambda (&optional arg) "Keyboard
      macro." (interactive "p") (kmacro-exec-ring-item (quote ([11
@@ -1526,13 +1524,13 @@ this. see :tangle no below and in font-lock tree
   (add-to-list 'iimage-mode-image-regex-alist
                (cons (concat "\\[\\[file:\\(~?" iimage-mode-image-filename-regex
                              "\\)\\]")  1))
-  
+
   (defun dan/org-toggle-iimage-in-org ()
     (interactive)
     (let ((turning-on (not iimage-mode)))
       (set-face-underline-p 'org-link (not turning-on))
       (iimage-mode (or turning-on 0))))
-  
+
   (defun dan/iimage-mode-buffer (arg &optional refresh)
   "Display/undisplay images.
   With numeric ARG, display the images if and only if ARG is positive."
@@ -1556,17 +1554,17 @@ this. see :tangle no below and in font-lock tree
                       (if refresh (image-refresh img)))
                   (remove-text-properties (match-beginning 0) (match-end 0) '(display)))))))
       (set-buffer-modified-p modp)))
-  
-  
+
+
   (set-face-underline-p 'org-link nil)
-  
+
   (defun dan/org-iimage-refresh ()
     (interactive)
     (redisplay t)
     (set-face-underline-p 'org-link nil)
     (dan/iimage-mode-buffer 1 'refresh)
     (redisplay t))
-  
+
   ;; (add-hook 'org-babel-after-execute-hook 'dan/org-iimage-refresh)
   ;; (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
 #+end_src
@@ -1580,7 +1578,7 @@ this. see :tangle no below and in font-lock tree
     (let ((turning-on (not arg)))
       (set-face-underline-p 'org-link (not turning-on))
       (iimage-mode (or turning-on 0))))
-  
+
   (defun dan/org-iimage-refresh-buffer ()
     "Force iimage images to refresh.
   Search loop taken from iimage-mode-buffer."
@@ -1608,8 +1606,8 @@ this. see :tangle no below and in font-lock tree
 :ID: 6fde328d-fb5a-4d28-a9ec-8b82e51b5d82
 :END:
 #+begin_src emacs-lisp :tangle no
-  
-  
+
+
   (defun dan/org-fontify-image-links (limit)
     "Display links to images as images.
   If the description part of the link is empty display the image,
@@ -1630,19 +1628,19 @@ this. see :tangle no below and in font-lock tree
            ;; (redraw-display)
            ;; (image-refresh image)
            )))
-  
+
   (setq dan/org-display-inline-images t)
   (add-hook 'org-font-lock-hook 'dan/org-fontify-image-links)
-  
+
   (set-face-underline-p 'org-link nil)
-  
+
   (defun dan/org-fontify-latex-commands (limit)
     (let ((case-fold-search t))
       (and (re-search-forward "\\\\[A-Za-z-_]+" limit t)
            (add-text-properties
             (match-beginning 0) (match-end 0)
             '(font-lock-fontified t face font-lock-function-name-face)))))
-  
+
   (add-hook 'org-font-lock-hook 'dan/org-fontify-latex-commands)
 #+end_src
 
@@ -1659,11 +1657,11 @@ this. see :tangle no below and in font-lock tree
 **** Org-mime
 #+begin_src emacs-lisp
   (require 'org-mime)
-  
+
   (add-hook 'message-mode-hook
             (lambda ()
               (local-set-key "\C-c\M-o" 'org-mime-htmlize)))
-  
+
   (add-hook 'org-mode-hook
             (lambda ()
               (local-set-key "\C-c\M-o" 'org-mime-org-buffer-htmlize)))
@@ -1712,7 +1710,7 @@ this. see :tangle no below and in font-lock tree
 **** Search in org source code
 #+begin_src emacs-lisp
   (setq dan/org-mode-src-dir "/usr/local/src/emacs/org-mode")
-  
+
   (defun dan/org-search-src ()
     "Search for REGEXP in Org-mode source code."
     (interactive)
@@ -1728,11 +1726,11 @@ this. see :tangle no below and in font-lock tree
   (defun dan/org-edit-src-code (config)
     (let ((org-src-window-setup config))
       (org-edit-src-code)))
-  
+
   (defun dan/org-edit-src-code:current-window ()
     (interactive)
     (dan/org-edit-src-code 'current-window))
-  
+
   (defun dan/org-edit-src-code:reorganize-frame ()
     (interactive)
     (dan/org-edit-src-code 'reorganize-frame))
@@ -1768,7 +1766,7 @@ this. see :tangle no below and in font-lock tree
               (looking-at "\\[?\\[?file:?\\(?:[ \t\n]\\|\\'\\)")))
           (progn (replace-match "") (org-insert-link '(4)) t)
         nil)))
-  
+
     ;; (add-hook 'org-tab-first-hook 'org-insert-link-maybe)
 #+end_src
 **** Link to magit mode
@@ -1802,10 +1800,10 @@ this. see :tangle no below and in font-lock tree
           (setq subtrees (cons (buffer-substring (point) (mark)) subtrees))
           (goto-char (mark)))
         (nreverse subtrees)))
-    
+
     (defun dan/org-reverse-subtrees ()
       "Reverse the order of all subtrees.
-    
+
     Should start by setting restriction?
     "
       (interactive)
@@ -1820,7 +1818,7 @@ this. see :tangle no below and in font-lock tree
 Based on
 https://stat.ethz.ch/pipermail/ess-help/2009-August/005478.html
 by Vitalie S.
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
   (defun dan/htmlize-buffer-with-org-images ()
     "Convert buffer to html, including embedded images."
     (interactive)
@@ -1845,7 +1843,7 @@ by Vitalie S.
   ;; in a message buffer to convert either the active region or the
   ;; entire buffer to html.
   ;;
-  
+
   (defun eric/org-mml-htmlize (arg)
     (interactive "P") ;; later just do <pre> wrap if prefix arg
     (let* ((region-p (org-region-active-p))
@@ -1897,7 +1895,7 @@ by Vitalie S.
 #+begin_src emacs-lisp
   (setq dan/starter-kit-components-all '(bindings defuns eshell lisp misc org perl registers ruby yasnippet))
   (setq dan/starter-kit-components '(defuns))
-  
+
   (let ((dotfiles-dir "~/emacs/emacs-starter-kit"))
     (mapcar
      'org-babel-load-file
@@ -1937,14 +1935,14 @@ I didn't get this to work.
 #+begin_src emacs-lisp :tangle no
   (add-to-list 'load-path "/usr/local/src/emacs/multi-mode")
   (require 'multi-mode)
-  
+
   (defun org-src-get-block-info-for-multi-mode (pos)
      (save-excursion
      (goto-char pos)
       (let ((info (org-edit-src-find-region-and-lang)))
         (list (org-src-get-lang-mode (nth 2 info))
               (nth 0 info) (nth 1 info)))))
-  
+
   (defun org-src-turn-on-multi-mode ()
     (setq multi-chunk-fns
           (list org-src-get-block-info-for-multi-mode)))
@@ -1955,7 +1953,7 @@ I didn't get this to work.
   (require 'noweb-mode)
   (setq noweb-default-code-mode 'fundamental-mode)
   (setq noweb-default-doc-mode 'org-mode)
-  
+
   (setq noweb-code-mode noweb-default-code-mode)
 #+end_src
 
@@ -1968,7 +1966,7 @@ I didn't get this to work.
   references a key map. If the key is a string, the string
   \"-mode-map\" is appended to it when finding the mode-map. If it
   is a symbol, it is used as is.")
-  
+
   (defun dan/set-key-bindings ()
     (interactive)
     (mapc (lambda (pair)
@@ -1976,13 +1974,13 @@ I didn't get this to work.
               (if (stringp map) (setq map (intern (concat map "-mode-map"))))
               (mapc (lambda (binding) (define-key (eval map) (car binding) (cdr binding))) bindings)))
           dan/key-bindings))
-  
+
   (defun dan/assoc-delete-all (key alist)
     "Like `assq-delete-all' but using `equal' for comparison"
     (delq nil
           (mapcar (lambda (el) (unless (equal (car el) key) el))
                   alist)))
-  
+
   (defun dan/register-key-bindings (bindings-alist)
     "Add bindings in dan/key-bindings"
     (setq
@@ -1990,7 +1988,7 @@ I didn't get this to work.
      (cons
       bindings-alist
       (dan/assoc-delete-all (car bindings-alist) dan/key-bindings))))
-  
+
   (add-hook 'after-change-major-mode-hook
             (lambda ()
               (local-set-key [delete] 'winner-undo)
@@ -2001,7 +1999,7 @@ I didn't get this to work.
 *** global
 #+begin_src emacs-lisp
   (dan/register-key-bindings
-        '(global-map . 
+        '(global-map .
                  (("\C-x\C-b" . org-buffers-list)
                  ("\C-ca" . org-agenda)
                  ("\C-cb" . org-iswitchb)
@@ -2019,8 +2017,8 @@ I didn't get this to work.
                  ("\C-cv" . revert-buffer)
                  ("\C-\M-g" . lgrep)
                  ([(control next)] . end-of-buffer)
-                 ([(control prior)] . beginning-of-buffer) 
-                 ([(s tab)] . lisp-complete-symbol) 
+                 ([(control prior)] . beginning-of-buffer)
+                 ([(s tab)] . lisp-complete-symbol)
                  ("\M-(" . dan/enclose-rest-of-line-in-parentheses)
                  ("\M-n" . forward-paragraph)
                  ("\M-p" . backward-paragraph)
@@ -2063,7 +2061,7 @@ I didn't get this to work.
       ("\C-c\C-l" . dan/eval-buffer-confirm))))
 #+end_src
 *** ESS
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
   (dan/register-key-bindings
    '("ess" .
      (("\C-c?" . ess-display-help-on-object)
@@ -2073,7 +2071,7 @@ I didn't get this to work.
       ("\C-cx" . dan/ess-recover-R-process)
       ([(control return)] . ess-eval-line-and-step)
       ([(shift tab)] . ess-complete-object-name))))
-  
+
   (dan/register-key-bindings
    `("inferior-ess" .
      ,(cdr (assoc "ess" dan/key-bindings))))
@@ -2083,7 +2081,7 @@ I didn't get this to work.
   (dan/register-key-bindings
    '("gnus-summary" .
      (("\C-d" . dan/gnus-summary-delete-article))))
-  
+
   (dan/register-key-bindings
    '("gnus-article" .
      (("\C-n" . dan/gnus-article-goto-next-article))))
@@ -2101,7 +2099,7 @@ I didn't get this to work.
    (("\M-q" . ded/mml-fill-paragraph))))
 #+end_src
 *** Org
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
   (dan/register-key-bindings
    '("org" .
      (("\C-ch" . hide-subtree)
@@ -2142,7 +2140,7 @@ I didn't get this to work.
   (dan/register-key-bindings
    '("texinfo" .
              (("\C-c\C-s" . dan/texinfo-show-structure))))
-  
+
   (defun dan/texinfo-show-structure (&optional nodes-too)
     (interactive)
     (texinfo-show-structure)
@@ -2191,25 +2189,25 @@ I didn't get this to work.
     (string-equal
      string
      (buffer-substring-no-properties (point) (+ (point) (length string)))))
-  
+
   ;; this doesn't write anything in minibuffer...
-  (defun dan/show-current-font() 
+  (defun dan/show-current-font()
     (interactive)
     (frame-parameter nil 'font))
-  
+
   ;; Why doesn't this work? (Says something about wrong number of arguments)
   (defun dan/indent-buffer ()
     "Indent whole buffer"
     (interactive)
     (mark-whole-buffer)
     (indent-region))
-  
+
   (defun dan/eval-buffer-confirm ()
     (interactive)
     (save-buffer)
     (eval-buffer)
     (message "loaded buffer %s" (buffer-name)))
-  
+
   ;; http://blog.printf.net/ find-tag-at-point I often work on the
   ;; kernel or Xorg, and I would be totally ridiculously lost with both
   ;; if I wasn't using "tags" support in my editor. Here's how it works:
@@ -2221,29 +2219,29 @@ I didn't get this to work.
   ;; tree. Within a few presses of F10, you've escaped macro hell and
   ;; found where the code that actually defines the function you're
   ;; interested in is.
-  
-  
+
+
   (defun find-tag-at-point ()
     "*Find tag whose name contains TAGNAME.
-    Identical to `find-tag' but does not prompt for 
-    tag when called interactively;  instead, uses 
+    Identical to `find-tag' but does not prompt for
+    tag when called interactively;  instead, uses
     tag around or before point."
       (interactive)
       (find-tag (if current-prefix-arg
                     (find-tag-tag "Find tag: "))
                 (find-tag (find-tag-default))))
-  
+
   (defun search-forward-symbol-at-point ()
     "Search forward to next occurrence of thing at point"
     (interactive)
     (search-forward (symbol-name (symbol-at-point)) nil t)
     (backward-sexp)) ;; should be backward-symbol
-  
+
   (defun dan/insert-double-quotes ()
     (interactive)
     (insert "\"\"")
     (backward-char))
-  
+
   (defun quote-list-of-symbols ()
     "Place double quotes around the comma-separated,
   parenthesis-delimited list of symbols at point"
@@ -2254,18 +2252,18 @@ I didn't get this to work.
         (insert "\"")
         (while (replace-regexp " *, *" "\", \"" t beg end))
         (replace-regexp " *)" "\")" t (point) (1+ end)))))
-  
+
   (defun dan/find-defun (fun)
     (interactive "a")
     (describe-function fun)
     (other-window 1)
     (when (re-search-forward "`[^']+\.e")
         (push-button)))
-  
+
   (defun dan/wc-region ()
     (interactive)
     (shell-command-on-region (mark) (point) "wc"))
-  
+
   ;; http://www.emacswiki.org/cgi-bin/wiki/ToggleWindowSplit
   (defun toggle-window-split ()
     (interactive)
@@ -2291,69 +2289,69 @@ I didn't get this to work.
             (set-window-buffer (next-window) next-win-buffer)
             (select-window first-win)
             (if this-win-2nd (other-window 1))))))
-  
-  
+
+
     (defun byte-compile-dir (dir)
       (interactive)
       (let ((files (directory-files dir t ".*\.el" t)) file)
         (while (setq file (pop files))
           (byte-compile-file file))))
-    
-    
+
+
     (defun budget-eval ()
       ;; to eval yanked text in python-shell -- doesn't work
       (interactive)
       (other-buffer)
       (yank)
       (newline))
-    
+
     ;; (defun dan/xclip-kill ()
     ;;   "kill region and place on X clipboard"
     ;;   (interactive)
     ;;   (shell-command-on-region (mark) (point) "xclip")
     ;;   (delete-region (mark) (point))) ;; don't add to kill ring
-    
+
     ;; (defun dan/xclip-yank ()
     ;;   "yank from X clipboard and insert at point"
     ;;   (interactive)
     ;;   (shell-command "xclip -o" t))
-    
+
     (defun dan/next-line-and-indent ()
       (interactive)
       (next-line)
       (indent-according-to-mode))
-    
+
     (defun dan/previous-line-and-indent ()
       (interactive)
       (previous-line)
       (indent-according-to-mode))
-    
+
     (defun dan/insert-square-brackets ()
       (interactive)
       (insert "[]")
       (backward-char))
-    
+
     (defun dan/insert-curly-brackets ()
       (interactive)
       (insert "{}")
       (backward-char))
-    
+
     (defun dan/enclose-sexp-in-parentheses ()
       (interactive)
       (insert "(")
       (forward-sexp)
       (insert ")"))
-    
+
     (defun dan/enclose-rest-of-line-in-parentheses ()
       (interactive)
       (insert "(")
       (end-of-line) ;; need to account for comment on same line
       (insert ")"))
-    
+
     (defun dan/insert-- ()
       (interactive)
       (insert "-"))
-    
+
     (defun dan/quote-word ()
       "Surround word at point with double quotes"
       (interactive)
@@ -2361,14 +2359,14 @@ I didn't get this to work.
       (forward-char) (insert "\"")
       (re-search-forward "[ ,)\t]" nil t)
       (backward-char) (insert "\""))
-    
+
     (defun dan/compile-and-switch-to-iESS ()
       (interactive)
       (when (compile "make -k")
         (ess-switch-to-end-of-ESS)))
-    
+
     ;;  (when (shell-command "make -k")
-    
+
     ;; From Sacha Chua website
     (defun byte-compile-if-newer-and-load (file)
        "Byte compile file.el if newer than file.elc"
@@ -2438,7 +2436,7 @@ I didn't get this to work.
   ;; (setq custom-file "~/src/config/emacs/emacs.el") ;; now code
   ;; generated by emacs' customisation buffers will go in this file rather
   ;; than ~/.emacs
-  
+
   ;; Kevin Rodgers help-gnu-emacs
   ;; eldoc/timer can be used somehow to control how long messages appear for
   ;; (add-hook 'post-command-hook 'eldoc-schedule-timer nil t)
@@ -2470,16 +2468,16 @@ I didn't get this to work.
   (call-interactively
    (if arg 'find-library 'find-function)))
 #+end_src
-   
+
 * Start-up
 #+begin_src emacs-lisp
    ;;(when (string-match "^23\.*" emacs-version)
    ;; temp hack to make w3m work with emacs23
    ;; (require 'w3m-e21)
    ;; (provide 'w3m-e23))
-   
+
    ;; (org-fireforg-registry-initialize t)
-   
+
    (nnmairix-update-database)
    (dan/set-key-bindings)
    (if nil
@@ -2500,7 +2498,7 @@ I didn't get this to work.
   (setq scroll-preserve-screen-position :always
         scroll-conservatively           most-positive-fixnum
         scroll-step                     0)
-  
+
   (setq org-src-fontify-natively t)
 #+end_src
 
@@ -2532,7 +2530,7 @@ I didn't get this to work.
   ;;  '(default ((t (:inherit nil :stipple nil
   ;;                          :background "Grey15" :foreground "Grey"
   ;;                          :inverse-video nil :box nil
-  ;;                          :strike-through nil :overline nil :underline nil :slant normal 
+  ;;                          :strike-through nil :overline nil :underline nil :slant normal
   ;;                          :weight normal :height 120 :width normal
   ;;                          :foundry "unknown" :family "DejaVu Sans Mono"))))
   ;;  '(gnus-cite-1 ((((class color) (background light)) (:foreground "deep sky blue")))))
