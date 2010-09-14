@@ -1721,6 +1721,24 @@ this. see :tangle no below and in font-lock tree
      "*.el" (concat dan/org-mode-src-dir "/lisp")))
 #+end_src
 
+**** Search in org files
+     [[gnus:nntp%2Bnews.gmane.org:gmane.emacs.orgmode#87eicxzkdw.fsf@archdesk.localdomain][Email from Matt Lundin: Re: Search files in a folder]]
+#+begin_src emacs-lisp
+  (defun ml/org-grep (search &optional context)
+    "Search for word in org files. 
+
+Prefix argument determines number of lines."
+    (interactive "sSearch for: \nP")
+    (let ((grep-find-ignored-files '("#*" ".#*"))
+	  (grep-template (concat "grep <X> -i -nH " 
+				 (when context
+				   (concat "-C" (number-to-string context)))
+				 " -e <R> <F>")))
+      (lgrep search "*org*" "/home/dan/org/")))
+
+  (global-set-key (kbd "<f7>") 'ml/org-grep)
+#+end_src
+
 **** dan/org-edit-src-code-current-window
 #+begin_src emacs-lisp
   (defun dan/org-edit-src-code (config)
