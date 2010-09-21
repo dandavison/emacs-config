@@ -1,11 +1,6 @@
 (add-to-list 'load-path "/usr/local/src/emacs/org-mode/lisp")
+(setq org-babel-load-languages '((emacs-lisp . t) (R . t)))
 (require 'org-install)
-(setq dan/org-babel-languages
-      '(R python sh ruby ditaa latex asymptote dot sass perl sql gnuplot clojure octave matlab C))
-(setq dan/org-babel-early-load-languages
-      '(R))
-(mapc '(lambda (lang) (require (intern (format "ob-%s" lang))))
-      dan/org-babel-early-load-languages)
 (setq max-mini-window-height nil)
 (org-babel-load-file "~/config/emacs/emacs.org")
 

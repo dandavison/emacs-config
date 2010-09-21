@@ -1362,10 +1362,28 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+end_src
 **** Activate languages
 #+begin_src emacs-lisp
-  (mapc '(lambda (lang) (require (intern (format "ob-%s" lang))))
-        dan/org-babel-languages)
-
-  (setq swank-clojure-binary "/usr/bin/clojure")
+    (defun dan/org-babel-list-supported-languages ()
+      (interactive)
+      (sort
+       (set-difference
+       (mapcar
+        (lambda (s) (intern (progn (string-match "^ob-\\(.+\\)\.el$" s)
+                              (match-string 1 s))))
+        (directory-files
+         (save-window-excursion
+           (file-name-directory
+            (buffer-file-name (find-library "ob"))))
+         nil "^ob-.+\.el$"))
+       '(comint eval exp keys lob ref table tangle))
+       (lambda (x y) (string< (downcase (symbol-name x))
+                         (downcase (symbol-name y))))))
+    
+    (setq org-babel-load-languages
+          (mapcar (lambda (lang) (cons lang t))
+                  (dan/org-babel-list-supported-languages)))
+    
+    (org-babel-do-load-languages
+     'org-babel-load-languages org-babel-load-languages)
 #+end_src
 **** Variables
 #+begin_src emacs-lisp
