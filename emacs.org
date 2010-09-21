@@ -1,4 +1,3 @@
-
 * Core
 ** Windows and Frames
 #+begin_src emacs-lisp
@@ -264,8 +263,6 @@
   ;; buffer-file-name doesn't correspond to a file
   ;; (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
 
-  (autoload 'ansi-color-for-comint-mode-on "ansi-color" nil t)
-  (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
 #+end_src
 ** Appearance
 #+begin_src emacs-lisp
@@ -374,39 +371,38 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+begin_src emacs-lisp :tangle no
   (add-to-list 'Info-directory-list "/usr/share/info/emacs-snapshot")
 #+end_src
-** Dired
+** Message Mode
 #+begin_src emacs-lisp
-  (setq dired-listing-switches "-lAX")
-  (setq dired-no-confirm
-        '(byte-compile chgrp chmod chown compress copy hardlink load move print shell symlink
-                       touch uncompress))
-
-  (defun dan/dired-delete-total-line ()
-    (let ((bro buffer-read-only)
-          (kill-whole-line t))
-      (save-excursion
-        (goto-char (point-min))
-        (forward-line)
-        (when (looking-at "^ *total used in directory")
-          (if bro (setq buffer-read-only nil))
-          (kill-line)
-          (setq buffer-read-only bro)))))
-
-  (add-hook 'dired-after-readin-hook 'dan/dired-delete-total-line)
-
+  (setq message-send-mail-partially nil)
 #+end_src
-*** Dired for git repo
-[[mairix:t:@@m1630s27or.fsf@65-070.eduroam.rwth-aachen.de][Email from Andrea Crotti: Re: Simple useful function]]
-#+begin_src emacs-lisp
-  (defun dan/dired-git-files ()
-    (interactive)
-    (dired (cons (format "%s [git]" default-dqirectory)
-                 (dan/ls-git-files))))
 
-  (defun dan/ls-git-files ()
-    (if (file-exists-p ".git")
-        (split-string (shell-command-to-string "git ls-files"))
-      (error "Not a git repo")))
+** Browser
+#+begin_src emacs-lisp
+  ;; http://flash.metawaredesign.co.uk/2/.emacs
+  (if window-system
+      (setq browse-url-browser-function 'browse-url-generic
+            browse-url-generic-program "google-chrome"))
+  ;; (setq browse-url-browser-function 'browse-url-firefox)
+  ;; (setq browse-url-browser-function 'w3m-browse-url)
+  ;; (setq browse-url-firefox-new-window-is-tab t)
+#+end_src
+** Non-default
+*** Saveplace
+#+begin_src emacs-lisp :tangle no
+  (require 'saveplace)
+  (setq-default save-place t)
+
+  (add-hook 'org-mode-hook
+            (lambda ()
+              (when (outline-invisible-p)
+                (save-excursion
+                  (outline-previous-visible-heading 1)
+                  (org-show-subtree)))))
+#+end_src
+* Modules
+** Load path
+#+begin_src emacs-lisp
+  (add-to-list 'load-path "/usr/local/src/emacs")
 #+end_src
 ** Buffer lists
 *** Ibuffer
@@ -470,6 +466,10 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+begin_src emacs-lisp
   (setq Buffer-menu-sort-column 4)
 #+end_src
+** Ediff
+#+begin_src emacs-lisp
+(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+#+end_src
 ** Recentf
 #+begin_src emacs-lisp
   (recentf-mode t)
@@ -477,19 +477,55 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   (setq recentf-max-saved-items nil)
 #+end_src
 
-** Message Mode
-#+begin_src emacs-lisp
-  (setq message-send-mail-partially nil)
-#+end_src
-
 ** Flyspell
 #+begin_src emacs-lisp
   (setq flyspell-issue-message-flag nil)
 #+end_src
-** Language modes
+
+** Dired
+#+begin_src emacs-lisp
+  (setq dired-listing-switches "-lAX")
+  (setq dired-no-confirm
+        '(byte-compile chgrp chmod chown compress copy hardlink load move print shell symlink
+                       touch uncompress))
+
+  (defun dan/dired-delete-total-line ()
+    (let ((bro buffer-read-only)
+          (kill-whole-line t))
+      (save-excursion
+        (goto-char (point-min))
+        (forward-line)
+        (when (looking-at "^ *total used in directory")
+          (if bro (setq buffer-read-only nil))
+          (kill-line)
+          (setq buffer-read-only bro)))))
+
+  (add-hook 'dired-after-readin-hook 'dan/dired-delete-total-line)
+
+#+end_src
+*** Dired for git repo
+[[mairix:t:@@m1630s27or.fsf@65-070.eduroam.rwth-aachen.de][Email from Andrea Crotti: Re: Simple useful function]]
+#+begin_src emacs-lisp
+  (defun dan/dired-git-files ()
+    (interactive)
+    (dired (cons (format "%s [git]" default-dqirectory)
+                 (dan/ls-git-files))))
+
+  (defun dan/ls-git-files ()
+    (if (file-exists-p ".git")
+        (split-string (shell-command-to-string "git ls-files"))
+      (error "Not a git repo")))
+#+end_src
+** Languages
+*** Load path
+#+begin_src emacs-lisp
+  ;; (add-to-list 'load-path "/usr/local/src/emacs/ruby-emacs")
+  (add-to-list 'load-path "/usr/local/src/emacs/gnuplot-mode.0.6.0")
+  (add-to-list 'load-path "/usr/local/src/emacs/matlab")
+#+end_src
 *** Elisp
 #+begin_src emacs-lisp
-  (add-hook 'emacs-lisp-mode-hook 'pretty-lambdas)
+;;  (add-hook 'emacs-lisp-mode-hook 'pretty-lambdas)
 #+end_src
 
 *** C & C++
@@ -527,40 +563,24 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 (require 'texinfo)
 #+end_src
 
-** Browser
+*** Python
 #+begin_src emacs-lisp
-  ;; http://flash.metawaredesign.co.uk/2/.emacs
-  (if window-system
-      (setq browse-url-browser-function 'browse-url-generic
-            browse-url-generic-program "google-chrome"))
-  ;; (setq browse-url-browser-function 'browse-url-firefox)
-  ;; (setq browse-url-browser-function 'w3m-browse-url)
-  ;; (setq browse-url-firefox-new-window-is-tab t)
+;; (require 'ipython)
 #+end_src
-** Ediff
+*** Shell
 #+begin_src emacs-lisp
-(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+  (autoload 'ansi-color-for-comint-mode-on "ansi-color" nil t)
+  (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
+  (add-hook 'shell-mode-hook
+            (lambda()
+              (comint-send-input)
+              (recenter-top-bottom 0)))
+#+end_src
+*** Eshell
+#+begin_src emacs-lisp
+  (setq eshell-banner-message "")
 #+end_src
 
-** Non-default
-*** Saveplace
-#+begin_src emacs-lisp :tangle no
-  (require 'saveplace)
-  (setq-default save-place t)
-
-  (add-hook 'org-mode-hook
-            (lambda ()
-              (when (outline-invisible-p)
-                (save-excursion
-                  (outline-previous-visible-heading 1)
-                  (org-show-subtree)))))
-#+end_src
-
-* External modules
-** Load path
-#+begin_src emacs-lisp
-  (add-to-list 'load-path "/usr/local/src/emacs")
-#+end_src
 ** Buffer-join
 #+begin_src emacs-lisp
   (add-to-list 'load-path "/usr/local/src/emacs/buffer-join")
@@ -649,6 +669,18 @@ http://www.emacswiki.org/emacs/TransparentEmacs
     (ess-execute
      (concat cmd "(" (buffer-substring (point) (mark)) ")")))
 #+end_src
+** Google Maps
+#+begin_src emacs-lisp
+(add-to-list 'load-path "/usr/local/src/emacs/google-maps")
+(require 'google-maps)
+#+end_src
+** Google Weather
+#+begin_src emacs-lisp
+(add-to-list 'load-path "/usr/local/src/emacs/google-weather-el")
+(require 'google-weather)
+(require 'org-google-weather)
+#+end_src
+
 ** Gnus
 *** General
 #+begin_src emacs-lisp
@@ -762,7 +794,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
    send-mail-function 'sendmail-send-it ;; generates properly-formed email and sends it with
    sendmail-program "~/bin/sendmail-dan" ;; passes email over ssh to remote sendmail in Oxford
    gnus-message-archive-group "nnimap+dc:email" ;; save outgoing mail into my default mail box
-   )
+   gnus-gcc-mark-as-read t)
 #+end_src
 
 *** Group buffer
@@ -917,13 +949,11 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 
   (setq mm-discouraged-alternatives '("text/html" "text/richtext"))
 #+end_src
-** Languages
+*** Cache
 #+begin_src emacs-lisp
-  ;; (add-to-list 'load-path "/usr/local/src/emacs/ruby-emacs")
-  (add-to-list 'load-path "/usr/local/src/emacs/gnuplot-mode.0.6.0")
-  (add-to-list 'load-path "/usr/local/src/emacs/matlab")
+  (setq gnus-use-cache t
+        gnus-cacheable-groups "^nntp.*emacs\\.orgmode")
 #+end_src
-
 ** Magit
 #+begin_src emacs-lisp
   (add-to-list 'load-path "/usr/local/src/emacs/magit")
@@ -956,6 +986,15 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   (minimal-mode t)
   (setq minimal-mode-line-background "sea green")
   (setq minimal-mode-line-inactive-background "dim grey")
+#+end_src
+
+** Yasnippet
+#+begin_src emacs-lisp
+  (add-to-list 'load-path "/usr/local/src/emacs/yasnippet")
+  (require 'yasnippet)
+  (yas/initialize)
+  (yas/load-directory "/usr/local/src/emacs/yasnippet/snippets")
+  (yas/load-directory "/usr/local/src/emacs/Worg/org-contrib/babel/snippets")
 #+end_src
 
 ** Org
@@ -1384,6 +1423,8 @@ http://www.emacswiki.org/emacs/TransparentEmacs
     
     (org-babel-do-load-languages
      'org-babel-load-languages org-babel-load-languages)
+
+    (setq swank-clojure-binary "/usr/bin/clojure")
 #+end_src
 **** Variables
 #+begin_src emacs-lisp
@@ -1432,6 +1473,19 @@ http://www.emacswiki.org/emacs/TransparentEmacs
         (insert "#+begin_latex\n")
         (dan/indent-src-block))))
 #+end_src
+**** Richard Riley function
+#+begin_src emacs-lisp
+  (defun rgr/mark-region-as-src ()
+    (interactive)
+    (let ((stars (make-string (org-current-level) ?*)))
+      (insert 
+       (format 
+        "%s%s \n#+begin_src emacs-lisp\n%s#+end_src\n%s" 
+        (if current-prefix-arg "#+end_src\n\n")
+        stars (delete-and-extract-region (region-beginning) (region-end))
+        (if current-prefix-arg (concat "\n" stars " \n#+begin_src emacs-lisp"))))))
+#+end_src
+
 **** Etc
 ***** TAB indents natively
 #+begin_src emacs-lisp :tangle no
@@ -1717,12 +1771,7 @@ this. see :tangle no below and in font-lock tree
   (defun dan/org-switch-to-org-scratch ()
     "Put me in a new org buffer now!"
     (interactive)
-    (let ((name "*Scratch Org*"))
-      (pop-to-buffer
-       (or (get-buffer name)
-           (get-buffer-create (make-temp-file "org-scratch-buffer"))))
-      (rename-buffer name))
-    (unless (org-mode-p) (org-mode)))
+    (find-file "/tmp/org-scratch.org"))
 #+end_src
 
 **** Search in org source code
@@ -1939,15 +1988,6 @@ by Vitalie S.
       (lambda (x) (format "%s/starter-kit-%s.org" dotfiles-dir (symbol-name x)))
       dan/starter-kit-components)))
 #+end_src
-
-** Yasnippet
-#+begin_src emacs-lisp
-  (add-to-list 'load-path "/usr/local/src/emacs/yasnippet")
-  (require 'yasnippet)
-  (yas/initialize)
-  (yas/load-directory "/usr/local/src/emacs/yasnippet/snippets")
-  (yas/load-directory "/usr/local/src/emacs/Worg/org-contrib/babel/snippets")
-#+end_src
 ** Smex
 #+begin_src emacs-lisp
   (add-to-list 'load-path "/usr/local/src/emacs/smex")
@@ -2046,6 +2086,7 @@ I didn't get this to work.
                  ("\C-cg" . magit-status)
                  ("\C-ci" . dan/current-column-line)
                  ("\C-cl" . org-store-link)
+                 ("\C-cm" . dan/switch-to-minibuffer)
                  ("\C-cn" . dan/show-buffer-file-name)
                  ("\C-co" . dan/org-switch-to-org-scratch)
                  ("\C-cr" . replace-regexp)
@@ -2067,7 +2108,7 @@ I didn't get this to work.
                  ([f1] . org-buffers-list)
                  ([f2] . (lambda () (interactive) (switch-to-buffer "*Group*")))
                  ([f3] . (lambda () (interactive) (switch-to-buffer "*Org Agenda*")))
-                 ([f4] . (lambda () (interactive) (switch-to-buffer "*shell*")))
+                 ([f4] . (lambda () (interactive) (switch-to-buffer "*eshell*")))
                  ([f5] . (lambda () (interactive) (switch-to-buffer "*Python*")))
                  ([f6] . dan/find-file-emacs-config)
                  ([f7] . dan/org-schedule-task-with-link)
@@ -2505,15 +2546,31 @@ I didn't get this to work.
    (if arg 'find-library 'find-function)))
 #+end_src
 
+** Show all in all buffers
+#+begin_src emacs-lisp
+  (defun dan/show-all-all-buffers ()
+    (interactive)
+    (save-window-excursion
+      (mapc (lambda (b) (set-buffer b) (show-all))
+            (buffer-list))))
+#+end_src
+
+** dan/keyboard-quit
+#+begin_src emacs-lisp
+  (defun dan/switch-to-minibuffer ()
+    (interactive)
+    (switch-to-buffer (window-buffer (minibuffer-window))))
+#+end_src
+
 * Start-up
 #+begin_src emacs-lisp
    ;;(when (string-match "^23\.*" emacs-version)
    ;; temp hack to make w3m work with emacs23
    ;; (require 'w3m-e21)
    ;; (provide 'w3m-e23))
-
+  
    ;; (org-fireforg-registry-initialize t)
-
+  
    (nnmairix-update-database)
    (dan/set-key-bindings)
    (if nil
@@ -2526,6 +2583,7 @@ I didn't get this to work.
    (dan/set-show-paren-style)
   (require 'server)
   (unless (server-running-p) (server-start))
+  (eshell)
 #+end_src
 
 * Experimental

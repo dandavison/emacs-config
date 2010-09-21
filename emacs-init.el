@@ -1,7 +1,8 @@
+(setq max-mini-window-height nil)
 (add-to-list 'load-path "/usr/local/src/emacs/org-mode/lisp")
 (setq org-babel-load-languages '((emacs-lisp . t) (R . t)))
+(setq org-confirm-babel-evaluate nil)
 (require 'org-install)
-(setq max-mini-window-height nil)
 (org-babel-load-file "~/config/emacs/emacs.org")
 
 ;; (add-to-list 'load-path "~/emacs/emacs-starter-kit")
