@@ -31,7 +31,16 @@
   ;;                        :underline nil :slant normal :weight normal :height 100
   ;;                        :width normal :foundry "unknown" :family "DejaVu Sans Mono"))))
   ;;              '(gnus-cite-1 ((((class color) (background light)) (:foreground "deep sky blue")))))
+  ;; '(cursor ((t (:background "red"))))) ;; "orchid" "goldenrod"
 #+end_src
+** Cursor
+#+begin_src emacs-lisp
+  (set-cursor-color "red")
+  (setq-default cursor-in-non-selected-windows nil)
+  (nconc default-frame-alist '((cursor-type . bar)))
+  (blink-cursor-mode -1)
+#+end_src
+
 ** Outline
   [[gnus:org#87zlb6vt8m.fsf@mundaneum.com][Email from Sébastien Vauban: {Orgmode} Re: org-style foldin]]
 #+begin_src emacs-lisp
@@ -273,12 +282,12 @@
     ;; (set-face-background 'highlight (face-background 'default))
     ;; (set-face-foreground 'highlight (face-foreground 'font-lock-comment-face))
     ;; (set-face-foreground 'cursor (face-foreground 'font-lock-comment-face))
-    ;; (set-cursor-color (face-foreground 'font-lock-comment-face))
+    (set-cursor-color "red")
     (set-face-attribute 'org-hide nil
                         :foreground
                         (face-attribute 'default :background))
     (font-lock-fontify-buffer))
-
+  
   (defun dan/set-show-paren-style ()
     (interactive)
     (setq show-paren-delay .125)
@@ -317,9 +326,7 @@
   (tool-bar-mode -1)
   (menu-bar-mode -1)
   (scroll-bar-mode -1)
-  (nconc default-frame-alist '((cursor-type . bar)))
   (setq inhibit-startup-message t)
-  (blink-cursor-mode -1)
 #+end_src
 *** Save faces
 #+begin_src emacs-lisp
