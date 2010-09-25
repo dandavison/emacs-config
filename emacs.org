@@ -121,8 +121,7 @@
               (unless (eq noweb-code-mode 'R-mode)
                 ;; (dan/set-up-outline-minor-mode "^\\(###\\|[a-zA-Z._[\"][a-zA-Z._0-9[\"]* *<- *function\\)")
                 ;; (dan/set-up-outline-minor-mode "^[a-zA-Z._[\"][a-zA-Z._0-9[\"]* *<- *function")
-		(dan/set-up-outline-minor-mode "^[a-zA-Z._][a-zA-Z._0-9]* *<- *function")
-		)))
+                (dan/set-up-outline-minor-mode "[a-zA-Z._][a-zA-Z._0-9]* *<- *function"))))
   ;; (add-hook 'c-mode-hook
   ;;        (lambda () (dan/set-up-outline-minor-mode nil)))
   ;;                    "\\(void\\|int\\|double\\|char\\|struct\\|static\\|const\\)")))
