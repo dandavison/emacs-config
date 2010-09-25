@@ -507,7 +507,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+begin_src emacs-lisp
   (defun dan/dired-git-files ()
     (interactive)
-    (dired (cons (format "%s [git]" default-dqirectory)
+    (dired (cons (format "%s [git]" default-directory)
                  (dan/ls-git-files))))
 
   (defun dan/ls-git-files ()
