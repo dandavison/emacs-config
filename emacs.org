@@ -729,27 +729,10 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   ;; (setq nnmail-treat-duplicates nil)
   ;; (setq gnus-summary-ignore-duplicates t)
 
-  (defun ded/mml-fill-paragraph ()
-    "Fill paragraph, but without messing with the email header"
-    (interactive)
-    (let ((beg (save-excursion
-                 (when (search-backward "--text follows this line--" nil t)
-                   (forward-line 1) (point)))))
-      (when beg
-        (narrow-to-region beg (point-max))
-        (fill-paragraph)
-        (widen))))
 
   ;;
   ;;-----------------------------------------------------------------------------------------
 
-  (defun dan/gnus-summary-delete-article ()
-    ;; How come this deletes all articles in the active region?
-
-    (interactive)
-    (save-window-excursion
-      (gnus-summary-delete-article)
-      (gnus-summary-next-article)))
 
   ;;;
   ;;; Expiry
@@ -814,9 +797,8 @@ http://www.emacswiki.org/emacs/TransparentEmacs
               (lambda () (end-of-buffer) (forward-line -1)))
 
     (add-hook 'gnus-summary-prepared-hook
-              (lambda () (end-of-buffer) (forward-line -1)))
-    )
-
+              (lambda () (end-of-buffer) (forward-line -1))))
+  
   (setq gnus-thread-sort-functions
         '(gnus-thread-sort-by-number
           gnus-thread-sort-by-most-recent-date))
@@ -867,7 +849,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
     (propertize "hello" 'face '(:foreground "red")))
 #+end_src
 *** Correct counts
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   ;;; dim-gnus-imap-count.el --- Dimitri Fontaine
   ;;
   ;; http://www.emacswiki.org/emacs/GnusNiftyTricks#toc2
@@ -945,10 +927,36 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 
   (setq mm-discouraged-alternatives '("text/html" "text/richtext"))
 #+end_src
+
 *** Cache
 #+begin_src emacs-lisp
   (setq gnus-use-cache t
         gnus-cacheable-groups "^nntp.*emacs\\.orgmode")
+#+end_src
+*** Personal functions
+#+begin_src emacs-lisp
+  (defun dan/gnus-article-goto-next-article ()
+    (interactive)
+    (with-current-buffer gnus-summary-buffer
+      (gnus-summary-goto-article (gnus-summary-next-article))))
+
+  (defun dan/gnus-summary-delete-article ()
+    ;; How come this deletes all articles in the active region?
+    (interactive)
+    (save-window-excursion
+      (gnus-summary-delete-article)
+      (gnus-summary-next-article)))
+
+  (defun ded/mml-fill-paragraph ()
+    "Fill paragraph, but without messing with the email header"
+    (interactive)
+    (let ((beg (save-excursion
+                 (when (search-backward "--text follows this line--" nil t)
+                   (forward-line 1) (point)))))
+      (when beg
+        (narrow-to-region beg (point-max))
+        (fill-paragraph)
+        (widen))))
 #+end_src
 ** Magit
 #+begin_src emacs-lisp
