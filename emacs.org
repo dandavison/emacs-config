@@ -1389,8 +1389,6 @@ http://www.emacswiki.org/emacs/TransparentEmacs
          (org-edit-src-exit))
       (call-interactively 'org-edit-src-code)))
 
-  (define-key org-babel-map "'" 'dan/org-babel-edit-src-code)
-
   (setq org-src-tab-acts-natively t)
 
   (add-to-list 'org-src-lang-modes '("C" . c))
@@ -1398,8 +1396,6 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   (setq org-src-window-setup 'current-window) ;; 'current-window 'other-window 'other-frame 'reorganize-frame
 
   (setq org-src-ask-before-returning-to-edit-buffer nil)
-
-  (setq org-src-strip-leading-and-trailing-blank-lines nil)
 #+end_src
 **** Hide block and switch to edit buffer
 #+begin_src emacs-lisp
@@ -1447,66 +1443,18 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   ;; (setq org-babel-allow-variable-references t)
   (setq org-export-babel-evaluate t)
 #+end_src
-**** dan/indent-src-block
-#+begin_src emacs-lisp
-(defun dan/indent-src-block ()
-  (interactive)
-  (org-edit-src-code)
-  (indent-region (point-min) (point-max))
-  (org-edit-src-exit))
-#+end_src
-**** dan/enclose-region-in-src-block
-#+begin_src emacs-lisp
-  (defun dan/enclose-region-in-src-block (&optional lang)
-    (interactive)
-    (let* ((beg (if (region-active-p) (region-beginning) (point)))
-           (end (if (region-active-p) (region-end) (point))))
-      (goto-char end)
-      (unless (eq (char-before) ?\n) (insert "\n"))
-      (insert "#+end_src\n")
-      (goto-char beg)
-      (beginning-of-line)
-      (insert "#+begin_src ")
-      (if lang (progn
-                 (insert lang "\n")
-                 (dan/indent-src-block))
-        (insert "\n")
-        (backward-char))))
-
-  (defun dan/enclose-region-in-latex-block ()
-    (interactive)
-    (let* ((beg (if (region-active-p) (region-beginning) (point)))
-           (end (if (region-active-p) (region-end) (point))))
-      (goto-char end)
-      (unless (eq (char-before) ?\n) (insert "\n"))
-      (insert "#+end_latex\n")
-      (save-excursion
-        (goto-char beg)
-        (beginning-of-line)
-        (insert "#+begin_latex\n")
-        (dan/indent-src-block))))
-#+end_src
-**** Richard Riley function
-#+begin_src emacs-lisp
-  (defun rgr/mark-region-as-src ()
-    (interactive)
-    (let ((stars (make-string (org-current-level) ?*)))
-      (insert 
-       (format 
-        "%s%s \n#+begin_src emacs-lisp\n%s#+end_src\n%s" 
-        (if current-prefix-arg "#+end_src\n\n")
-        stars (delete-and-extract-region (region-beginning) (region-end))
-        (if current-prefix-arg (concat "\n" stars " \n#+begin_src emacs-lisp"))))))
-#+end_src
-
 **** Etc
-***** TAB indents natively
-#+begin_src emacs-lisp :tangle no
-  (defun dan/indent-natively-maybe ()
-  (interactive)
-  (org-babel-do-key-sequence-in-edit-buffer "TAB"))
+***** dan/org-edit-src-code-current-window
+#+begin_src emacs-lisp
+  (defun dan/org-edit-src-code:current-window ()
+    (interactive)
+    (let ((org-src-window-setup 'current-window))
+      (org-edit-src-code)))
 
-  (remove-hook 'org-tab-first-hook 'dan/indent-natively-maybe)
+  (defun dan/org-edit-src-code:reorganize-frame ()
+    (interactive)
+    (let ((org-src-window-setup 'reorganize-frame))
+      (org-edit-src-code)))
 #+end_src
 
 ***** Edit buffer instead of block unhiding
@@ -1525,22 +1473,6 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 
   ;; (add-hook 'org-tab-first-hook 'org-babel-edit-special-maybe)
 #+end_src
-***** Execute src block from lang mode buffer
-	Haven't tested this out much.
-#+begin_src emacs-lisp
-  (defun dan/org-src-execute ()
-    "Execute src block to which this code belongs."
-    (unless org-edit-src-from-org-mode
-      (error "This is not a sub-editing buffer, something is wrong..."))
-    (let ((beg org-edit-src-beg-marker))
-      (save-window-excursion
-        (set-buffer (marker-buffer beg))
-        (goto-char beg)
-        (org-babel-execute-src-block))))
-#+end_src
-
-#+resname:
-| "R" | "python" | "ruby" | "ditaa" | "sass" |
 ***** R -> org
 #+begin_src emacs-lisp :tangle no
   (defun dan/wrap-R-functions-in-source-blocks ()
@@ -1819,21 +1751,6 @@ Prefix argument determines number of lines."
   (global-set-key (kbd "<f7>") 'ml/org-grep)
 #+end_src
 
-**** dan/org-edit-src-code-current-window
-#+begin_src emacs-lisp
-  (defun dan/org-edit-src-code (config)
-    (let ((org-src-window-setup config))
-      (org-edit-src-code)))
-
-  (defun dan/org-edit-src-code:current-window ()
-    (interactive)
-    (dan/org-edit-src-code 'current-window))
-
-  (defun dan/org-edit-src-code:reorganize-frame ()
-    (interactive)
-    (dan/org-edit-src-code 'reorganize-frame))
-#+end_src
-
 **** dan/org-edit-special
       Needs more work to keep point in sensible location, and to
       detect when inside a block.
@@ -1928,52 +1845,6 @@ by Vitalie S.
         (replace-match (concat "<img src='\\1'/>")))))
 #+end_src
 
-**** HTML email
-#+begin_src emacs-lisp
-  ;; Eric Schulte
-  ;; 2010-03-23
-  ;;
-  ;; WYSWYG, html mail composition using org-mode
-  ;;
-  ;; For mail composed using the orgstruct-mode minor mode, this
-  ;; provides a function for converting all or part of your mail buffer
-  ;; to embedded html as exported by org-mode.  Call `org-mml-htmlize'
-  ;; in a message buffer to convert either the active region or the
-  ;; entire buffer to html.
-  ;;
-
-  (defun eric/org-mml-htmlize (arg)
-    (interactive "P") ;; later just do <pre> wrap if prefix arg
-    (let* ((region-p (org-region-active-p))
-           (html-start (or (and region-p (region-beginning))
-                           (save-excursion
-                             (goto-char (point-min))
-                             (search-forward mail-header-separator)
-                             (point))))
-           (html-end (or (and region-p (region-end))
-                         ;; TODO: should catch signature...
-                         (point-max)))
-           (body (buffer-substring html-start html-end))
-           (tmp-file (make-temp-name (expand-file-name "mail" "/tmp/")))
-           ;; because we probably don't want to skip part of our mail
-           (org-export-skip-text-before-1st-heading nil)
-           ;; makes the replies with ">"s look nicer
-           (org-export-preserve-breaks t)
-           (html (save-excursion
-                   (with-temp-buffer
-                     (insert body)
-                     (write-file tmp-file)
-                     ;; convert to html -- mimicing org-run-like-in-org-mode
-                     (eval (list 'let org-local-vars
-                                 (list 'org-export-as-html nil nil nil ''string t)))))))
-      (delete-region html-start html-end)
-      (save-excursion
-        (goto-char html-start)
-        (insert
-         (format
-          "\n<#multipart type=alternative>\n<#part type=text/html>%s<#/multipart>\n"
-          html)))))
-#+end_src
 ** Org-buffers
    :PROPERTIES:
    :tangle: no
@@ -2195,7 +2066,6 @@ I didn't get this to work.
      (("\C-ch" . hide-subtree)
       ("\C-cp" . org-insert-property-drawer)
       ("\C-ct" . org-hide-block-toggle)
-      ("\C-cz" . dan/org-babel-switch-to-code-with-session)
       ("_" . dan/org-underscore-command)
       ("\M-q" . dan/org-fill-paragraph-natively-maybe)
       ("\M-;" . dan/org-comment-dwim)
