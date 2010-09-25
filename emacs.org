@@ -2041,8 +2041,9 @@ I didn't get this to work.
 #+begin_src emacs-lisp
   (dan/register-key-bindings
    '("gnus-summary" .
-     (("\C-d" . dan/gnus-summary-delete-article))))
-
+     (("\C-d" . dan/gnus-summary-delete-article)
+      (" " . scroll-up-command))))
+ 
   (dan/register-key-bindings
    '("gnus-article" .
      (("\C-n" . dan/gnus-article-goto-next-article))))
