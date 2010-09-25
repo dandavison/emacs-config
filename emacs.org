@@ -579,6 +579,65 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+begin_src emacs-lisp
   (setq eshell-banner-message "")
 #+end_src
+*** ESS
+#+begin_src emacs-lisp
+  (add-to-list 'load-path "/usr/local/src/emacs/ess/lisp")
+  (require 'ess-site)
+  
+  ;; (require 'ess-eldoc)
+  
+  ;; (setq ess-ask-for-ess-directory nil)
+  (setq inferior-R-args "--no-save --no-restore-data --silent")
+  (setq safe-local-variable-values '((noweb-default-code-mode . R-mode) (outline-minor-mode)))
+  (autoload 'noweb-mode "noweb-mode" "Editing noweb files." t) ;; see noweb-mode.el in ESS;
+  (setq auto-mode-alist (append (list (cons "\\.nw$" 'noweb-mode))
+                                auto-mode-alist))
+  
+  ;; (defun dan/ess-and-iess-mode-hook ()
+  ;;   (setq ess-function-template " <- function() {\n\n}\n")
+  ;;   (mapc (lambda (pair) (local-set-key (car pair) (cdr pair)))
+  ;;        dan/ess-and-iess-keybindings))
+  
+  (defun dan/ess-mode-hook ()
+    (ess-set-style 'C++))
+  
+  ;; (add-hook 'ess-mode-hook 'dan/ess-and-iess-mode-hook)
+  ;; (add-hook 'inferior-ess-mode-hook 'dan/ess-and-iess-mode-hook)
+  (add-hook 'ess-mode-hook 'dan/ess-mode-hook)
+  
+  (setq ess-eval-visibly-p t)
+  
+  ;;                                 DEF GNU BSD K&R C++
+  ;; ess-indent-level                  2   2   8   5   4
+  ;; ess-continued-statement-offset    2   2   8   5   4
+  ;; ess-brace-offset                  0   0  -8  -5  -4
+  ;; ess-arg-function-offset           2   4   0   0   0
+  ;; ess-expression-offset             4   2   8   5   4
+  ;; ess-else-offset                   0   0   0   0   0
+  ;; ess-close-brace-offset            0   0   0   0   0
+  
+  (defun dan/ess-execute-command-on-region (cmd)
+    (interactive "sEnter function name: \n")
+    (ess-execute
+     (concat cmd "(" (buffer-substring (point) (mark)) ")")))
+#+end_src
+
+**** Add R builtins to font lock
+
+#+source: R-builtins
+#+begin_src R
+  obj <- unlist(sapply(c("package:base","package:stats","package:utils","package:grDevices"), objects, all.names=TRUE))
+  re <- "(^[^.[:alpha:][:digit:]]|<-|__)"  ## to remove "weird" functions
+  obj[-grep(re, obj)]
+#+end_src
+
+#+begin_src emacs-lisp :var R-builtins=R-builtins()
+  (add-to-list
+   'ess-R-mode-font-lock-keywords
+   (cons
+    (concat "\\<" (regexp-opt (mapcar #'car R-builtins) 'enc-paren) "\\>")
+    'font-lock-function-name-face))
+#+end_src
 
 ** Buffer-join
 #+begin_src emacs-lisp
@@ -605,68 +664,6 @@ http://www.emacswiki.org/emacs/TransparentEmacs
       (load
        (expand-file-name "~/.emacs.d/elpa/package.el"))
     (package-initialize))
-#+end_src
-** ESS
-#+begin_src emacs-lisp
-    (add-to-list 'load-path "/usr/local/src/emacs/ess/lisp")
-    (require 'ess-site)
-
-    ;; (require 'ess-eldoc)
-
-  ;; (setq ess-ask-for-ess-directory nil)
-    (setq inferior-R-args "--no-save --no-restore-data --silent")
-    (setq safe-local-variable-values '((noweb-default-code-mode . R-mode) (outline-minor-mode)))
-    (autoload 'noweb-mode "noweb-mode" "Editing noweb files." t) ;; see noweb-mode.el in ESS;
-    (setq auto-mode-alist (append (list (cons "\\.nw$" 'noweb-mode))
-                                  auto-mode-alist))
-
-    ;; (defun dan/ess-and-iess-mode-hook ()
-    ;;   (setq ess-function-template " <- function() {\n\n}\n")
-    ;;   (mapc (lambda (pair) (local-set-key (car pair) (cdr pair)))
-    ;;        dan/ess-and-iess-keybindings))
-
-    (defun dan/ess-mode-hook ()
-      (ess-set-style 'C++))
-
-    ;; (add-hook 'ess-mode-hook 'dan/ess-and-iess-mode-hook)
-    ;; (add-hook 'inferior-ess-mode-hook 'dan/ess-and-iess-mode-hook)
-    (add-hook 'ess-mode-hook 'dan/ess-mode-hook)
-
-    (setq ess-eval-visibly-p t)
-
-    ;;                                 DEF GNU BSD K&R C++
-    ;; ess-indent-level                  2   2   8   5   4
-    ;; ess-continued-statement-offset    2   2   8   5   4
-    ;; ess-brace-offset                  0   0  -8  -5  -4
-    ;; ess-arg-function-offset           2   4   0   0   0
-    ;; ess-expression-offset             4   2   8   5   4
-    ;; ess-else-offset                   0   0   0   0   0
-    ;; ess-close-brace-offset            0   0   0   0   0
-#+end_src
-
-*** Add R builtins to font lock
-
-#+source: R-builtins
-#+begin_src R
-  obj <- unlist(sapply(c("package:base","package:stats","package:utils","package:grDevices"), objects, all.names=TRUE))
-  re <- "(^[^.[:alpha:][:digit:]]|<-|__)"  ## to remove "weird" functions
-  obj[-grep(re, obj)]
-#+end_src
-
-#+begin_src emacs-lisp :var R-builtins=R-builtins()
-  (add-to-list
-   'ess-R-mode-font-lock-keywords
-   (cons
-    (concat "\\<" (regexp-opt (mapcar #'car R-builtins) 'enc-paren) "\\>")
-    'font-lock-function-name-face))
-#+end_src
-
-*** Etc
-#+begin_src emacs-lisp :tangle no
-  (defun dan/ess-execute-command-on-region (cmd)
-    (interactive "sEnter function name: \n")
-    (ess-execute
-     (concat cmd "(" (buffer-substring (point) (mark)) ")")))
 #+end_src
 ** Google Maps
 #+begin_src emacs-lisp
