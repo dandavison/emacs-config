@@ -548,7 +548,6 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 *** Lua
 #+begin_src emacs-lisp
   (setq auto-mode-alist (cons '("\\.lua$" . lua-mode) auto-mode-alist))
-  (setq auto-mode-alist (cons '("\\.pyw$" . python-mode) auto-mode-alist))
   ;; (autoload 'lua-mode "/usr/local/src/lua-mode/lua-mode" "Lua editing mode." t)
   ;; (add-hook 'lua-mode-hook 'turn-on-font-lock)
 #+end_src
@@ -564,7 +563,8 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 
 *** Python
 #+begin_src emacs-lisp
-;; (require 'ipython)
+  ;; (require 'ipython)
+  (setq auto-mode-alist (cons '("\\.pyw$" . python-mode) auto-mode-alist))
 #+end_src
 *** Shell
 #+begin_src emacs-lisp
