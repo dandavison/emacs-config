@@ -1946,8 +1946,9 @@ I didn't get this to work.
      dan/key-bindings
      (cons
       bindings-alist
-      (dan/assoc-delete-all (car bindings-alist) dan/key-bindings))))
-
+      (dan/assoc-delete-all (car bindings-alist) dan/key-bindings)))
+    (dan/set-key-bindings))
+    
   (add-hook 'after-change-major-mode-hook
             (lambda ()
               (local-set-key [delete] 'winner-undo)
