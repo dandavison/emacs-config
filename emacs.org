@@ -1020,8 +1020,8 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+end_src
 *** Misc
 #+begin_src emacs-lisp
-(setq org-hide-block-startup nil)
-
+  (setq org-hide-block-startup nil)
+  
   ;; (setq org-startup-folded nil)
   ;;* refiling
   ;; http://doc.norang.ca/org-mode.html#Refiling
