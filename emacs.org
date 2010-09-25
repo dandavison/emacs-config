@@ -1512,21 +1512,11 @@ http://www.emacswiki.org/emacs/TransparentEmacs
      0 "%d")) arg)))
 #+end_src
 
-***** Two-mode mode
-#+begin_src emacs-lisp :tangle no
-  (setq default-mode (list "org-mode" 'org-mode))
-  (setq second-modes '(("python" "#+begin_src python" "#+end_src" python-mode)
-                         ("emacs-lisp" "#+begin_src emacs-lisp" "#+end_src" emacs-lisp-mode)
-                         ("ess" "#+begin_src R" "#+end_src" ess-mode)
-                         ))
-#+end_src
-
 *** Fireforg
 #+begin_src emacs-lisp :tangle no
 (add-to-list 'load-path "/usr/local/src/org-etc/org-fireforg/lisp")
 (require 'org-fireforg)
 (org-fireforg-registry-insinuate)
-
 #+end_src
 
 *** Support for viewing images
@@ -1906,6 +1896,15 @@ I didn't get this to work.
   (defun org-src-turn-on-multi-mode ()
     (setq multi-chunk-fns
           (list org-src-get-block-info-for-multi-mode)))
+#+end_src
+
+*** Two-mode mode
+#+begin_src emacs-lisp :tangle no
+  (setq default-mode (list "org-mode" 'org-mode))
+  (setq second-modes '(("python" "#+begin_src python" "#+end_src" python-mode)
+                         ("emacs-lisp" "#+begin_src emacs-lisp" "#+end_src" emacs-lisp-mode)
+                         ("ess" "#+begin_src R" "#+end_src" ess-mode)
+                         ))
 #+end_src
 
 *** Org-noweb
