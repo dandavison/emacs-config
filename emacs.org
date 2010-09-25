@@ -397,13 +397,6 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+begin_src emacs-lisp :tangle no
   (require 'saveplace)
   (setq-default save-place t)
-
-  (add-hook 'org-mode-hook
-            (lambda ()
-              (when (outline-invisible-p)
-                (save-excursion
-                  (outline-previous-visible-heading 1)
-                  (org-show-subtree)))))
 #+end_src
 * Modules
 ** Load path
@@ -1039,6 +1032,15 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 
   ;; Targets complete in steps so we start with filename, TAB shows the next level of targets etc
   (setq org-outline-path-complete-in-steps t)
+  
+  
+  ;; was near saveplace code; not sure whether helpful
+  (add-hook 'org-mode-hook
+            (lambda ()
+              (when (outline-invisible-p)
+                (save-excursion
+                  (outline-previous-visible-heading 1)
+                  (org-show-subtree)))))
 #+end_src
 
 *** Appearance
