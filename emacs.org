@@ -2403,14 +2403,6 @@ I didn't get this to work.
   ;; (add-hook 'pre-command-hook 'eldoc-pre-command-refresh-echo-area t)
   ;; (setq eldoc-timer [nil 1000000 0 500000 t eldoc-print-current-symbol-info nil t]) ;;
 #+end_src
-** Gnus go to next article
-#+begin_src emacs-lisp
-  (defun dan/gnus-article-goto-next-article ()
-    (interactive)
-    (with-current-buffer gnus-summary-buffer
-      (gnus-summary-goto-article (gnus-summary-next-article))))
-#+end_src
-
 ** Current line and column
 #+begin_src emacs-lisp
   (defun dan/current-column-line (&optional arg)
