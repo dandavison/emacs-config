@@ -575,7 +575,17 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+end_src
 *** Eshell
 #+begin_src emacs-lisp
-  (setq eshell-banner-message "")
+  (defun dan/eshell-mode-hook-fun ()
+    (setenv "PATH"
+            (concat
+             (concat (getenv "HOME") "/bin")
+             path-separator
+             (getenv "PATH"))))
+
+  (add-hook 'eshell-mode-hook 'dan/eshell-mode-hook-fun)
+
+  (setq eshell-banner-message ""
+        eshell-scroll-show-maximum-output nil)
 #+end_src
 *** ESS
 #+begin_src emacs-lisp
