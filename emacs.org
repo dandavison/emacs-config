@@ -2000,6 +2000,7 @@ I didn't get this to work.
                  ("\C-cr" . replace-regexp)
                  ("\C-cs" . search-forward-symbol-at-point)
                  ("\C-cv" . revert-buffer)
+                 ("\C-c)" . blink-matching-open)
                  ("\C-\M-g" . lgrep)
                  ([(control next)] . end-of-buffer)
                  ([(control prior)] . beginning-of-buffer)
