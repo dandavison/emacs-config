@@ -986,6 +986,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   (require 'magit)
   (setq egg-enable-tooltip t)
   (setq magit-save-some-buffers nil)
+  (setq magit-process-popup-time 1)
 #+end_src
 ** Misc
 #+begin_src emacs-lisp
