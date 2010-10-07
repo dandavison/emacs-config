@@ -158,8 +158,6 @@
           (add-to-list 'completion-ignored-extensions extension))
           dan/ignored-extensions)
   (require 'ido)
-  (ido-mode +1) ;; (iswitchb-mode t)
-  (setq ido-separator " ")
 
   ;; As regexps, these should really have terminal $
   (mapc (lambda (extension)
@@ -2459,6 +2457,9 @@ I didn't get this to work.
    (dan/set-show-paren-style)
   (require 'server)
   (unless (server-running-p) (server-start))
+
+  (ido-mode +1)
+  (setq ido-separator " ")
   (eshell)
 #+end_src
 
