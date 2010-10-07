@@ -641,6 +641,9 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+end_src
 
 **** Add R builtins to font lock
+     :PROPERTIES:
+     :tangle: no
+     :END:
 
 #+source: R-builtins
 #+begin_src R
