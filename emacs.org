@@ -2038,6 +2038,14 @@ I didn't get this to work.
   (dan/register-key-bindings
    '(ctl-x-4-map . (("t" . toggle-window-split))))
 #+end_src
+*** Dired
+#+begin_src emacs-lisp
+  (dan/register-key-bindings
+   '("dired" .
+     (([(left)] . dired-up-directory)
+      ([(right)] . dired-find-file))))
+#+end_src
+
 *** Elisp
 #+begin_src emacs-lisp
   (dan/register-key-bindings
