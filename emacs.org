@@ -1958,7 +1958,8 @@ I didn't get this to work.
 #+begin_src emacs-lisp
   (dan/register-key-bindings
         '(global-map .
-                 (("\C-x\C-b" . org-buffers-list)
+                (("\C-x\C-b" . org-buffers-list)
+                 ("\C-x\C-f" . dan/find-file)
                  ("\C-ca" . org-agenda)
                  ("\C-cb" . org-iswitchb)
                  ("\C-n" . dan/next-line-and-indent)
@@ -2418,6 +2419,25 @@ I didn't get this to work.
   (interactive "P")
   (call-interactively
    (if arg 'find-library 'find-function)))
+#+end_src
+
+** Find file
+#+begin_src emacs-lisp
+  ;; based on starter-kit-defuns
+  (defun dan/recentf-ido-find-file ()
+    "Find a recent file using ido."
+    (interactive)
+    (let* ((alist
+            (mapcar (lambda (f) (cons (file-name-nondirectory f) f))
+                    recentf-list))
+           (file (ido-completing-read "Find file: " (mapcar 'car alist) nil t)))
+      (when file
+        (find-file (cdr (assoc file alist))))))
+
+  (defun dan/find-file (&optional arg)
+    (interactive "P")
+    (call-interactively
+     (if arg 'ido-find-file 'dan/recentf-ido-find-file)))
 #+end_src
 
 ** Show all in all buffers
