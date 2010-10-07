@@ -1542,6 +1542,11 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 (org-fireforg-registry-insinuate)
 #+end_src
 
+*** Inline images
+#+begin_src emacs-lisp
+(setq org-startup-with-inline-images t)
+#+end_src
+
 *** Support for viewing images
 I think all the below is obsolete since Carsten worked on
 this. see :tangle no below and in font-lock tree
