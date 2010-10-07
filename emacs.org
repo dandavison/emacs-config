@@ -598,6 +598,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 
 #+end_src
 *** ESS
+**** Misc
 #+begin_src emacs-lisp
   (add-to-list 'load-path "/usr/local/src/emacs/ess/lisp")
   (require 'ess-site)
