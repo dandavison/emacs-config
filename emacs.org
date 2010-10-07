@@ -195,7 +195,7 @@
   ;; (desktop-save-mode t)
   ;; (display-battery-mode t)
   (global-auto-revert-mode t)
-  ;; (setq global-auto-revert-mode-text "")
+  (setq auto-revert-interval 1)
 #+end_src
 *** Elisp programming
 #+srcname: name
