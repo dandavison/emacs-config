@@ -586,6 +586,16 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 
   (setq eshell-banner-message ""
         eshell-scroll-show-maximum-output nil)
+
+  (setq eshell-input-filter
+        (lambda (str)
+          (not
+           (or
+            ;; The default: don't store all whitespace
+            (string-match "\\`\\s-*\\'" str)
+            ;; Don't store consecutive identical input
+            (string= str (nth 0 (ring-elements eshell-history-ring)))))))
+
 #+end_src
 *** ESS
 #+begin_src emacs-lisp
