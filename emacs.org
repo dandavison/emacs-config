@@ -1102,6 +1102,11 @@ http://www.emacswiki.org/emacs/TransparentEmacs
     See also [[mairix:t:@@20524da70908071211y4aeb4c0se9a465e2ebe27a8f@mail.gmail.com][Email from Samuel Wales: {Orgmode} Arrow + RET navigati]]
 
 **** Speed commands
+***** Turn on
+#+begin_src emacs-lisp
+  (setq org-use-speed-commands t)
+#+end_src
+***** My speed commands
 #+begin_src emacs-lisp :tangle no
   (defun dan/org-show-next-heading-tidily ()
     "Show next entry, keeping other entries closed."
@@ -1130,7 +1135,6 @@ http://www.emacswiki.org/emacs/TransparentEmacs
       (org-show-entry)
       (show-children)))
 
-  (setq org-use-speed-commands t)
   (add-to-list 'org-speed-commands-user
                '("n" dan/org-show-next-heading-tidily))
   (add-to-list 'org-speed-commands-user
