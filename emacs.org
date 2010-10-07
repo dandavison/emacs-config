@@ -1060,8 +1060,8 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 
   ;; Targets complete in steps so we start with filename, TAB shows the next level of targets etc
   (setq org-outline-path-complete-in-steps t)
-  
-  
+
+
   ;; was near saveplace code; not sure whether helpful
   (add-hook 'org-mode-hook
             (lambda ()
