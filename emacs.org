@@ -286,7 +286,7 @@
                         :foreground
                         (face-attribute 'default :background))
     (font-lock-fontify-buffer))
-  
+
   (defun dan/set-show-paren-style ()
     (interactive)
     (setq show-paren-delay .125)
@@ -583,30 +583,30 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+begin_src emacs-lisp
   (add-to-list 'load-path "/usr/local/src/emacs/ess/lisp")
   (require 'ess-site)
-  
+
   ;; (require 'ess-eldoc)
-  
+
   ;; (setq ess-ask-for-ess-directory nil)
   (setq inferior-R-args "--no-save --no-restore-data --silent")
   (setq safe-local-variable-values '((noweb-default-code-mode . R-mode) (outline-minor-mode)))
   (autoload 'noweb-mode "noweb-mode" "Editing noweb files." t) ;; see noweb-mode.el in ESS;
   (setq auto-mode-alist (append (list (cons "\\.nw$" 'noweb-mode))
                                 auto-mode-alist))
-  
+
   ;; (defun dan/ess-and-iess-mode-hook ()
   ;;   (setq ess-function-template " <- function() {\n\n}\n")
   ;;   (mapc (lambda (pair) (local-set-key (car pair) (cdr pair)))
   ;;        dan/ess-and-iess-keybindings))
-  
+
   (defun dan/ess-mode-hook ()
     (ess-set-style 'C++))
-  
+
   ;; (add-hook 'ess-mode-hook 'dan/ess-and-iess-mode-hook)
   ;; (add-hook 'inferior-ess-mode-hook 'dan/ess-and-iess-mode-hook)
   (add-hook 'ess-mode-hook 'dan/ess-mode-hook)
-  
+
   (setq ess-eval-visibly-p t)
-  
+
   ;;                                 DEF GNU BSD K&R C++
   ;; ess-indent-level                  2   2   8   5   4
   ;; ess-continued-statement-offset    2   2   8   5   4
@@ -615,7 +615,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   ;; ess-expression-offset             4   2   8   5   4
   ;; ess-else-offset                   0   0   0   0   0
   ;; ess-close-brace-offset            0   0   0   0   0
-  
+
   (defun dan/ess-execute-command-on-region (cmd)
     (interactive "sEnter function name: \n")
     (ess-execute
@@ -798,7 +798,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 
     (add-hook 'gnus-summary-prepared-hook
               (lambda () (end-of-buffer) (forward-line -1))))
-  
+
   (setq gnus-thread-sort-functions
         '(gnus-thread-sort-by-number
           gnus-thread-sort-by-most-recent-date))
@@ -1021,7 +1021,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 *** Misc
 #+begin_src emacs-lisp
   (setq org-hide-block-startup nil)
-  
+
   ;; (setq org-startup-folded nil)
   ;;* refiling
   ;; http://doc.norang.ca/org-mode.html#Refiling
@@ -1425,11 +1425,11 @@ http://www.emacswiki.org/emacs/TransparentEmacs
        '(comint eval exp keys lob ref table tangle))
        (lambda (x y) (string< (downcase (symbol-name x))
                          (downcase (symbol-name y))))))
-    
+
     (setq org-babel-load-languages
           (mapcar (lambda (lang) (cons lang t))
                   (dan/org-babel-list-supported-languages)))
-    
+
     (org-babel-do-load-languages
      'org-babel-load-languages org-babel-load-languages)
 
@@ -1727,12 +1727,12 @@ this. see :tangle no below and in font-lock tree
      [[gnus:nntp%2Bnews.gmane.org:gmane.emacs.orgmode#87eicxzkdw.fsf@archdesk.localdomain][Email from Matt Lundin: Re: Search files in a folder]]
 #+begin_src emacs-lisp
   (defun ml/org-grep (search &optional context)
-    "Search for word in org files. 
+    "Search for word in org files.
 
 Prefix argument determines number of lines."
     (interactive "sSearch for: \nP")
     (let ((grep-find-ignored-files '("#*" ".#*"))
-	  (grep-template (concat "grep <X> -i -nH " 
+	  (grep-template (concat "grep <X> -i -nH "
 				 (when context
 				   (concat "-C" (number-to-string context)))
 				 " -e <R> <F>")))
@@ -1948,7 +1948,7 @@ I didn't get this to work.
       bindings-alist
       (dan/assoc-delete-all (car bindings-alist) dan/key-bindings)))
     (dan/set-key-bindings))
-    
+
   (add-hook 'after-change-major-mode-hook
             (lambda ()
               (local-set-key [delete] 'winner-undo)
@@ -2444,9 +2444,9 @@ I didn't get this to work.
    ;; temp hack to make w3m work with emacs23
    ;; (require 'w3m-e21)
    ;; (provide 'w3m-e23))
-  
+
    ;; (org-fireforg-registry-initialize t)
-  
+
    (nnmairix-update-database)
    (dan/set-key-bindings)
    (if nil
