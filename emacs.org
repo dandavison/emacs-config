@@ -559,6 +559,10 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 (require 'texinfo)
 #+end_src
 
+*** Plantuml
+    #+begin_src emacs-lisp
+    (require 'plantuml-mode)
+    #+end_src
 *** Python
 #+begin_src emacs-lisp
   ;; (require 'ipython)
