@@ -1962,13 +1962,12 @@ I didn't get this to work.
   \"-mode-map\" is appended to it when finding the mode-map. If it
   is a symbol, it is used as is.")
 
-  (defun dan/set-key-bindings ()
+  (defun dan/set-key-bindings (&optional mode-map)
     (interactive)
     (mapc (lambda (pair)
             (let* ((map (car pair)) (bindings (cdr pair)))
               (if (stringp map) (setq map (intern (concat map "-mode-map"))))
               (mapc (lambda (binding) (define-key (eval map) (car binding) (cdr binding))) bindings)))
-          dan/key-bindings))
 
   (defun dan/assoc-delete-all (key alist)
     "Like `assq-delete-all' but using `equal' for comparison"
@@ -1992,6 +1991,7 @@ I didn't get this to work.
               (local-set-key [(super right)] 'winner-redo)))
 #+end_src
 ** bindings
+          (or (and mode-map `(,(assoc mode-map dan/key-bindings))) dan/key-bindings)))
 *** global
 #+begin_src emacs-lisp
   (dan/register-key-bindings
