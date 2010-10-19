@@ -1019,6 +1019,12 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   (setq minimal-mode-line-inactive-background "dim grey")
 #+end_src
 
+** Tramp
+#+begin_src emacs-lisp
+(require 'tramp-sh)
+(setq tramp-remote-path (append tramp-remote-path (list "~/bin")))
+#+end_src
+
 ** Yasnippet
 #+begin_src emacs-lisp
   (add-to-list 'load-path "/usr/local/src/emacs/yasnippet")
