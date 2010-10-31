@@ -2064,7 +2064,8 @@ I didn't get this to work.
             (let* ((map (car pair)) (bindings (cdr pair)))
               (if (stringp map) (setq map (intern (concat map "-mode-map"))))
               (mapc (lambda (binding) (define-key (eval map) (car binding) (cdr binding))) bindings)))
-
+          (or (and mode-map `(,(assoc mode-map dan/key-bindings))) dan/key-bindings)))
+  
   (defun dan/assoc-delete-all (key alist)
     "Like `assq-delete-all' but using `equal' for comparison"
     (delq nil
@@ -2079,15 +2080,14 @@ I didn't get this to work.
       bindings-alist
       (dan/assoc-delete-all (car bindings-alist) dan/key-bindings)))
     (dan/set-key-bindings))
-
+  
   (add-hook 'after-change-major-mode-hook
             (lambda ()
               (local-set-key [delete] 'winner-undo)
               (local-set-key [(super left)] 'winner-undo)
               (local-set-key [(super right)] 'winner-redo)))
 #+end_src
-** bindings
-          (or (and mode-map `(,(assoc mode-map dan/key-bindings))) dan/key-bindings)))
+** Bindings
 *** global
 #+begin_src emacs-lisp
   (dan/register-key-bindings
