@@ -716,7 +716,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   (require 'gnus-load)
 
   (require 'nnmairix)
-  (setq user-mail-address "davison@stats.ox.ac.uk") ;; dandavison7@gmail.com
+  (setq user-mail-address "dandavison7@gmail.com")
   (setq user-full-name "Dan Davison")
 
   (setq gnus-select-method
