@@ -219,7 +219,6 @@
   (setq x-alt-keysym 'meta)
   (setq backup-inhibited t)
   (setq font-lock-verbose nil)
-  (set-default 'show-trailing-whitespace t)
 
   ;; (visit-tags-table tags-file-name)
   ;; (setq font-lock-always-fontify-immediately t) where did I get that from?
@@ -268,7 +267,9 @@
   ;; This doesn't work with org-src-mode code buffers as their
   ;; buffer-file-name doesn't correspond to a file
   ;; (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
-  (add-hook 'before-save-hook 'delete-trailing-whitespace)
+  
+  ;; This is perhaps a little irritating with collaborative projects
+  ;; (add-hook 'before-save-hook 'delete-trailing-whitespace)
 #+end_src
 ** Appearance
 #+begin_src emacs-lisp
