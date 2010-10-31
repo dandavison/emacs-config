@@ -1112,6 +1112,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 *** Basics
 #+begin_src emacs-lisp
   (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
+  (require 'org-inlinetask)
 #+end_src
 *** Misc
 #+begin_src emacs-lisp
