@@ -809,7 +809,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
    send-mail-function 'sendmail-send-it ;; generates properly-formed email and sends it with
    sendmail-program "~/bin/sendmail-dan" ;; passes email over ssh to remote sendmail in Oxford
    gnus-message-archive-group "nnimap+dc:email" ;; save outgoing mail into my default mail box
-   gnus-gcc-mark-as-read t)
+   gnus-gcc-mark-as-read nil) ;; Sent mail appears as unread in my inbox
 #+end_src
 
 *** Group buffer
