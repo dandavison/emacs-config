@@ -1095,20 +1095,19 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   (yas/initialize)
   (yas/load-directory "/usr/local/src/emacs/yasnippet/snippets")
   (yas/load-directory "/usr/local/src/emacs/Worg/org-contrib/babel/snippets")
-#+end_src
+  (yas/load-directory "/usr/local/src/emacs/yasnippet-ess")
 
+  (defun dan/yas-tab-setup ()
+    ;; Initially by Eric for Org-mode hook
+    (make-variable-buffer-local 'yas/trigger-key)
+    (setq yas/trigger-key [tab])
+    (define-key yas/keymap [tab] 'yas/next-field-group))
+#+end_src
 ** Org
 *** Hook
 #+begin_src emacs-lisp
-  (defun dan/org-mode-hook-function ()
-    ;; yasnippet
-    (make-variable-buffer-local 'yas/trigger-key)
-    (setq yas/trigger-key [tab])
-    (define-key yas/keymap [tab] 'yas/next-field-group)
-    ;; (org-indent-mode t)
-    )
-
-  (add-hook 'org-mode-hook 'dan/org-mode-hook-function)
+  ;; (org-indent-mode t)
+  (add-hook 'org-mode-hook 'dan/yas-tab-setup)
 #+end_src
 *** Basics
 #+begin_src emacs-lisp
