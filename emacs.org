@@ -1084,7 +1084,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 
 ** Tramp
 #+begin_src emacs-lisp
-(require 'tramp-sh)
+(require 'tramp) (condition-case nil (require 'tramp-sh) (error nil))
 (setq tramp-remote-path (append tramp-remote-path (list "~/bin")))
 #+end_src
 
