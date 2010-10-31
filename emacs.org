@@ -1542,6 +1542,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
      'org-babel-load-languages org-babel-load-languages)
 
     (setq swank-clojure-binary "/usr/bin/clojure")
+  (setq org-babel-js-cmd "nodejs")
 #+end_src
 **** Variables
 #+begin_src emacs-lisp
