@@ -1404,6 +1404,10 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   ;; </style>")
 #+end_src
 **** Latex
+***** General
+#+begin_src emacs-lisp
+(setq org-latex-to-pdf-process '("rubber -d --into %o %f"))
+#+end_src
 ***** Latex export hook
       [[mairix:t:@@87iq7fy0q0.fsf@totally-fudged-out-message-id][Email from Dan Davison: Re: {Orgmode} export-latex-fin]]
 #+begin_src emacs-lisp :tangle no
