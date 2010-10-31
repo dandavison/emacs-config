@@ -822,6 +822,32 @@ http://www.emacswiki.org/emacs/TransparentEmacs
      (t (not (gnus-group-sort-by-alphabet info1 info2)))))
 
   (setq gnus-group-sort-function 'dan/gnus-group-sort)
+  (add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
+  (add-hook 'gnus-group-mode-hook 'dan/yas-tab-setup)
+  (add-hook 'gnus-group-mode-hook 'yas/minor-mode-off)
+  (setq gnus-group-uncollapsed-levels 2)
+#+end_src
+
+**** Topics
+#+begin_src emacs-lisp
+  ;; Create three face types.
+  (setq gnus-face-1 'bold)
+  (setq gnus-face-3 'italic)
+  
+  ;; We want the article count to be in
+  ;; a bold and green face.  So we create
+  ;; a new face called `my-green-bold'.
+  (copy-face 'bold 'my-green-bold)
+  (copy-face 'bold 'my-blue-bold)
+  ;; Set the color.
+  (set-face-foreground 'my-green-bold "ForestGreen")
+  (set-face-foreground 'my-blue-bold "LightSeaGreen")
+  (setq gnus-face-2 'my-green-bold)
+  (setq gnus-face-4 'my-blue-bold)
+  
+  ;; Set the new & fancy format.
+  (setq gnus-topic-line-format "%i%2{* %n%} [%A]%v\n"
+        gnus-group-line-format "%P%p%5y:%B%4{%c%}\n")  ;; %M%S%p%P%5y:%B%(%g%)%O\n
 #+end_src
 
 *** Summary buffer
