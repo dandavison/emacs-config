@@ -1497,6 +1497,10 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 
   (setq org-src-ask-before-returning-to-edit-buffer nil)
 #+end_src
+**** Library of Babel
+#+begin_src emacs-lisp
+(org-babel-lob-ingest "~/org-mode/contrib/babel/library-of-babel.org")
+#+end_src
 **** Hide block and switch to edit buffer
 #+begin_src emacs-lisp
   (defun dan/org-hide-block-and-switch-to-code-buffer ()
