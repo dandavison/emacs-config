@@ -1020,6 +1020,33 @@ http://www.emacswiki.org/emacs/TransparentEmacs
         (fill-paragraph)
         (widen))))
 #+end_src
+*** Atom2RSS
+    :PROPERTIES:
+    :tangle: no
+    :END:
+
+#+begin_src emacs-lisp
+  (require 'mm-url)
+
+  (defvar dan/atom2rss-file "/usr/local/src/atom2rss.xsl"
+    "Location of atom2rss.xsl")
+
+  (defadvice mm-url-insert (after DE-convert-atom-to-rss () )
+    "Converts atom to RSS by calling xsltproc."
+    (when (re-search-forward "xmlns=\"http://www.w3.org/.*/Atom\""
+                             nil t)
+      (goto-char (point-min))
+      (message "Converting Atom to RSS... ")
+      (call-process-region (point-min) (point-max)
+                           "xsltproc"
+                           t t nil
+                           (expand-file-name dan/atom2rss-file) "-")
+      (goto-char (point-min))
+      (message "Converting Atom to RSS... done")))
+
+  (ad-activate 'mm-url-insert)
+#+end_src
+
 ** Magit
 #+begin_src emacs-lisp
   (add-to-list 'load-path "/usr/local/src/emacs/magit")
