@@ -2094,6 +2094,7 @@ I didn't get this to work.
         '(global-map .
                 (("\C-x\C-b" . org-buffers-list)
                  ("\C-x\C-f" . dan/find-file)
+                 ("\C-x\M-f" . find-file-at-point)
                  ("\C-ca" . org-agenda)
                  ("\C-cb" . org-iswitchb)
                  ("\C-n" . dan/next-line-and-indent)
@@ -2146,7 +2147,9 @@ I didn't get this to work.
 *** Ctrl-x-4
 #+begin_src emacs-lisp
   (dan/register-key-bindings
-   '(ctl-x-4-map . (("t" . toggle-window-split))))
+   '(ctl-x-4-map .
+                 (("t" . toggle-window-split)
+                  ("s" . dan/switch-windows))))
 #+end_src
 *** Dired
 #+begin_src emacs-lisp
@@ -2181,13 +2184,23 @@ I didn't get this to work.
 #+end_src
 *** Gnus
 #+begin_src emacs-lisp
-  (dan/register-key-bindings
-   '("gnus-summary" .
-     (("\C-d" . dan/gnus-summary-delete-article))))
+    (dan/register-key-bindings
+     '("gnus-summary" .
+       (("\C-d" . dan/gnus-summary-delete-article))))
 
-  (dan/register-key-bindings
-   '("gnus-article" .
-     (("\C-n" . dan/gnus-article-goto-next-article))))
+    (require 'gnus-topic) ;; in order that mode-map exists
+
+    (dan/register-key-bindings
+     '("gnus-topic" .
+       (([tab] . gnus-topic-select-group)
+        ([(meta right)] . gnus-topic-indent)
+        ([(meta left)] . gnus-topic-unindent))))
+
+
+
+    (dan/register-key-bindings
+     '("gnus-article" .
+       (("\C-n" . dan/gnus-article-goto-next-article))))
 #+end_src
 *** Latex
 #+begin_src emacs-lisp
