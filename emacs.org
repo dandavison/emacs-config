@@ -1446,6 +1446,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 
 **** HTML
 *** Src
+**** General
 #+begin_src emacs-lisp
   (defun dan/org-src-mode-hook ()
     (save-excursion
@@ -1457,6 +1458,8 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   (add-hook 'org-src-mode-hook 'dan/org-src-mode-hook)
 
   (add-hook 'org-src-mode-hook
+            ;; Note this is a poor choice of key for an org-src buffer
+            ;; displaying an Org block
             (lambda () (define-key org-src-mode-map "\C-c\C-v"
                          'org-src-do-key-sequence-at-code-block)))
 
@@ -1726,6 +1729,7 @@ this. see :tangle no below and in font-lock tree
 :PROPERTIES:
 :ID: 6fde328d-fb5a-4d28-a9ec-8b82e51b5d82
 :END:
+**** Old
 #+begin_src emacs-lisp :tangle no
 
 
