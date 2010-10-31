@@ -726,8 +726,8 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 
   (setq gnus-secondary-select-methods
         '((nntp "news.gmane.org")
-          (nntp "news.eternal-september.org")))
-
+          (nntp "news.eternal-september.org")
+          (nntp "news.gwene.org")))
   (setq gnus-save-newsrc-file nil)
   (setq gnus-play-startup-jingle t)
   (setq gnus-novice-user nil)
