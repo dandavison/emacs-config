@@ -1405,7 +1405,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 **** Latex
 ***** Latex export hook
       [[mairix:t:@@87iq7fy0q0.fsf@totally-fudged-out-message-id][Email from Dan Davison: Re: {Orgmode} export-latex-fin]]
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (defun  dan/push-latex-to-odt ()
     "Convert exported .text to .odt and open in openoffice."
     (let* ((file-name (file-name-sans-extension (buffer-name)))
@@ -1425,9 +1425,9 @@ http://www.emacswiki.org/emacs/TransparentEmacs
       (message cmd)
       (start-process-shell-command
        "latex" output-buffer cmd)))
-
-  ;; (add-hook 'org-export-latex-after-save-hook
-  ;;           'dan/compile-latex)
+  
+  (add-hook 'org-export-latex-after-save-hook
+            'dan/compile-latex)
 #+end_src
 
 ***** Listings
