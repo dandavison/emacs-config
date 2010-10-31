@@ -733,6 +733,10 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   (setq gnus-novice-user nil)
   (setq gnus-expert-user t)
 
+  
+  (add-hook 'gnus-after-exiting-gnus-hook
+            (lambda () (kill-buffer "*Group*")))
+  
   ;; (setq gnus-always-read-dribble-file t) TMP
 
   ;; ;; (mail-source-delete-incoming t)
