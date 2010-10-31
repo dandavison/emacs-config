@@ -2633,6 +2633,7 @@ I didn't get this to work.
         scroll-step                     0)
 
   (setq org-src-fontify-natively t)
+  (setq x-select-enable-primary t)
 #+end_src
 
 ** Redefine message
