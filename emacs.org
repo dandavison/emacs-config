@@ -397,6 +397,11 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   (require 'saveplace)
   (setq-default save-place t)
 #+end_src
+** VC
+#+begin_src emacs-lisp
+(setq vc-follow-symlinks t)
+#+end_src
+
 * Modules
 ** Load path
 #+begin_src emacs-lisp
