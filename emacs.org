@@ -718,12 +718,12 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   (require 'nnmairix)
   (setq user-mail-address "dandavison7@gmail.com")
   (setq user-full-name "Dan Davison")
-
+  
   (setq gnus-select-method
         '(nnimap "dc"
                  (nnimap-address "localhost")
                  (nnimap-authinfo-file "~/config/email/authinfo")))
-
+  
   (setq gnus-secondary-select-methods
         '((nntp "news.gmane.org")
           (nntp "news.eternal-september.org")
@@ -732,71 +732,71 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   (setq gnus-play-startup-jingle t)
   (setq gnus-novice-user nil)
   (setq gnus-expert-user t)
-
+  
   
   (add-hook 'gnus-after-exiting-gnus-hook
             (lambda () (kill-buffer "*Group*")))
   
   ;; (setq gnus-always-read-dribble-file t) TMP
-
+  
   ;; ;; (mail-source-delete-incoming t)
   ;;------------------------------------------------------------------------------------------
   ;;;
   ;;; Misc
   ;;;
   ;; http://people.orangeandbronze.com/~jmibanez/dotgnus.el
-
+  
   ;; w3m absent on dell, atm
   ;; (require 'w3m-load)
   ;; (setq mm-text-html-renderer 'w3m)
   ;; (setq mm-text-html-renderer 'html2text)
-
+  
   ;; http://flash.metawaredesign.co.uk/2/.gnus
   ;; (add-hook 'gnus-group-mode-hook 'color-theme-charcoal-black)
-
+  
   ;;(setq gnus-read-active-file nil)
   ;;(setq gnus-check-new-newsgroups nil)
-
-
+  
+  
   ;; trying to get rid of duplicates don't know why they occur -- seems
   ;; that repeated downloads from server sometimes gets previously
   ;; downloaded messages
   ;; (setq gnus-suppress-duplicates nil)
   ;; (setq nnmail-treat-duplicates nil)
   ;; (setq gnus-summary-ignore-duplicates t)
-
-
+  
+  
   ;;
   ;;-----------------------------------------------------------------------------------------
-
-
+  
+  
   ;;;
   ;;; Expiry
   ;;;
   ;; http://www.xemacs.org/Links/tutorials_3.html
   ;; turn off expiry
   (remove-hook 'gnus-summary-prepare-exit-hook 'gnus-summary-expire-articles)
-
+  
   ;; http://flash.metawaredesign.co.uk/2/.gnus
   ;; Don't make email expirable by default
   (remove-hook 'gnus-mark-article-hook
                'gnus-summary-mark-read-and-unread-as-read)
   ;; (add-hook 'gnus-mark-article-hook 'gnus-summary-mark-unread-as-read) ;; don't get it
-
+  
   ;; Only mails in these groups will expire, meaning they'll be deleted after a
   ;; week so long as I've read them.
   (setq gnus-auto-expirable-newsgroups nil)
   ;; "junk\\|forums\\|gentoo-announce\\|bradsucks\\|bots\\|system\\|nnrss:.*")
-
+  
   ;; But when I mark stuff as expireable, delete it immediately
-
+  
   ;; (setq nnmail-expiry-wait 'immediate) ;;TMP
-
+  
   ;; TMP
   ;; (setq gnus-parameters
   ;;       '((".*INBOX.*"
   ;;          (expiry-wait . 'immediate))))
-
+  
   ;;
   ;;------------------------------------------------------------------------------------------
   ;;;
@@ -2661,23 +2661,23 @@ I didn't get this to work.
 
 * Start-up
 #+begin_src emacs-lisp
-   ;;(when (string-match "^23\.*" emacs-version)
-   ;; temp hack to make w3m work with emacs23
-   ;; (require 'w3m-e21)
-   ;; (provide 'w3m-e23))
-
-   ;; (org-fireforg-registry-initialize t)
-
-   (nnmairix-update-database)
-   (dan/set-key-bindings)
-   (if nil
-       (org-agenda-list)
-     (delete-other-windows))
-   (color-theme-initialize)
-   (color-theme-charcoal-black)
-   (set-face-attribute 'default nil :height 110 :family "DejaVu Sans Mono")
-   (dan/sanitise-faces)
-   (dan/set-show-paren-style)
+  ;;(when (string-match "^23\.*" emacs-version)
+  ;; temp hack to make w3m work with emacs23
+  ;; (require 'w3m-e21)
+  ;; (provide 'w3m-e23))
+  
+  ;; (org-fireforg-registry-initialize t)
+  
+  (nnmairix-update-database)
+  (dan/set-key-bindings)
+  (if nil
+      (org-agenda-list)
+    (delete-other-windows))
+  (color-theme-initialize)
+  (color-theme-charcoal-black)
+  (set-face-attribute 'default nil :height 110 :family "DejaVu Sans Mono")
+  (dan/sanitise-faces)
+  (dan/set-show-paren-style)
   (require 'server)
   (unless (server-running-p) (server-start))
 
