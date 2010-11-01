@@ -910,6 +910,13 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   (defun gnus-user-format-function-z (x)
     (propertize "hello" 'face '(:foreground "red")))
 #+end_src
+*** Posting styles
+#+begin_src emacs-lisp
+  (setq gnus-posting-styles
+        '(((header "from" "@counsyl\.com")
+           (address "davison@counsyl.com"))))
+#+end_src
+
 *** Org-mode code block fontification
 Correctly fontify Org-mode attachments
 [[gnus:nntp%2Bnews.gmane.org:gmane.emacs.orgmode#874oc2z2uv.fsf@gmail.com][Email from Eric Schulte: Re: Re: Enhancing the Org/Gnus]]
