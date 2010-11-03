@@ -2054,8 +2054,12 @@ by Vitalie S.
 #+end_src
 
 ** Multiple major modes
+   :PROPERTIES:
+   :tangle: no
+   :END:
+   
 *** Mumamo
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (load "/usr/local/src/emacs/nxhtml/autostart.el")
 (require 'mumamo)
 (add-hook 'org-mumamo-mode-hook (lambda () (mumamo-no-chunk-coloring +1)))
