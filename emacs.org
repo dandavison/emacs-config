@@ -2205,6 +2205,7 @@ I didn't get this to work.
 #+end_src
 *** Dired
 #+begin_src emacs-lisp
+  (require 'dired)
   (dan/register-key-bindings
    '("dired" .
      (([(left)] . dired-up-directory)
