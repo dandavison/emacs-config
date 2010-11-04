@@ -2685,7 +2685,7 @@ I didn't get this to work.
   (dan/set-show-paren-style)
   (require 'server)
   (unless (server-running-p) (server-start))
-
+  (nconc default-frame-alist '((cursor-type . bar)))
   (ido-mode +1)
   (setq ido-separator " ")
   (eshell)
