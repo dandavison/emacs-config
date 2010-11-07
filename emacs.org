@@ -490,18 +490,6 @@
             (lambda () (dan/set-up-outline-minor-mode "\\( *def \\|if \\|class \\|##\\)")))
   (add-hook 'bibtex-mode-hook
             (lambda () (dan/set-up-outline-minor-mode "@")))
-
-  ;; It's possible I should be using outline-magic
-  ;; This is the configuration recommended outline-magic.el
-  ;;
-  ;; (add-hook 'outline-mode-hook
-  ;;           (lambda ()
-  ;;             (require 'outline-cycle)))
-
-  ;; (add-hook 'outline-minor-mode-hook
-  ;;           (lambda ()
-  ;;             (require 'outline-magic)
-  ;;             (define-key outline-minor-mode-map [(f10)] 'outline-cycle)))
 #+end_src
 ** Completion
 #+begin_src emacs-lisp :tangle no
