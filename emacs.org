@@ -1,4 +1,17 @@
 * My functions
+** Set executable paths
+#+begin_src emacs-lisp
+  (defun dan/set-executable-paths ()
+    (interactive)
+    (let ((bin (concat (getenv "HOME") "/" "bin")))
+      (setenv "PATH"
+              (concat
+               bin
+               path-separator
+               (getenv "PATH")))
+    (setq exec-path (append exec-path (list bin)))))
+#+end_src
+
 ** Trace functions
 #+begin_src emacs-lisp
   (defun dan/trace-functions (regexp)
@@ -2667,6 +2680,7 @@ I didn't get this to work.
   
   ;; (org-fireforg-registry-initialize t)
   
+  (dan/set-executable-paths)
   (nnmairix-update-database)
   (dan/set-key-bindings)
   (if nil
