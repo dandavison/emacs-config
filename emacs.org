@@ -1037,15 +1037,11 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 
 ** Elpa
 #+begin_src emacs-lisp
-  ;;; This was installed by package-install.el.
-  ;;; This provides support for the package system and
-  ;;; interfacing with ELPA, the package archive.
-  ;;; Move this code earlier if you want to reference
-  ;;; packages in your .emacs.
-  (when
-      (load
-       (expand-file-name "~/.emacs.d/elpa/package.el"))
-    (package-initialize))
+  (let ((elpa-file
+         (expand-file-name "~/.emacs.d/elpa/package.el")))
+    (if (and (file-exists-p elpa-file)
+             (load elpa-file))
+        (package-initialize)))
 #+end_src
 ** Google Maps
 #+begin_src emacs-lisp
