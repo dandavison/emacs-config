@@ -201,7 +201,7 @@
 #+srcname: name
 #+begin_src emacs-lisp
   (setq eval-expression-debug-on-error nil)
-  (setq find-function-C-source-directory "/usr/local/src/emacs/emacs-23.1/src")
+  (setq find-function-C-source-directory "~/lib/emacs/emacs-23.1/src")
 #+end_src
 *** Etc
 #+begin_src emacs-lisp
@@ -312,7 +312,7 @@
            '(org-agenda-date-weekend ((t (:foreground "red"))) t)
            '(org-hide ((((background light)) (:foreground "black")))))
         (progn
-          (add-to-list 'load-path "/usr/local/src/emacs/color-theme-6.6.0")
+          (add-to-list 'load-path "~/lib/emacs/color-theme-6.6.0")
           (require 'color-theme)
           (eval-after-load "color-theme"
             '(progn
@@ -405,7 +405,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 * Modules
 ** Load path
 #+begin_src emacs-lisp
-  (add-to-list 'load-path "/usr/local/src/emacs")
+  (add-to-list 'load-path "~/lib/emacs")
 #+end_src
 ** Buffer lists
 *** Ibuffer
@@ -522,9 +522,9 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 ** Languages
 *** Load path
 #+begin_src emacs-lisp
-  ;; (add-to-list 'load-path "/usr/local/src/emacs/ruby-emacs")
-  (add-to-list 'load-path "/usr/local/src/emacs/gnuplot-mode.0.6.0")
-  (add-to-list 'load-path "/usr/local/src/emacs/matlab")
+  ;; (add-to-list 'load-path "~/lib/emacs/ruby-emacs")
+  (add-to-list 'load-path "~/lib/emacs/gnuplot-mode.0.6.0")
+  (add-to-list 'load-path "~/lib/emacs/matlab")
 #+end_src
 *** Elisp
 #+begin_src emacs-lisp
@@ -610,7 +610,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 *** ESS
 **** Misc
 #+begin_src emacs-lisp
-  (add-to-list 'load-path "/usr/local/src/emacs/ess/lisp")
+  (add-to-list 'load-path "~/lib/emacs/ess/lisp")
   (require 'ess-site)
 
   ;; (require 'ess-eldoc)
@@ -673,13 +673,13 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 
 ** Buffer-join
 #+begin_src emacs-lisp
-  (add-to-list 'load-path "/usr/local/src/emacs/buffer-join")
+  (add-to-list 'load-path "~/lib/emacs/buffer-join")
   ;; (require 'buffer-join)
 #+end_src
 
 ** Color-theme
 #+begin_src emacs-lisp
-  (add-to-list 'load-path "/usr/local/src/emacs/color-theme-6.6.0")
+  (add-to-list 'load-path "~/lib/emacs/color-theme-6.6.0")
   (require 'color-theme)
   ;; (require 'zenburn)
   ;; (require 'color-theme-chocolate-rain)
@@ -699,12 +699,12 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+end_src
 ** Google Maps
 #+begin_src emacs-lisp
-(add-to-list 'load-path "/usr/local/src/emacs/google-maps")
+(add-to-list 'load-path "~/lib/emacs/google-maps")
 (require 'google-maps)
 #+end_src
 ** Google Weather
 #+begin_src emacs-lisp
-(add-to-list 'load-path "/usr/local/src/emacs/google-weather-el")
+(add-to-list 'load-path "~/lib/emacs/google-weather-el")
 (require 'google-weather)
 (require 'org-google-weather)
 #+end_src
@@ -1092,7 +1092,7 @@ Fontify code blocks in the text of messages
 
 ** Magit
 #+begin_src emacs-lisp
-  (add-to-list 'load-path "/usr/local/src/emacs/magit")
+  (add-to-list 'load-path "~/lib/emacs/magit")
   (require 'magit)
   (setq egg-enable-tooltip t)
   (setq magit-save-some-buffers nil)
@@ -1107,7 +1107,7 @@ Fontify code blocks in the text of messages
     (require 'highlight-parentheses)
     (highlight-parentheses-mode)
     (require 'boxquote)
-    ;; (load "/usr/local/src/emacs/nxhtml/autostart.el")
+    ;; (load "~/lib/emacs/nxhtml/autostart.el")
     ;; (load "R-anything-config")
     (require 'ssh)
     ;; (require 'google-search)
@@ -1118,7 +1118,7 @@ Fontify code blocks in the text of messages
 
 ** Minimal
 #+begin_src emacs-lisp
-  (add-to-list 'load-path "/usr/local/src/emacs/minimal")
+  (add-to-list 'load-path "~/lib/emacs/minimal")
   (require 'minimal)
   (minimal-mode t)
   (setq minimal-mode-line-background "sea green")
@@ -1133,12 +1133,12 @@ Fontify code blocks in the text of messages
 
 ** Yasnippet
 #+begin_src emacs-lisp
-  (add-to-list 'load-path "/usr/local/src/emacs/yasnippet")
+  (add-to-list 'load-path "~/lib/emacs/yasnippet")
   (require 'yasnippet)
   (yas/initialize)
-  (yas/load-directory "/usr/local/src/emacs/yasnippet/snippets")
-  (yas/load-directory "/usr/local/src/emacs/Worg/org-contrib/babel/snippets")
-  (yas/load-directory "/usr/local/src/emacs/yasnippet-ess")
+  (yas/load-directory "~/lib/emacs/yasnippet/snippets")
+  (yas/load-directory "~/lib/emacs/Worg/org-contrib/babel/snippets")
+  (yas/load-directory "~/lib/emacs/yasnippet-ess")
 
   (defun dan/yas-tab-setup ()
     ;; Initially by Eric for Org-mode hook
@@ -1829,7 +1829,7 @@ this. see :tangle no below and in font-lock tree
 *** Contrib
 **** Load path
 #+begin_src emacs-lisp
-(add-to-list 'load-path "/usr/local/src/emacs/org-mode/contrib/lisp")
+(add-to-list 'load-path "~/lib/emacs/org-mode/contrib/lisp")
 #+end_src
 **** Htmlize
 #+begin_src emacs-lisp
@@ -1851,7 +1851,7 @@ this. see :tangle no below and in font-lock tree
 *** External
 **** Org-fold
 #+begin_src emacs-lisp :tangle no
-  (add-to-list 'load-path "/usr/local/src/emacs/orgfold")
+  (add-to-list 'load-path "~/lib/emacs/orgfold")
   (add-to-list 'load-path "~/emacs/org-fold")
   (require 'org-fold)
 #+end_src
@@ -1863,7 +1863,7 @@ this. see :tangle no below and in font-lock tree
 
 **** Org-fstree
 #+begin_src emacs-lisp
-  (add-to-list 'load-path "/usr/local/src/emacs/org-fstree")
+  (add-to-list 'load-path "~/lib/emacs/org-fstree")
 #+end_src
 
 *** Etc
@@ -1891,7 +1891,7 @@ this. see :tangle no below and in font-lock tree
 
 **** Search in org source code
 #+begin_src emacs-lisp
-  (setq dan/org-mode-src-dir "/usr/local/src/emacs/org-mode")
+  (setq dan/org-mode-src-dir "~/lib/emacs/org-mode")
 
   (defun dan/org-search-src ()
     "Search for REGEXP in Org-mode source code."
@@ -2021,7 +2021,7 @@ by Vitalie S.
    :END:
 
 #+begin_src emacs-lisp
-  (add-to-list 'load-path "/usr/local/src/emacs/org-buffers")
+  (add-to-list 'load-path "~/lib/emacs/org-buffers")
   (require 'org-buffers)
  (defun dan/set-org-buffers-visibility ()
    (if (org-buffers-state-eq :atom 'heading)
@@ -2044,7 +2044,7 @@ by Vitalie S.
 #+end_src
 ** Smex
 #+begin_src emacs-lisp
-  (add-to-list 'load-path "/usr/local/src/emacs/smex")
+  (add-to-list 'load-path "~/lib/emacs/smex")
   (require 'smex)
   (smex-initialize)
   ;;(global-set-key (kbd "M-x") 'smex)
@@ -2060,14 +2060,14 @@ by Vitalie S.
    
 *** Mumamo
 #+begin_src emacs-lisp :tangle no
-(load "/usr/local/src/emacs/nxhtml/autostart.el")
+(load "~/lib/emacs/nxhtml/autostart.el")
 (require 'mumamo)
 (add-hook 'org-mumamo-mode-hook (lambda () (mumamo-no-chunk-coloring +1)))
 #+end_src
 *** Multi-mode
 I didn't get this to work.
 #+begin_src emacs-lisp :tangle no
-  (add-to-list 'load-path "/usr/local/src/emacs/multi-mode")
+  (add-to-list 'load-path "~/lib/emacs/multi-mode")
   (require 'multi-mode)
 
   (defun org-src-get-block-info-for-multi-mode (pos)
