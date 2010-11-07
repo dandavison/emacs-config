@@ -1481,9 +1481,10 @@ Fontify code blocks in the text of messages
   (add-to-list 'load-path "~/lib/emacs/yasnippet")
   (when (dan/require 'yasnippet)
     (yas/initialize)
-    (yas/load-directory "~/lib/emacs/yasnippet/snippets")
-    (yas/load-directory "~/lib/emacs/Worg/org-contrib/babel/snippets")
-    (yas/load-directory "~/lib/emacs/yasnippet-ess")
+    (mapc (lambda (dir) (if (file-exists-p dir) (yas/load-directory dir)))
+          '("~/lib/emacs/yasnippet/snippets"
+            "~/lib/emacs/Worg/org-contrib/babel/snippets"
+            "~/lib/emacs/yasnippet-ess"))
   
     (defun dan/yas-tab-setup ()
       ;; Initially by Eric for Org-mode hook
