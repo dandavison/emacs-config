@@ -1058,7 +1058,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 ** Gnus
 *** General
 #+begin_src emacs-lisp
-  ;; (add-to-list 'load-path "~/emacs/gnus/lisp")
+  ;; (add-to-list 'load-path "~/lib/emacs/gnus/lisp")
   ;; (dan/require 'gnus-load)
   
   (require 'nnmairix)
@@ -2379,7 +2379,7 @@ by Vitalie S.
   (setq dan/starter-kit-components-all '(bindings defuns eshell lisp misc org perl registers ruby yasnippet))
   (setq dan/starter-kit-components '(defuns))
 
-  (let ((dotfiles-dir "~/emacs/emacs-starter-kit"))
+  (let ((dotfiles-dir "~/lib/emacs/emacs-starter-kit"))
     (mapcar
      'org-babel-load-file
      (mapcar
