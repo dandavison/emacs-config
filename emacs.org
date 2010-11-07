@@ -1,3 +1,360 @@
+
+* My functions
+** Trace functions
+#+begin_src emacs-lisp
+  (defun dan/trace-functions (regexp)
+    "Trace functions with names matching regexp"
+    ;; TODO: read regexp from minibuffer
+    (interactive)
+    (mapc 'trace-function
+          (loop for x being the symbols
+                if (and (fboundp x) (string-match regexp (symbol-name x)))
+                collect x)))
+#+end_src
+
+** Debug on error
+#+begin_src emacs-lisp
+  (defun dan/toggle-debug-on-error ()
+    (interactive)
+    (setq debug-on-error (not debug-on-error)))
+#+end_src
+
+** Revert all elisp buffers
+    #+begin_src emacs-lisp
+      (defun dan/revert-elisp-buffers ()
+        "Revert all elisp buffers"
+        (interactive)
+        (save-excursion
+          (dolist (buf (buffer-list))
+            (set-buffer buf)
+            (if (eq major-mode 'emacs-lisp-mode)
+                (revert-buffer)))))
+    #+end_src
+
+
+#+begin_src emacs-lisp
+  (defun dan/looking-at-string (string)
+    (interactive)
+    (string-equal
+     string
+     (buffer-substring-no-properties (point) (+ (point) (length string)))))
+
+  ;; this doesn't write anything in minibuffer...
+  (defun dan/show-current-font()
+    (interactive)
+    (frame-parameter nil 'font))
+
+  ;; Why doesn't this work? (Says something about wrong number of arguments)
+  (defun dan/indent-buffer ()
+    "Indent whole buffer"
+    (interactive)
+    (mark-whole-buffer)
+    (indent-region))
+
+  (defun dan/eval-buffer-confirm ()
+    (interactive)
+    (save-buffer)
+    (eval-buffer)
+    (message "loaded buffer %s" (buffer-name)))
+
+  ;; http://blog.printf.net/ find-tag-at-point I often work on the
+  ;; kernel or Xorg, and I would be totally ridiculously lost with both
+  ;; if I wasn't using "tags" support in my editor. Here's how it works:
+  ;; you run etags over your .[ch] files (or make tags in a kernel
+  ;; source dir), and it generates a TAGS index. You load that in emacs
+  ;; with M-x visit-tags-table, and with the below keybinding, pressing
+  ;; F10 will take you to the original definition of whichever symbol
+  ;; the cursor is on, no matter where it appears in the source
+  ;; tree. Within a few presses of F10, you've escaped macro hell and
+  ;; found where the code that actually defines the function you're
+  ;; interested in is.
+
+
+  (defun find-tag-at-point ()
+    "*Find tag whose name contains TAGNAME.
+    Identical to `find-tag' but does not prompt for
+    tag when called interactively;  instead, uses
+    tag around or before point."
+      (interactive)
+      (find-tag (if current-prefix-arg
+                    (find-tag-tag "Find tag: "))
+                (find-tag (find-tag-default))))
+
+  (defun search-forward-symbol-at-point ()
+    "Search forward to next occurrence of thing at point"
+    (interactive)
+    (search-forward (symbol-name (symbol-at-point)) nil t)
+    (backward-sexp)) ;; should be backward-symbol
+
+  (defun dan/insert-double-quotes ()
+    (interactive)
+    (insert "\"\"")
+    (backward-char))
+
+  (defun quote-list-of-symbols ()
+    "Place double quotes around the comma-separated,
+  parenthesis-delimited list of symbols at point"
+    (interactive)
+    (save-excursion
+      (let ((beg (search-forward "("))
+            (end (save-excursion (search-forward ")"))))
+        (insert "\"")
+        (while (replace-regexp " *, *" "\", \"" t beg end))
+        (replace-regexp " *)" "\")" t (point) (1+ end)))))
+
+  (defun dan/find-defun (fun)
+    (interactive "a")
+    (describe-function fun)
+    (other-window 1)
+    (when (re-search-forward "`[^']+\.e")
+        (push-button)))
+
+  (defun dan/wc-region ()
+    (interactive)
+    (shell-command-on-region (mark) (point) "wc"))
+
+  ;; http://www.emacswiki.org/cgi-bin/wiki/ToggleWindowSplit
+  (defun toggle-window-split ()
+    (interactive)
+    (if (= (count-windows) 2)
+        (let* ((this-win-buffer (window-buffer))
+               (next-win-buffer (window-buffer (next-window)))
+               (this-win-edges (window-edges (selected-window)))
+               (next-win-edges (window-edges (next-window)))
+               (this-win-2nd (not (and (<= (car this-win-edges)
+                                           (car next-win-edges))
+                                       (<= (cadr this-win-edges)
+                                           (cadr next-win-edges)))))
+               (splitter
+                (if (= (car this-win-edges)
+                       (car (window-edges (next-window))))
+                    'split-window-horizontally
+                  'split-window-vertically)))
+          (delete-other-windows)
+          (let ((first-win (selected-window)))
+            (funcall splitter)
+            (if this-win-2nd (other-window 1))
+            (set-window-buffer (selected-window) this-win-buffer)
+            (set-window-buffer (next-window) next-win-buffer)
+            (select-window first-win)
+            (if this-win-2nd (other-window 1))))))
+
+
+    (defun byte-compile-dir (dir)
+      (interactive)
+      (let ((files (directory-files dir t ".*\.el" t)) file)
+        (while (setq file (pop files))
+          (byte-compile-file file))))
+
+
+    (defun budget-eval ()
+      ;; to eval yanked text in python-shell -- doesn't work
+      (interactive)
+      (other-buffer)
+      (yank)
+      (newline))
+
+    ;; (defun dan/xclip-kill ()
+    ;;   "kill region and place on X clipboard"
+    ;;   (interactive)
+    ;;   (shell-command-on-region (mark) (point) "xclip")
+    ;;   (delete-region (mark) (point))) ;; don't add to kill ring
+
+    ;; (defun dan/xclip-yank ()
+    ;;   "yank from X clipboard and insert at point"
+    ;;   (interactive)
+    ;;   (shell-command "xclip -o" t))
+
+    (defun dan/next-line-and-indent ()
+      (interactive)
+      (next-line)
+      (indent-according-to-mode))
+
+    (defun dan/previous-line-and-indent ()
+      (interactive)
+      (previous-line)
+      (indent-according-to-mode))
+
+    (defun dan/insert-square-brackets ()
+      (interactive)
+      (insert "[]")
+      (backward-char))
+
+    (defun dan/insert-curly-brackets ()
+      (interactive)
+      (insert "{}")
+      (backward-char))
+
+    (defun dan/enclose-sexp-in-parentheses ()
+      (interactive)
+      (insert "(")
+      (forward-sexp)
+      (insert ")"))
+
+    (defun dan/enclose-rest-of-line-in-parentheses ()
+      (interactive)
+      (insert "(")
+      (end-of-line) ;; need to account for comment on same line
+      (insert ")"))
+
+    (defun dan/insert-- ()
+      (interactive)
+      (insert "-"))
+
+    (defun dan/quote-word ()
+      "Surround word at point with double quotes"
+      (interactive)
+      (re-search-backward "[ ,(\t]" nil t)
+      (forward-char) (insert "\"")
+      (re-search-forward "[ ,)\t]" nil t)
+      (backward-char) (insert "\""))
+
+    (defun dan/compile-and-switch-to-iESS ()
+      (interactive)
+      (when (compile "make -k")
+        (ess-switch-to-end-of-ESS)))
+
+    ;;  (when (shell-command "make -k")
+
+    ;; From Sacha Chua website
+    (defun byte-compile-if-newer-and-load (file)
+       "Byte compile file.el if newer than file.elc"
+       (if (file-newer-than-file-p (concat file ".el")
+                                   (concat file ".elc"))
+           (byte-compile-file (concat file ".el")))
+       (load file))
+#+end_src
+** Show buffer-file-name
+#+begin_src emacs-lisp
+  (defun dan/show-buffer-file-name ()
+    (interactive)
+    (let ((bn (buffer-name (current-buffer)))
+          (bfn (buffer-file-name))
+          (dd default-directory))
+      (if bfn
+          ;; file buffer
+          (if (string= (file-name-nondirectory bfn) bn)
+              ;; expected buffer name
+              (if (string= (file-name-directory bfn) dd)
+                  ;; expected default-directory
+                  (message bfn)
+                ;; unexpected default-directory
+                (message "buffer-file-name: %s\tdefault-directory: %s" bn dd))
+            ;; unexpected buffer name
+            (if (string= (file-name-directory bfn) dd)
+                ;; expected default-directory
+                (message "buffer-file-name: %s\tbuffer-name: %s" bfn bn)
+              ;; unexpected default-directory
+              (message "buffer-file-name: %s\tbuffer-name: %s\tdefault-directory: %s" bfn bn dd)))
+        ;; non-file buffer
+        (message "buffer-file-name: %S\tbuffer-name: %s\tdefault-directory: %s" bfn bn dd))))
+#+end_src
+** Format post
+#+begin_src emacs-lisp
+  (defun dan/format-region-for-post (start end)
+    (interactive "r")
+    (narrow-to-region start end)
+    (goto-char (point-min))
+    (while (re-search-forward "^[ \t]+" nil t)
+      (replace-match ""))
+    (goto-char (point-min))
+    (while (re-search-forward "\\([a-zA-Z]\\)\n\\([a-zA-Z]\\)" nil t)
+      (replace-match "\1 \2" t t))
+    (widen))
+#+end_src
+
+** Switch windows
+#+begin_src emacs-lisp
+  (defun dan/switch-windows ()
+    "Switch the buffers between windows"
+    (interactive)
+    (let ((other-window-buffer (window-buffer (next-window))))
+      (set-window-buffer (next-window) (current-buffer))
+      (set-window-buffer (selected-window) other-window-buffer)))
+#+end_src
+
+** Find-file emacs.org
+#+begin_src emacs-lisp
+  (defun dan/find-file-emacs-config ()
+    (interactive)
+    (find-file "~/.emacs.org"))
+#+end_src
+
+** Etc
+#+begin_src emacs-lisp
+  ;; (setq custom-file "~/src/config/emacs/emacs.el") ;; now code
+  ;; generated by emacs' customisation buffers will go in this file rather
+  ;; than ~/.emacs
+
+  ;; Kevin Rodgers help-gnu-emacs
+  ;; eldoc/timer can be used somehow to control how long messages appear for
+  ;; (add-hook 'post-command-hook 'eldoc-schedule-timer nil t)
+  ;; (add-hook 'pre-command-hook 'eldoc-pre-command-refresh-echo-area t)
+  ;; (setq eldoc-timer [nil 1000000 0 500000 t eldoc-print-current-symbol-info nil t]) ;;
+#+end_src
+** Current line and column
+#+begin_src emacs-lisp
+  (defun dan/current-column-line (&optional arg)
+    (interactive "P")
+    (let ((line (line-number-at-pos (point)))
+          (col (current-column)))
+      (message "line: %d\tcolumn: %d" line col)
+      (list line col)))
+#+end_src
+
+** Find function or library
+#+begin_src emacs-lisp
+(defun dan/find-function-or-library (&optional arg)
+  (interactive "P")
+  (call-interactively
+   (if arg 'find-library 'find-function)))
+#+end_src
+
+** Require
+#+begin_src emacs-lisp
+  (defun dan/require (feature)
+    (unless (featurep feature)
+      (if (locate-library (symbol-name feature))
+          (require feature)
+        (progn
+          (message "Could not locate library: %s" (symbol-name feature))
+          nil))))
+#+end_src
+
+** Find file
+#+begin_src emacs-lisp
+  ;; based on starter-kit-defuns
+  (defun dan/recentf-ido-find-file ()
+    "Find a recent file using ido."
+    (interactive)
+    (let* ((alist
+            (mapcar (lambda (f) (cons (file-name-nondirectory f) f))
+                    recentf-list))
+           (file (ido-completing-read "Find file: " (mapcar 'car alist) nil t)))
+      (when file
+        (find-file (cdr (assoc file alist))))))
+
+  (defun dan/find-file (&optional arg)
+    (interactive "P")
+    (call-interactively
+     (if arg 'ido-find-file 'dan/recentf-ido-find-file)))
+#+end_src
+
+** Show all in all buffers
+#+begin_src emacs-lisp
+  (defun dan/show-all-all-buffers ()
+    (interactive)
+    (save-window-excursion
+      (mapc (lambda (b) (set-buffer b) (show-all))
+            (buffer-list))))
+#+end_src
+
+** dan/keyboard-quit
+#+begin_src emacs-lisp
+  (defun dan/switch-to-minibuffer ()
+    (interactive)
+    (switch-to-buffer (window-buffer (minibuffer-window))))
+#+end_src
 * Core
 ** Windows and Frames
 #+begin_src emacs-lisp
@@ -401,7 +758,6 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+begin_src emacs-lisp
 (setq vc-follow-symlinks t)
 #+end_src
-
 * Modules
 ** Load path
 #+begin_src emacs-lisp
@@ -2099,7 +2455,6 @@ I didn't get this to work.
 
   (setq noweb-code-mode noweb-default-code-mode)
 #+end_src
-
 * Key bindings
 ** dan/set-key-bindings
 #+begin_src emacs-lisp
@@ -2317,364 +2672,6 @@ I didn't get this to work.
       (if (re-search-forward "^ +[0-9]+:" nil t)
           (delete-region (point-min) (point-at-bol)))))
 #+end_src
-
-* My functions
-** Trace functions
-#+begin_src emacs-lisp
-  (defun dan/trace-functions (regexp)
-    "Trace functions with names matching regexp"
-    ;; TODO: read regexp from minibuffer
-    (interactive)
-    (mapc 'trace-function
-          (loop for x being the symbols
-                if (and (fboundp x) (string-match regexp (symbol-name x)))
-                collect x)))
-#+end_src
-
-** Debug on error
-#+begin_src emacs-lisp
-  (defun dan/toggle-debug-on-error ()
-    (interactive)
-    (setq debug-on-error (not debug-on-error)))
-#+end_src
-
-** Revert all elisp buffers
-    #+begin_src emacs-lisp
-      (defun dan/revert-elisp-buffers ()
-        "Revert all elisp buffers"
-        (interactive)
-        (save-excursion
-          (dolist (buf (buffer-list))
-            (set-buffer buf)
-            (if (eq major-mode 'emacs-lisp-mode)
-                (revert-buffer)))))
-    #+end_src
-
-
-#+begin_src emacs-lisp
-  (defun dan/looking-at-string (string)
-    (interactive)
-    (string-equal
-     string
-     (buffer-substring-no-properties (point) (+ (point) (length string)))))
-
-  ;; this doesn't write anything in minibuffer...
-  (defun dan/show-current-font()
-    (interactive)
-    (frame-parameter nil 'font))
-
-  ;; Why doesn't this work? (Says something about wrong number of arguments)
-  (defun dan/indent-buffer ()
-    "Indent whole buffer"
-    (interactive)
-    (mark-whole-buffer)
-    (indent-region))
-
-  (defun dan/eval-buffer-confirm ()
-    (interactive)
-    (save-buffer)
-    (eval-buffer)
-    (message "loaded buffer %s" (buffer-name)))
-
-  ;; http://blog.printf.net/ find-tag-at-point I often work on the
-  ;; kernel or Xorg, and I would be totally ridiculously lost with both
-  ;; if I wasn't using "tags" support in my editor. Here's how it works:
-  ;; you run etags over your .[ch] files (or make tags in a kernel
-  ;; source dir), and it generates a TAGS index. You load that in emacs
-  ;; with M-x visit-tags-table, and with the below keybinding, pressing
-  ;; F10 will take you to the original definition of whichever symbol
-  ;; the cursor is on, no matter where it appears in the source
-  ;; tree. Within a few presses of F10, you've escaped macro hell and
-  ;; found where the code that actually defines the function you're
-  ;; interested in is.
-
-
-  (defun find-tag-at-point ()
-    "*Find tag whose name contains TAGNAME.
-    Identical to `find-tag' but does not prompt for
-    tag when called interactively;  instead, uses
-    tag around or before point."
-      (interactive)
-      (find-tag (if current-prefix-arg
-                    (find-tag-tag "Find tag: "))
-                (find-tag (find-tag-default))))
-
-  (defun search-forward-symbol-at-point ()
-    "Search forward to next occurrence of thing at point"
-    (interactive)
-    (search-forward (symbol-name (symbol-at-point)) nil t)
-    (backward-sexp)) ;; should be backward-symbol
-
-  (defun dan/insert-double-quotes ()
-    (interactive)
-    (insert "\"\"")
-    (backward-char))
-
-  (defun quote-list-of-symbols ()
-    "Place double quotes around the comma-separated,
-  parenthesis-delimited list of symbols at point"
-    (interactive)
-    (save-excursion
-      (let ((beg (search-forward "("))
-            (end (save-excursion (search-forward ")"))))
-        (insert "\"")
-        (while (replace-regexp " *, *" "\", \"" t beg end))
-        (replace-regexp " *)" "\")" t (point) (1+ end)))))
-
-  (defun dan/find-defun (fun)
-    (interactive "a")
-    (describe-function fun)
-    (other-window 1)
-    (when (re-search-forward "`[^']+\.e")
-        (push-button)))
-
-  (defun dan/wc-region ()
-    (interactive)
-    (shell-command-on-region (mark) (point) "wc"))
-
-  ;; http://www.emacswiki.org/cgi-bin/wiki/ToggleWindowSplit
-  (defun toggle-window-split ()
-    (interactive)
-    (if (= (count-windows) 2)
-        (let* ((this-win-buffer (window-buffer))
-               (next-win-buffer (window-buffer (next-window)))
-               (this-win-edges (window-edges (selected-window)))
-               (next-win-edges (window-edges (next-window)))
-               (this-win-2nd (not (and (<= (car this-win-edges)
-                                           (car next-win-edges))
-                                       (<= (cadr this-win-edges)
-                                           (cadr next-win-edges)))))
-               (splitter
-                (if (= (car this-win-edges)
-                       (car (window-edges (next-window))))
-                    'split-window-horizontally
-                  'split-window-vertically)))
-          (delete-other-windows)
-          (let ((first-win (selected-window)))
-            (funcall splitter)
-            (if this-win-2nd (other-window 1))
-            (set-window-buffer (selected-window) this-win-buffer)
-            (set-window-buffer (next-window) next-win-buffer)
-            (select-window first-win)
-            (if this-win-2nd (other-window 1))))))
-
-
-    (defun byte-compile-dir (dir)
-      (interactive)
-      (let ((files (directory-files dir t ".*\.el" t)) file)
-        (while (setq file (pop files))
-          (byte-compile-file file))))
-
-
-    (defun budget-eval ()
-      ;; to eval yanked text in python-shell -- doesn't work
-      (interactive)
-      (other-buffer)
-      (yank)
-      (newline))
-
-    ;; (defun dan/xclip-kill ()
-    ;;   "kill region and place on X clipboard"
-    ;;   (interactive)
-    ;;   (shell-command-on-region (mark) (point) "xclip")
-    ;;   (delete-region (mark) (point))) ;; don't add to kill ring
-
-    ;; (defun dan/xclip-yank ()
-    ;;   "yank from X clipboard and insert at point"
-    ;;   (interactive)
-    ;;   (shell-command "xclip -o" t))
-
-    (defun dan/next-line-and-indent ()
-      (interactive)
-      (next-line)
-      (indent-according-to-mode))
-
-    (defun dan/previous-line-and-indent ()
-      (interactive)
-      (previous-line)
-      (indent-according-to-mode))
-
-    (defun dan/insert-square-brackets ()
-      (interactive)
-      (insert "[]")
-      (backward-char))
-
-    (defun dan/insert-curly-brackets ()
-      (interactive)
-      (insert "{}")
-      (backward-char))
-
-    (defun dan/enclose-sexp-in-parentheses ()
-      (interactive)
-      (insert "(")
-      (forward-sexp)
-      (insert ")"))
-
-    (defun dan/enclose-rest-of-line-in-parentheses ()
-      (interactive)
-      (insert "(")
-      (end-of-line) ;; need to account for comment on same line
-      (insert ")"))
-
-    (defun dan/insert-- ()
-      (interactive)
-      (insert "-"))
-
-    (defun dan/quote-word ()
-      "Surround word at point with double quotes"
-      (interactive)
-      (re-search-backward "[ ,(\t]" nil t)
-      (forward-char) (insert "\"")
-      (re-search-forward "[ ,)\t]" nil t)
-      (backward-char) (insert "\""))
-
-    (defun dan/compile-and-switch-to-iESS ()
-      (interactive)
-      (when (compile "make -k")
-        (ess-switch-to-end-of-ESS)))
-
-    ;;  (when (shell-command "make -k")
-
-    ;; From Sacha Chua website
-    (defun byte-compile-if-newer-and-load (file)
-       "Byte compile file.el if newer than file.elc"
-       (if (file-newer-than-file-p (concat file ".el")
-                                   (concat file ".elc"))
-           (byte-compile-file (concat file ".el")))
-       (load file))
-#+end_src
-** Show buffer-file-name
-#+begin_src emacs-lisp
-  (defun dan/show-buffer-file-name ()
-    (interactive)
-    (let ((bn (buffer-name (current-buffer)))
-          (bfn (buffer-file-name))
-          (dd default-directory))
-      (if bfn
-          ;; file buffer
-          (if (string= (file-name-nondirectory bfn) bn)
-              ;; expected buffer name
-              (if (string= (file-name-directory bfn) dd)
-                  ;; expected default-directory
-                  (message bfn)
-                ;; unexpected default-directory
-                (message "buffer-file-name: %s\tdefault-directory: %s" bn dd))
-            ;; unexpected buffer name
-            (if (string= (file-name-directory bfn) dd)
-                ;; expected default-directory
-                (message "buffer-file-name: %s\tbuffer-name: %s" bfn bn)
-              ;; unexpected default-directory
-              (message "buffer-file-name: %s\tbuffer-name: %s\tdefault-directory: %s" bfn bn dd)))
-        ;; non-file buffer
-        (message "buffer-file-name: %S\tbuffer-name: %s\tdefault-directory: %s" bfn bn dd))))
-#+end_src
-** Format post
-#+begin_src emacs-lisp
-  (defun dan/format-region-for-post (start end)
-    (interactive "r")
-    (narrow-to-region start end)
-    (goto-char (point-min))
-    (while (re-search-forward "^[ \t]+" nil t)
-      (replace-match ""))
-    (goto-char (point-min))
-    (while (re-search-forward "\\([a-zA-Z]\\)\n\\([a-zA-Z]\\)" nil t)
-      (replace-match "\1 \2" t t))
-    (widen))
-#+end_src
-
-** Switch windows
-#+begin_src emacs-lisp
-  (defun dan/switch-windows ()
-    "Switch the buffers between windows"
-    (interactive)
-    (let ((other-window-buffer (window-buffer (next-window))))
-      (set-window-buffer (next-window) (current-buffer))
-      (set-window-buffer (selected-window) other-window-buffer)))
-#+end_src
-
-** Find-file emacs.org
-#+begin_src emacs-lisp
-  (defun dan/find-file-emacs-config ()
-    (interactive)
-    (find-file "~/.emacs.org"))
-#+end_src
-
-** Etc
-#+begin_src emacs-lisp
-  ;; (setq custom-file "~/src/config/emacs/emacs.el") ;; now code
-  ;; generated by emacs' customisation buffers will go in this file rather
-  ;; than ~/.emacs
-
-  ;; Kevin Rodgers help-gnu-emacs
-  ;; eldoc/timer can be used somehow to control how long messages appear for
-  ;; (add-hook 'post-command-hook 'eldoc-schedule-timer nil t)
-  ;; (add-hook 'pre-command-hook 'eldoc-pre-command-refresh-echo-area t)
-  ;; (setq eldoc-timer [nil 1000000 0 500000 t eldoc-print-current-symbol-info nil t]) ;;
-#+end_src
-** Current line and column
-#+begin_src emacs-lisp
-  (defun dan/current-column-line (&optional arg)
-    (interactive "P")
-    (let ((line (line-number-at-pos (point)))
-          (col (current-column)))
-      (message "line: %d\tcolumn: %d" line col)
-      (list line col)))
-#+end_src
-
-** Find function or library
-#+begin_src emacs-lisp
-(defun dan/find-function-or-library (&optional arg)
-  (interactive "P")
-  (call-interactively
-   (if arg 'find-library 'find-function)))
-#+end_src
-
-** Require
-#+begin_src emacs-lisp
-  (defun dan/require (feature)
-    (unless (featurep feature)
-      (if (locate-library (symbol-name feature))
-          (require feature)
-        (progn
-          (message "Could not locate library: %s" (symbol-name feature))
-          nil))))
-#+end_src
-
-** Find file
-#+begin_src emacs-lisp
-  ;; based on starter-kit-defuns
-  (defun dan/recentf-ido-find-file ()
-    "Find a recent file using ido."
-    (interactive)
-    (let* ((alist
-            (mapcar (lambda (f) (cons (file-name-nondirectory f) f))
-                    recentf-list))
-           (file (ido-completing-read "Find file: " (mapcar 'car alist) nil t)))
-      (when file
-        (find-file (cdr (assoc file alist))))))
-
-  (defun dan/find-file (&optional arg)
-    (interactive "P")
-    (call-interactively
-     (if arg 'ido-find-file 'dan/recentf-ido-find-file)))
-#+end_src
-
-** Show all in all buffers
-#+begin_src emacs-lisp
-  (defun dan/show-all-all-buffers ()
-    (interactive)
-    (save-window-excursion
-      (mapc (lambda (b) (set-buffer b) (show-all))
-            (buffer-list))))
-#+end_src
-
-** dan/keyboard-quit
-#+begin_src emacs-lisp
-  (defun dan/switch-to-minibuffer ()
-    (interactive)
-    (switch-to-buffer (window-buffer (minibuffer-window))))
-#+end_src
-
 * Start-up
 #+begin_src emacs-lisp
   ;;(when (string-match "^23\.*" emacs-version)
