@@ -2629,6 +2629,17 @@ I didn't get this to work.
    (if arg 'find-library 'find-function)))
 #+end_src
 
+** Require
+#+begin_src emacs-lisp
+  (defun dan/require (feature)
+    (unless (featurep feature)
+      (if (locate-library (symbol-name feature))
+          (require feature)
+        (progn
+          (message "Could not locate library: %s" (symbol-name feature))
+          nil))))
+#+end_src
+
 ** Find file
 #+begin_src emacs-lisp
   ;; based on starter-kit-defuns
