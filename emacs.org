@@ -1461,7 +1461,7 @@ Fontify code blocks in the text of messages
 #+end_src
 
 ** Minimal
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (add-to-list 'load-path "~/lib/emacs/minimal")
   (when (dan/require 'minimal)
     (minimal-mode t)
