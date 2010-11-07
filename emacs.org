@@ -693,7 +693,7 @@
 
 *** Transparency
 http://www.emacswiki.org/emacs/TransparentEmacs
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
    ;;(set-frame-parameter (selected-frame) 'alpha '(<active> [<inactive>]))
    (setq dan/frame-alpha '(95 50)) ;; high -> opaque
 
