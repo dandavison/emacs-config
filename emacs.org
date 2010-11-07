@@ -1058,9 +1058,9 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 ** Gnus
 *** General
 #+begin_src emacs-lisp
-  (add-to-list 'load-path "~/emacs/gnus/lisp")
-  (require 'gnus-load)
-
+  ;; (add-to-list 'load-path "~/emacs/gnus/lisp")
+  ;; (dan/require 'gnus-load)
+  
   (require 'nnmairix)
   (setq user-mail-address "dandavison7@gmail.com")
   (setq user-full-name "Dan Davison")
