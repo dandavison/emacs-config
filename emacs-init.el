@@ -17,12 +17,3 @@
  '(safe-local-variable-values (quote ((org-export-latex-image-default-option . "width=0.4\\textwidth") (org-export-latex-listings . t) (varname . value) (noweb-default-code-mode . R-mode) (outline-minor-mode)))))
 
 
-;;; This was installed by package-install.el.
-;;; This provides support for the package system and
-;;; interfacing with ELPA, the package archive.
-;;; Move this code earlier if you want to reference
-;;; packages in your .emacs.
-(when
-    (load
-     (expand-file-name "~/.emacs.d/elpa/package.el"))
-  (package-initialize))
