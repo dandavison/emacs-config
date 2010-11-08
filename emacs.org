@@ -1,15 +1,29 @@
 * My functions
 ** Set executable paths
 #+begin_src emacs-lisp
+  (defvar dan/operating-system
+    (intern (downcase
+             (replace-regexp-in-string
+              "\n" ""
+              (shell-command-to-string "uname"))))
+    "The current OS")
+  
   (defun dan/set-executable-paths ()
+    "Set $PATH and `exec-path'.
+  This should really avoid duplicating paths."
     (interactive)
-    (let ((bin (concat (getenv "HOME") "/" "bin")))
+    (let* ((bin (concat (getenv "HOME") "/" "bin"))
+           (paths
+            (case dan/operating-system
+             ('darwin
+              (list bin "/opt/local/bin/git"))
+             (t (list bin)))))
       (setenv "PATH"
-              (concat
-               bin
-               path-separator
-               (getenv "PATH")))
-    (setq exec-path (append exec-path (list bin)))))
+              (mapconcat
+               'identity
+               (append paths (list (getenv "PATH")))
+               path-separator))
+      (setq exec-path (append paths exec-path))))
 #+end_src
 
 ** Trace functions
