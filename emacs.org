@@ -1057,6 +1057,18 @@ http://www.emacswiki.org/emacs/TransparentEmacs
              (load elpa-file))
         (package-initialize)))
 #+end_src
+** Google Search
+#+begin_src emacs-lisp
+  (defun dan/google ()
+    (interactive)
+    (shell-command
+     (format "google %s"
+             (if (region-active-p)
+                 (buffer-substring (region-beginning)
+                                (region-end))
+               (read-from-minibuffer "Search string: ")))))
+#+end_src
+
 ** Google Maps
 #+begin_src emacs-lisp
 (add-to-list 'load-path "~/lib/emacs/google-maps")
@@ -2528,6 +2540,7 @@ I didn't get this to work.
                  ("\M-(" . dan/enclose-rest-of-line-in-parentheses)
                  ("\M-n" . forward-paragraph)
                  ("\M-p" . backward-paragraph)
+                 ("\M-s\M-o" . dan/google)
                  ("\M-2" . dan/insert-double-quotes)
                  ([delete] . winner-undo)
                  ([(hyper left)] . winner-undo)
