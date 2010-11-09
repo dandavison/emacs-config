@@ -756,7 +756,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+begin_src emacs-lisp
   ;; http://flash.metawaredesign.co.uk/2/.emacs
   (if window-system
-      (let (browser (getenv "$browser"))
+      (let ((browser (getenv "$BROWSER")))
         (setq browse-url-browser-function 'browse-url-generic
               browse-url-generic-program browser)
         (when (string= browser "firefox")
