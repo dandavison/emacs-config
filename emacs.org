@@ -1459,20 +1459,20 @@ Fontify code blocks in the text of messages
 #+end_src
 ** Misc
 #+begin_src emacs-lisp
-    (dan/require 'regex-tool)
-    (dan/require 'unbound)
-    (dan/require 'windresize)
-    (dan/require 'xclip)
-    (dan/require 'highlight-parentheses)
-    (highlight-parentheses-mode)
-    (dan/require 'boxquote)
-    ;; (load "~/lib/emacs/nxhtml/autostart.el")
-    ;; (load "R-anything-config")
-    (dan/require 'ssh)
-    ;; (dan/require 'google-search)
-    ;; (dan/require 'w3m)
-    ;; (dan/require 'gnuplot)
-    ;; (dan/require 'filladapt)
+  (dan/require 'regex-tool)
+  (dan/require 'unbound)
+  (dan/require 'windresize)
+  (dan/require 'xclip)
+  (dan/require 'highlight-parentheses)
+  (highlight-parentheses-mode)
+  (dan/require 'boxquote)
+  ;; (load "~/lib/emacs/nxhtml/autostart.el")
+  ;; (load "R-anything-config")
+  (dan/require 'ssh)
+  ;; (dan/require 'google-search)
+  ;; (dan/require 'w3m)
+  ;; (dan/require 'gnuplot)
+  ;; (dan/require 'filladapt)
 #+end_src
 
 ** Minimal
