@@ -756,11 +756,11 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+begin_src emacs-lisp
   ;; http://flash.metawaredesign.co.uk/2/.emacs
   (if window-system
-      (setq browse-url-browser-function 'browse-url-generic
-            browse-url-generic-program "google-chrome"))
-  ;; (setq browse-url-browser-function 'browse-url-firefox)
-  ;; (setq browse-url-browser-function 'w3m-browse-url)
-  ;; (setq browse-url-firefox-new-window-is-tab t)
+      (let (browser (getenv "$browser"))
+        (setq browse-url-browser-function 'browse-url-generic
+              browse-url-generic-program browser)
+        (when (string= browser "firefox")
+          (setq browse-url-firefox-new-window-is-tab t))))
 #+end_src
 ** Non-default
 *** Saveplace
