@@ -16,7 +16,7 @@
              (paths
               (case dan/operating-system
                ('darwin
-                (list bin "/opt/local/bin"))
+                (list "/usr/texbin" bin "/opt/local/bin"))
                (t (list bin)))))
         (setenv "PATH"
                 (mapconcat
