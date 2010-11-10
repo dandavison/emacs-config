@@ -2539,6 +2539,7 @@ I didn't get this to work.
                  ([(control next)] . end-of-buffer)
                  ([(control prior)] . beginning-of-buffer)
                  ([(s tab)] . lisp-complete-symbol)
+                 ([(shift tab)] . org-cycle)
                  ("\M-(" . dan/enclose-rest-of-line-in-parentheses)
                  ("\M-n" . forward-paragraph)
                  ("\M-p" . backward-paragraph)
