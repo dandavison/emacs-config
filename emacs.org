@@ -1062,7 +1062,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   (defun dan/google ()
     (interactive)
     (shell-command
-     (format "google %s"
+     (format "google '%s'"
              (if (region-active-p)
                  (buffer-substring (region-beginning)
                                 (region-end))
