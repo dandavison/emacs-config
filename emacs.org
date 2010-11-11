@@ -31,6 +31,17 @@
   (shell-command-to-string "echo $BROWSER")
 #+end_src
 
+** Password
+#+begin_src emacs-lisp
+  (defun dan/password ()
+    (interactive)
+    (with-temp-buffer
+      (insert-file-contents
+       (expand-file-name
+        "/sudo::/Users/davison/config/password"))
+      (buffer-string)))
+#+end_src
+
 ** Trace functions
 #+begin_src emacs-lisp
   (defun dan/trace-functions (regexp)
