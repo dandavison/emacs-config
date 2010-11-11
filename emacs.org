@@ -319,7 +319,8 @@
 #+begin_src emacs-lisp
   (defun dan/find-file-emacs-config ()
     (interactive)
-    (find-file "~/.emacs.org"))
+    (find-file
+     (expand-file-name "~/config/emacs/emacs.org")))
 #+end_src
 
 ** Etc
