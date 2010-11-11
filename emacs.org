@@ -1822,8 +1822,10 @@ Fontify code blocks in the text of messages
 #+end_src
 **** Latex
 ***** General
+To use xelatex:
+rubber -f -m xelatex somefile.tex
 #+begin_src emacs-lisp
-  (setq org-latex-to-pdf-process '("rubber -d --into %o %f"))
+  (setq org-latex-to-pdf-process '("rubber -fd --into %o %f"))
 #+end_src
 ***** Latex export hook
       [[mairix:t:@@87iq7fy0q0.fsf@totally-fudged-out-message-id][Email from Dan Davison: Re: {Orgmode} export-latex-fin]]
