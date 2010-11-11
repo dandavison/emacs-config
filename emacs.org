@@ -1206,15 +1206,26 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   ;;------------------------------------------------------------------------------------------
   ;;;
   ;;;
+  
 #+end_src
 *** Sending
 #+begin_src emacs-lisp
-  (setq
-   mail-user-agent 'message-user-agent ;; so that org-mime-org-buffer-htmlize uses message-mode
-   send-mail-function 'sendmail-send-it ;; generates properly-formed email and sends it with
-   sendmail-program "~/bin/sendmail-dan" ;; passes email over ssh to remote sendmail in Oxford
-   gnus-message-archive-group "nnimap+dc:email" ;; save outgoing mail into my default mail box
-   gnus-gcc-mark-as-read nil) ;; Sent mail appears as unread in my inbox
+  (case dan/operating-system
+    ('darwin
+     (setq message-send-mail-function 'smtpmail-send-it
+           smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
+           smtpmail-auth-credentials '(("smtp.gmail.com" 587 "davison@counsyl.com" nil))
+           smtpmail-default-smtp-server "smtp.gmail.com"
+           smtpmail-smtp-server "smtp.gmail.com"
+           smtpmail-smtp-service 587
+           smtpmail-local-domain "counsyl.com"))
+    ('linux
+     (setq
+      mail-user-agent 'message-user-agent ;; so that org-mime-org-buffer-htmlize uses message-mode
+      send-mail-function 'sendmail-send-it ;; generates properly-formed email and sends it with
+      sendmail-program "~/bin/sendmail-dan" ;; passes email over ssh to remote sendmail in Oxford
+      gnus-message-archive-group "nnimap+dc:email" ;; save outgoing mail into my default mail box
+      gnus-gcc-mark-as-read nil))) ;; Sent mail appears as unread in my inbox
 #+end_src
 
 *** Group buffer
