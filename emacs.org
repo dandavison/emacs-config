@@ -2754,8 +2754,11 @@ I didn't get this to work.
     (delete-other-windows))
   (color-theme-initialize)
   (color-theme-charcoal-black)
-  (when (eq dan/operating-system 'linux)
-    (set-face-attribute 'default nil :height 110 :family "DejaVu Sans Mono"))
+  (case dan/operating-system
+    ('linux
+     (set-face-attribute 'default nil :height 110 :family "DejaVu Sans Mono"))
+    ('darwin
+     (set-face-attribute 'default nil :height 140)))
   (dan/sanitise-faces)
   (dan/set-show-paren-style)
   (require 'server)
