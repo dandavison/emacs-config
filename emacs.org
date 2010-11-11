@@ -1104,23 +1104,40 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   ;; (dan/require 'gnus-load)
   
   (require 'nnmairix)
-  (setq user-mail-address "dandavison7@gmail.com")
   (setq user-full-name "Dan Davison")
   
-  (setq gnus-select-method
-        '(nnimap "dc"
-                 (nnimap-address "localhost")
-                 (nnimap-authinfo-file "~/config/email/authinfo")))
+  (case dan/operating-system
+    ('darwin
+     (setq user-mail-address "davison@counsyl.com")
+  
+     ;; http://eschulte.github.com/emacs-starter-kit/starter-kit-gnus-pop.html
+     (setq gnus-select-method '(nnml ""))
+     (let ((email "davison@counsyl.com")
+           (passwd (dan/password)))
+       ;; The following adds Gmail as a source of mail for Gnus
+       (add-to-list 'mail-sources
+                    `(pop :server "pop.gmail.com"
+                          :port 995
+                          :user ,email
+                          :password ,passwd
+                          :stream ssl))))
+    ('linux
+     (setq user-mail-address "dandavison7@gmail.com")
+     (setq gnus-select-method
+           ('linux
+            '(nnimap "dc"
+                     (nnimap-address "localhost")
+                     (nnimap-authinfo-file "~/config/email/authinfo"))))))
   
   (setq gnus-secondary-select-methods
         '((nntp "news.gmane.org")
           (nntp "news.eternal-september.org")
           (nntp "news.gwene.org")))
+  
   (setq gnus-save-newsrc-file nil)
   (setq gnus-play-startup-jingle t)
   (setq gnus-novice-user nil)
   (setq gnus-expert-user t)
-  
   
   (add-hook 'gnus-after-exiting-gnus-hook
             (lambda () (kill-buffer "*Group*")))
