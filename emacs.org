@@ -1582,8 +1582,14 @@ Fontify code blocks in the text of messages
 *** Basics
 #+begin_src emacs-lisp
   (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
-  (dan/require 'org-inlinetask)
+  (add-to-list 'load-path (expand-file-name "~/lib/emacs/org/contrib/lisp"))
 #+end_src
+*** Extras
+#+begin_src emacs-lisp
+  (dan/require 'org-inlinetask)
+  (dan/require 'org-special-blocks)
+#+end_src
+
 *** Hook
 #+begin_src emacs-lisp
   ;; (org-indent-mode t)
