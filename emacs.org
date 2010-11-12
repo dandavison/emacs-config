@@ -1579,15 +1579,15 @@ Fontify code blocks in the text of messages
       (define-key yas/keymap [tab] 'yas/next-field-group)))
 #+end_src
 ** Org
-*** Hook
-#+begin_src emacs-lisp
-  ;; (org-indent-mode t)
-  (add-hook 'org-mode-hook 'dan/yas-tab-setup)
-#+end_src
 *** Basics
 #+begin_src emacs-lisp
   (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
   (dan/require 'org-inlinetask)
+#+end_src
+*** Hook
+#+begin_src emacs-lisp
+  ;; (org-indent-mode t)
+  (add-hook 'org-mode-hook 'dan/yas-tab-setup)
 #+end_src
 *** Misc
 #+begin_src emacs-lisp
