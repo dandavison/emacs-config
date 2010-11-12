@@ -414,6 +414,19 @@
     ;; (setq special-display-function (lambda (buffer &rest ignored) (switch-to-buffer buffer) (delete-other-windows))))
     (setq special-display-function (lambda (buffer &rest ignored) (delete-other-windows)))
     )
+  
+  ;; http://www.emacswiki.org/emacs/FullScreen
+  ;; not working on OSX yet
+  (defun dan/toggle-fullscreen (&optional f)
+    (interactive)
+    (let ((current-value (frame-parameter nil 'fullscreen)))
+      (set-frame-parameter nil 'fullscreen
+                           (if (equal 'fullboth current-value)
+                               (if (boundp 'old-fullscreen) old-fullscreen nil)
+                             (progn (setq old-fullscreen current-value)
+                                    'fullboth)))))
+  
+  
 #+end_src
 
 *** Faces
