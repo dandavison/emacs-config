@@ -27,8 +27,6 @@
                (append paths (list (getenv "PATH")))
                path-separator))
       (setq exec-path (append paths exec-path))))
-  
-  (shell-command-to-string "echo $BROWSER")
 #+end_src
 
 ** Password
@@ -773,10 +771,12 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+begin_src emacs-lisp
   ;; http://flash.metawaredesign.co.uk/2/.emacs
   (if window-system
-      (let ((browser (getenv "$BROWSER")))
+      (let ((browser (if (eq dan/operating-system 'darwin)
+                         "open"
+                       (getenv "$BROWSER"))))
         (setq browse-url-browser-function 'browse-url-generic
               browse-url-generic-program browser)
-        (when (string= browser "firefox")
+        (when (string-match browser "firefox")
           (setq browse-url-firefox-new-window-is-tab t))))
 #+end_src
 ** Non-default
