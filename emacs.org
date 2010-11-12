@@ -2324,7 +2324,7 @@ this. see :tangle no below and in font-lock tree
 
 **** Search in org source code
 #+begin_src emacs-lisp
-  (setq dan/org-mode-src-dir "~/lib/emacs/org-mode")
+  (setq dan/org-mode-src-dir "~/lib/emacs/org")
   
   (defun dan/org-search-src ()
     "Search for REGEXP in Org-mode source code."

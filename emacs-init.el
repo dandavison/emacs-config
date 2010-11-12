@@ -1,5 +1,5 @@
 (setq max-mini-window-height nil)
-(add-to-list 'load-path "~/lib/emacs/org-mode/lisp")
+(add-to-list 'load-path "~/lib/emacs/org/lisp")
 (setq org-babel-load-languages '((emacs-lisp . t) (R . t)))
 (setq org-confirm-babel-evaluate nil)
 (require 'org-install)
