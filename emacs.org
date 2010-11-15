@@ -9,6 +9,36 @@
 #+end_src
 
 * My functions
+** Appearance
+#+begin_src emacs-lisp
+  (defun dan/sanitise-faces ()
+    (interactive)
+    ;; (set-face-background 'region (face-background 'default)) ;; don't highlight region
+    (set-face-background 'fringe (face-background 'default)) ;; don't have different color fringe
+    ;; (set-face-background 'highlight (face-background 'default))
+    ;; (set-face-foreground 'highlight (face-foreground 'font-lock-comment-face))
+    ;; (set-face-foreground 'cursor (face-foreground 'font-lock-comment-face))
+    (set-cursor-color "red")
+    (set-face-attribute 'org-hide nil
+                        :foreground
+                        (face-attribute 'default :background))
+    (font-lock-fontify-buffer))
+  
+  (defun dan/set-show-paren-style ()
+    (interactive)
+    (setq show-paren-delay .125)
+    (setq show-paren-style 'parenthesis)
+    ;; use these in a mode hook function
+    ;; (make-variable-buffer-local 'show-paren-mode)
+    ;; (show-paren-mode t)
+    (set-face-attribute 'show-paren-match-face nil :weight 'extra-bold)
+    (set-face-background 'show-paren-match-face (face-background 'default))
+    (if (boundp 'font-lock-comment-face)
+        (set-face-foreground 'show-paren-match-face
+                             (face-foreground 'font-lock-comment-face))
+      (set-face-foreground 'show-paren-match-face
+                           (face-foreground 'default))))
+#+end_src
 ** Set executable paths
 #+begin_src emacs-lisp
   (defun dan/set-executable-paths ()
@@ -669,107 +699,6 @@
   
   ;; This is perhaps a little irritating with collaborative projects
   ;; (add-hook 'before-save-hook 'delete-trailing-whitespace)
-#+end_src
-** Appearance
-#+begin_src emacs-lisp
-  (defun dan/sanitise-faces ()
-    (interactive)
-    ;; (set-face-background 'region (face-background 'default)) ;; don't highlight region
-    (set-face-background 'fringe (face-background 'default)) ;; don't have different color fringe
-    ;; (set-face-background 'highlight (face-background 'default))
-    ;; (set-face-foreground 'highlight (face-foreground 'font-lock-comment-face))
-    ;; (set-face-foreground 'cursor (face-foreground 'font-lock-comment-face))
-    (set-cursor-color "red")
-    (set-face-attribute 'org-hide nil
-                        :foreground
-                        (face-attribute 'default :background))
-    (font-lock-fontify-buffer))
-  
-  (defun dan/set-show-paren-style ()
-    (interactive)
-    (setq show-paren-delay .125)
-    (setq show-paren-style 'parenthesis)
-    ;; use these in a mode hook function
-    ;; (make-variable-buffer-local 'show-paren-mode)
-    ;; (show-paren-mode t)
-    (set-face-attribute 'show-paren-match-face nil :weight 'extra-bold)
-    (set-face-background 'show-paren-match-face (face-background 'default))
-    (if (boundp 'font-lock-comment-face)
-        (set-face-foreground 'show-paren-match-face
-                             (face-foreground 'font-lock-comment-face))
-      (set-face-foreground 'show-paren-match-face
-                           (face-foreground 'default))))
-  
-  (add-hook 'find-file-hook 'dan/sanitise-faces)
-  (add-hook 'find-file-hook 'dan/set-show-paren-style)
-  
-  (setq dan/custom-appearance nil)
-  (if dan/custom-appearance
-      (if (not window-system)
-          (custom-set-faces
-           '(mode-line ((t (:foreground "red" :inverse-video nil))))
-           '(org-agenda-date-weekend ((t (:foreground "red"))) t)
-           '(org-hide ((((background light)) (:foreground "black")))))
-        (progn
-          (add-to-list 'load-path "~/lib/emacs/color-theme-6.6.0")
-          (when (dan/require 'color-theme)
-            (eval-after-load "color-theme"
-              '(progn
-                 (color-theme-initialize)
-                 (color-theme-charcoal-black)))))))
-#+end_src
-*** Vanilla
-#+begin_src emacs-lisp
-  (tool-bar-mode -1)
-  (menu-bar-mode -1)
-  (scroll-bar-mode -1)
-  (setq inhibit-startup-message t)
-#+end_src
-*** Save faces
-#+begin_src emacs-lisp
-  (defun dan/save-faces (&optional restore-p)
-    (interactive "P")
-    (let ((faces (face-list)) orig)
-      (dolist (face (face-list))
-        (unless (string-match "__original$" (symbol-name face))
-          (setq orig (intern (concat (symbol-name face) "__original")))
-          (if restore-p
-              (condition-case nil
-                  (copy-face orig face)
-                (error "Failed to restore face %s from %s" face orig))
-            (condition-case nil
-                (copy-face face orig)
-              (error "Failed to save face %s as %s" face orig)))))))
-  
-  (dan/save-faces)
-  
-  (setq color-theme-is-cumulative t)
-#+end_src
-
-*** Transparency
-http://www.emacswiki.org/emacs/TransparentEmacs
-#+begin_src emacs-lisp
-  ;;(set-frame-parameter (selected-frame) 'alpha '(<active> [<inactive>]))
-  (setq dan/frame-alpha '(95 50)) ;; high -> opaque
-  
-  (set-frame-parameter (selected-frame) 'alpha dan/frame-alpha)
-  (add-to-list 'default-frame-alist (cons 'alpha dan/frame-alpha))
-  
-  ;; no transparency:
-  ;; (set-frame-parameter (selected-frame) 'alpha '(100 100))
-  ;; (add-to-list 'default-frame-alist '(alpha 100 100))
-  
-  ;; You can use the following snippet after you’ve set the alpha as above to assign a toggle to “C-c t”:
-  
-  (eval-when-compile (require 'cl))
-  (defun dan/toggle-transparency ()
-    (interactive)
-    (if (/=
-         (cadr (find 'alpha (frame-parameters nil) :key #'car))
-         100)
-        (set-frame-parameter nil 'alpha '(100 100))
-      (set-frame-parameter nil 'alpha '(85 60))))
-  (global-set-key (kbd "C-c t") 'toggle-transparency)
 #+end_src
 ** Info
 #+begin_src emacs-lisp :tangle no
@@ -2757,6 +2686,94 @@ I didn't get this to work.
       (if (re-search-forward "^ +[0-9]+:" nil t)
           (delete-region (point-min) (point-at-bol)))))
 #+end_src
+* Appearance
+#+begin_src emacs-lisp
+  
+  (add-hook 'find-file-hook 'dan/sanitise-faces)
+  (add-hook 'find-file-hook 'dan/set-show-paren-style)
+  
+  (setq dan/custom-appearance nil)
+  (if dan/custom-appearance
+      (if (not window-system)
+          (custom-set-faces
+           '(mode-line ((t (:foreground "red" :inverse-video nil))))
+           '(org-agenda-date-weekend ((t (:foreground "red"))) t)
+           '(org-hide ((((background light)) (:foreground "black")))))
+        (progn
+          (add-to-list 'load-path "~/lib/emacs/color-theme-6.6.0")
+          (when (dan/require 'color-theme)
+            (eval-after-load "color-theme"
+              '(progn
+                 (color-theme-initialize)
+                 (color-theme-charcoal-black)))))))
+#+end_src
+** Vanilla
+#+begin_src emacs-lisp
+  (tool-bar-mode -1)
+  (menu-bar-mode -1)
+  (scroll-bar-mode -1)
+  (setq inhibit-startup-message t)
+#+end_src
+** Save faces
+#+begin_src emacs-lisp :tangle no
+  (defun dan/save-faces (&optional restore-p)
+    (interactive "P")
+    (let ((faces (face-list)) orig)
+      (dolist (face (face-list))
+        (unless (string-match "__original$" (symbol-name face))
+          (setq orig (intern (concat (symbol-name face) "__original")))
+          (if restore-p
+              (condition-case nil
+                  (copy-face orig face)
+                (error "Failed to restore face %s from %s" face orig))
+            (condition-case nil
+                (copy-face face orig)
+              (error "Failed to save face %s as %s" face orig)))))))
+  
+  (dan/save-faces)
+  
+  (setq color-theme-is-cumulative t)
+#+end_src
+** Start-up
+#+begin_src emacs-lisp
+  (color-theme-initialize)
+  (color-theme-charcoal-black)
+  (case dan/operating-system
+    ('linux
+     (set-face-attribute 'default nil :height 110 :family "DejaVu Sans Mono"))
+    ('darwin
+     (set-face-attribute 'default nil :height 180)))
+  (dan/sanitise-faces)
+  (dan/set-show-paren-style)
+  (nconc default-frame-alist '((cursor-type . bar)))
+#+end_src
+
+** Transparency
+http://www.emacswiki.org/emacs/TransparentEmacs
+#+begin_src emacs-lisp
+  ;;(set-frame-parameter (selected-frame) 'alpha '(<active> [<inactive>]))
+  (setq dan/frame-alpha '(95 50)) ;; high -> opaque
+  
+  (set-frame-parameter (selected-frame) 'alpha dan/frame-alpha)
+  (add-to-list 'default-frame-alist (cons 'alpha dan/frame-alpha))
+  
+  ;; no transparency:
+  ;; (set-frame-parameter (selected-frame) 'alpha '(100 100))
+  ;; (add-to-list 'default-frame-alist '(alpha 100 100))
+  
+  ;; You can use the following snippet after you’ve set the alpha as above to assign a toggle to “C-c t”:
+  
+  (eval-when-compile (require 'cl))
+  (defun dan/toggle-transparency ()
+    (interactive)
+    (if (/=
+         (cadr (find 'alpha (frame-parameters nil) :key #'car))
+         100)
+        (set-frame-parameter nil 'alpha '(100 100))
+      (set-frame-parameter nil 'alpha '(85 60))))
+  (global-set-key (kbd "C-c t") 'toggle-transparency)
+#+end_src
+
 * Start-up
 #+begin_src emacs-lisp
   ;;(when (string-match "^23\.*" emacs-version)
@@ -2772,18 +2789,8 @@ I didn't get this to work.
   (if nil
       (org-agenda-list)
     (delete-other-windows))
-  (color-theme-initialize)
-  (color-theme-charcoal-black)
-  (case dan/operating-system
-    ('linux
-     (set-face-attribute 'default nil :height 110 :family "DejaVu Sans Mono"))
-    ('darwin
-     (set-face-attribute 'default nil :height 140)))
-  (dan/sanitise-faces)
-  (dan/set-show-paren-style)
   (require 'server)
   (unless (server-running-p) (server-start))
-  (nconc default-frame-alist '((cursor-type . bar)))
   (ido-mode +1)
   (setq ido-separator " ")
   (eshell)
