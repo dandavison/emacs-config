@@ -576,7 +576,7 @@
   (add-hook 'emacs-lisp-mode-hook
             (lambda () (dan/set-up-outline-minor-mode "\\((\\|;;;\\)")))
   (add-hook 'python-mode-hook
-            (lambda () (dan/set-up-outline-minor-mode "\\( *def \\|if \\|class \\|##\\)")))
+            (lambda () (dan/set-up-outline-minor-mode "\\( *def .*:\\|if \\|class \\|##\\)")))
   (add-hook 'bibtex-mode-hook
             (lambda () (dan/set-up-outline-minor-mode "@")))
 #+end_src
