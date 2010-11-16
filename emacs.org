@@ -1,3 +1,8 @@
+* Requires
+#+begin_src emacs-lisp
+(require 'cl)
+#+end_src
+
 * Operating system
 #+begin_src emacs-lisp
   (defvar dan/operating-system
