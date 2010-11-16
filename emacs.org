@@ -640,6 +640,7 @@
 #+end_src
 *** Etc
 #+begin_src emacs-lisp
+  (setq ring-bell-function (lambda nil nil))
   (setq case-fold-search nil)
   (setq default-major-mode 'org-mode)
   (setq diff-switches "-u")
