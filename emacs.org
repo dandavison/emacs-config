@@ -588,9 +588,10 @@
         '(".html" ".csv" ".ps" ".bst" ".cls"
           ".fdf" ".spl" ".aux" ".ppt" ".doc" ".xls" ".mp3" ".org"))
   
-  (mapc (lambda(extension)
-          (add-to-list 'completion-ignored-extensions extension))
-        dan/ignored-extensions)
+  (setq completion-ignored-extensions
+        (union completion-ignored-extensions
+               dan/ignored-extensions :test 'equal)))
+  
   (require 'ido)
   
   ;; As regexps, these should really have terminal $
