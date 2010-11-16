@@ -1462,6 +1462,7 @@ Fontify code blocks in the text of messages
   (dan/require 'magit)
   (setq magit-save-some-buffers nil)
   (setq magit-process-popup-time 1)
+  (add-hook 'magit-log-edit-mode-hook 'orgstruct-mode)
 #+end_src
 ** Misc
 #+begin_src emacs-lisp
