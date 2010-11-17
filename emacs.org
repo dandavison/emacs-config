@@ -722,10 +722,10 @@
   (if window-system
       (let ((browser (if (eq dan/operating-system 'darwin)
                          "open"
-                       (getenv "$BROWSER"))))
+                       (getenv "BROWSER"))))
         (setq browse-url-browser-function 'browse-url-generic
               browse-url-generic-program browser)
-        (when (string-match browser "firefox")
+        (when (and browser (string-match browser "firefox"))
           (setq browse-url-firefox-new-window-is-tab t))))
 #+end_src
 ** Non-default
@@ -1074,10 +1074,9 @@
     ('linux
      (setq user-mail-address "dandavison7@gmail.com")
      (setq gnus-select-method
-           ('linux
-            '(nnimap "dc"
-                     (nnimap-address "localhost")
-                     (nnimap-authinfo-file "~/config/email/authinfo"))))))
+           '(nnimap "dc"
+                    (nnimap-address "localhost")
+                    (nnimap-authinfo-file "~/config/email/authinfo")))))
   
   (setq gnus-secondary-select-methods
         '((nntp "news.gmane.org")
