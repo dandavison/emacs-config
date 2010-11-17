@@ -1516,6 +1516,172 @@ Fontify code blocks in the text of messages
       (define-key yas/keymap [tab] 'yas/next-field-group)))
 #+end_src
 ** Org
+*** Functions
+**** List supported laguages
+#+begin_src emacs-lisp
+  (defun dan/org-babel-list-supported-languages ()
+    (interactive)
+    (sort
+     (set-difference
+      (mapcar
+       (lambda (s) (intern (progn (string-match "^ob-\\(.+\\)\.el$" s)
+                                  (match-string 1 s))))
+       (directory-files
+        (save-window-excursion
+          (file-name-directory
+           (buffer-file-name (find-library "ob"))))
+        nil "^ob-.+\.el$"))
+      '(comint eval exp keys lob ref table tangle))
+     (lambda (x y) (string< (downcase (symbol-name x))
+                            (downcase (symbol-name y))))))
+#+end_src
+
+**** Show all including blocks
+#+begin_src emacs-lisp
+  (defun dan/org-show-all ()
+    (interactive)
+    (let ((org-hide-block-startup nil))
+      (org-mode)
+      (show-all)))
+#+end_src
+
+**** Temp org file
+#+begin_src emacs-lisp
+  (defun dan/org-switch-to-org-scratch ()
+    "Put me in a new org buffer now!"
+    (interactive)
+    (let ((contents
+           (and (region-active-p)
+                (buffer-substring (region-beginning)
+                                  (region-end)))))
+      (find-file "/tmp/org-scratch.org")
+      (if contents (insert contents))))
+#+end_src
+
+**** Search in org source code
+#+begin_src emacs-lisp
+  (setq dan/org-mode-src-dir "~/lib/emacs/org")
+  
+  (defun dan/org-search-src ()
+    "Search for REGEXP in Org-mode source code."
+    (interactive)
+    (lgrep
+     (if (region-active-p)
+         (buffer-substring (region-beginning) (region-end))
+       (org-completing-read "Regexp: "))
+     "*.el" (concat dan/org-mode-src-dir "/lisp")))
+#+end_src
+
+**** Search in org files
+     [[gnus:nntp%2Bnews.gmane.org:gmane.emacs.orgmode#87eicxzkdw.fsf@archdesk.localdomain][Email from Matt Lundin: Re: Search files in a folder]]
+#+begin_src emacs-lisp
+  (defun ml/org-grep (search &optional context)
+    "Search for word in org files.
+  
+  Prefix argument determines number of lines."
+    (interactive "sSearch for: \nP")
+    (let ((grep-find-ignored-files '("#*" ".#*"))
+          (grep-template (concat "grep <X> -i -nH "
+                                 (when context
+                                   (concat "-C" (number-to-string context)))
+                                 " -e <R> <F>")))
+      (lgrep search "*org*" "/home/dan/org/")))
+  
+  (global-set-key (kbd "<f7>") 'ml/org-grep)
+#+end_src
+
+**** dan/org-edit-special
+      Needs more work to keep point in sensible location, and to
+      detect when inside a block.
+
+#+begin_src emacs-lisp
+  (defun dan/org-edit-special ()
+    (interactive)
+    (if (save-excursion
+          (re-search-forward
+           (concat "\\("
+                   org-babel-src-block-regexp
+                   "\\|"
+                   "^[ \t]*|" ;; table
+                   "\\)") nil t))
+        (org-edit-special)
+      (message "No target found")))
+#+end_src
+
+**** org-insert-link-maybe
+#+begin_src emacs-lisp
+  (defun org-insert-link-maybe ()
+    "Insert a file link depending on the context"
+    (interactive)
+    (let ((case-fold-search t))
+      (if (save-excursion
+            (when (re-search-backward "[[:space:]]" nil t)
+              (forward-char 1)
+              (looking-at "\\[?\\[?file:?\\(?:[ \t\n]\\|\\'\\)")))
+          (progn (replace-match "") (org-insert-link '(4)) t)
+        nil)))
+  
+  ;; (add-hook 'org-tab-first-hook 'org-insert-link-maybe)
+#+end_src
+**** Link to magit mode
+      [[mairix:t:@@4A86B7D9.6080805@cs.tu-berlin.de][Email from Stephan Schmitt: {Orgmode} link to magit-status]]
+#+begin_src emacs-lisp
+  (defun org-magit-store-link ()
+    "Store a link to a directory to open with magit."
+    (when (eq major-mode 'magit-mode)
+      (let* ((dir default-directory)
+             (link (org-make-link "magit:" dir))
+             (desc (abbreviate-file-name dir)))
+        (org-store-link-props :type "magit" :link link :description desc)
+        link)))
+  
+  (defun org-magit-open (dir)
+    "Follow a magit link to DIR."
+    (magit-status dir))
+  
+  (org-add-link-type "magit" 'org-magit-open nil)
+  (add-hook 'org-store-link-functions 'org-magit-store-link)
+#+end_src
+
+**** Etc
+#+begin_src emacs-lisp
+  (defun dan/org-read-subtrees ()
+    "Return subtrees as a list of strings"
+    (let ((subtrees))
+      (while (or (looking-at "^*") (outline-next-heading))
+        (outline-mark-subtree)
+        (setq subtrees (cons (buffer-substring (point) (mark)) subtrees))
+        (goto-char (mark)))
+      (nreverse subtrees)))
+  
+  (defun dan/org-reverse-subtrees ()
+    "Reverse the order of all subtrees.
+  
+  Should start by setting restriction?
+  "
+    (interactive)
+    (beginning-of-line)
+    (let ((subtrees (dan/org-read-subtrees)))
+      (beginning-of-buffer)
+      (delete-region (point) (mark))
+      (insert (mapconcat 'identity (nreverse subtrees) "\n"))))
+#+end_src
+
+**** Htmlize with images
+Based on
+https://stat.ethz.ch/pipermail/ess-help/2009-August/005478.html
+by Vitalie S.
+#+begin_src emacs-lisp
+  (defun dan/htmlize-buffer-with-org-images ()
+    "Convert buffer to html, including embedded images."
+    (interactive)
+    (save-excursion
+      (switch-to-buffer (htmlize-buffer (current-buffer)))
+      (goto-char (point-min))
+      (while (re-search-forward "<span class=\"org-link\">file:\\(.+\\)</span>" nil t)
+        (replace-match (concat "<img src='\\1'/>")))))
+#+end_src
+
 *** Basics
 #+begin_src emacs-lisp
   (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
@@ -1940,23 +2106,7 @@ rubber -f -m xelatex somefile.tex
         (org-edit-src-code))))
 #+end_src
 **** Activate languages
-#+begin_src emacs-lisp
-  (defun dan/org-babel-list-supported-languages ()
-    (interactive)
-    (sort
-     (set-difference
-      (mapcar
-       (lambda (s) (intern (progn (string-match "^ob-\\(.+\\)\.el$" s)
-                                  (match-string 1 s))))
-       (directory-files
-        (save-window-excursion
-          (file-name-directory
-           (buffer-file-name (find-library "ob"))))
-        nil "^ob-.+\.el$"))
-      '(comint eval exp keys lob ref table tangle))
-     (lambda (x y) (string< (downcase (symbol-name x))
-                            (downcase (symbol-name y))))))
-  
+#+begin_src emacs-lisp  
   (setq org-babel-load-languages
         (mapcar (lambda (lang) (cons lang t))
                 (dan/org-babel-list-supported-languages)))
@@ -2240,153 +2390,6 @@ this. see :tangle no below and in font-lock tree
 **** Org-fstree
 #+begin_src emacs-lisp
   (add-to-list 'load-path "~/lib/emacs/org-fstree")
-#+end_src
-
-*** Etc
-**** Show all including blocks
-#+begin_src emacs-lisp
-  (defun dan/org-show-all ()
-    (interactive)
-    (let ((org-hide-block-startup nil))
-      (org-mode)
-      (show-all)))
-#+end_src
-
-**** Temp org file
-#+begin_src emacs-lisp
-  (defun dan/org-switch-to-org-scratch ()
-    "Put me in a new org buffer now!"
-    (interactive)
-    (let ((contents
-           (and (region-active-p)
-                (buffer-substring (region-beginning)
-                                  (region-end)))))
-      (find-file "/tmp/org-scratch.org")
-      (if contents (insert contents))))
-#+end_src
-
-**** Search in org source code
-#+begin_src emacs-lisp
-  (setq dan/org-mode-src-dir "~/lib/emacs/org")
-  
-  (defun dan/org-search-src ()
-    "Search for REGEXP in Org-mode source code."
-    (interactive)
-    (lgrep
-     (if (region-active-p)
-         (buffer-substring (region-beginning) (region-end))
-       (org-completing-read "Regexp: "))
-     "*.el" (concat dan/org-mode-src-dir "/lisp")))
-#+end_src
-
-**** Search in org files
-     [[gnus:nntp%2Bnews.gmane.org:gmane.emacs.orgmode#87eicxzkdw.fsf@archdesk.localdomain][Email from Matt Lundin: Re: Search files in a folder]]
-#+begin_src emacs-lisp
-  (defun ml/org-grep (search &optional context)
-    "Search for word in org files.
-  
-  Prefix argument determines number of lines."
-    (interactive "sSearch for: \nP")
-    (let ((grep-find-ignored-files '("#*" ".#*"))
-          (grep-template (concat "grep <X> -i -nH "
-                                 (when context
-                                   (concat "-C" (number-to-string context)))
-                                 " -e <R> <F>")))
-      (lgrep search "*org*" "/home/dan/org/")))
-  
-  (global-set-key (kbd "<f7>") 'ml/org-grep)
-#+end_src
-
-**** dan/org-edit-special
-      Needs more work to keep point in sensible location, and to
-      detect when inside a block.
-
-#+begin_src emacs-lisp
-  (defun dan/org-edit-special ()
-    (interactive)
-    (if (save-excursion
-          (re-search-forward
-           (concat "\\("
-                   org-babel-src-block-regexp
-                   "\\|"
-                   "^[ \t]*|" ;; table
-                   "\\)") nil t))
-        (org-edit-special)
-      (message "No target found")))
-#+end_src
-
-**** org-insert-link-maybe
-#+begin_src emacs-lisp
-  (defun org-insert-link-maybe ()
-    "Insert a file link depending on the context"
-    (interactive)
-    (let ((case-fold-search t))
-      (if (save-excursion
-            (when (re-search-backward "[[:space:]]" nil t)
-              (forward-char 1)
-              (looking-at "\\[?\\[?file:?\\(?:[ \t\n]\\|\\'\\)")))
-          (progn (replace-match "") (org-insert-link '(4)) t)
-        nil)))
-  
-  ;; (add-hook 'org-tab-first-hook 'org-insert-link-maybe)
-#+end_src
-**** Link to magit mode
-      [[mairix:t:@@4A86B7D9.6080805@cs.tu-berlin.de][Email from Stephan Schmitt: {Orgmode} link to magit-status]]
-#+begin_src emacs-lisp
-  (defun org-magit-store-link ()
-    "Store a link to a directory to open with magit."
-    (when (eq major-mode 'magit-mode)
-      (let* ((dir default-directory)
-             (link (org-make-link "magit:" dir))
-             (desc (abbreviate-file-name dir)))
-        (org-store-link-props :type "magit" :link link :description desc)
-        link)))
-  
-  (defun org-magit-open (dir)
-    "Follow a magit link to DIR."
-    (magit-status dir))
-  
-  (org-add-link-type "magit" 'org-magit-open nil)
-  (add-hook 'org-store-link-functions 'org-magit-store-link)
-#+end_src
-
-**** Etc
-#+begin_src emacs-lisp
-  (defun dan/org-read-subtrees ()
-    "Return subtrees as a list of strings"
-    (let ((subtrees))
-      (while (or (looking-at "^*") (outline-next-heading))
-        (outline-mark-subtree)
-        (setq subtrees (cons (buffer-substring (point) (mark)) subtrees))
-        (goto-char (mark)))
-      (nreverse subtrees)))
-  
-  (defun dan/org-reverse-subtrees ()
-    "Reverse the order of all subtrees.
-  
-  Should start by setting restriction?
-  "
-    (interactive)
-    (beginning-of-line)
-    (let ((subtrees (dan/org-read-subtrees)))
-      (beginning-of-buffer)
-      (delete-region (point) (mark))
-      (insert (mapconcat 'identity (nreverse subtrees) "\n"))))
-#+end_src
-
-**** Htmlize with images
-Based on
-https://stat.ethz.ch/pipermail/ess-help/2009-August/005478.html
-by Vitalie S.
-#+begin_src emacs-lisp
-  (defun dan/htmlize-buffer-with-org-images ()
-    "Convert buffer to html, including embedded images."
-    (interactive)
-    (save-excursion
-      (switch-to-buffer (htmlize-buffer (current-buffer)))
-      (goto-char (point-min))
-      (while (re-search-forward "<span class=\"org-link\">file:\\(.+\\)</span>" nil t)
-        (replace-match (concat "<img src='\\1'/>")))))
 #+end_src
 
 ** Org-buffers
