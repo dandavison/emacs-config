@@ -1074,10 +1074,9 @@
     ('linux
      (setq user-mail-address "dandavison7@gmail.com")
      (setq gnus-select-method
-           ('linux
-            '(nnimap "dc"
-                     (nnimap-address "localhost")
-                     (nnimap-authinfo-file "~/config/email/authinfo"))))))
+           '(nnimap "dc"
+                    (nnimap-address "localhost")
+                    (nnimap-authinfo-file "~/config/email/authinfo")))))
   
   (setq gnus-secondary-select-methods
         '((nntp "news.gmane.org")
