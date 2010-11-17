@@ -2121,6 +2121,8 @@ rubber -f -m xelatex somefile.tex
 #+begin_src emacs-lisp
   (setq org-babel-min-lines-for-block-output 10)
   (setq org-export-babel-evaluate t)
+  (setq org-babel-noweb-error-langs
+        (mapcar #'symbol-name (dan/org-babel-list-supported-languages)))
 #+end_src
 **** Etc
 ***** dan/org-edit-src-code-current-window
