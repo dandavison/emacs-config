@@ -2120,9 +2120,6 @@ rubber -f -m xelatex somefile.tex
 **** Variables
 #+begin_src emacs-lisp
   (setq org-babel-min-lines-for-block-output 10)
-  
-  ;; (setq org-babel-timestamp-results t)
-  ;; (setq org-babel-allow-variable-references t)
   (setq org-export-babel-evaluate t)
 #+end_src
 **** Etc
