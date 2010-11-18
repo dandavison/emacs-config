@@ -90,7 +90,10 @@
 #+begin_src emacs-lisp
   (defun dan/toggle-debug-on-error ()
     (interactive)
-    (setq debug-on-error (not debug-on-error)))
+    (message
+     "debug-on-error %s"
+     (if (setq debug-on-error (not debug-on-error))
+         "on" "off")))
 #+end_src
 
 ** Revert all elisp buffers
