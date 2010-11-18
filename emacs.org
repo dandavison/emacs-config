@@ -64,14 +64,13 @@
       (setq exec-path (append paths exec-path))))
 #+end_src
 
-** Password
+** Sudo read file
 #+begin_src emacs-lisp
-  (defun dan/password ()
-    (interactive)
+  (defun dan/sudo-read-from-file (file)
+    (interactive "FFile: ")
     (with-temp-buffer
       (insert-file-contents
-       (expand-file-name
-        "/sudo::/Users/davison/config/password"))
+       (concat "/sudo::" (expand-file-name file)))
       (buffer-string)))
 #+end_src
 
@@ -1055,33 +1054,48 @@
   
   (require 'nnmairix)
   (setq user-full-name "Dan Davison")
-  
   (case dan/operating-system
     ('darwin
      (setq user-mail-address "davison@counsyl.com")
-  
-     ;; http://eschulte.github.com/emacs-starter-kit/starter-kit-gnus-pop.html
-     (setq gnus-select-method '(nnml ""))
-     (let ((email "davison@counsyl.com")
-           (passwd (dan/password)))
-       ;; The following adds Gmail as a source of mail for Gnus
-       (add-to-list 'mail-sources
-                    `(pop :server "pop.gmail.com"
-                          :port 995
-                          :user ,email
-                          :password ,passwd
-                          :stream ssl))))
+     (setq gnus-ignored-newsgroups nil) ;; "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\ ]\ [# ()]")
+     (setq gnus-select-method
+           '(nnimap "gmail"
+                    (nnimap-address "imap.gmail.com")
+                    (nnimap-server-port 993)
+                    (nnimap-stream ssl))))
     ('linux
      (setq user-mail-address "dandavison7@gmail.com")
      (setq gnus-select-method
            '(nnimap "dc"
                     (nnimap-address "localhost")
-                    (nnimap-authinfo-file "~/config/email/authinfo")))))
+                    (nnimap-authinfo-file "~/config/email/authinfo")))
+     (setq gnus-secondary-select-methods
+           '((nntp "news.gmane.org")
+             (nntp "news.eternal-september.org")
+             (nntp "news.gwene.org")))))
   
-  (setq gnus-secondary-select-methods
-        '((nntp "news.gmane.org")
-          (nntp "news.eternal-september.org")
-          (nntp "news.gwene.org")))
+  
+  (if nil
+     (setq gnus-secondary-select-methods nil)
+     (setq gnus-ignored-newsgroups nil) ;; "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\ ]\ [# ()]")
+     (setq gnus-select-method '(nnml ""))
+     (setq mail-sources
+           `(
+             (pop :server "pop.gmail.com"
+                  :port 995
+                  :user "dandavison7@gmail.com"
+                  :password ,(org-babel-trim
+                              (dan/sudo-read-from-file
+                               "~/config/email/gmail-password"))
+                  :stream ssl)
+             ;; (pop :server "pop.gmail.com"
+             ;;      :port 995
+             ;;      :user "davison@counsyl.com"
+             ;;      :password ,(org-babel-trim
+             ;;                  (dan/sudo-read-from-file
+             ;;                   "~/config/email/counsyl-gmail-password"))
+             ;;      :stream ssl)
+             )))
   
   (setq gnus-save-newsrc-file nil)
   (setq gnus-play-startup-jingle t)
