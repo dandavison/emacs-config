@@ -1060,7 +1060,7 @@
   (case dan/operating-system
     ('darwin
      (setq user-mail-address "davison@counsyl.com")
-     (setq gnus-ignored-newsgroups nil) ;; "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\ ]\ [# ()]")
+     (setq gnus-ignored-newsgroups nil) ;; "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\”]\”[#’()]")
      (setq gnus-select-method
            '(nnimap "gmail"
                     (nnimap-address "imap.gmail.com")
@@ -1080,7 +1080,7 @@
   
   (if nil
      (setq gnus-secondary-select-methods nil)
-     (setq gnus-ignored-newsgroups nil) ;; "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\ ]\ [# ()]")
+     (setq gnus-ignored-newsgroups nil) ;; "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\”]\”[#’()]")
      (setq gnus-select-method '(nnml ""))
      (setq mail-sources
            `(
