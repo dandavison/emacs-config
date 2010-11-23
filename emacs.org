@@ -911,6 +911,9 @@
 #+begin_src emacs-lisp
   ;; (require 'ipython)
   (setq auto-mode-alist (cons '("\\.pyw$" . python-mode) auto-mode-alist))
+  (if (eq dan/operating-system 'darwin)
+      (setq python-command "/usr/bin/python" ;; has numpy
+            org-babel-python-command python-command))
 #+end_src
 *** Shell
 #+begin_src emacs-lisp
@@ -1076,7 +1079,6 @@
            '((nntp "news.gmane.org")
              (nntp "news.eternal-september.org")
              (nntp "news.gwene.org")))))
-  
   
   (if nil
      (setq gnus-secondary-select-methods nil)
