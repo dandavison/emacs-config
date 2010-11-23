@@ -2068,7 +2068,7 @@ rubber -f -m xelatex somefile.tex
             (lambda () (define-key org-src-mode-map "\C-c\C-v"
                          'org-src-do-key-sequence-at-code-block)))
   
-  (defvar dan/org-src-native-underscore "t")
+  (defvar dan/org-src-native-underscore t)
   
   (defun dan/org-underscore-command ()
     (interactive)
