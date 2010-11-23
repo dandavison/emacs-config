@@ -1910,9 +1910,11 @@ by Vitalie S.
   (setq org-enforce-todo-dependencies t)
   (setq org-enforce-todo-checkbox-dependencies t)
   
-  (setq org-directory "~/org")
-  ;; (setq org-agenda-files (list org-directory))
-  (setq org-agenda-files (list "~/org/fifa-worldcup-2010.org"))
+  (setq org-directory 
+        (case dan/operating-system
+          ('darwin "~/Work")
+          ('linux "~/org")))
+  (setq org-agenda-files (list org-directory))
   (setq org-agenda-start-on-weekday nil)
   (setq org-agenda-ndays 30)
   (setq org-agenda-compact-blocks t)
