@@ -1080,27 +1080,27 @@
              (nntp "news.eternal-september.org")
              (nntp "news.gwene.org")))))
   
-  (if nil
-     (setq gnus-secondary-select-methods nil)
-     (setq gnus-ignored-newsgroups nil) ;; "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\”]\”[#’()]")
-     (setq gnus-select-method '(nnml ""))
-     (setq mail-sources
-           `(
-             (pop :server "pop.gmail.com"
-                  :port 995
-                  :user "dandavison7@gmail.com"
-                  :password ,(org-babel-trim
-                              (dan/sudo-read-from-file
-                               "~/config/email/gmail-password"))
-                  :stream ssl)
-             ;; (pop :server "pop.gmail.com"
-             ;;      :port 995
-             ;;      :user "davison@counsyl.com"
-             ;;      :password ,(org-babel-trim
-             ;;                  (dan/sudo-read-from-file
-             ;;                   "~/config/email/counsyl-gmail-password"))
-             ;;      :stream ssl)
-             )))
+  (when nil
+    (setq gnus-secondary-select-methods nil)
+    (setq gnus-ignored-newsgroups nil) ;; "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\”]\”[#’()]")
+    (setq gnus-select-method '(nnml ""))
+    (setq mail-sources
+          `(
+            (pop :server "pop.gmail.com"
+                 :port 995
+                 :user "dandavison7@gmail.com"
+                 :password ,(org-babel-trim
+                             (dan/sudo-read-from-file
+                              "~/config/email/gmail-password"))
+                 :stream ssl)
+            ;; (pop :server "pop.gmail.com"
+            ;;      :port 995
+            ;;      :user "davison@counsyl.com"
+            ;;      :password ,(org-babel-trim
+            ;;                  (dan/sudo-read-from-file
+            ;;                   "~/config/email/counsyl-gmail-password"))
+            ;;      :stream ssl)
+            )))
   
   (setq gnus-save-newsrc-file nil)
   (setq gnus-play-startup-jingle t)
