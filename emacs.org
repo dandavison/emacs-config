@@ -1911,11 +1911,10 @@ by Vitalie S.
   (setq org-enforce-todo-dependencies t)
   (setq org-enforce-todo-checkbox-dependencies t)
   
-  (setq org-directory 
+  (setq org-agenda-files
         (case dan/operating-system
-          ('darwin "~/Work")
-          ('linux "~/org")))
-  (setq org-agenda-files (list org-directory))
+          ('darwin '("~/Work" "~/org"))
+          ('linux '("~/org"))))
   (setq org-agenda-start-on-weekday nil)
   (setq org-agenda-ndays 30)
   (setq org-agenda-compact-blocks t)
