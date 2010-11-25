@@ -738,6 +738,7 @@
 #+end_src
 ** VC
 #+begin_src emacs-lisp
+  (setq vc-handled-backends nil)
   (setq vc-follow-symlinks t)
 #+end_src
 * Modules
