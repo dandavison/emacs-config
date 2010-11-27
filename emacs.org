@@ -2445,6 +2445,7 @@ I didn't get this to work.
                  ("\C-cv" . revert-buffer)
                  ("\C-cw" . delete-window)
                  ("\C-c)" . blink-matching-open)
+                 ("\C-c," . flymake-display-err-menu-for-current-line)
                  ("\C-\M-g" . lgrep)
                  ([(control next)] . end-of-buffer)
                  ([(control prior)] . beginning-of-buffer)
