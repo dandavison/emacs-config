@@ -50,11 +50,14 @@
     "Set $PATH and `exec-path'.
   This should really avoid duplicating paths."
     (interactive)
-    (let* ((bin (concat (getenv "HOME") "/" "bin"))
+    (let* (($HOME/bin (concat (getenv "HOME") "/" "bin"))
            (paths
             (case dan/operating-system
              ('darwin
-              (list "/usr/texbin" bin "/opt/local/bin"))
+              (list "/usr/texbin"
+                    $HOME/bin
+                    "/opt/local/bin"
+                    "/usr/local/bin"))
              (t (list bin)))))
       (setenv "PATH"
               (mapconcat
