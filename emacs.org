@@ -1751,17 +1751,20 @@ by Vitalie S.
 #+begin_src emacs-lisp
   (setq org-hide-leading-stars t)
   (setq org-hidden-keywords nil) ;; '(title date author))
-  (copy-face 'shadow 'org-meta-line)
   (setq org-pretty-entities t)
 #+end_src
 **** Set outline colors
+     :PROPERTIES:
+     :tangle: no
+     :END:
+
 #+function: outline-colours
-#+begin_src R :tangle no
+#+begin_src R
   require("RColorBrewer")
   brewer.pal(n=8, name="Set1")
 #+end_src
 
-#+begin_src emacs-lisp :tangle no :expand yes :var colours=outline-colours()
+#+begin_src emacs-lisp :expand yes :var colours=outline-colours()
   (dotimes (level 8)
     (set-face-foreground
      (intern (concat "outline-" (number-to-string (1+ level))))
@@ -2233,153 +2236,6 @@ rubber -f -m xelatex somefile.tex
 *** Inline images
 #+begin_src emacs-lisp
   (setq org-startup-with-inline-images t)
-#+end_src
-
-*** Support for viewing images
-I think all the below is obsolete since Carsten worked on
-this. see :tangle no below and in font-lock tree
-
-    See [[*Font%20lock][Font-lock]] section for more recent iimage fontification.
-#+begin_src emacs-lisp :tangle no
-  (require 'iimage)
-  (setq iimage-mode-image-search-path (expand-file-name "~/"))
-  ;;Match org file: links
-  (add-to-list 'iimage-mode-image-regex-alist
-               (cons (concat "\\[\\[file:\\(~?" iimage-mode-image-filename-regex
-                             "\\)\\]")  1))
-  
-  (defun dan/org-toggle-iimage-in-org ()
-    (interactive)
-    (let ((turning-on (not iimage-mode)))
-      (set-face-underline-p 'org-link (not turning-on))
-      (iimage-mode (or turning-on 0))))
-  
-  (defun dan/iimage-mode-buffer (arg &optional refresh)
-    "Display/undisplay images.
-  With numeric ARG, display the images if and only if ARG is positive."
-    (interactive)
-    (let ((ing (if (numberp arg)
-                   (> arg 0)
-                 iimage-mode))
-          (modp (buffer-modified-p (current-buffer)))
-          file img)
-      (save-excursion
-        (goto-char (point-min))
-        (dolist (pair iimage-mode-image-regex-alist)
-          (while (re-search-forward (car pair) nil t)
-            (if (and (setq file (match-string (cdr pair)))
-                     (setq file (iimage-locate-file file
-                                                    (cons default-directory
-                                                          iimage-mode-image-search-path))))
-                (if ing
-                    (let ((img (create-image file)))
-                      (add-text-properties (match-beginning 0) (match-end 0) (list 'display img))
-                      (if refresh (image-refresh img)))
-                  (remove-text-properties (match-beginning 0) (match-end 0) '(display)))))))
-      (set-buffer-modified-p modp)))
-  
-  
-  (set-face-underline-p 'org-link nil)
-  
-  (defun dan/org-iimage-refresh ()
-    (interactive)
-    (redisplay t)
-    (set-face-underline-p 'org-link nil)
-    (dan/iimage-mode-buffer 1 'refresh)
-    (redisplay t))
-  
-  ;; (add-hook 'org-babel-after-execute-hook 'dan/org-iimage-refresh)
-  ;; (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
-#+end_src
-
-**** Etc
-#+begin_src emacs-lisp :tangle no
-  (defun dan/org-iimage (&optional arg)
-    "Turn on iimage in org.
-  With prefix argument, turn it off."
-    (interactive "P")
-    (let ((turning-on (not arg)))
-      (set-face-underline-p 'org-link (not turning-on))
-      (iimage-mode (or turning-on 0))))
-  
-  (defun dan/org-iimage-refresh-buffer ()
-    "Force iimage images to refresh.
-  Search loop taken from iimage-mode-buffer."
-    (interactive)
-    (dan/org-iimage)
-    ;; (set-face-underline-p 'org-link nil)
-    ;; (iimage-mode t)
-    (let ((modp (buffer-modified-p (current-buffer))) file)
-      (save-excursion
-        (goto-char (point-min))
-        (dolist (pair iimage-mode-image-regex-alist)
-          (while (re-search-forward (car pair) nil t)
-            (when (and (setq file (match-string (cdr pair)))
-                       (setq file
-                             (iimage-locate-file file
-                                                 (cons default-directory
-                                                       iimage-mode-image-search-path))))
-              (image-refresh (create-image file))))))
-      (set-buffer-modified-p modp))
-    (redisplay))
-#+end_src
-
-*** Font-lock
-:PROPERTIES:
-:ID: 6fde328d-fb5a-4d28-a9ec-8b82e51b5d82
-:END:
-**** Old
-#+begin_src emacs-lisp :tangle no
-  
-  
-  (defun dan/org-fontify-image-links (limit)
-    "Display links to images as images.
-  If the description part of the link is empty display the image,
-  otherwise do nothing. This function is intended to be called
-  during font-lock fontification."
-    (let ((case-fold-search t) file image)
-      (and dan/org-display-inline-images
-           (re-search-forward
-            (concat "\\[\\[file:\\(" iimage-mode-image-filename-regex "\\)\\]\\]") limit t)
-           (setq file (match-string 1))
-           (setq file (iimage-locate-file file (list default-directory)))
-           (setq image (create-image file))
-           (add-text-properties (match-beginning 0) (match-end 0) (list 'display image))
-           ;; (clear-image-cache)
-           (image-refresh image)
-           ;; (redisplay)
-           ;; (redraw-frame)
-           ;; (redraw-display)
-           ;; (image-refresh image)
-           )))
-  
-  (setq dan/org-display-inline-images t)
-  (add-hook 'org-font-lock-hook 'dan/org-fontify-image-links)
-  
-  (set-face-underline-p 'org-link nil)
-  
-  (defun dan/org-fontify-latex-commands (limit)
-    (let ((case-fold-search t))
-      (and (re-search-forward "\\\\[A-Za-z-_]+" limit t)
-           (add-text-properties
-            (match-beginning 0) (match-end 0)
-            '(font-lock-fontified t face font-lock-function-name-face)))))
-  
-  (add-hook 'org-font-lock-hook 'dan/org-fontify-latex-commands)
-#+end_src
-
-**** Fontify src blocks in other modes
-     This doesn't work yet afaict.
-#+begin_src emacs-lisp
-  (defun dan/turn-on-org-src-fontlock ()
-    (interactive)
-    (let ((org-font-lock-extra-keywords
-           (list
-            '(org-fontify-meta-lines-and-blocks))))
-      (org-set-local 'org-font-lock-keywords org-font-lock-extra-keywords)
-      (org-set-local 'font-lock-defaults
-                     '(org-font-lock-keywords t nil nil backward-paragraph))
-      (kill-local-variable 'font-lock-keywords) nil))
 #+end_src
 
 *** Contrib
