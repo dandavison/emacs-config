@@ -1752,7 +1752,7 @@ by Vitalie S.
   (setq org-hide-leading-stars t)
   (setq org-hidden-keywords nil) ;; '(title date author))
   (copy-face 'shadow 'org-meta-line)
-  ;;  (setq org-pretty-entities t)
+  (setq org-pretty-entities t)
 #+end_src
 **** Set outline colors
 #+function: outline-colours
