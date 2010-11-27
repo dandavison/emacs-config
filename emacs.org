@@ -826,6 +826,22 @@
   (setq flyspell-issue-message-flag nil)
 #+end_src
 
+** Flymake
+#+begin_src emacs-lisp
+  (defun flymake-pyflakes-init () 
+    ;; Make sure it's not a remote buffer or flymake would not work
+    (when (not (subsetp (list (current-buffer)) (tramp-list-remote-buffers)))
+      (let* ((temp-file (flymake-init-create-temp-buffer-copy 
+                         'flymake-create-temp-inplace)) 
+             (local-file (file-relative-name 
+                          temp-file 
+                          (file-name-directory buffer-file-name)))) 
+        (list "codequality" (list local-file)))))
+  
+  (add-to-list 'flymake-allowed-file-name-masks 
+               '("\\.py\\'" flymake-pyflakes-init))
+#+end_src
+
 ** Dired
 #+begin_src emacs-lisp
   (setq dired-listing-switches "-lAX")
