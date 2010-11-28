@@ -58,7 +58,7 @@
                     $HOME/bin
                     "/opt/local/bin"
                     "/usr/local/bin"))
-             (t (list bin)))))
+             (t (list $HOME/bin)))))
       (setenv "PATH"
               (mapconcat
                'identity
