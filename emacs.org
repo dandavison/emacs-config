@@ -885,7 +885,7 @@
 #+end_src
 *** Elisp
 #+begin_src emacs-lisp
-  (add-hook 'emacs-lisp-mode-hook 'pretty-lambdas)
+  ;; (add-hook 'emacs-lisp-mode-hook 'pretty-lambdas)
   (add-hook 'emacs-lisp-mode-hook 'paredit-mode)
 #+end_src
 
