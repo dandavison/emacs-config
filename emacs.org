@@ -828,6 +828,7 @@
 
 ** Flymake
 #+begin_src emacs-lisp
+  (require 'flymake)
   (defun flymake-pyflakes-init () 
     ;; Make sure it's not a remote buffer or flymake would not work
     (when (not (subsetp (list (current-buffer)) (tramp-list-remote-buffers)))
