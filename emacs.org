@@ -1942,7 +1942,7 @@ by Vitalie S.
   (setq org-agenda-ndays 30)
   (setq org-agenda-compact-blocks t)
   (setq org-deadline-warning-days 7)
-  ;; (set-face-foreground 'org-agenda-date-weekend "red")
+  (set-face-foreground 'org-agenda-date-weekend "blue")
   ;; (setq org-agenda-remove-tags t) not sure why I had this
   
   (setq org-agenda-custom-commands
