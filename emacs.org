@@ -1076,8 +1076,15 @@
 ** Gnus
 *** General
 #+begin_src emacs-lisp
+  ;; (require 'starttls)
+  ;; (setq starttls-use-gnutls nil)
+  ;; (setq starttls-gnutls-program "/dev/null")
+  
   ;; (add-to-list 'load-path "~/lib/emacs/gnus/lisp")
-  ;; (dan/require 'gnus-load)
+  ;; (require 'gnus-load)
+  
+  ;; (setq starttls-use-gnutls nil)
+  ;; (setq starttls-gnutls-program "/dev/null")
   
   (require 'nnmairix)
   (setq user-full-name "Dan Davison")
