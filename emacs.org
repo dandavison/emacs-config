@@ -2515,7 +2515,10 @@ I didn't get this to work.
   (dan/register-key-bindings
    '("emacs-lisp" .
      (("\C-cd" . edebug-defun)
-      ("\C-c\C-l" . dan/eval-buffer-confirm))))
+      ("\C-c\C-l" . dan/eval-buffer-confirm)
+      ("\M-so" . occur)
+      ([(control left)] . winner-undo)
+      ([(control right)] . winner-redo))))
 #+end_src
 *** ESS
 #+begin_src emacs-lisp
