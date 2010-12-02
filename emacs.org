@@ -1916,28 +1916,9 @@ by Vitalie S.
 
 *** Agenda
 #+begin_src emacs-lisp
-  ;;* agenda
-  ;;  (org-defkey org-agenda-mode-map [(right)] 'forward-char)
-  ;;  (org-defkey org-agenda-mode-map [(left)] 'backward-char)
-  
-    ;;;;
-  
-  
-  (setq dan/org-todo-keyword "TODO")
-  (setq dan/org-started-keyword "STARTED")
-  (setq dan/org-done-keyword "DONE")
-  (setq dan/org-cancelled-keyword "CANCELLED")
-  
   (setq org-todo-keywords
         '((sequence
-           "TODO(t!@/!@)" "STARTED(s!@/!@)" "|" "DONE(d!@/!@)" "CANCELLED(c!@/!@)")))
-  ;; (setq org-todo-keyword-faces
-  ;;       `(
-  ;;         (,dan/org-todo-keyword . (:foreground "red" :weight bold))
-  ;;         (,dan/org-started-keyword . (:foreground "darkorange" :weight bold))
-  ;;         (,dan/org-done-keyword . (:foreground "green" :weight bold))
-  ;;         (,dan/org-cancelled-keyword . (:foreground "black" :weight bold))
-  ;;         ))
+           "TODO(t!@/!@)" "STARTED(s!@/!@)" "|" "DONE(d!@/!@)" "WAIT(w!@/!@)" "CANCELLED(c!@/!@)")))
   (setq org-edit-src-persistent-message nil)
   (setq org-enforce-todo-dependencies t)
   (setq org-enforce-todo-checkbox-dependencies t)
@@ -1951,7 +1932,6 @@ by Vitalie S.
   (setq org-agenda-compact-blocks t)
   (setq org-deadline-warning-days 7)
   (set-face-foreground 'org-agenda-date-weekend "blue")
-  ;; (setq org-agenda-remove-tags t) not sure why I had this
   
   (setq org-agenda-custom-commands
         '(
