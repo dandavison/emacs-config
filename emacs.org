@@ -2641,10 +2641,11 @@ I didn't get this to work.
 #+end_src
 ** Vanilla
 #+begin_src emacs-lisp
-  (tool-bar-mode -1)
-  (menu-bar-mode -1)
-  (scroll-bar-mode -1)
-  (setq inhibit-startup-message t)
+(tool-bar-mode -1)
+(menu-bar-mode -1)
+(if (featurep 'scroll-bar)
+    (scroll-bar-mode -1))
+(setq inhibit-startup-message t)
 #+end_src
 ** Save faces
 #+begin_src emacs-lisp :tangle no
