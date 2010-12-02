@@ -50,7 +50,8 @@
     "Set $PATH and `exec-path'.
   This should really avoid duplicating paths."
     (interactive)
-    (let* (($HOME/bin (concat (getenv "HOME") "/" "bin"))
+    (let* (($HOME (getenv "HOME"))
+           ($HOME/bin (concat $HOME "/" "bin"))
            (paths
             (case dan/operating-system
              ('darwin
@@ -64,6 +65,7 @@
                'identity
                (append paths (list (getenv "PATH")))
                path-separator))
+      (setenv "PYTHONPATH" $HOME)
       (setq exec-path (append paths exec-path))))
 #+end_src
 
