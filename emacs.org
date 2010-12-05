@@ -1315,14 +1315,6 @@
     (setq gnus-sum-thread-tree-leaf-with-other "├─► ")  ; ┣━►   ▶
     (setq gnus-sum-thread-tree-single-leaf     "╰─► ")) ; ┗━►
   
-  ;; seems like you can't use propertize to create colour in the summary
-  ;; lines. I.e. the following don't work
-  (defun gnus-user-format-function-a (x)
-    (string-match "From: \\(.*\\)" x)
-    (propertize (match-string 1 x) 'face '(:foreground "blue")))
-  
-  (defun gnus-user-format-function-z (x)
-    (propertize "hello" 'face '(:foreground "red")))
   (fset 'dan/gnus-summary-tick-thread "MPt\M-&!")
 #+end_src
 *** Posting styles
@@ -2726,7 +2718,6 @@ http://www.emacswiki.org/emacs/TransparentEmacs
          100)
         (set-frame-parameter nil 'alpha '(100 100))
       (set-frame-parameter nil 'alpha '(85 60))))
-  (global-set-key (kbd "C-c t") 'toggle-transparency)
 #+end_src
 
 * Start-up
