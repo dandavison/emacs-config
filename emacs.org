@@ -1564,6 +1564,14 @@ Fontify code blocks in the text of messages
 #+end_src
 ** Org
 *** Functions
+**** Hide subtree
+#+begin_src emacs-lisp
+  (defun dan/hide-subtree ()
+    (interactive)
+    (hide-subtree)
+    (org-beginning-of-line))
+#+end_src
+
 **** List supported laguages
 #+begin_src emacs-lisp
   (defun dan/org-babel-list-supported-languages ()
