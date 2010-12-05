@@ -2791,4 +2791,4 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+end_src
 
 * File config
-#+babel: results silent
+#+babel: :results silent
