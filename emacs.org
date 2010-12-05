@@ -1602,7 +1602,9 @@ Fontify code blocks in the text of messages
                 (buffer-substring (region-beginning)
                                   (region-end)))))
       (find-file "/tmp/org-scratch.org")
-      (if contents (insert contents))))
+      (when contents
+        (delete-region (point-min) (point-max))
+        (insert contents))))
 #+end_src
 
 **** Search in org source code
