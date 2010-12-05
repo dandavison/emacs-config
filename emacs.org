@@ -1323,6 +1323,7 @@
   
   (defun gnus-user-format-function-z (x)
     (propertize "hello" 'face '(:foreground "red")))
+  (fset 'dan/gnus-summary-tick-thread "MPt\M-&!")
 #+end_src
 *** Posting styles
 #+begin_src emacs-lisp
@@ -2558,7 +2559,8 @@ I didn't get this to work.
 #+begin_src emacs-lisp
   (dan/register-key-bindings
    '("gnus-summary" .
-     (("\C-d" . dan/gnus-summary-delete-article))))
+     (("\C-d" . dan/gnus-summary-delete-article)
+      ("\C-ct" . dan/gnus-summary-tick-thread))))
   
   (require 'gnus-topic) ;; in order that mode-map exists
   
