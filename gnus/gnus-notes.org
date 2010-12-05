@@ -7,6 +7,9 @@
   [[http://www.gnus.org/manual/gnus_82.html][process marks]]
   [[http:www.randomsample.de/nnmairix-doc/nnmairix-keyboard-shortcuts.html#nnmairix%20keyboard%20shortcuts][nnmairix]]
 
+* To tick all articles in the current thread
+
+  M P t M-& !
 
 * Group buffer
 | mairix search                | G b m |
