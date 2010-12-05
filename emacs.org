@@ -932,7 +932,7 @@
     #+end_src
 *** Python
 #+begin_src emacs-lisp
-  ;; (require 'ipython)
+  (require 'python-mode)
   (setq auto-mode-alist (cons '("\\.pyw$" . python-mode) auto-mode-alist))
   (if (eq dan/operating-system 'darwin)
       (setq python-command "/usr/bin/python" ;; has numpy
@@ -2159,6 +2159,7 @@ rubber -f -m xelatex somefile.tex
   
   (setq swank-clojure-binary "/usr/bin/clojure")
   (setq org-babel-js-cmd "nodejs")
+  (setq org-babel-python-mode 'python-mode)
 #+end_src
 **** Variables
 #+begin_src emacs-lisp
