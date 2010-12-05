@@ -1928,7 +1928,13 @@ by Vitalie S.
 #+begin_src emacs-lisp
   (setq org-todo-keywords
         '((sequence
-           "TODO(t!@/!@)" "STARTED(s!@/!@)" "|" "DONE(d!@/!@)" "WAIT(w!@/!@)" "CANCELLED(c!@/!@)")))
+           "TODO(t!@/!@)"
+           "STARTED(s!@/!@)"
+           "|"
+           "DONE(d!@/!@)"
+           "WAIT(w!@/!@)"
+           "CANCELLED(c!@/!@)"
+           "DUPLICATE(u!@/!@)")))
   (setq org-edit-src-persistent-message nil)
   (setq org-enforce-todo-dependencies t)
   (setq org-enforce-todo-checkbox-dependencies t)
