@@ -2055,13 +2055,34 @@ rubber -f -m xelatex somefile.tex
 
 ***** Listings
 ***** Minted
-#+begin_src emacs-lisp :tangle no :results silent
-  (setq org-export-latex-minted t)
+      :PROPERTIES:
+      :tangle: no
+      :END:
+
+#+begin_src emacs-lisp :exports code
+  (require 'org-latex)
+  (setq org-export-latex-listings-w-names nil)
+  (setq 'org-export-latex-packages-alist
+        '(("AUTO" "inputenc" t)))
+  (add-to-list 'org-export-latex-classes
+            '("org-article"
+               "\\documentclass{org-article}
+               [NO-DEFAULT-PACKAGES]
+               [PACKAGES]
+               [EXTRA]"
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+               ("\\paragraph{%s}" . "\\paragraph*{%s}")
+               ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+  
+  (setq org-export-latex-listings 'minted)
   (add-to-list 'org-export-latex-packages-alist '("" "minted"))
   (setq org-latex-to-pdf-process
-        '("pdflatex --shell-escape -interaction nonstopmode %s"))
+        (mapcar
+         (lambda (dummy) "pdflatex -shell-escape -interaction nonstopmode %f")
+         '(1 2 3)))
 #+end_src
-
 **** HTML
 *** Src
 **** General
