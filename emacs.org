@@ -14,6 +14,17 @@
 #+end_src
 
 * My functions
+** Evaluate expression and save string to kill ring
+#+begin_src emacs-lisp
+  (defun dan/save-value-to-kill-ring (&optional sexp)
+    (interactive "XExpression to evaluate and save to kill-ring: ")
+    (with-temp-buffer
+      (let ((string (format "%s" sexp)))
+        (insert string)
+        (kill-ring-save (point-min) (point-max))
+        (message "Saved text to kill-ring: %s" string))))
+#+end_src
+
 ** Appearance
 #+begin_src emacs-lisp
   (defun dan/sanitise-faces ()
