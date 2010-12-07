@@ -2469,6 +2469,7 @@ I didn't get this to work.
                  ("\C-p" . dan/previous-line-and-indent)
                  ("\C-ca" . org-agenda)
                  ("\C-cf" . dan/find-function-or-library)
+                 ("\C-c\M-f" . rgrep)
                  ("\C-cg" . magit-status)
                  ("\C-ci" . dan/current-column-line)
                  ("\C-cl" . org-store-link)
