@@ -1568,6 +1568,11 @@ Fontify code blocks in the text of messages
 #+end_src
 ** Org
 *** Functions
+**** Search in buffer
+#+begin_src emacs-lisp
+  (fset 'dan/org-search-in-buffer "\C-ca<s")
+#+end_src
+
 **** Hide subtree
 #+begin_src emacs-lisp
   (defun dan/hide-subtree ()
