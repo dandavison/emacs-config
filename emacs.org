@@ -1934,9 +1934,9 @@ by Vitalie S.
         '((sequence
            "TODO(t!@/!@)"
            "STARTED(s!@/!@)"
+           "WAIT(w!@/!@)"
            "|"
            "DONE(d!@/!@)"
-           "WAIT(w!@/!@)"
            "CANCELLED(c!@/!@)"
            "DUPLICATE(u!@/!@)")))
   (setq org-edit-src-persistent-message nil)
