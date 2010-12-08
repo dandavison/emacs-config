@@ -1798,7 +1798,6 @@ by Vitalie S.
 #+begin_src emacs-lisp
   (setq org-hide-leading-stars t)
   (setq org-hidden-keywords nil) ;; '(title date author))
-  (setq org-pretty-entities t)
 #+end_src
 **** Set outline colors
      :PROPERTIES:
