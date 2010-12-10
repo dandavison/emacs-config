@@ -14,6 +14,13 @@
 #+end_src
 
 * My functions
+** Set local variables
+#+begin_src emacs-lisp
+  (defun dan/set-local-variables (alist)
+    (dolist (pair alist)
+      (set (make-local-variable (car (pair))) (cadr pair))))
+#+end_src
+
 ** Evaluate expression and save string to kill ring
 #+begin_src emacs-lisp
   (defun dan/save-value-to-kill-ring (&optional sexp)
