@@ -2432,10 +2432,14 @@ I didn't get this to work.
   (defun dan/set-key-bindings (&optional mode-map)
     (interactive)
     (mapc (lambda (pair)
-            (let* ((map (car pair)) (bindings (cdr pair)))
+            (let* ((map (car pair))
+                   (bindings (cdr pair)))
               (if (stringp map) (setq map (intern (concat map "-mode-map"))))
-              (mapc (lambda (binding) (define-key (eval map) (car binding) (cdr binding))) bindings)))
-          (or (and mode-map `(,(assoc mode-map dan/key-bindings))) dan/key-bindings)))
+              (mapc (lambda (binding)
+                      (define-key (eval map) (car binding) (cdr binding)))
+                    bindings)))
+          (or (and mode-map `(,(assoc mode-map dan/key-bindings)))
+              dan/key-bindings)))
   
   (defun dan/assoc-delete-all (key alist)
     "Like `assq-delete-all' but using `equal' for comparison"
