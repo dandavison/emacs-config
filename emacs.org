@@ -2202,7 +2202,7 @@ rubber -f -m xelatex somefile.tex
   
   (setq swank-clojure-binary "/usr/bin/clojure")
   (setq org-babel-js-cmd "nodejs")
-  (setq org-babel-python-mode 'python-mode)
+  (setq org-babel-python-mode 'python)
 #+end_src
 **** Variables
 #+begin_src emacs-lisp
