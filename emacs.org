@@ -928,6 +928,23 @@
   (setq compilation-read-command nil)
 #+end_src
 
+*** CSS
+http://xahlee.org/emacs/emacs_html.html
+#+begin_src emacs-lisp
+(defvar dan/hexcolour-keywords
+  '(("#[abcdef[:digit:]]\\{6\\}"
+     (0 (put-text-property
+         (match-beginning 0)
+         (match-end 0)
+         'face (list :background 
+                     (match-string-no-properties 0)))))))
+
+(defun dan/hexcolour-add-to-font-lock ()
+  (font-lock-add-keywords nil dan/hexcolour-keywords))
+
+(add-hook 'css-mode-hook 'dan/hexcolour-add-to-font-lock)
+#+end_src
+
 *** Lua
 #+begin_src emacs-lisp
   (setq auto-mode-alist (cons '("\\.lua$" . lua-mode) auto-mode-alist))
