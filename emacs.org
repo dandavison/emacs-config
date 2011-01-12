@@ -429,7 +429,13 @@
     "Find a recent file using ido."
     (interactive)
     (let* ((alist
-            (mapcar (lambda (f) (cons (file-name-nondirectory f) f))
+            (mapcar
+             (lambda (f)
+               (cons (format "%s/%s"
+                             (file-name-nondirectory
+                              (substring (file-name-directory f) 0 -1))
+                             (file-name-nondirectory f))
+                     f))
                     recentf-list))
            (file (ido-completing-read "Find file: " (mapcar 'car alist) nil t)))
       (when file
