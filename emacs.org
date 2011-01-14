@@ -91,9 +91,8 @@
            (paths
             (case dan/operating-system
              ('darwin
-              (list "/usr/texbin"
-                    $HOME/bin
-                    "/opt/local/bin"
+              (list $HOME/bin
+                    "/usr/local/Cellar/python2.6/2.6.5/bin/"
                     "/usr/local/bin"))
              (t (list $HOME/bin)))))
       (setenv "PATH"
@@ -993,9 +992,6 @@ http://xahlee.org/emacs/emacs_html.html
 #+begin_src emacs-lisp
   (require 'python-mode)
   (setq auto-mode-alist (cons '("\\.pyw$" . python-mode) auto-mode-alist))
-  (if (eq dan/operating-system 'darwin)
-      (setq python-command "/opt/local/bin/python" ;; has numpy
-            org-babel-python-command python-command))
 #+end_src
 *** Shell
 #+begin_src emacs-lisp
