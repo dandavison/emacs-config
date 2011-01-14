@@ -1167,15 +1167,22 @@ http://xahlee.org/emacs/emacs_html.html
   (dan/require 'org-google-weather)
 #+end_src
 
+** Gnugol
+#+begin_src emacs-lisp
+(require 'gnugol)
+#+end_src
+
 ** Gnus
 *** General
 #+begin_src emacs-lisp
+  ;; (when (eq dan/operating-system 'darwin)
+  ;;   (add-to-list 'load-path "~/lib/emacs/gnus/lisp")
+  ;;   (require 'gnus-load))
+  
   ;; (require 'starttls)
   ;; (setq starttls-use-gnutls nil)
   ;; (setq starttls-gnutls-program "/dev/null")
   
-  ;; (add-to-list 'load-path "~/lib/emacs/gnus/lisp")
-  ;; (require 'gnus-load)
   
   ;; (setq starttls-use-gnutls nil)
   ;; (setq starttls-gnutls-program "/dev/null")
