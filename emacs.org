@@ -2341,7 +2341,7 @@ rubber -f -m xelatex somefile.tex
 *** Inline images
 #+begin_src emacs-lisp
   (setq org-startup-with-inline-images t)
-  (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
+  ;; (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
 #+end_src
 
 *** Contrib
