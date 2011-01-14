@@ -2007,7 +2007,7 @@ by Vitalie S.
   (set-face-foreground 'org-agenda-date-weekend "blue")
   
   (setq org-agenda-custom-commands
-        '(
+        '(("Q" "Search for items in state" todo "QUESTION")
           ("W" "Search for work items in state" todo "TODO"
            ((org-agenda-files '("~/org/work.org"
                                 "~/org/wtccc2.org"
@@ -2016,8 +2016,7 @@ by Vitalie S.
           ("T" "Search for tasks items in state" todo "TODO"
            ((org-agenda-files '("~/org/tasks.org"))))
           ("C" "Search for computing items in state" todo "TODO"
-           ((org-agenda-files '("~/org/computing.org"))))
-          ))
+           ((org-agenda-files '("~/org/computing.org"))))))
   
   (defun org-agenda-format-date-aligned-dan (date)
     "Dan's modified version of `org-agenda-format-date-aligned'.
