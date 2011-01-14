@@ -2535,7 +2535,7 @@ I didn't get this to work.
                  ("\C-co" . dan/org-switch-to-org-scratch)
                  ("\C-cr" . replace-regexp)
                  ("\C-cs" . search-forward-symbol-at-point)
-                 ("\C-cv" . revert-buffer)
+                 ("\C-cv" . dan/show-variable)
                  ("\C-cw" . delete-window)
                  ("\C-c)" . blink-matching-open)
                  ("\C-c," . flymake-display-err-menu-for-current-line)
