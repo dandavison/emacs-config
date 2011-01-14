@@ -366,6 +366,13 @@
         ;; non-file buffer
         (message "buffer-file-name: %S\tbuffer-name: %s\tdefault-directory: %s" bfn bn dd))))
 #+end_src
+** Show variable
+#+begin_src emacs-lisp
+  (defun dan/show-variable (&optional sym)
+    (interactive "vVariable name: ")
+    (message "%S" (eval sym)))
+#+end_src
+
 ** Format post
 #+begin_src emacs-lisp
   (defun dan/format-region-for-post (start end)
