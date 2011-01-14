@@ -1064,7 +1064,7 @@ http://xahlee.org/emacs/emacs_html.html
   
     ;; (require 'ess-eldoc)
   
-    ;; (setq ess-ask-for-ess-directory nil)
+    (setq ess-ask-for-ess-directory t)
     (setq inferior-R-args "--no-save --no-restore-data --silent")
     (setq safe-local-variable-values '((noweb-default-code-mode . R-mode) (outline-minor-mode)))
     (autoload 'noweb-mode "noweb-mode" "Editing noweb files." t) ;; see noweb-mode.el in ESS;
