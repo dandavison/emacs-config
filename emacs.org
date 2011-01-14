@@ -1005,6 +1005,31 @@ http://xahlee.org/emacs/emacs_html.html
   (setq py-python-command-args '("-i")) ;; '("--colors" "Linux"))
   (setq auto-mode-alist (cons '("\\.pyw$" . python-mode) auto-mode-alist))
 #+end_src
+**** Working with python include lines
+#+begin_src emacs-lisp
+  (defun python-import-bounds-of-python-import-at-point ()
+     "Return the start and end points of python-import at current point."
+     (let ((characters "A-Za-z_."))
+       (save-excursion
+         (re-search-backward (concat "[^" characters "]") nil t)
+         (forward-char 1)
+         (if (looking-at (concat "[" characters "]+"))
+             (cons (point) (match-end 0))
+           nil))))
+  
+  (put 'python-import 'bounds-of-thing-at-point
+       'python-import-bounds-of-python-import-at-point)
+  
+  (defun dan/find-file-at-point-python-import ()
+    (interactive)
+    (push
+     (concat
+      "~/base/site/"
+      (subst-char-in-string
+       ?. ?/ (thing-at-point 'python-import)) ".py")
+     file-name-history)
+    (call-interactively 'find-file))
+#+end_src
 *** Shell
 #+begin_src emacs-lisp
   (autoload 'ansi-color-for-comint-mode-on "ansi-color" nil t)
