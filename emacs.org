@@ -991,6 +991,11 @@ http://xahlee.org/emacs/emacs_html.html
 *** Python
 #+begin_src emacs-lisp
   (require 'python-mode)
+  (require 'ipython)
+  (setq ipython-command "ipython"
+        py-python-command "ipython"
+        python-python-command "ipython")
+  (setq py-python-command-args '("-i")) ;; '("--colors" "Linux"))
   (setq auto-mode-alist (cons '("\\.pyw$" . python-mode) auto-mode-alist))
 #+end_src
 *** Shell
