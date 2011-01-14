@@ -1152,13 +1152,18 @@ http://xahlee.org/emacs/emacs_html.html
   (setq user-full-name "Dan Davison")
   (case dan/operating-system
     ('darwin
-     (setq user-mail-address "davison@counsyl.com")
+     (setq user-mail-address "dandavison7@gmail.com")
      (setq gnus-ignored-newsgroups nil) ;; "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\”]\”[#’()]")
      (setq gnus-select-method
-           '(nnimap "gmail"
-                    (nnimap-address "imap.gmail.com")
-                    (nnimap-server-port 993)
-                    (nnimap-stream ssl))))
+           ;; '(nnimap "gmail"
+           ;;          (nnimap-address "imap.gmail.com")
+           ;;          (nnimap-server-port 993)
+           ;;          (nnimap-stream ssl))
+           '(nntp "news.gmane.org"))
+     (setq gnus-secondary-select-methods
+           '((nntp "news.gmane.org")
+             (nntp "news.eternal-september.org")
+             (nntp "news.gwene.org"))))
     ('linux
      (setq user-mail-address "dandavison7@gmail.com")
      (setq gnus-select-method
@@ -1269,14 +1274,14 @@ http://xahlee.org/emacs/emacs_html.html
 *** Sending
 #+begin_src emacs-lisp
   (case dan/operating-system
-    ('darwin
-     (setq message-send-mail-function 'smtpmail-send-it
-           smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
-           smtpmail-auth-credentials '(("smtp.gmail.com" 587 "davison@counsyl.com" nil))
-           smtpmail-default-smtp-server "smtp.gmail.com"
-           smtpmail-smtp-server "smtp.gmail.com"
-           smtpmail-smtp-service 587
-           smtpmail-local-domain "counsyl.com"))
+    ;; ('darwin
+    ;;  (setq message-send-mail-function 'smtpmail-send-it
+    ;;        smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
+    ;;        smtpmail-auth-credentials '(("smtp.gmail.com" 587 "davison@counsyl.com" nil))
+    ;;        smtpmail-default-smtp-server "smtp.gmail.com"
+    ;;        smtpmail-smtp-server "smtp.gmail.com"
+    ;;        smtpmail-smtp-service 587
+    ;;        smtpmail-local-domain "counsyl.com"))
     ('linux
      (setq
       mail-user-agent 'message-user-agent ;; so that org-mime-org-buffer-htmlize uses message-mode
