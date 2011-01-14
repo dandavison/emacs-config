@@ -2647,7 +2647,8 @@ I didn't get this to work.
                  ([f10] . delete-other-windows)
                  ([(control escape)] . delete-window)
                  ([(meta escape)] . delete-other-windows)
-                 ([escape] . other-window))))
+                 ([escape] . other-window)
+                 ("£" . (lambda () (interactive) (insert "#"))))))
 #+end_src
 *** C
 #+begin_src emacs-lisp
