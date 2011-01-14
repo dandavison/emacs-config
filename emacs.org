@@ -14,6 +14,24 @@
 #+end_src
 
 * My functions
+** Occur
+#+begin_src emacs-lisp
+  (defun dan/occur-mode-goto-occurrence ()
+    (interactive)
+    (call-interactively 'occur-mode-goto-occurrence)
+    (other-window 1))
+    
+  (defun dan/occur ()
+    (interactive)
+    (let ((tap (thing-at-point 'symbol)))
+      (and tap (push tap regexp-history)))
+    (call-interactively 'occur)
+    (other-window 1)
+    (let ((buffer-read-only)) (kill-line 1))
+    ;;(local-set-key [(return)] 'dan/occur-mode-goto-occurrence)
+    )
+#+end_src
+
 ** Set local variables
 #+begin_src emacs-lisp
   (defun dan/set-local-variables (alist)
