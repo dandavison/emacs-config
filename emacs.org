@@ -2250,7 +2250,8 @@ rubber -f -m xelatex somefile.tex
    'org-babel-load-languages org-babel-load-languages)
   
   (setq swank-clojure-binary "/usr/bin/clojure")
-  (setq org-babel-js-cmd "nodejs")
+  (setq org-babel-js-cmd "node")
+  (setenv "NODE_DISABLE_COLORS" "1")
   (setq org-babel-python-mode 'python)
 #+end_src
 **** Variables
