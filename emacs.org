@@ -1986,10 +1986,13 @@ by Vitalie S.
   (setq org-todo-keywords
         '((sequence
            "TODO(t!@/!@)"
+           "QUESTION(q!@/!@)"
            "STARTED(s!@/!@)"
            "WAIT(w!@/!@)"
            "|"
            "DONE(d!@/!@)"
+           "POSTPONED(p!@/!@)"
+           "ANSWERED(a!@/!@)"
            "CANCELLED(c!@/!@)"
            "DUPLICATE(u!@/!@)")))
   (setq org-edit-src-persistent-message nil)
