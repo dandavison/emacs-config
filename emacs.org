@@ -2547,6 +2547,7 @@ I didn't get this to work.
                  ("\M-(" . dan/enclose-rest-of-line-in-parentheses)
                  ("\M-n" . forward-paragraph)
                  ("\M-p" . backward-paragraph)
+                 ("\M-o" . dan/occur)
                  ("\M-s\M-o" . dan/google)
                  ("\M-2" . dan/insert-double-quotes)
                  ([delete] . winner-undo)
