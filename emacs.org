@@ -2431,6 +2431,7 @@ rubber -f -m xelatex somefile.tex
 *** Mumamo
 #+begin_src emacs-lisp :tangle no
   (load "~/lib/emacs/nxhtml/autostart.el")
+  (setq mumamo-background-colors nil)
   (when (dan/require 'mumamo)
     (add-hook 'org-mumamo-mode-hook (lambda () (mumamo-no-chunk-coloring +1))))
 #+end_src
