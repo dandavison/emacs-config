@@ -2469,6 +2469,16 @@ I didn't get this to work.
   
     (setq noweb-code-mode noweb-default-code-mode))
 #+end_src
+** Trac Wiki
+#+begin_src emacs-lisp
+  (setq emacs-root (concat "~/dotfiles/" "generic" "/emacs/"))
+  (ignore-errors
+     (autoload
+       'trac-wiki
+       "~/dotfiles/generic/emacs/emacs.d/.emacs-trac-wiki-autoload"
+       "Trac wiki editing entry-point." t nil))
+#+end_src
+
 ** Uniquify
 #+begin_src emacs-lisp
 (require 'uniquify)
