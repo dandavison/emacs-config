@@ -2666,7 +2666,7 @@ I didn't get this to work.
       ("\C-cp" . org-insert-property-drawer)
       ("\C-ct" . org-hide-block-toggle)
       ("\C-cu" . (lambda () (interactive) (org-back-to-heading)))
-      ("_" . dan/org-underscore-command)
+      ("_" . self-insert-command) ;; dan/org-underscore-command)
       ("\M-q" . dan/org-fill-paragraph-natively-maybe)
       ("\M-;" . dan/org-comment-dwim)
       ("\C-\M-\\" . dan/org-indent-region)
