@@ -1617,6 +1617,16 @@ Fontify code blocks in the text of messages
 #+end_src
 ** Org
 *** Functions
+**** Toggle eval on export
+#+begin_src emacs-lisp
+  (defun dan/toggle-org-export-babel-evaluate ()
+    (interactive)
+    (message
+     "org-export-babel-evaluate %s"
+     (if (setq org-export-babel-evaluate (not org-export-babel-evaluate))
+         "on" "off")))
+#+end_src
+
 **** Search in buffer
 #+begin_src emacs-lisp
   (fset 'dan/org-search-in-buffer "\C-ca<s")
