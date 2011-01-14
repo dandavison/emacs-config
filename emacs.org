@@ -1607,6 +1607,10 @@ Fontify code blocks in the text of messages
   (dan/require 'magit)
   (setq magit-save-some-buffers nil)
   (setq magit-process-popup-time 1)
+  (defun dan/magit-kill-git-process ()
+    (interactive)
+    ;; (kill-process magit-process) ? doesn't do what I want.
+    (kill-buffer magit-process-buffer-name))
 #+end_src
 ** Misc
 #+begin_src emacs-lisp
