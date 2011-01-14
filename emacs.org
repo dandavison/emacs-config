@@ -2468,6 +2468,12 @@ I didn't get this to work.
   
     (setq noweb-code-mode noweb-default-code-mode))
 #+end_src
+** Uniquify
+#+begin_src emacs-lisp
+(require 'uniquify)
+(setq uniquify-buffer-name-style 'forward)
+#+end_src
+
 * Key bindings
 ** dan/set-key-bindings
 #+begin_src emacs-lisp
