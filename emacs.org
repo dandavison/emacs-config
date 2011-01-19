@@ -2223,6 +2223,8 @@ rubber -f -m xelatex somefile.tex
         (mapcar
          (lambda (dummy) "pdflatex -shell-escape -interaction nonstopmode %f")
          '(1 2 3)))
+  (add-to-list 'org-export-latex-minted-langs '("R" "r"))
+  (add-to-list 'org-export-latex-minted-langs '("sqlite" "sqlite3"))
 #+end_src
 **** HTML
 *** Src
