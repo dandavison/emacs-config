@@ -998,12 +998,13 @@ http://xahlee.org/emacs/emacs_html.html
     #+end_src
 *** Python
 #+begin_src emacs-lisp
+  (add-to-list 'load-path "~/lib/emacs/python-mode")
+  (add-to-list 'load-path "~/lib/emacs/ipython")
   (require 'python-mode)
   (require 'ipython)
-  (setq ipython-command "ipython"
-        py-python-command "ipython"
-        python-python-command "ipython")
-  (setq py-python-command-args '("-i")) ;; '("--colors" "Linux"))
+  ;; (setq py-python-command-args '("--colors" "Linux")) ;; '("-i"))
+  ;; (setq ipython-completion-command-string
+  ;;       "print(';'.join(__IP.Completer.all_completions('%s')))\n")
   (setq auto-mode-alist (cons '("\\.pyw$" . python-mode) auto-mode-alist))
   
   (defun dan/py-eval-line ()
@@ -2321,7 +2322,7 @@ rubber -f -m xelatex somefile.tex
   (setq swank-clojure-binary "/usr/bin/clojure")
   (setq org-babel-js-cmd "node")
   (setenv "NODE_DISABLE_COLORS" "1")
-  (setq org-babel-python-mode 'python)
+  (setq org-babel-python-mode 'python-mode)
 #+end_src
 **** Variables
 #+begin_src emacs-lisp
