@@ -2755,6 +2755,7 @@ is a symbol, it is used as is.")
  '("org" .
    (("\C-ch" . dan/hide-subtree)
     ("\C-c\M-i" . org-table-insert-column)
+    ("\C-c\M-d" . org-table-delete-column)
     ("\C-cp" . org-insert-property-drawer)
     ("\C-ct" . org-hide-block-toggle)
     ("\C-cu" . (lambda () (interactive) (org-back-to-heading)))
