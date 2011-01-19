@@ -102,6 +102,7 @@
                path-separator))
       (setenv "PYTHONPATH" $HOME)
       (setq exec-path (append paths exec-path))))
+  (dan/set-executable-paths)
 #+end_src
 
 ** Sudo read file
@@ -2879,7 +2880,6 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   
   ;; (org-fireforg-registry-initialize t)
   
-  (dan/set-executable-paths)
   (nnmairix-update-database)
   (dan/set-key-bindings)
   (if nil
