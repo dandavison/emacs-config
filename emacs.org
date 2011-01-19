@@ -486,6 +486,11 @@
   (defun dan/switch-to-minibuffer ()
     (interactive)
     (switch-to-buffer (window-buffer (minibuffer-window))))
+  
+  (defun dan/other-non-minibuffer-window ()
+    (interactive)
+    (while (progn (other-window 1)
+                  (window-minibuffer-p))))
 #+end_src
 * Core
 ** Windows and Frames
