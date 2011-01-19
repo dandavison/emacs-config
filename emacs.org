@@ -2301,6 +2301,8 @@ rubber -f -m xelatex somefile.tex
   (setq org-src-window-setup 'current-window) ;; 'current-window 'other-window 'other-frame 'reorganize-frame
   
   (setq org-src-ask-before-returning-to-edit-buffer nil)
+  
+  (setq org-edit-src-content-indentation 0)
 #+end_src
 **** Library of Babel
 #+begin_src emacs-lisp
