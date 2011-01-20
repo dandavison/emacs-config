@@ -82,27 +82,35 @@
 #+end_src
 ** Set executable paths
 #+begin_src emacs-lisp
+(require 'cl)
 (defun dan/set-executable-paths ()
   "Set $PATH and `exec-path'.
 This should really avoid duplicating paths."
   (interactive)
   (let* (($HOME (getenv "HOME"))
          ($HOME/bin (concat $HOME "/" "bin"))
+         ($PATH (split-string (getenv "PATH") path-separator))
          (paths
           (case dan/operating-system
             ('darwin
             (list $HOME/bin
                   "/usr/local/Cellar/python2.6/2.6.5/bin/"
-                  "/usr/local/bin"))
-           (t (list $HOME/bin)))))
-    (setenv "PATH"
-            (mapconcat
-             'identity
-             (append paths (list (getenv "PATH")))
-             path-separator))
+                  "/usr/local/bin"
+                  "/usr/texbin"))
+            (t (list $HOME/bin)))))
+    (setenv
+     "PATH"
+     (mapconcat 'identity
+                (append
+                 (remove-if (lambda (p) (member p $PATH)) paths)
+                 $PATH)
+                path-separator))
     (setenv "PYTHONPATH" $HOME)
-    (setq exec-path (append paths exec-path))))
-(dan/set-executable-paths)
+    (setq exec-path
+          (append
+           (remove-if (lambda (p) (member p exec-path)) paths)
+           exec-path))))
+;; (dan/set-executable-paths)
 #+end_src
 
 ** Sudo read file
