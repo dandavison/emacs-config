@@ -1273,7 +1273,7 @@ obj[-grep(re, obj)]
 (setq gnus-expert-user t)
 
 (add-hook 'gnus-after-exiting-gnus-hook
-          (lambda () (kill-buffer "*Group*")))
+          (lambda () (if (buffer-live-p "*Group*") (kill-buffer "*Group*"))))
 
 ;; (setq gnus-always-read-dribble-file t) TMP
 
