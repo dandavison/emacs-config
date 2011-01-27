@@ -1459,42 +1459,6 @@ obj[-grep(re, obj)]
          (address "davison@counsyl.com"))))
 #+end_src
 
-*** Org-mode code block fontification
-Correctly fontify Org-mode attachments
-[[gnus:nntp%2Bnews.gmane.org:gmane.emacs.orgmode#874oc2z2uv.fsf@gmail.com][Email from Eric Schulte: Re: Re: Enhancing the Org/Gnus]]
-
-#+begin_src emacs-lisp
-(require 'mm-uu)
-(add-to-list 'mailcap-mime-extensions '(".org" . "text/org"))
-(add-to-list 'mm-automatic-display "text/org")
-
-(add-to-list 'mm-inline-media-tests
-             '("text/org" my-display-org-inline
-               (lambda (el) t)))
-
-(defun my-display-org-inline (handle)
-  (condition-case nil
-      (mm-display-inline-fontify handle 'org-mode)
-    (error
-     (insert (with-temp-buffer (mm-insert-part handle) (buffer-string))
-             "\n"))))
-#+end_src
-
-Fontify code blocks in the text of messages
-#+begin_src emacs-lisp
-(defun my-mm-org-babel-src-extract ()
-  (mm-make-handle (mm-uu-copy-to-buffer start-point end-point) '("text/org")))
-
-(add-to-list 'mm-uu-type-alist
-             '(org-src-block
-               "^[ \t]*#\\+begin_"
-               "^[ \t]*#\\+end_"
-               my-mm-org-babel-src-extract
-               nil))
-
-(mm-uu-configure)
-#+end_src
-
 *** Correct counts
 #+begin_src emacs-lisp :tangle no
 ;;; dim-gnus-imap-count.el --- Dimitri Fontaine
