@@ -2084,7 +2084,7 @@ may use one of several remember targets"
 (set-face-foreground 'org-agenda-date-weekend "blue")
 
 (setq org-agenda-custom-commands
-      '(("Q" "Search for items in state" todo "QUESTION")
+      `(("Q" "Search for items in state" todo "QUESTION")
         ("W" "Search for work items in state" todo "TODO"
          ((org-agenda-files '("~/org/work.org"
                               "~/org/wtccc2.org"
