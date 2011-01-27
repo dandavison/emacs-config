@@ -710,7 +710,6 @@ parenthesis-delimited list of symbols at point"
 (setq auto-revert-interval 1)
 #+end_src
 *** Elisp programming
-#+srcname: name
 #+begin_src emacs-lisp
 (setq eval-expression-debug-on-error nil)
 (setq find-function-C-source-directory "~/lib/emacs/emacs-23.1/src")
@@ -2410,7 +2409,6 @@ rubber -f -m xelatex somefile.tex
    # 3*M-DEL <tab> r e <tab> g <tab> RET \ [ \ ] 2*RET M-x 2*<up> RET T B L
    # F M RET C-a 2*C-k <down> C-y <up>
 
-#+srcname: name
 #+begin_src emacs-lisp
 (fset 'reset-tests
       (lambda (&optional arg) "Keyboard
@@ -2436,7 +2434,6 @@ rubber -f -m xelatex somefile.tex
 *** Inline images
 #+begin_src emacs-lisp
 (setq org-startup-with-inline-images t)
-;; (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
 #+end_src
 
 *** Contrib
