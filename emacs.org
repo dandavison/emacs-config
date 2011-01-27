@@ -1222,7 +1222,7 @@ obj[-grep(re, obj)]
 (case dan/operating-system
   ('darwin
    (setq user-mail-address "dandavison7@gmail.com")
-   (setq gnus-ignored-newsgroups nil) ;; "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\”]\”[#’()]")
+   (setq gnus-ignored-newsgroups "") ;; "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\”]\”[#’()]")
    (setq gnus-select-method
          ;; '(nnimap "gmail"
          ;;          (nnimap-address "imap.gmail.com")
