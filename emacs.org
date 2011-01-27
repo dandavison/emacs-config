@@ -1632,6 +1632,12 @@ Fontify code blocks in the text of messages
 (ad-activate 'mm-url-insert)
 #+end_src
 
+** Mo git blame
+#+begin_src emacs-lisp
+(add-to-list 'load-path "~/lib/emacs/mo-git-blame")
+(require 'mo-git-blame)
+#+end_src
+
 ** Magit
 #+begin_src emacs-lisp
 (add-to-list 'load-path "~/lib/emacs/magit")
