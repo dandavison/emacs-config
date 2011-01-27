@@ -1688,6 +1688,21 @@ Fontify code blocks in the text of messages
 #+end_src
 ** Org
 *** Functions
+**** Org occur lines
+#+begin_src emacs-lisp
+(defun dan/find-in-buffer ()
+  (interactive)
+  (let ((targets
+         `(("<named src blocks>" . ,org-babel-src-name-regexp)
+           ("<src block results>" . ,org-babel-result-regexp))))
+    (occur
+     (cdr
+      (assoc
+       (ido-completing-read "Find: " (mapcar #'car targets))
+       targets)))
+    (other-window 1)))
+#+end_src
+
 **** Toggle eval on export
 #+begin_src emacs-lisp
 (defun dan/toggle-org-export-babel-evaluate ()
