@@ -1051,7 +1051,7 @@ http://xahlee.org/emacs/emacs_html.html
 (put 'python-import 'bounds-of-thing-at-point
      'python-import-bounds-of-python-import-at-point)
 
-(defun dan/find-file-at-point-python-import ()
+(defun dan/ffap-python-import ()
   (interactive)
   (push
    (concat
