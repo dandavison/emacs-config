@@ -1206,9 +1206,9 @@ obj[-grep(re, obj)]
 ** Gnus
 *** General
 #+begin_src emacs-lisp
-;; (when (eq dan/operating-system 'darwin)
-;;   (add-to-list 'load-path "~/lib/emacs/gnus/lisp")
-;;   (require 'gnus-load))
+(when (eq dan/operating-system 'darwin)
+  (add-to-list 'load-path "~/lib/emacs/gnus/lisp")
+  (require 'gnus-load))
 
 ;; (require 'starttls)
 ;; (setq starttls-use-gnutls nil)
