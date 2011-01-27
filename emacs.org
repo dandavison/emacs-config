@@ -2912,7 +2912,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 (ido-mode +1)
 (setq ido-separator " ")
 (eshell)
-(when (and (eq dan/operating-system 'darwin)
+(when (and (eq window-system 'ns)
            (fboundp 'ns-toggle-fullscreen))
   (ns-toggle-fullscreen))
 #+end_src
