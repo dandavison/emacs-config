@@ -2060,6 +2060,7 @@ may use one of several remember targets"
 (setq org-todo-keywords
       '((sequence
          "TODO(t!@/!@)"
+         "FIXME(f!@/!@)"
          "QUESTION(q!@/!@)"
          "STARTED(s!@/!@)"
          "WAIT(w!@/!@)"
