@@ -14,6 +14,14 @@
 #+end_src
 
 * My functions
+** Do until no error
+#+begin_src emacs-lisp
+(defmacro dan/do-until-no-error (rest &rest body)
+  "Repeat evaluation of BODY until no error.
+Wait for REST between each attempt."
+  `(while (null (ignore-errors (progn ,@body t))) (sit-for rest)))
+#+end_src
+
 ** Occur
 #+begin_src emacs-lisp
 (defun dan/occur-mode-goto-occurrence ()
