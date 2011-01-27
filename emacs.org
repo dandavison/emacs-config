@@ -1666,6 +1666,19 @@ obj[-grep(re, obj)]
 #+end_src
 ** Org
 *** Functions
+**** Toggle inline image updates after execute
+#+begin_src emacs-lisp
+(defun dan/org-toggle-display-inline-images-after-execution ()
+  (interactive)
+  (let ((hook 'org-babel-after-execute-hook)
+        (fun 'org-display-inline-images))
+    (message
+     "Inline image display after execute %s"
+     (if (memq fun (eval hook))
+         (progn (remove-hook hook fun) "off")
+       (add-hook hook fun) "on"))))
+#+end_src
+
 **** Org occur lines
 #+begin_src emacs-lisp
 (defun dan/find-in-buffer ()
