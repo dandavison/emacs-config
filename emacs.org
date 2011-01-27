@@ -1608,6 +1608,7 @@ obj[-grep(re, obj)]
 (dan/require 'magit)
 (setq magit-save-some-buffers nil)
 (setq magit-process-popup-time 1)
+(setq magit-revert-item-confirm t)
 (defun dan/magit-kill-git-process ()
   (interactive)
   ;; (kill-process magit-process) ? doesn't do what I want.
