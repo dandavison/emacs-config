@@ -35,9 +35,9 @@ Wait for REST between each attempt."
     (and tap (push tap regexp-history)))
   (call-interactively 'occur)
   (other-window 1)
-  (let ((buffer-read-only)) (kill-line 1))
+  (let ((buffer-read-only)) (kill-line 1)))
+
   ;;(local-set-key [(return)] 'dan/occur-mode-goto-occurrence)
-  )
 #+end_src
 
 ** Set local variables
