@@ -2809,7 +2809,8 @@ is a symbol, it is used as is.")
 #+begin_src emacs-lisp
 (dan/register-key-bindings
  '("py" . 
-   (([(control return)] . dan/py-eval-line))))
+   (([(control return)] . dan/py-eval-line)
+    ("\C-c\C-f" . dan/ffap-python-import))))
 #+end_src
 *** Texinfo
 #+begin_src emacs-lisp
