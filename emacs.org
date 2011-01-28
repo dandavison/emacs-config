@@ -1250,7 +1250,6 @@ obj[-grep(re, obj)]
   (add-hook
    'gnus-after-exiting-gnus-hook
    (lambda () (if (buffer-live-p "*Group*") (kill-buffer "*Group*"))))
-  
 #+end_src
 
 *** Sending
