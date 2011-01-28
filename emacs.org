@@ -2491,6 +2491,13 @@ rubber -f -m xelatex somefile.tex
   )
  #+end_src
 
+** Session
+#+begin_src emacs-lisp
+(add-to-list 'load-path "~/lib/emacs/session/lisp")
+(require 'session)
+(session-initialize)
+#+end_src
+
 ** Starter kit
 #+begin_src emacs-lisp
 (setq dan/starter-kit-components-all '(bindings defuns eshell lisp misc org perl registers ruby yasnippet))
