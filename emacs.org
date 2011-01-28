@@ -1206,141 +1206,53 @@ obj[-grep(re, obj)]
 ** Gnus
 *** General
 #+begin_src emacs-lisp
-(when (eq dan/operating-system 'darwin)
   (add-to-list 'load-path "~/lib/emacs/gnus/lisp")
-  (require 'gnus-load))
-
-;; (require 'starttls)
-;; (setq starttls-use-gnutls nil)
-;; (setq starttls-gnutls-program "/dev/null")
-
-
-;; (setq starttls-use-gnutls nil)
-;; (setq starttls-gnutls-program "/dev/null")
-
-(require 'nnmairix)
-(setq user-full-name "Dan Davison")
-(case dan/operating-system
-  ('darwin
-   (setq user-mail-address "dandavison7@gmail.com")
-   (setq gnus-ignored-newsgroups "") ;; "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\”]\”[#’()]")
-   (setq gnus-select-method
-         ;; '(nnimap "gmail"
-         ;;          (nnimap-address "imap.gmail.com")
-         ;;          (nnimap-server-port 993)
-         ;;          (nnimap-stream ssl))
-         '(nntp "news.gmane.org"))
-   (setq gnus-secondary-select-methods
-         '((nntp "news.gmane.org")
-           (nntp "news.eternal-september.org")
-           (nntp "news.gwene.org"))))
-  ('linux
-   (setq user-mail-address "dandavison7@gmail.com")
-   (setq gnus-select-method
-         '(nnimap "dc"
-                  (nnimap-address "localhost")
-                  (nnimap-authinfo-file "~/config/email/authinfo")))
-   (setq gnus-secondary-select-methods
-         '((nntp "news.gmane.org")
-           (nntp "news.eternal-september.org")
-           (nntp "news.gwene.org")))))
-
-(when nil
-  (setq gnus-secondary-select-methods nil)
-  (setq gnus-ignored-newsgroups nil) ;; "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\”]\”[#’()]")
-  (setq gnus-select-method '(nnml ""))
-  (setq mail-sources
-        `(
-          (pop :server "pop.gmail.com"
-               :port 995
-               :user "dandavison7@gmail.com"
-               :password ,(org-babel-trim
-                           (dan/sudo-read-from-file
-                            "~/config/email/gmail-password"))
-               :stream ssl)
-          ;; (pop :server "pop.gmail.com"
-          ;;      :port 995
-          ;;      :user "davison@counsyl.com"
-          ;;      :password ,(org-babel-trim
-          ;;                  (dan/sudo-read-from-file
-          ;;                   "~/config/email/counsyl-gmail-password"))
-          ;;      :stream ssl)
-          )))
-
-(setq gnus-save-newsrc-file nil)
-(setq gnus-play-startup-jingle t)
-(setq gnus-novice-user nil)
-(setq gnus-expert-user t)
-
-(add-hook 'gnus-after-exiting-gnus-hook
-          (lambda () (if (buffer-live-p "*Group*") (kill-buffer "*Group*"))))
-
-;; (setq gnus-always-read-dribble-file t) TMP
-
-;; ;; (mail-source-delete-incoming t)
-;;------------------------------------------------------------------------------------------
-;;;
-;;; Misc
-;;;
-;; http://people.orangeandbronze.com/~jmibanez/dotgnus.el
-
-;; w3m absent on dell, atm
-;; (require 'w3m-load)
-;; (setq mm-text-html-renderer 'w3m)
-;; (setq mm-text-html-renderer 'html2text)
-
-;; http://flash.metawaredesign.co.uk/2/.gnus
-;; (add-hook 'gnus-group-mode-hook 'color-theme-charcoal-black)
-
-;;(setq gnus-read-active-file nil)
-;;(setq gnus-check-new-newsgroups nil)
-
-
-;; trying to get rid of duplicates don't know why they occur -- seems
-;; that repeated downloads from server sometimes gets previously
-;; downloaded messages
-;; (setq gnus-suppress-duplicates nil)
-;; (setq nnmail-treat-duplicates nil)
-;; (setq gnus-summary-ignore-duplicates t)
-
-
-;;
-;;-----------------------------------------------------------------------------------------
-
-
-;;;
-;;; Expiry
-;;;
-;; http://www.xemacs.org/Links/tutorials_3.html
-;; turn off expiry
-(remove-hook 'gnus-summary-prepare-exit-hook 'gnus-summary-expire-articles)
-
-;; http://flash.metawaredesign.co.uk/2/.gnus
-;; Don't make email expirable by default
-(remove-hook 'gnus-mark-article-hook
-             'gnus-summary-mark-read-and-unread-as-read)
-;; (add-hook 'gnus-mark-article-hook 'gnus-summary-mark-unread-as-read) ;; don't get it
-
-;; Only mails in these groups will expire, meaning they'll be deleted after a
-;; week so long as I've read them.
-(setq gnus-auto-expirable-newsgroups nil)
-;; "junk\\|forums\\|gentoo-announce\\|bradsucks\\|bots\\|system\\|nnrss:.*")
-
-;; But when I mark stuff as expireable, delete it immediately
-
-;; (setq nnmail-expiry-wait 'immediate) ;;TMP
-
-;; TMP
-;; (setq gnus-parameters
-;;       '((".*INBOX.*"
-;;          (expiry-wait . 'immediate))))
-
-;;
-;;------------------------------------------------------------------------------------------
-;;;
-;;;
-
+  (require 'gnus-load)
+  
+  (setq user-full-name "Dan Davison")
+  (case dan/operating-system
+    ('darwin
+      ;; ~/.authinfo entries:
+      ;; machine counsyl login davison@counsyl.com password xxx port 993
+      ;; machine gmail login dandavison7@gmail.com password xxx port 993
+     (setq user-mail-address "dandavison7@gmail.com")
+     (setq gnus-ignored-newsgroups "") ;; "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\”]\”[#’()]")
+     (setq gnus-select-method
+           '(nntp "news.gmane.org"))
+     (setq gnus-secondary-select-methods
+           '((nntp "news.eternal-september.org")
+             (nntp "news.gwene.org")
+             (nnimap "counsyl"
+                     (nnimap-address "imap.gmail.com")
+                     (nnimap-server-port 993)
+                     (nnimap-stream ssl))
+             (nnimap "gmail"
+                     (nnimap-address "imap.gmail.com")
+                     (nnimap-server-port 993)
+                     (nnimap-stream ssl)))))
+    ('linux
+     (setq user-mail-address "dandavison7@gmail.com")
+     (setq gnus-select-method
+           '(nnimap "dc"
+                    (nnimap-address "localhost")
+                    (nnimap-authinfo-file "~/config/email/authinfo")))
+     (setq gnus-secondary-select-methods
+           '((nntp "news.gmane.org")
+             (nntp "news.eternal-september.org")
+             (nntp "news.gwene.org")))
+     (require 'nnmairix)))
+  
+  (setq gnus-save-newsrc-file nil)
+  (setq gnus-always-read-dribble-file t)
+  (setq gnus-novice-user nil)
+  (setq gnus-expert-user t)
+  
+  (add-hook
+   'gnus-after-exiting-gnus-hook
+   (lambda () (if (buffer-live-p "*Group*") (kill-buffer "*Group*"))))
+  
 #+end_src
+
 *** Sending
 #+begin_src emacs-lisp
 (case dan/operating-system
@@ -2919,7 +2831,8 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 
 ;; (org-fireforg-registry-initialize t)
 
-(nnmairix-update-database)
+(if (eq dan/operating-system 'linux)
+    (nnmairix-update-database))
 (dan/set-key-bindings)
 (if nil
     (org-agenda-list)
