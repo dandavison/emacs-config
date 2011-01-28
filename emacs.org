@@ -1218,18 +1218,18 @@ obj[-grep(re, obj)]
      (setq user-mail-address "dandavison7@gmail.com")
      (setq gnus-ignored-newsgroups "") ;; "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\”]\”[#’()]")
      (setq gnus-select-method
-           '(nnimap "counsyl"
-                     (nnimap-address "imap.gmail.com")
-                     (nnimap-server-port 993)
-                     (nnimap-stream ssl)))
+           '(nntp "news.gmane.org"))
      (setq gnus-secondary-select-methods
-           '((nnimap "gmail"
+           '((nntp "news.eternal-september.org")
+             (nntp "news.gwene.org")
+             (nnimap "counsyl"
                      (nnimap-address "imap.gmail.com")
                      (nnimap-server-port 993)
                      (nnimap-stream ssl))
-             (nntp "news.eternal-september.org")
-             (nntp "news.gwene.org")
-             (nntp "news.gmane.org"))))
+             (nnimap "gmail"
+                     (nnimap-address "imap.gmail.com")
+                     (nnimap-server-port 993)
+                     (nnimap-stream ssl)))))
     ('linux
      (setq user-mail-address "dandavison7@gmail.com")
      (setq gnus-select-method
