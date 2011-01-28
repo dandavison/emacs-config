@@ -900,9 +900,10 @@ parenthesis-delimited list of symbols at point"
 ** Flymake
 #+begin_src emacs-lisp
 (require 'flymake)
-(defun flymake-pyflakes-init () 
+(defun dan/flymake-pyflakes-init () 
   ;; Make sure it's not a remote buffer or flymake would not work
-  (when (not (subsetp (list (current-buffer)) (tramp-list-remote-buffers)))
+  ;; tramp-list-remote-buffers doesn't exist in recent tramp
+  (when t ;; (not (subsetp (list (current-buffer)) (tramp-list-remote-buffers)))
     (let* ((temp-file (flymake-init-create-temp-buffer-copy 
                        'flymake-create-temp-inplace)) 
            (local-file (file-relative-name 
@@ -911,7 +912,7 @@ parenthesis-delimited list of symbols at point"
       (list "codequality" (list local-file)))))
 
 (add-to-list 'flymake-allowed-file-name-masks 
-             '("\\.py\\'" flymake-pyflakes-init))
+             '("\\.py\\'" dan/flymake-pyflakes-init))
 #+end_src
 
 ** Dired
