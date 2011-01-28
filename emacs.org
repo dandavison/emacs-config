@@ -2883,17 +2883,13 @@ is a symbol, it is used as is.")
 ** Transparency
 http://www.emacswiki.org/emacs/TransparentEmacs
 #+begin_src emacs-lisp
-;;(set-frame-parameter (selected-frame) 'alpha '(<active> [<inactive>]))
-(setq dan/frame-alpha '(95 50)) ;; high -> opaque
+;; (set-frame-parameter (selected-frame) 'alpha '(<active> [<inactive>]))
 
-(set-frame-parameter (selected-frame) 'alpha dan/frame-alpha)
-(add-to-list 'default-frame-alist (cons 'alpha dan/frame-alpha))
+(setq dan/frame-transparent-alpha '(95 50)) ;; high -> opaque
 
-;; no transparency:
-;; (set-frame-parameter (selected-frame) 'alpha '(100 100))
-;; (add-to-list 'default-frame-alist '(alpha 100 100))
-
-;; You can use the following snippet after you’ve set the alpha as above to assign a toggle to “C-c t”:
+(when nil
+  (set-frame-parameter (selected-frame) 'alpha dan/frame-transparent-aalpha)
+  (add-to-list 'default-frame-alist (cons 'alpha dan/frame-transparent-alpha)))
 
 (eval-when-compile (require 'cl))
 (defun dan/toggle-transparency ()
@@ -2902,7 +2898,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
        (cadr (find 'alpha (frame-parameters nil) :key #'car))
        100)
       (set-frame-parameter nil 'alpha '(100 100))
-    (set-frame-parameter nil 'alpha '(85 60))))
+    (set-frame-parameter nil 'alpha dan/frame-transparent-alpha)))
 #+end_src
 
 * Start-up
