@@ -2175,43 +2175,11 @@ rubber -f -m xelatex somefile.tex
           ;; displaying an Org block
           (lambda () (define-key org-src-mode-map "\C-c\C-v"
                        'org-src-do-key-sequence-at-code-block)))
-
-(defvar dan/org-src-native-underscore t)
-
-(defun dan/org-underscore-command ()
-  (interactive)
-  (or (and dan/org-src-native-underscore
-           (org-babel-do-key-sequence-in-edit-buffer "_"))
-      (org-self-insert-command 1)))
-
-(defun dan/org-src-native-underscore ()
-  (interactive)
-  (message
-   "Native underscores %s"
-   (if (setq dan/org-src-native-underscore
-             (not dan/org-src-native-underscore))
-       "on" "off")))
-
-(defun dan/org-comment-dwim (&optional arg)
-  (interactive "P")
-  (or (org-babel-do-key-sequence-in-edit-buffer "\M-;")
-      (comment-dwim arg)))
-
-(defun dan/org-indent-region ()
-  (interactive)
-  (or (org-babel-do-key-sequence-in-edit-buffer "\C-\M-\\")
-      (indent-region)))
-
 (defun dan/org-fill-paragraph-no-op-in-code-block ()
   (interactive)
   (if (org-babel-where-is-src-block-head)
       (message "In code block: doing nothing")
     (call-interactively 'fill-paragraph)))
-
-(defun dan/org-fill-paragraph-natively-maybe ()
-  (interactive)
-  (or (org-babel-do-key-sequence-in-edit-buffer "\M-q")
-      (call-interactively 'fill-paragraph)))
 
 (defun dan/org-babel-edit-src-code (&optional arg)
   (interactive "P")
@@ -2220,8 +2188,6 @@ rubber -f -m xelatex somefile.tex
        (org-edit-src-exit))
     (call-interactively 'org-edit-src-code)))
 
-(setq org-src-tab-acts-natively t)
-
 (add-to-list 'org-src-lang-modes '("C" . c))
 
 (setq org-src-window-setup 'current-window) ;; 'current-window 'other-window 'other-frame 'reorganize-frame
@@ -2229,6 +2195,47 @@ rubber -f -m xelatex somefile.tex
 (setq org-src-ask-before-returning-to-edit-buffer nil)
 
 (setq org-edit-src-content-indentation 0)
+#+end_src
+
+**** Native commands
+#+begin_src emacs-lisp
+(defcustom org-src-native-commands '()
+  "List of org-src native commands.
+
+These are commands that, when issued in a src block, should be
+performed 'natively', i.e. their effect should be as if they were
+issued in a language major-mode buffer."
+  :group 'org-babel
+  :type '(set :greedy t
+              (const tab)
+              (const underscore)
+              (const comment-dwim)
+              (const indent-region)
+              (const fill-paragraph)))
+
+(defun org-src-native/underscore ()
+  (interactive)
+  (or (and (memq 'underscore org-src-native-commands)
+           (org-babel-do-key-sequence-in-edit-buffer "_"))
+      (org-self-insert-command 1)))
+
+(defun org-src-native/comment-dwim (&optional arg)
+  (interactive "P")
+  (or (and (memq 'comment-dwim org-src-native-commands)
+           (org-babel-do-key-sequence-in-edit-buffer "\M-;"))
+      (comment-dwim arg)))
+
+(defun org-src-native/indent-region ()
+  (interactive)
+  (or (and (memq 'indent-region org-src-native-commands)
+           (org-babel-do-key-sequence-in-edit-buffer "\C-\M-\\"))
+      (indent-region)))
+
+(defun org-src-native/fill-paragraph ()
+  (interactive)
+  (or (and (memq 'fill-paragraph org-src-native-commands)
+           (org-babel-do-key-sequence-in-edit-buffer "\M-q"))
+      (call-interactively 'fill-paragraph)))
 #+end_src
 **** Library of Babel
 #+begin_src emacs-lisp
@@ -2691,10 +2698,10 @@ is a symbol, it is used as is.")
     ("\C-cp" . org-insert-property-drawer)
     ("\C-ct" . org-hide-block-toggle)
     ("\C-cu" . (lambda () (interactive) (org-back-to-heading)))
-    ("_" . self-insert-command) ;; dan/org-underscore-command)
-    ("\M-q" . dan/org-fill-paragraph-natively-maybe)
-    ("\M-;" . dan/org-comment-dwim)
-    ("\C-\M-\\" . dan/org-indent-region)
+    ("_" . org-src-native/underscore)
+    ("\M-q" . org-src-native/fill-paragraph)
+    ("\M-;" . org-src-native/comment-dwim)
+    ("\C-\M-\\" . org-src-native/indent-region)
     ([(control \')] . dan/org-hide-block-and-switch-to-code-buffer))))
 #+end_src
 
