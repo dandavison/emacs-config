@@ -1255,14 +1255,13 @@ obj[-grep(re, obj)]
 *** Sending
 #+begin_src emacs-lisp
 (case dan/operating-system
-  ;; ('darwin
-  ;;  (setq message-send-mail-function 'smtpmail-send-it
-  ;;        smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
-  ;;        smtpmail-auth-credentials '(("smtp.gmail.com" 587 "davison@counsyl.com" nil))
-  ;;        smtpmail-default-smtp-server "smtp.gmail.com"
-  ;;        smtpmail-smtp-server "smtp.gmail.com"
-  ;;        smtpmail-smtp-service 587
-  ;;        smtpmail-local-domain "counsyl.com"))
+  ('darwin
+   (setq message-send-mail-function 'smtpmail-send-it
+         smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
+         smtpmail-auth-credentials '(("smtp.gmail.com" 587 "dandavison7@gmail.com" nil))
+         smtpmail-default-smtp-server "smtp.gmail.com"
+         smtpmail-smtp-server "smtp.gmail.com"
+         smtpmail-smtp-service 587))
   ('linux
    (setq
     mail-user-agent 'message-user-agent ;; so that org-mime-org-buffer-htmlize uses message-mode
