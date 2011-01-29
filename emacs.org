@@ -2843,6 +2843,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 (when (and (eq window-system 'ns)
            (fboundp 'ns-toggle-fullscreen))
   (ns-toggle-fullscreen))
+(gnus)
 #+end_src
 
 * Experimental
