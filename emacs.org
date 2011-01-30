@@ -1206,50 +1206,53 @@ obj[-grep(re, obj)]
 ** Gnus
 *** General
 #+begin_src emacs-lisp
-  (add-to-list 'load-path "~/lib/emacs/gnus/lisp")
-  (require 'gnus-load)
-  
-  (setq user-full-name "Dan Davison")
-  (case dan/operating-system
-    ('darwin
-      ;; ~/.authinfo entries:
-      ;; machine counsyl login davison@counsyl.com password xxx port 993
-      ;; machine gmail login dandavison7@gmail.com password xxx port 993
-     (setq user-mail-address "dandavison7@gmail.com")
-     (setq gnus-ignored-newsgroups "") ;; "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\”]\”[#’()]")
-     (setq gnus-select-method
-           '(nntp "news.gmane.org"))
-     (setq gnus-secondary-select-methods
-           '((nntp "news.eternal-september.org")
-             (nntp "news.gwene.org")
-             (nnimap "counsyl"
-                     (nnimap-address "imap.gmail.com")
-                     (nnimap-server-port 993)
-                     (nnimap-stream ssl))
-             (nnimap "gmail"
-                     (nnimap-address "imap.gmail.com")
-                     (nnimap-server-port 993)
-                     (nnimap-stream ssl)))))
-    ('linux
-     (setq user-mail-address "dandavison7@gmail.com")
-     (setq gnus-select-method
-           '(nnimap "dc"
-                    (nnimap-address "localhost")
-                    (nnimap-authinfo-file "~/config/email/authinfo")))
-     (setq gnus-secondary-select-methods
-           '((nntp "news.gmane.org")
-             (nntp "news.eternal-september.org")
-             (nntp "news.gwene.org")))
-     (require 'nnmairix)))
-  
-  (setq gnus-save-newsrc-file nil)
-  (setq gnus-always-read-dribble-file t)
-  (setq gnus-novice-user nil)
-  (setq gnus-expert-user t)
-  
-  (add-hook
-   'gnus-after-exiting-gnus-hook
-   (lambda () (if (buffer-live-p "*Group*") (kill-buffer "*Group*"))))
+(add-to-list 'load-path "~/lib/emacs/gnus/lisp")
+(require 'gnus-load)
+;; (require 'nnir) ?necessary?
+;; need to add this to select methods for searching?
+;; (nnir-search-engine imap)
+
+(setq user-full-name "Dan Davison")
+(case dan/operating-system
+  ('darwin
+   ;; ~/.authinfo entries:
+   ;; machine counsyl login davison@counsyl.com password xxx port 993
+   ;; machine gmail login dandavison7@gmail.com password xxx port 993
+   (setq user-mail-address "dandavison7@gmail.com")
+   (setq gnus-ignored-newsgroups "") ;; "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\”]\”[#’()]")
+   (setq gnus-select-method
+         '(nntp "news.gmane.org"))
+   (setq gnus-secondary-select-methods
+         '((nntp "news.eternal-september.org")
+           (nntp "news.gwene.org")
+           (nnimap "counsyl"
+                   (nnimap-address "imap.gmail.com")
+                   (nnimap-server-port 993)
+                   (nnimap-stream ssl))
+           (nnimap "gmail"
+                   (nnimap-address "imap.gmail.com")
+                   (nnimap-server-port 993)
+                   (nnimap-stream ssl)))))
+  ('linux
+   (setq user-mail-address "dandavison7@gmail.com")
+   (setq gnus-select-method
+         '(nnimap "dc"
+                  (nnimap-address "localhost")
+                  (nnimap-authinfo-file "~/config/email/authinfo")))
+   (setq gnus-secondary-select-methods
+         '((nntp "news.gmane.org")
+           (nntp "news.eternal-september.org")
+           (nntp "news.gwene.org")))
+   (require 'nnmairix)))
+
+(setq gnus-save-newsrc-file nil)
+(setq gnus-always-read-dribble-file t)
+(setq gnus-novice-user nil)
+(setq gnus-expert-user t)
+
+(add-hook
+ 'gnus-after-exiting-gnus-hook
+ (lambda () (if (buffer-live-p "*Group*") (kill-buffer "*Group*"))))
 #+end_src
 
 *** Sending
