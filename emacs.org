@@ -1152,6 +1152,14 @@ obj[-grep(re, obj)]
   'font-lock-function-name-face))
 #+end_src
 
+** Bbdb
+#+begin_src emacs-lisp
+(add-to-list 'load-path "~/lib/emacs/bbdb/lisp")
+(require 'bbdb)
+(require 'bbdb-gnus)
+(bbdb-initialize)
+#+end_src
+
 ** Buffer-join
 #+begin_src emacs-lisp
 (add-to-list 'load-path "~/lib/emacs/buffer-join")
