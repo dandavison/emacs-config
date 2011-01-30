@@ -2224,6 +2224,11 @@ issued in a language major-mode buffer."
               (const indent-region)
               (const fill-paragraph)))
 
+(setq org-src-native-commands
+      '(tab underscore comment-dwim indent-region fill-paragraph))
+
+(setq org-src-tab-acts-natively t)
+
 (defun org-src-native/underscore ()
   (interactive)
   (or (and (memq 'underscore org-src-native-commands)
