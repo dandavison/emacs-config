@@ -1458,6 +1458,7 @@ obj[-grep(re, obj)]
 (setq message-mode-hook (quote (orgstruct++-mode)))
 
 (setq mm-discouraged-alternatives '("text/html" "text/richtext"))
+(setq gnus-article-update-lapsed-header 60)
 #+end_src
 
 *** Cache
