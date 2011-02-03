@@ -513,9 +513,13 @@ parenthesis-delimited list of symbols at point"
 (defun dan/scratch-buffer ()
   "Scratch buffers for various major modes"
   (interactive)
-  (let* ((modes '(("org-mode" . "org")
-                  ("python-mode" . "py")
-                  ("emacs-lisp-mode" . "el")))
+  (let* ((modes
+          (delete-dups
+           `((,(symbol-name major-mode) . 
+              ,(file-name-extension (buffer-file-name (current-buffer))))
+             ("org-mode" . "org")
+             ("python-mode" . "py")
+             ("emacs-lisp-mode" . "el"))))
          (mode
           (ido-completing-read "Mode: " (mapcar #'car modes)))
          (mode-fun (intern mode))
@@ -527,7 +531,7 @@ parenthesis-delimited list of symbols at point"
     (unless (eq major-mode mode-fun) (funcall mode-fun))
     (when contents
       (delete-region (point-min) (point-max))
-      (insert contents))))
+      (insert (org-remove-indentation contents)))))
 #+end_src
 * Core
 ** Windows and Frames
