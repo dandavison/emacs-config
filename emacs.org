@@ -508,6 +508,27 @@ parenthesis-delimited list of symbols at point"
   (while (progn (other-window 1)
                 (window-minibuffer-p))))
 #+end_src
+** Scratch buffers
+#+begin_src emacs-lisp
+(defun dan/scratch-buffer ()
+  "Scratch buffers for various major modes"
+  (interactive)
+  (let* ((modes '(("org-mode" . "org")
+                  ("python-mode" . "py")
+                  ("emacs-lisp-mode" . "el")))
+         (mode
+          (ido-completing-read "Mode: " (mapcar #'car modes)))
+         (mode-fun (intern mode))
+         (contents
+          (and (region-active-p)
+               (buffer-substring (region-beginning)
+                                 (region-end)))))
+    (find-file (concat "/tmp/scratch." (cdr (assoc mode modes))))
+    (unless (eq major-mode mode-fun) (funcall mode-fun))
+    (when contents
+      (delete-region (point-min) (point-max))
+      (insert contents))))
+#+end_src
 * Core
 ** Windows and Frames
 #+begin_src emacs-lisp
@@ -1666,21 +1687,6 @@ obj[-grep(re, obj)]
   (let ((org-hide-block-startup nil))
     (org-mode)
     (show-all)))
-#+end_src
-
-**** Temp org file
-#+begin_src emacs-lisp
-(defun dan/org-switch-to-org-scratch ()
-  "Put me in a new org buffer now!"
-  (interactive)
-  (let ((contents
-         (and (region-active-p)
-              (buffer-substring (region-beginning)
-                                (region-end)))))
-    (find-file "/tmp/org-scratch.org")
-    (when contents
-      (delete-region (point-min) (point-max))
-      (insert contents))))
 #+end_src
 
 **** Search in org source code
