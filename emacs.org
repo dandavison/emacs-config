@@ -514,12 +514,19 @@ parenthesis-delimited list of symbols at point"
   "Scratch buffers for various major modes"
   (interactive)
   (let* ((modes
-          (delete-dups
-           `((,(symbol-name major-mode) . 
-              ,(file-name-extension (buffer-file-name (current-buffer))))
-             ("org-mode" . "org")
-             ("python-mode" . "py")
-             ("emacs-lisp-mode" . "el"))))
+          `(("org-mode" . "org")
+            ("python-mode" . "py")
+            ("emacs-lisp-mode" . "el")))
+         (buf-file-name (buffer-file-name (current-buffer)))
+         (buf-mode
+          (or (assoc (symbol-name major-mode) modes)
+              (and buf-file-name
+                   (cons (symbol-name major-mode) .
+                         (file-name-extension buf-file-name)))))
+         (modes
+          (if buf-mode
+              (delete-dups (append (list buf-mode) modes))
+            modes))
          (mode
           (ido-completing-read "Mode: " (mapcar #'car modes)))
          (mode-fun (intern mode))
