@@ -2892,6 +2892,7 @@ is a symbol, it is used as is.")
 ** Start-up
 #+begin_src emacs-lisp
 (color-theme-initialize)
+(color-theme-emacs-21) ;; hack to avoid square in bottom right on fullscreen
 (color-theme-charcoal-black)
 (case dan/operating-system
   ('linux
