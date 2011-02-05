@@ -825,12 +825,11 @@ parenthesis-delimited list of symbols at point"
   "If there's trailing whitespace ask to delete it"
   (save-excursion
     (goto-char (point-min))
-    (and (re-search-forward "\\s-$" nil t)
+    (and (re-search-forward "[ \t]$" nil t)
          (yes-or-no-p "Delete trailing whitespace?")
          (delete-trailing-whitespace))))
 
 (add-hook 'before-save-hook 'dan/query-delete-trailing-whitespace)
-
 #+end_src
 ** Info
 #+begin_src emacs-lisp :tangle no
