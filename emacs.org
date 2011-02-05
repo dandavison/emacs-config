@@ -2842,24 +2842,8 @@ is a symbol, it is used as is.")
 #+end_src
 * Appearance
 #+begin_src emacs-lisp
-
 (add-hook 'find-file-hook 'dan/sanitise-faces)
 (add-hook 'find-file-hook 'dan/set-show-paren-style)
-
-(setq dan/custom-appearance nil)
-(if dan/custom-appearance
-    (if (not window-system)
-        (custom-set-faces
-         '(mode-line ((t (:foreground "red" :inverse-video nil))))
-         '(org-agenda-date-weekend ((t (:foreground "red"))) t)
-         '(org-hide ((((background light)) (:foreground "black")))))
-      (progn
-        (add-to-list 'load-path "~/lib/emacs/color-theme-6.6.0")
-        (when (dan/require 'color-theme)
-          (eval-after-load "color-theme"
-            '(progn
-               (color-theme-initialize)
-               (color-theme-charcoal-black)))))))
 #+end_src
 ** Vanilla
 #+begin_src emacs-lisp
