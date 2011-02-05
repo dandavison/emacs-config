@@ -517,7 +517,7 @@ parenthesis-delimited list of symbols at point"
          (buf-mode
           (or (assoc (symbol-name major-mode) modes)
               (and buf-file-name
-                   (cons (symbol-name major-mode) .
+                   (cons (symbol-name major-mode)
                          (file-name-extension buf-file-name)))))
          (modes
           (if buf-mode
