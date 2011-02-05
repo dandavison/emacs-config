@@ -821,6 +821,7 @@ parenthesis-delimited list of symbols at point"
 #+end_src
 ** Info
 #+begin_src emacs-lisp :tangle no
+(require 'info)
 (add-to-list 'Info-directory-list "/usr/share/info/emacs-snapshot")
 #+end_src
 ** Message Mode
