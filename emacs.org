@@ -994,8 +994,13 @@ parenthesis-delimited list of symbols at point"
 #+end_src
 *** Elisp
 #+begin_src emacs-lisp
-;; (add-hook 'emacs-lisp-mode-hook 'pretty-lambdas)
-;; (add-hook 'emacs-lisp-mode-hook 'paredit-mode)
+(require 'paredit)
+(add-hook 'emacs-lisp-mode-hook 'pretty-lambdas)
+(add-hook 'emacs-lisp-mode-hook
+          (lambda ()
+            (condition-case nil
+                (paredit-mode)
+              (error (message "Failed to activate paredit mode")))))
 #+end_src
 
 *** C & C++
