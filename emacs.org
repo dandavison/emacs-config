@@ -2596,6 +2596,7 @@ is a symbol, it is used as is.")
 (dan/register-key-bindings
  '(global-map .
               (("\C-x\C-b" . org-buffers-list)
+               ("\C-\\" . indent-region)
                ("\C-x\C-f" . dan/find-file)
                ("\C-x\M-f" . find-file-at-point)
                ("\C-ca" . org-agenda)
@@ -2746,7 +2747,7 @@ is a symbol, it is used as is.")
     ("_" . org-src-native/underscore)
     ("\M-q" . org-src-native/fill-paragraph)
     ("\M-;" . org-src-native/comment-dwim)
-    ("\C-\M-\\" . org-src-native/indent-region)
+    ("\C-\\" . org-src-native/indent-region)
     ([(control \')] . dan/org-hide-block-and-switch-to-code-buffer))))
 #+end_src
 
