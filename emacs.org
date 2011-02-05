@@ -82,11 +82,7 @@ Wait for REST between each attempt."
   ;; (show-paren-mode t)
   (set-face-attribute 'show-paren-match-face nil :weight 'extra-bold)
   (set-face-background 'show-paren-match-face (face-background 'default))
-  (if (boundp 'font-lock-comment-face)
-      (set-face-foreground 'show-paren-match-face
-                           (face-foreground 'font-lock-comment-face))
-    (set-face-foreground 'show-paren-match-face
-                         (face-foreground 'default))))
+  (set-face-attribute 'show-paren-match-face nil :foreground "red"))
 #+end_src
 ** Set executable paths
 #+begin_src emacs-lisp
