@@ -523,9 +523,9 @@ parenthesis-delimited list of symbols at point"
   "Scratch buffers for various major modes"
   (interactive)
   (let* ((modes
-          `(("org-mode" . "org")
-            ("python-mode" . "py")
-            ("emacs-lisp-mode" . "el")))
+          '(("org" org-mode "org")
+            ("python" python-mode "py")
+            ("emacs-lisp" emacs-lisp-mode "el")))
          (buf-file-name (buffer-file-name (current-buffer)))
          (buf-mode
           (or (assoc (symbol-name major-mode) modes)
@@ -536,18 +536,19 @@ parenthesis-delimited list of symbols at point"
           (if buf-mode
               (delete-dups (append (list buf-mode) modes))
             modes))
-         (mode
-          (ido-completing-read "Mode: " (mapcar #'car modes)))
-         (mode-fun (intern mode))
+         (mode (assoc (ido-completing-read "Mode: " (mapcar #'car modes))
+                      modes))
+         (mode-fun (second mode))
          (contents
           (and (region-active-p)
                (buffer-substring (region-beginning)
                                  (region-end)))))
-    (find-file (concat "/tmp/scratch." (cdr (assoc mode modes))))
+    (find-file (concat "/tmp/scratch." (third mode)))
     (unless (eq major-mode mode-fun) (funcall mode-fun))
     (when contents
       (delete-region (point-min) (point-max))
       (insert (org-remove-indentation contents)))))
+
 #+end_src
 * Core
 ** Windows and Frames
