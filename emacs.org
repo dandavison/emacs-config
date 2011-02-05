@@ -2595,8 +2595,10 @@ is a symbol, it is used as is.")
 #+begin_src emacs-lisp
 (dan/register-key-bindings
  '(global-map .
-              (("\C-x\C-b" . org-buffers-list)
+              (("\C-b" . backward-sexp)
+               ("\C-f" . forward-sexp)
                ("\C-\\" . indent-region)
+               ("\C-x\C-b" . org-buffers-list)
                ("\C-x\C-f" . dan/find-file)
                ("\C-x\M-f" . find-file-at-point)
                ("\C-ca" . org-agenda)
