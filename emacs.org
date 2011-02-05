@@ -1851,6 +1851,7 @@ by Vitalie S.
 #+begin_src emacs-lisp
 (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
 (add-to-list 'load-path (expand-file-name "~/lib/emacs/org/contrib/lisp"))
+(require 'org-latex)
 #+end_src
 *** Extras
 #+begin_src emacs-lisp
