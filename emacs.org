@@ -41,7 +41,7 @@ Wait for REST between each attempt."
   (interactive)
   (call-interactively 'occur-mode-goto-occurrence)
   (other-window 1))
-  
+
 (defun dan/occur ()
   (interactive)
   (let ((tap (thing-at-point 'symbol)))
@@ -950,18 +950,18 @@ parenthesis-delimited list of symbols at point"
 ** Flymake
 #+begin_src emacs-lisp
 (require 'flymake)
-(defun dan/flymake-pyflakes-init () 
+(defun dan/flymake-pyflakes-init ()
   ;; Make sure it's not a remote buffer or flymake would not work
   ;; tramp-list-remote-buffers doesn't exist in recent tramp
   (when t ;; (not (subsetp (list (current-buffer)) (tramp-list-remote-buffers)))
-    (let* ((temp-file (flymake-init-create-temp-buffer-copy 
-                       'flymake-create-temp-inplace)) 
-           (local-file (file-relative-name 
-                        temp-file 
-                        (file-name-directory buffer-file-name)))) 
+    (let* ((temp-file (flymake-init-create-temp-buffer-copy
+                       'flymake-create-temp-inplace))
+           (local-file (file-relative-name
+                        temp-file
+                        (file-name-directory buffer-file-name))))
       (list "codequality" (list local-file)))))
 
-(add-to-list 'flymake-allowed-file-name-masks 
+(add-to-list 'flymake-allowed-file-name-masks
              '("\\.py\\'" dan/flymake-pyflakes-init))
 #+end_src
 
@@ -1043,7 +1043,7 @@ http://xahlee.org/emacs/emacs_html.html
      (0 (put-text-property
          (match-beginning 0)
          (match-end 0)
-         'face (list :background 
+         'face (list :background
                      (match-string-no-properties 0)))))))
 
 (defun dan/hexcolour-add-to-font-lock ()
@@ -2344,7 +2344,7 @@ issued in a language major-mode buffer."
       (org-edit-src-code))))
 #+end_src
 **** Activate languages
-#+begin_src emacs-lisp  
+#+begin_src emacs-lisp
 (setq org-babel-load-languages
       (mapcar (lambda (lang) (cons lang t))
               (dan/org-babel-list-supported-languages)))
@@ -2816,7 +2816,7 @@ is a symbol, it is used as is.")
 *** Python
 #+begin_src emacs-lisp
 (dan/register-key-bindings
- '("py" . 
+ '("py" .
    (([(control return)] . dan/py-eval-line)
     ("\C-c\C-f" . dan/ffap-python-import))))
 #+end_src
@@ -2938,7 +2938,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 (ido-mode +1)
 (setq ido-separator " ")
 (eshell)
-;; (when 
+;; (when
 ;;            (fboundp 'ns-toggle-fullscreen))
 ;;   (ns-toggle-fullscreen))
 #+end_src
