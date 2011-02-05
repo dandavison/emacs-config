@@ -1256,6 +1256,46 @@ obj[-grep(re, obj)]
 (require 'gnugol)
 #+end_src
 
+** Gnus lite
+#+begin_src emacs-lisp :tangle gnus-bug.el
+(setq gnus-select-method '(nntp "news.gmane.org"))
+
+(setq gnus-summary-line-format
+      (concat
+       "%0{%U%R%z%}"
+       "%3{%}" "%1{%~(pad-right 9)&user-date;%}" "%3{|%}" ;; date
+       "  "
+       "%4{%-20,20f%}"               ;; name
+       "  "
+       "%3{|%}"
+       " "
+       "%1{%B%}"
+       "%s\n"))
+
+(setq gnus-sum-thread-tree-indent " ")
+(setq gnus-sum-thread-tree-root "♽ " )
+(setq gnus-sum-thread-tree-false-root "")
+(setq gnus-sum-thread-tree-single-indent "")
+(setq gnus-sum-thread-tree-vertical        "|")
+(setq gnus-sum-thread-tree-leaf-with-other "├─► ")
+(setq gnus-sum-thread-tree-single-leaf     "╰─► ")
+(setq gnus-thread-sort-functions
+      '(gnus-thread-sort-by-number
+        gnus-thread-sort-by-most-recent-date))
+
+(setq gnus-summary-thread-gathering-function
+      'gnus-gather-threads-by-references)
+
+(setq gnus-user-date-format-alist
+      '(((gnus-seconds-today) . "    %k:%M")
+        (604800 . "%a %k:%M")
+        ((gnus-seconds-month)
+         . "%a %d")
+        ((gnus-seconds-year)
+         . "%b %d")
+        (t . "%b %d '%y")))
+#+end_src
+
 ** Gnus
 *** General
 #+begin_src emacs-lisp
@@ -1392,29 +1432,29 @@ obj[-grep(re, obj)]
          . "%b %d")
         (t . "%b %d '%y")))
 
+;; note that either | or │ could be used in here
 (setq gnus-summary-line-format
       (concat
        "%0{%U%R%z%}"
-       "%3{│%}" "%1{%~(pad-right 9)&user-date;%}" "%3{│%}" ;; date
+       "%3{|%}" "%1{%~(pad-right 9)&user-date;%}" "%3{|%}" ;; date
        "  "
        "%4{%-20,20f%}"               ;; name
        "  "
-       "%3{│%}"
+       "%3{|%}"
        " "
        "%1{%B%}"
        "%s\n"))
 
-(setq gnus-summary-display-arrow t)
-
 ;; http://groups.google.com/group/gnu.emacs.gnus/browse_thread/thread/a673a74356e7141f
-(when window-system
-  (setq gnus-sum-thread-tree-indent " ")
-  (setq gnus-sum-thread-tree-root "♽ " )              ; ●  ⚈
-  (setq gnus-sum-thread-tree-false-root "")           ; ◯   ♽
-  (setq gnus-sum-thread-tree-single-indent "")        ; ◎
-  (setq gnus-sum-thread-tree-vertical        "│")     ; ┆ ┋ ┆
-  (setq gnus-sum-thread-tree-leaf-with-other "├─► ")  ; ┣━►   ▶
-  (setq gnus-sum-thread-tree-single-leaf     "╰─► ")) ; ┗━►
+(setq gnus-sum-thread-tree-indent " ")
+(setq gnus-sum-thread-tree-root "♽ " )             ; ●  ⚈
+(setq gnus-sum-thread-tree-false-root "")          ; ◯   ♽
+(setq gnus-sum-thread-tree-single-indent "")       ; ◎
+(setq gnus-sum-thread-tree-vertical        "│")    ; │┆ ┋ ┆
+(setq gnus-sum-thread-tree-leaf-with-other "├─► ") ; ┣━►   ▶
+(setq gnus-sum-thread-tree-single-leaf     "╰─► ") ; ┗━►
+
+(setq gnus-summary-display-arrow t)
 
 (fset 'dan/gnus-summary-tick-thread "MPt\M-&!")
 #+end_src
