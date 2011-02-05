@@ -2767,6 +2767,14 @@ is a symbol, it is used as is.")
    (([(control \')] . org-edit-src-exit)
     ([delete] . org-edit-src-exit))))
 #+end_src
+*** Paredit
+#+begin_src emacs-lisp
+(dan/register-key-bindings
+ '("paredit" .
+   (([(control left)] . winner-undo)
+    ([(control right)] . winner-redo))))
+#+end_src
+
 *** Python
 #+begin_src emacs-lisp
 (dan/register-key-bindings
