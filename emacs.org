@@ -812,8 +812,16 @@ parenthesis-delimited list of symbols at point"
 ;; buffer-file-name doesn't correspond to a file
 ;; (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
 
-;; This is perhaps a little irritating with collaborative projects
-;; (add-hook 'before-save-hook 'delete-trailing-whitespace)
+(defun dan/query-delete-trailing-whitespace ()
+  "If there's trailing whitespace ask to delete it"
+  (save-excursion
+    (goto-char (point-min))
+    (and (re-search-forward "\\s-$" nil t)
+         (yes-or-no-p "Delete trailing whitespace?")
+         (delete-trailing-whitespace))))
+
+(add-hook 'before-save-hook 'dan/query-delete-trailing-whitespace)
+
 #+end_src
 ** Info
 #+begin_src emacs-lisp :tangle no
