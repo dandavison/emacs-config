@@ -1105,16 +1105,6 @@ http://xahlee.org/emacs/emacs_html.html
 
 (put 'python-import 'bounds-of-thing-at-point
      'python-import-bounds-of-python-import-at-point)
-
-(defun dan/ffap-python-import ()
-  (interactive)
-  (push
-   (concat
-    "~/base/site/"
-    (subst-char-in-string
-     ?. ?/ (thing-at-point 'python-import)) ".py")
-   file-name-history)
-  (call-interactively 'find-file))
 #+end_src
 *** Shell
 #+begin_src emacs-lisp
