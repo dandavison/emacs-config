@@ -1921,6 +1921,7 @@ brewer.pal(n=8, name="Set1")
 ;; (setq org-odd-levels-only t)
 (setq org-empty-line-terminates-plain-lists t)
 (setq org-return-follows-link t)
+(setq org-special-ctrl-a/e t)
 #+end_src
     See also [[mairix:t:@@20524da70908071211y4aeb4c0se9a465e2ebe27a8f@mail.gmail.com][Email from Samuel Wales: {Orgmode} Arrow + RET navigati]]
 
