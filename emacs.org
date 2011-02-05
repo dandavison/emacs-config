@@ -2046,7 +2046,6 @@ may use one of several remember targets"
          "ANSWERED(a!@/!@)"
          "CANCELLED(c!@/!@)"
          "DUPLICATE(u!@/!@)")))
-(setq org-edit-src-persistent-message nil)
 (setq org-enforce-todo-dependencies t)
 (setq org-enforce-todo-checkbox-dependencies t)
 
@@ -2247,6 +2246,8 @@ rubber -f -m xelatex somefile.tex
 (setq org-src-ask-before-returning-to-edit-buffer nil)
 
 (setq org-edit-src-content-indentation 0)
+
+(setq org-edit-src-persistent-message nil)
 #+end_src
 
 **** Native commands
