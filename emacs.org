@@ -823,11 +823,12 @@ parenthesis-delimited list of symbols at point"
 
 (defun dan/query-delete-trailing-whitespace ()
   "If there's trailing whitespace ask to delete it"
-  (save-excursion
-    (goto-char (point-min))
-    (and (re-search-forward "[ \t]$" nil t)
-         (yes-or-no-p "Delete trailing whitespace?")
-         (delete-trailing-whitespace))))
+  (unless buffer-read-only
+    (save-excursion
+      (goto-char (point-min))
+      (and (re-search-forward "[ \t]$" nil t)
+           (yes-or-no-p "Delete trailing whitespace?")
+           (delete-trailing-whitespace)))))
 
 (add-hook 'before-save-hook 'dan/query-delete-trailing-whitespace)
 #+end_src
