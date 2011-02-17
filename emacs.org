@@ -1053,6 +1053,11 @@ http://xahlee.org/emacs/emacs_html.html
 (add-hook 'css-mode-hook 'dan/hexcolour-add-to-font-lock)
 #+end_src
 
+*** Dot
+#+begin_src emacs-lisp
+(load-file "~/lib/emacs/graphviz-dot-mode.el")
+#+end_src
+
 *** Javascript
 #+begin_src emacs-lisp
 (add-to-list 'load-path "~/lib/emacs/coffee-mode")
