@@ -1347,13 +1347,7 @@ obj[-grep(re, obj)]
            (nnimap "gmail"
                    (nnimap-address "imap.gmail.com")
                    (nnimap-server-port 993)
-                   (nnimap-stream ssl))
-           ;; (nnimap "stats"
-           ;;         (nnimap-address "markov.stats.ox.ac.uk")
-           ;;         ;; (nnimap-server-port 993)
-           ;;         ;; (nnimap-stream ssl)
-           ;;         )
-           )))
+                   (nnimap-stream ssl)))))
   ('linux
    (setq user-mail-address "dandavison7@gmail.com")
    (setq gnus-select-method
