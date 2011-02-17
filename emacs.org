@@ -1009,13 +1009,7 @@ parenthesis-delimited list of symbols at point"
 #+end_src
 *** Elisp
 #+begin_src emacs-lisp
-(require 'paredit)
 (add-hook 'emacs-lisp-mode-hook 'pretty-lambdas)
-(add-hook 'emacs-lisp-mode-hook
-          (lambda ()
-            (condition-case nil
-                (paredit-mode)
-              (error (message "Failed to activate paredit mode")))))
 #+end_src
 
 *** C & C++
@@ -1669,6 +1663,44 @@ obj[-grep(re, obj)]
   (minimal-mode t)
   (setq minimal-mode-line-background "sea green")
   (setq minimal-mode-line-inactive-background "dim grey"))
+#+end_src
+
+** Paredit
+#+begin_src emacs-lisp
+(require 'paredit)
+(add-hook 'emacs-lisp-mode-hook
+          (lambda ()
+            (condition-case nil
+                (paredit-mode)
+              (error (message "Failed to activate paredit mode")))))
+
+
+(defun dan/paredit-nolisp-mode ()
+  "Turn on paredit for languages like python, R, C"
+  ;; Don't insert space before parentheses
+  (paredit-mode)
+  (set (make-local-variable
+        'paredit-space-for-delimiter-predicates)
+       '((lambda (&rest args) nil)))
+  ;; Use paredit for {}
+  (local-set-key "{" 'paredit-open-curly))
+
+(add-hook 'ess-mode-hook 'dan/paredit-nolisp-mode)
+(add-hook 'inferior-ess-mode-hook 'dan/paredit-nolisp-mode)
+(add-hook 'python-mode-hook 'dan/paredit-nolisp-mode)
+
+(defun dan/paredit-forward-token-w-parens ()
+  (interactive)
+  (forward-symbol)
+  (if (looking-at "(") (forward-sexp)))
+
+;; http://stackoverflow.com/questions/2665292/how-can-i-get-paredit-mode-when-doing-eval-expression
+(defun dan/conditionally-enable-paredit-mode ()
+  "enable paredit-mode during eval-expression"
+  (if (eq this-command 'eval-expression)
+      (paredit-mode 1)))
+(add-hook 'minibuffer-setup-hook 'dan/conditionally-enable-paredit-mode)
+
 #+end_src
 
 ** Tramp
