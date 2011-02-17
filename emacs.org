@@ -1087,15 +1087,23 @@ http://xahlee.org/emacs/emacs_html.html
 (dan/require 'plantuml-mode)
 #+end_src
 *** Python
+**** Python.el
 #+begin_src emacs-lisp
-(add-to-list 'load-path "~/lib/emacs/python-mode")
-(add-to-list 'load-path "~/lib/emacs/ipython")
-(require 'python-mode)
-(require 'ipython)
+(add-to-list 'load-path "~/lib/emacs/python.el")
+(require 'python)
+#+end_src
+**** Python-mode.el
+#+begin_src emacs-lisp :noweb yes :tangle no
+;; (add-to-list 'load-path "~/lib/emacs/python-mode")
+;; (add-to-list 'load-path "~/lib/emacs/ipython")
+;; (require 'python-mode)
+;; (require 'ipython)
 ;; (setq py-python-command-args '("--colors" "Linux")) ;; '("-i"))
 ;; (setq ipython-completion-command-string
 ;;       "print(';'.join(__IP.Completer.all_completions('%s')))\n")
-(setq auto-mode-alist (cons '("\\.pyw$" . python-mode) auto-mode-alist))
+;; (setq auto-mode-alist (cons '("\\.pyw$" . python-mode) auto-mode-alist))
+;; <<python-mode-bindings>>
+
 
 (defun dan/py-eval-line ()
   (interactive)
