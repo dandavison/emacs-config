@@ -1053,6 +1053,14 @@ http://xahlee.org/emacs/emacs_html.html
 (add-hook 'css-mode-hook 'dan/hexcolour-add-to-font-lock)
 #+end_src
 
+*** Javascript
+#+begin_src emacs-lisp
+(add-to-list 'load-path "~/lib/emacs/coffee-mode")
+(require 'coffee-mode)
+(add-to-list 'auto-mode-alist '("\\.coffee$" . coffee-mode))
+(add-to-list 'auto-mode-alist '("Cakefile" . coffee-mode))
+#+end_src
+
 *** Lua
 #+begin_src emacs-lisp
 (setq auto-mode-alist (cons '("\\.lua$" . lua-mode) auto-mode-alist))
