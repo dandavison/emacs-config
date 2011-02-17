@@ -1476,6 +1476,21 @@ obj[-grep(re, obj)]
 (fset 'dan/gnus-summary-tick-thread "MPt\M-&!")
 #+end_src
 *** Posting styles
+
+See Info node `(gnus)Posting Styles'.
+
+             ("nnml:.*"
+              (From (with-current-buffer gnus-article-buffer
+                      (message-fetch-field "to"))))
+             ("^nn.+:"
+              (signature-file "~/.mail-signature"))))
+
+   The `nnml:.*' rule means that you use the `To' address as the `From'
+address in all your outgoing replies, which might be handy if you fill
+many roles.  You may also use `message-alternative-emails' instead.
+*Note Message Headers: (message)Message Headers.
+
+
 #+begin_src emacs-lisp
 (setq gnus-posting-styles
       '(((header "from" "@counsyl\.com")
