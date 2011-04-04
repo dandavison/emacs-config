@@ -1997,7 +1997,7 @@ by Vitalie S.
 *** Appearance
 #+begin_src emacs-lisp
 (setq org-hide-leading-stars t)
-(setq org-hidden-keywords nil) ;; '(title date author))
+(setq org-hidden-keywords '(title date author))
 #+end_src
 **** Set outline colors
      :PROPERTIES:
@@ -2288,7 +2288,7 @@ rubber -f -m xelatex somefile.tex
 #+begin_src emacs-lisp :exports code
 (require 'org-latex)
 (setq org-export-latex-listings-w-names nil)
-(setq 'org-export-latex-packages-alist
+(setq org-export-latex-packages-alist
       '(("AUTO" "inputenc" t)))
 (add-to-list 'org-export-latex-classes
           '("org-article"
@@ -2306,10 +2306,13 @@ rubber -f -m xelatex somefile.tex
 (add-to-list 'org-export-latex-packages-alist '("" "minted"))
 (setq org-latex-to-pdf-process
       (mapcar
-       (lambda (dummy) "pdflatex -shell-escape -interaction nonstopmode %f")
+       (lambda
+         (dummy)
+         "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f")
        '(1 2 3)))
-(add-to-list 'org-export-latex-minted-langs '("R" "r"))
-(add-to-list 'org-export-latex-minted-langs '("sqlite" "sqlite3"))
+(add-to-list 'org-export-latex-minted-langs '(R "r"))
+(add-to-list 'org-export-latex-minted-langs '(octave "matlab"))
+(add-to-list 'org-export-latex-minted-langs '(sqlite "sqlite3"))
 #+end_src
 **** HTML
 *** Src
@@ -2341,8 +2344,6 @@ rubber -f -m xelatex somefile.tex
       (org-babel-do-in-edit-buffer
        (org-edit-src-exit))
     (call-interactively 'org-edit-src-code)))
-
-(add-to-list 'org-src-lang-modes '("C" . c))
 
 (setq org-src-window-setup 'current-window) ;; 'current-window 'other-window 'other-frame 'reorganize-frame
 
@@ -2402,6 +2403,11 @@ issued in a language major-mode buffer."
 #+begin_src emacs-lisp
 (org-babel-lob-ingest "~/org-mode/contrib/babel/library-of-babel.org")
 #+end_src
+**** Sessions
+#+begin_src emacs-lisp
+(setq org-babel-detect-errors-in-sessions t)
+#+end_src
+
 **** Hide block and switch to edit buffer
 #+begin_src emacs-lisp
 (defun dan/org-hide-block-and-switch-to-code-buffer ()
@@ -2413,7 +2419,7 @@ issued in a language major-mode buffer."
       (org-hide-block-toggle 'hide)
       (org-edit-src-code))))
 #+end_src
-**** Activate languages
+**** COMMENT Activate languages
 #+begin_src emacs-lisp
 (setq org-babel-load-languages
       (mapcar (lambda (lang) (cons lang t))
@@ -2426,6 +2432,17 @@ issued in a language major-mode buffer."
 (setq org-babel-js-cmd "node")
 (setenv "NODE_DISABLE_COLORS" "1")
 (setq org-babel-python-mode 'python-mode)
+
+(add-to-list 'org-src-lang-modes '("C" . c))
+(add-to-list 'org-src-lang-modes '("dot" . something-else))
+
+(setq org-src-lang-modes
+      (append '(("dot" . graphviz-dot))
+              (delq (assoc "dot" org-src-lang-modes)
+                    org-src-lang-modes)))
+
+
+
 #+end_src
 **** Variables
 #+begin_src emacs-lisp
