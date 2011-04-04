@@ -2859,8 +2859,7 @@ I didn't get this to work.
                ([f10] . delete-other-windows)
                ([(control escape)] . delete-window)
                ([(meta escape)] . delete-other-windows)
-               ([escape] . dan/other-non-minibuffer-window)
-               ("£" . (lambda () (interactive) (insert "#"))))))
+               ([escape] . dan/other-non-minibuffer-window))))
 
 (add-hook 'after-change-major-mode-hook
           (lambda ()
