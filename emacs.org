@@ -27,6 +27,59 @@
 #+end_src
 
 * My functions
+** screenshot
+http://thread.gmane.org/gmane.emacs.orgmode/33770
+#+begin_src emacs-lisp
+(defun dan/org-screenshot ()
+"Store a screenshot in a subdirectory named screenshots and
+insert a link in the current file."
+  (interactive)
+  ((lambda (file)
+     (make-directory (file-name-directory file) t)
+     (shell-command (format "screencapture -s %s" file))
+     (insert (concat "[[file:" file "]]")))
+  (format "screenshots/%s.png"
+          (make-temp-name
+           (file-name-nondirectory (buffer-file-name))))))
+#+end_src
+
+** dan/set-key-bindings
+#+begin_src emacs-lisp
+(defvar dan/key-bindings nil
+  "List of all key bindings.
+This is an alist of alists. The key of the top level alist
+references a key map. If the key is a string, the string
+\"-mode-map\" is appended to it when finding the mode-map. If it
+is a symbol, it is used as is.")
+
+(defun dan/set-key-bindings (&optional mode-map)
+  (interactive)
+  (mapc (lambda (pair)
+          (let* ((map (car pair))
+                 (bindings (cdr pair)))
+            (if (stringp map) (setq map (intern (concat map "-mode-map"))))
+            (mapc (lambda (binding)
+                    (define-key (eval map) (car binding) (cdr binding)))
+                  bindings)))
+        (or (and mode-map `(,(assoc mode-map dan/key-bindings)))
+            dan/key-bindings)))
+
+(defun dan/assoc-delete-all (key alist)
+  "Like `assq-delete-all' but using `equal' for comparison"
+  (delq nil
+        (mapcar (lambda (el) (unless (equal (car el) key) el))
+                alist)))
+
+(defun dan/register-key-bindings (bindings-alist)
+  "Add bindings in dan/key-bindings"
+  (setq
+   dan/key-bindings
+   (cons
+    bindings-alist
+    (dan/assoc-delete-all (car bindings-alist) dan/key-bindings)))
+  (dan/set-key-bindings))
+#+end_src
+
 ** Do until no error
 #+begin_src emacs-lisp
 (defmacro dan/do-until-no-error (rest &rest body)
@@ -49,7 +102,6 @@ Wait for REST between each attempt."
   (call-interactively 'occur)
   (other-window 1)
   (let ((buffer-read-only)) (kill-line 1)))
-
   ;;(local-set-key [(return)] 'dan/occur-mode-goto-occurrence)
 #+end_src
 
@@ -69,6 +121,10 @@ Wait for REST between each attempt."
       (insert string)
       (kill-ring-save (point-min) (point-max))
       (message "Saved text to kill-ring: %s" string))))
+
+(defun dan/save-buffer-file-name-to-kill-ring ()
+  (interactive)
+  (dan/save-value-to-kill-ring buffer-file-name))
 #+end_src
 
 ** Appearance
@@ -445,12 +501,18 @@ parenthesis-delimited list of symbols at point"
 #+end_src
 ** Current line and column
 #+begin_src emacs-lisp
-(defun dan/current-column-line (&optional arg)
-  (interactive "P")
+(defun dan/current-column-line ()
   (let ((line (line-number-at-pos (point)))
         (col (current-column)))
     (message "line: %d\tcolumn: %d" line col)
     (list line col)))
+
+(defun dan/eol-column-line (&optional arg)
+  (interactive "P")
+  (if arg (dan/current-column-line)
+    (save-excursion
+      (end-of-line)
+      (dan/current-column-line))))
 #+end_src
 
 ** Find function or library
@@ -519,9 +581,9 @@ parenthesis-delimited list of symbols at point"
 #+end_src
 ** Scratch buffers
 #+begin_src emacs-lisp
-(defun dan/scratch-buffer ()
+(defun dan/scratch-buffer (&optional arg)
   "Scratch buffers for various major modes"
-  (interactive)
+  (interactive "P")
   (let* ((modes
           `(("org-mode" . "org")
             ("python-mode" . "py")
@@ -542,8 +604,9 @@ parenthesis-delimited list of symbols at point"
          (mode-fun (intern mode))
          (contents
           (and (region-active-p)
-               (buffer-substring (region-beginning)
-                                 (region-end)))))
+               (prog1 (buffer-substring (region-beginning)
+                                        (region-end))
+                 (if arg (kill-region (region-beginning) (region-end)))))))
     (find-file (concat "/tmp/scratch." (cdr (assoc mode modes))))
     (unless (eq major-mode mode-fun) (funcall mode-fun))
     (when contents
@@ -569,9 +632,14 @@ parenthesis-delimited list of symbols at point"
   (setq special-display-function (lambda (buffer &rest ignored) (delete-other-windows)))
   )
 
+(defun dan/toggle-fullscreen (&optional arg)
+  (interactive "P")
+  (if arg (ns-toggle-fullscreen)
+    (message "ns-toggle-fullscreen binding is disabled")))
+
 ;; http://www.emacswiki.org/emacs/FullScreen
 ;; not working on OSX yet
-(defun dan/toggle-fullscreen (&optional f)
+(defun dan/toggle-fullscreen-old (&optional f)
   (interactive)
   (let ((current-value (frame-parameter nil 'fullscreen)))
     (set-frame-parameter nil 'fullscreen
@@ -607,6 +675,10 @@ parenthesis-delimited list of symbols at point"
 #+end_src
 
 ** Outline
+   :PROPERTIES:
+   :tangle: yes
+   :END:
+
   [[gnus:org#87zlb6vt8m.fsf@mundaneum.com][Email from Sébastien Vauban: {Orgmode} Re: org-style foldin]]
 #+begin_src emacs-lisp
 (defun dan/prompt-for-outline-regexp (new-regexp)
@@ -826,10 +898,12 @@ parenthesis-delimited list of symbols at point"
   "If there's trailing whitespace ask to delete it"
   (unless buffer-read-only
     (save-excursion
-      (goto-char (point-min))
-      (and (re-search-forward "[ \t]$" nil t)
-           (yes-or-no-p "Delete trailing whitespace?")
-           (delete-trailing-whitespace)))))
+      (save-window-excursion
+        (save-restriction
+          (goto-char (point-min))
+          (and (re-search-forward "[ \t]$" nil t)
+               (yes-or-no-p "Delete trailing whitespace?")
+               (delete-trailing-whitespace)))))))
 
 (add-hook 'before-save-hook 'dan/query-delete-trailing-whitespace)
 #+end_src
@@ -1081,31 +1155,67 @@ http://xahlee.org/emacs/emacs_html.html
 (dan/require 'plantuml-mode)
 #+end_src
 *** Python
-**** Python.el
 #+begin_src emacs-lisp
+(setenv "PYTHONPATH" (getenv "HOME"))
+
+(defun dan/py-backspace-w-paredit ()
+  "backspace binding for python-mode with paredit"
+  (interactive)
+  (call-interactively
+   (if (and paredit-mode (looking-back "[ \t]"))
+     'paredit-backward-delete
+     'py-electric-backspace)))
+#+end_src
+
+**** Python.el
+#+begin_src emacs-lisp :tangle no
 (add-to-list 'load-path "~/lib/emacs/python.el")
 (require 'python)
 #+end_src
 **** Python-mode.el
-#+begin_src emacs-lisp :noweb yes :tangle no
-;; (add-to-list 'load-path "~/lib/emacs/python-mode")
-;; (add-to-list 'load-path "~/lib/emacs/ipython")
-;; (require 'python-mode)
-;; (require 'ipython)
-;; (setq py-python-command-args '("--colors" "Linux")) ;; '("-i"))
+#+begin_src emacs-lisp :noweb yes :tangle yes
+(add-to-list 'load-path "~/lib/emacs/python-mode")
+(require 'python-mode)
+(setq py-python-command-args '("-i" "-colors" "Linux"))
+;; (setq py-python-command-args '("--colors" "Linux"))
+(setq auto-mode-alist (cons '("\\.pyw$" . python-mode) auto-mode-alist))
+<<python-mode-bindings>>
+
+(setq py-shell-switch-buffers-on-execute nil)
+
+(add-to-list 'load-path "~/lib/emacs/ipython")
+(require 'ipython)
+(setq ipython-command "ipython -colors Linux -classic -nobanner")
 ;; (setq ipython-completion-command-string
 ;;       "print(';'.join(__IP.Completer.all_completions('%s')))\n")
-;; (setq auto-mode-alist (cons '("\\.pyw$" . python-mode) auto-mode-alist))
-;; <<python-mode-bindings>>
 
+(setq org-babel-python-mode 'python-mode)
+
+(defun dan/py-execute-region ()
+  (interactive)
+  (let ((cwf (current-window-configuration)))
+    ;; Why doesn't s-w-e prevent window disruption?
+    (save-window-excursion
+      (condition-case nil
+          (call-interactively 'py-execute-region)
+        (error nil)))
+    (set-window-configuration cwf)))
 
 (defun dan/py-eval-line ()
   (interactive)
   (save-excursion
     (save-window-excursion
       (ignore-errors
-        (py-execute-region (point-at-bol) (point-at-eol)))
-      (forward-line 1))))
+        (py-execute-region (point-at-bol) (point-at-eol)))))
+  (forward-line 1))
+
+(defun dan/turn-on-python-mode-syntax-highlighting ()
+  (interactive)
+  (set (make-local-variable 'font-lock-defaults)
+       '(python-font-lock-keywords nil nil nil nil
+                                   (font-lock-syntactic-keywords
+                                    . python-font-lock-syntactic-keywords))))
+
 #+end_src
 **** Working with python include lines
 #+begin_src emacs-lisp
@@ -1134,6 +1244,7 @@ http://xahlee.org/emacs/emacs_html.html
 *** Eshell
 #+begin_src emacs-lisp
 (add-hook 'eshell-mode-hook 'dan/set-executable-paths)
+(add-hook 'eshell-mode-hook 'paredit-mode)
 
 (setq eshell-banner-message ""
       eshell-scroll-show-maximum-output nil)
@@ -1175,7 +1286,7 @@ http://xahlee.org/emacs/emacs_html.html
   ;; (add-hook 'inferior-ess-mode-hook 'dan/ess-and-iess-mode-hook)
   (add-hook 'ess-mode-hook 'dan/ess-mode-hook)
 
-  (setq ess-eval-visibly-p t)
+  (setq ess-eval-visibly-p nil)
 
   ;;                                 DEF GNU BSD K&R C++
   ;; ess-indent-level                  2   2   8   5   4
@@ -1233,6 +1344,8 @@ obj[-grep(re, obj)]
 (dan/require 'color-theme)
 ;; (dan/require 'zenburn)
 ;; (dan/require 'color-theme-chocolate-rain)
+(load-file "~/lib/emacs/color-theme-railscasts/color-theme-railscasts.el")
+(color-theme-railscasts)
 #+end_src
 
 ** Elpa
@@ -1575,7 +1688,7 @@ many roles.  You may also use `message-alternative-emails' instead.
 (setq message-mode-hook (quote (orgstruct++-mode)))
 
 (setq mm-discouraged-alternatives '("text/html" "text/richtext"))
-(setq gnus-article-update-date-headers 60)
+(setq gnus-article-update-date-headers 30)
 #+end_src
 
 *** Cache
@@ -1693,16 +1806,22 @@ many roles.  You may also use `message-alternative-emails' instead.
 (defun dan/paredit-nolisp-mode ()
   "Turn on paredit for languages like python, R, C"
   ;; Don't insert space before parentheses
-  (paredit-mode)
-  (set (make-local-variable
-        'paredit-space-for-delimiter-predicates)
-       '((lambda (&rest args) nil)))
-  ;; Use paredit for {}
-  (local-set-key "{" 'paredit-open-curly))
+  (interactive)
+  (condition-case nil
+      (progn
+        (paredit-mode)
+        (set (make-local-variable
+              'paredit-space-for-delimiter-predicates)
+             '((lambda (&rest args) nil)))
+        ;; Use paredit for {}
+        (local-set-key "{" 'paredit-open-curly)
+        (local-set-key [backspace] 'dan/py-backspace-w-paredit))
+    (error (message "Failed to activate paredit mode"))))
 
 (add-hook 'ess-mode-hook 'dan/paredit-nolisp-mode)
 (add-hook 'inferior-ess-mode-hook 'dan/paredit-nolisp-mode)
 (add-hook 'python-mode-hook 'dan/paredit-nolisp-mode)
+(add-hook 'comint-mode-hook 'dan/paredit-nolisp-mode)
 
 (defun dan/paredit-forward-token-w-parens ()
   (interactive)
@@ -1744,6 +1863,18 @@ many roles.  You may also use `message-alternative-emails' instead.
 #+end_src
 ** Org
 *** Functions
+**** Toggle src content indentation
+#+begin_src emacs-lisp
+(defun dan/toggle-org-src-content-indentation ()
+  (interactive)
+  (message
+   (format
+    "Local content indentation set to %d"
+    (org-set-local
+     'org-edit-src-content-indentation
+     (if (eq org-edit-src-content-indentation 0) 2 0)))))
+#+end_src
+
 **** Toggle inline image updates after execute
 #+begin_src emacs-lisp
 (defun dan/org-toggle-display-inline-images-after-execution ()
@@ -1797,6 +1928,7 @@ many roles.  You may also use `message-alternative-emails' instead.
 
 **** List supported laguages
 #+begin_src emacs-lisp
+(require 'cl)
 (defun dan/org-babel-list-supported-languages ()
   (interactive)
   (sort
@@ -2419,7 +2551,7 @@ issued in a language major-mode buffer."
       (org-hide-block-toggle 'hide)
       (org-edit-src-code))))
 #+end_src
-**** COMMENT Activate languages
+**** Activate languages
 #+begin_src emacs-lisp
 (setq org-babel-load-languages
       (mapcar (lambda (lang) (cons lang t))
@@ -2431,7 +2563,6 @@ issued in a language major-mode buffer."
 (setq swank-clojure-binary "/usr/bin/clojure")
 (setq org-babel-js-cmd "node")
 (setenv "NODE_DISABLE_COLORS" "1")
-(setq org-babel-python-mode 'python-mode)
 
 (add-to-list 'org-src-lang-modes '("C" . c))
 (add-to-list 'org-src-lang-modes '("dot" . something-else))
@@ -2440,9 +2571,6 @@ issued in a language major-mode buffer."
       (append '(("dot" . graphviz-dot))
               (delq (assoc "dot" org-src-lang-modes)
                     org-src-lang-modes)))
-
-
-
 #+end_src
 **** Variables
 #+begin_src emacs-lisp
@@ -2571,6 +2699,14 @@ issued in a language major-mode buffer."
 (add-to-list 'load-path "~/lib/emacs/org-fstree")
 #+end_src
 
+*** Contacts
+#+begin_src emacs-lisp
+(add-to-list 'load-path "~/lib/emacs/org-contacts")
+(require 'org-contacts)
+(setq org-contacts-files '("/Users/davison/config/email/contacts.org"))
+(setq org-contacts-completion-ignore-case t)
+#+end_src
+
 ** Org-buffers
    :PROPERTIES:
    :tangle: no
@@ -2652,16 +2788,6 @@ I didn't get this to work.
 
   (setq noweb-code-mode noweb-default-code-mode))
 #+end_src
-** Trac Wiki
-#+begin_src emacs-lisp
-(setq emacs-root (concat "~/dotfiles/" "generic" "/emacs/"))
-(ignore-errors
-   (autoload
-     'trac-wiki
-     "~/dotfiles/generic/emacs/emacs.d/.emacs-trac-wiki-autoload"
-     "Trac wiki editing entry-point." t nil))
-#+end_src
-
 ** Uniquify
 #+begin_src emacs-lisp
 (require 'uniquify)
@@ -2669,50 +2795,7 @@ I didn't get this to work.
 #+end_src
 
 * Key bindings
-** dan/set-key-bindings
-#+begin_src emacs-lisp
-(defvar dan/key-bindings nil
-  "List of all key bindings.
-This is an alist of alists. The key of the top level alist
-references a key map. If the key is a string, the string
-\"-mode-map\" is appended to it when finding the mode-map. If it
-is a symbol, it is used as is.")
-
-(defun dan/set-key-bindings (&optional mode-map)
-  (interactive)
-  (mapc (lambda (pair)
-          (let* ((map (car pair))
-                 (bindings (cdr pair)))
-            (if (stringp map) (setq map (intern (concat map "-mode-map"))))
-            (mapc (lambda (binding)
-                    (define-key (eval map) (car binding) (cdr binding)))
-                  bindings)))
-        (or (and mode-map `(,(assoc mode-map dan/key-bindings)))
-            dan/key-bindings)))
-
-(defun dan/assoc-delete-all (key alist)
-  "Like `assq-delete-all' but using `equal' for comparison"
-  (delq nil
-        (mapcar (lambda (el) (unless (equal (car el) key) el))
-                alist)))
-
-(defun dan/register-key-bindings (bindings-alist)
-  "Add bindings in dan/key-bindings"
-  (setq
-   dan/key-bindings
-   (cons
-    bindings-alist
-    (dan/assoc-delete-all (car bindings-alist) dan/key-bindings)))
-  (dan/set-key-bindings))
-
-(add-hook 'after-change-major-mode-hook
-          (lambda ()
-            (local-set-key [delete] 'winner-undo)
-            (local-set-key [(super left)] 'winner-undo)
-            (local-set-key [(super right)] 'winner-redo)))
-#+end_src
-** Bindings
-*** global
+** global
 #+begin_src emacs-lisp
 (dan/register-key-bindings
  '(global-map .
@@ -2728,11 +2811,12 @@ is a symbol, it is used as is.")
                ("\C-p" . dan/previous-line-and-indent)
                ("\C-ca" . org-agenda)
                ("\C-c\C-a" . show-all)
+               ("\C-ce" . show-all)
                ("\C-cf" . dan/find-function-or-library)
                ("\C-c\M-f" . rgrep)
                ("\C-cg" . magit-status)
                ("\C-ck" . bury-buffer)
-               ("\C-ci" . dan/current-column-line)
+               ("\C-ci" . dan/eol-column-line)
                ("\C-cl" . org-store-link)
                ("\C-cm" . dan/switch-to-minibuffer)
                ("\C-cn" . dan/show-buffer-file-name)
@@ -2762,11 +2846,11 @@ is a symbol, it is used as is.")
                ([(control right)] . winner-redo)
                ([(super left)] . winner-undo)
                ([(super right)] . winner-redo)
-               ([(super return)] . ns-toggle-fullscreen)
-               ([f1] . org-buffers-list)
+               ([(super return)] . dan/toggle-fullscreen)
+               ([f1] . bury-buffer)
                ([f2] . (lambda () (interactive) (switch-to-buffer "*Group*")))
                ([f3] . (lambda () (interactive) (switch-to-buffer "*Org Agenda*")))
-               ([f4] . (lambda () (interactive) (switch-to-buffer "*eshell*")))
+               ([f4] . (lambda () (interactive) (find-file "~/Notes/notes.org")))
                ([f5] . (lambda () (interactive) (switch-to-buffer "*Python*")))
                ([f6] . dan/find-file-emacs-config)
                ([f7] . dan/org-schedule-task-with-link)
@@ -2777,20 +2861,26 @@ is a symbol, it is used as is.")
                ([(meta escape)] . delete-other-windows)
                ([escape] . dan/other-non-minibuffer-window)
                ("£" . (lambda () (interactive) (insert "#"))))))
+
+(add-hook 'after-change-major-mode-hook
+          (lambda ()
+            (local-set-key [delete] 'winner-undo)
+            (local-set-key [(super left)] 'winner-undo)
+            (local-set-key [(super right)] 'winner-redo)))
 #+end_src
-*** C
+** C
 #+begin_src emacs-lisp
 (dan/register-key-bindings
  '("c" . nil))
 #+end_src
-*** Ctrl-x-4
+** Ctrl-x-4
 #+begin_src emacs-lisp
 (dan/register-key-bindings
  '(ctl-x-4-map .
                (("t" . toggle-window-split)
                 ("s" . dan/switch-windows))))
 #+end_src
-*** Dired
+** Dired
 #+begin_src emacs-lisp
 (require 'dired)
 (dan/register-key-bindings
@@ -2799,7 +2889,7 @@ is a symbol, it is used as is.")
     ([(right)] . dired-find-file))))
 #+end_src
 
-*** Elisp
+** Elisp
 #+begin_src emacs-lisp
 (dan/register-key-bindings
  '("emacs-lisp" .
@@ -2809,7 +2899,7 @@ is a symbol, it is used as is.")
     ([(control left)] . winner-undo)
     ([(control right)] . winner-redo))))
 #+end_src
-*** ESS
+** ESS
 #+begin_src emacs-lisp
 (dan/register-key-bindings
  '("ess" .
@@ -2825,7 +2915,7 @@ is a symbol, it is used as is.")
  `("inferior-ess" .
    ,(cdr (assoc "ess" dan/key-bindings))))
 #+end_src
-*** Gnus
+** Gnus
 #+begin_src emacs-lisp
 (dan/register-key-bindings
  '("gnus-summary" .
@@ -2846,19 +2936,19 @@ is a symbol, it is used as is.")
  '("gnus-article" .
    (("\C-n" . dan/gnus-article-goto-next-article))))
 #+end_src
-*** Latex
+** Latex
 #+begin_src emacs-lisp
 (dan/register-key-bindings
  '("latex" .
    (([C-tab] . TeX-complete-symbol))))
 #+end_src
-*** Mml
+** Mml
 #+begin_src emacs-lisp
 (dan/register-key-bindings
  '("mml" .
    (("\M-q" . ded/mml-fill-paragraph))))
 #+end_src
-*** Org
+** Org
 #+begin_src emacs-lisp
 (dan/register-key-bindings
  '("org" .
@@ -2875,7 +2965,7 @@ is a symbol, it is used as is.")
     ([(control \')] . dan/org-hide-block-and-switch-to-code-buffer))))
 #+end_src
 
-**** Eric's outline navigation bindings
+*** Eric's outline navigation bindings
 	[[mairix:t:@@m2eirnzhb4.fsf@gmail.com][Email from Eric Schulte: Re: {Orgmode} Go to top node]]
 #+begin_src emacs-lisp
 (add-hook 'org-mode-hook
@@ -2885,14 +2975,14 @@ is a symbol, it is used as is.")
             (local-set-key (kbd "\M-\C-u") 'outline-up-heading)))
 #+end_src
 
-*** Org Src
+** Org Src
 #+begin_src emacs-lisp
 (dan/register-key-bindings
  '("org-src" .
    (([(control \')] . org-edit-src-exit)
     ([delete] . org-edit-src-exit))))
 #+end_src
-*** Paredit
+** Paredit
 #+begin_src emacs-lisp
 (dan/register-key-bindings
  '("paredit" .
@@ -2900,14 +2990,30 @@ is a symbol, it is used as is.")
     ([(control right)] . winner-redo))))
 #+end_src
 
-*** Python
-#+begin_src emacs-lisp
+** Python
+*** inferior python
+#+begin_src emacs-lisp :tangle no
+(dan/register-key-bindings
+ '("inferior-python" .
+   (([C-tab] . python-shell-completion-complete-or-indent))))
+#+end_src
+*** python
+#+begin_src emacs-lisp :tangle no
+(dan/register-key-bindings
+ '("python" .
+   (("\C-c\C-z" . python-shell-switch-to-shell))))
+#+end_src
+
+*** python-mode.el
+#+srcname: python-mode-bindings
+#+begin_src emacs-lisp :tangle no
 (dan/register-key-bindings
  '("py" .
    (([(control return)] . dan/py-eval-line)
-    ("\C-c\C-f" . dan/ffap-python-import))))
+    ("\C-c\C-f" . dan/ffap-python-import)
+    ("\C-c\C-z" . py-shell))))
 #+end_src
-*** Texinfo
+** Texinfo
 #+begin_src emacs-lisp
 (dan/register-key-bindings
  '("texinfo" .
@@ -2957,16 +3063,20 @@ is a symbol, it is used as is.")
 ** Start-up
 #+begin_src emacs-lisp
 (color-theme-initialize)
+(color-theme-charcoal-black)
 (color-theme-emacs-21) ;; hack to avoid square in bottom right on fullscreen
 (color-theme-charcoal-black)
 (case dan/operating-system
   ('linux
    (set-face-attribute 'default nil :height 110 :family "DejaVu Sans Mono"))
   ('darwin
-   (set-face-attribute 'default nil :height 180)))
+   (set-face-attribute 'default nil :height 170)))
+;;  :weight 'bold :family 'default :foundry 'default :font 'unspecified
 (dan/sanitise-faces)
 (dan/set-show-paren-style)
 (nconc default-frame-alist '((cursor-type . bar)))
+(set-face-attribute 'org-block-begin-line nil :box nil :overline nil)
+(set-face-attribute 'org-block-end-line nil :box nil :underline nil)
 #+end_src
 
 ** Transparency
@@ -2988,6 +3098,14 @@ http://www.emacswiki.org/emacs/TransparentEmacs
        100)
       (set-frame-parameter nil 'alpha '(100 100))
     (set-frame-parameter nil 'alpha dan/frame-transparent-alpha)))
+#+end_src
+
+** Face hacks
+#+begin_src emacs-lisp :tangle no
+(set-face-attribute 'py-pseudo-keyword-face nil :foreground "salmon")
+(set-face-attribute 'py-builtins-face nil :foreground "salmon")
+(set-face-attribute 'magit-item-highlight nil :background "secondarySelectedControlColor")
+(set-face-attribute 'default-bold nil :weight "normal")
 #+end_src
 
 * Start-up
