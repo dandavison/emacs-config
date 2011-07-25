@@ -1765,6 +1765,12 @@ many roles.  You may also use `message-alternative-emails' instead.
   (interactive)
   ;; (kill-process magit-process) ? doesn't do what I want.
   (kill-buffer magit-process-buffer-name))
+
+(set-face-attribute 'magit-diff-add nil :foreground "Green")
+(set-face-attribute 'magit-diff-del nil :foreground "Red")
+(set-face-attribute 'magit-item-highlight nil :background "#01293A") ;; "#01395C"
+(set-face-attribute 'magit-diff-hunk-header nil :background "keyboardFocusIndicatorColor")
+;; (set-face-attribute 'magit-item-highlight nil :background "secondarySelectedControlColor")
 #+end_src
 ** Misc
 #+begin_src emacs-lisp
