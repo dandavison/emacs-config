@@ -100,9 +100,26 @@ Wait for REST between each attempt."
   (let ((tap (thing-at-point 'symbol)))
     (and tap (push tap regexp-history)))
   (call-interactively 'occur)
-  (other-window 1)
-  (let ((buffer-read-only)) (kill-line 1)))
-  ;;(local-set-key [(return)] 'dan/occur-mode-goto-occurrence)
+  (let ((results-buffer (get-buffer "*Occur*")))
+    (if results-buffer
+        (progn
+          (other-window 1)
+          (let ((buffer-read-only)) (kill-line 1)))
+      (message "No matches"))))
+
+(defun dan/occur-def-class ()
+  (interactive)
+  (push "^\\(class\\|def\\) " regexp-history)
+  (call-interactively 'occur)
+  (let ((results-buffer (get-buffer "*Occur*")))
+    (if results-buffer
+        (progn
+          (other-window 1)
+          (let ((buffer-read-only)) (kill-line 1)))
+      (message "No matches"))))
+
+;; (local-set-key [(return)] 'dan/occur-mode-goto-occurrence)
+
 #+end_src
 
 ** Set local variables
@@ -140,6 +157,7 @@ Wait for REST between each attempt."
   (set-face-attribute 'org-hide nil
                       :foreground
                       (face-attribute 'default :background))
+  (dan/set-show-paren-style)
   (font-lock-fontify-buffer))
 
 (defun dan/set-show-paren-style ()
@@ -170,6 +188,7 @@ Wait for REST between each attempt."
             (list $HOME/bin
                   "/usr/local/Cellar/python2.6/2.6.5/bin/"
                   "/usr/local/bin"
+                  "/usr/local/share/npm/bin"
                   "/usr/texbin"))
             (t (list $HOME/bin)))))
     (setenv
@@ -735,24 +754,12 @@ parenthesis-delimited list of symbols at point"
             (define-key outline-mode-map [(tab)] 'org-cycle)
             (define-key outline-mode-map [(backtab)] 'org-global-cycle))) ;; (shift tab) doesn't work
 
-(defun dan/set-up-outline-minor-mode (local-outline-regexp)
-  (when local-outline-regexp
-    (setq outline-regexp local-outline-regexp))
-  ;; how does scope work in lisp? What if the function arg were named
-  ;; outline-regexp?
+(defun dan/set-up-outline-minor-mode (outline-regexp)
+  (set (make-local-variable 'outline-regexp) outline-regexp)
   (outline-minor-mode t)
-  (org-overview) ;; hack -- in this context, org-content only seems to
-  ;; work after org-overview
+  (org-overview)
   (org-content))
 
-(defun dan/maybe-org-cycle ()
-  "Cycle visibility if in a heading line; otherwise do what TAB would have done"
-  (if (looking-at-p outline-regexp) (org-cycle)
-    ;; else what?
-    ))
-
-;; where are the regexps used by font-lock kept? Should use them
-;; rather than random home-grown ones.
 (add-hook 'ess-mode-hook
           (lambda ()
             (unless (eq noweb-code-mode 'R-mode)
@@ -762,15 +769,32 @@ parenthesis-delimited list of symbols at point"
 ;; (add-hook 'c-mode-hook
 ;;        (lambda () (dan/set-up-outline-minor-mode nil)))
 ;;                    "\\(void\\|int\\|double\\|char\\|struct\\|static\\|const\\)")))
-;; (add-hook 'emacs-lisp-mode-hook 'th-outline-minor-mode-init)
 
 (add-hook 'emacs-lisp-mode-hook
           (lambda () (dan/set-up-outline-minor-mode "\\((\\|;;;\\)")))
-(add-hook 'python-mode-hook
-          (lambda () (dan/set-up-outline-minor-mode "\\( *def .*:\\|if \\|class \\|##\\)")))
+;; (add-hook 'python-mode-hook
+;;            (lambda () (dan/set-up-outline-minor-mode "\\(def .+\\|class .+\\|##\\)")))
 (add-hook 'bibtex-mode-hook
           (lambda () (dan/set-up-outline-minor-mode "@")))
 #+end_src
+*** stackoverflow python folding
+
+
+*** hideshow
+#+begin_src emacs-lisp :tangle no
+(add-to-list 'load-path "~/lib/emacs/hideshow-org")
+(require 'hideshow-org)
+
+(defun dan/hideshow-hook ()
+  "thisandthat."
+  (interactive)
+  (progn (require 'hideshow-org)
+     (global-set-key (kbd "C-c h") 'hs-org/minor-mode)
+     (hs-org/minor-mode)))
+
+(add-hook 'python-mode-hook 'dan/hideshow-hook)
+#+end_src
+
 ** Completion
 #+begin_src emacs-lisp :tangle no
 ;; ;; Things that I'm not really interested in seeing in emacs
@@ -794,6 +818,11 @@ parenthesis-delimited list of symbols at point"
 (add-to-list 'ido-ignore-buffers "\\*") ;; if you want *scratch* or *R* just type it
 ;; (add-to-list 'ido-ignore-files "^[^.]+$") ;; files must have a . in their name (experimental)
 #+end_src
+** Search
+#+begin_src emacs-lisp
+
+#+end_src
+
 ** Comint
 #+begin_src emacs-lisp
 (setq comint-input-ring-size 1024)
@@ -902,7 +931,7 @@ parenthesis-delimited list of symbols at point"
         (save-restriction
           (goto-char (point-min))
           (and (re-search-forward "[ \t]$" nil t)
-               (yes-or-no-p "Delete trailing whitespace?")
+               ;; (yes-or-no-p "Delete trailing whitespace?")
                (delete-trailing-whitespace)))))))
 
 (add-hook 'before-save-hook 'dan/query-delete-trailing-whitespace)
@@ -1009,6 +1038,14 @@ parenthesis-delimited list of symbols at point"
 ** Ediff
 #+begin_src emacs-lisp
 (setq ediff-window-setup-function 'ediff-setup-windows-plain)
+
+;; setting mode-line-format to empty string triggers error in
+;; ediff-strip-mode-line-format [Wrong type argument: listp, ""],
+;; e.g. when issuing vc-resolve-conflicts
+(defun dan/vc-resolve-conflicts ()
+  (interactive)
+  (let ((mode-line-format " "))
+    (vc-resolve-conflicts)))
 #+end_src
 ** Recentf
 #+begin_src emacs-lisp
@@ -1046,6 +1083,18 @@ parenthesis-delimited list of symbols at point"
 (setq dired-no-confirm
       '(byte-compile chgrp chmod chown compress copy hardlink load move print shell symlink
                      touch uncompress))
+(setq dired-auto-revert-buffer t)
+
+(require 'dired-x)
+(add-hook 'dired-mode-hook (lambda () (dired-omit-mode t)))
+
+;; https://groups.google.com/group/gnu.emacs.help/browse_thread/thread/acb20ee78c00e4ec?pli=1
+;; (setq dired-omit-files
+;;       (rx (or (seq bol (? ".") "#")         ;; emacs autosave files
+;;               (seq bol "." (not (any "."))) ;; dot-files
+;;               (seq "~" eol)                 ;; backup-files
+;;               (seq bol "CVS" eol)           ;; CVS dirs
+;;               )))
 
 (defun dan/dired-delete-total-line ()
   (let ((bro buffer-read-only)
@@ -1085,7 +1134,6 @@ parenthesis-delimited list of symbols at point"
 #+begin_src emacs-lisp
 (add-hook 'emacs-lisp-mode-hook 'pretty-lambdas)
 #+end_src
-
 *** C & C++
 #+begin_src emacs-lisp
 ;; Dan Feb 2006: See http://www.xemacs.org/Links/tutorials_1.html
@@ -1125,13 +1173,41 @@ http://xahlee.org/emacs/emacs_html.html
 #+begin_src emacs-lisp
 (load-file "~/lib/emacs/graphviz-dot-mode.el")
 #+end_src
-
-*** Javascript
+*** coffee
 #+begin_src emacs-lisp
 (add-to-list 'load-path "~/lib/emacs/coffee-mode")
 (require 'coffee-mode)
 (add-to-list 'auto-mode-alist '("\\.coffee$" . coffee-mode))
 (add-to-list 'auto-mode-alist '("Cakefile" . coffee-mode))
+(setq coffee-tab-width 4)
+(defun dan/coffee-mode-hook-fun ()
+  (set (make-local-variable 'tab-width) coffee-tab-width))
+(add-hook 'coffee-mode-hook 'dan/coffee-mode-hook-fun)
+(defun dan/coffee-execute ()
+  (interactive)
+  (shell-command-on-region (point-min) (point-max) "coffee"))
+(defun dan/insert-console-log ()
+  (interactive)
+  ;; (indent-for-tab-command) coffee indenting is bad
+  (insert "console.log "))
+#+end_src
+
+*** Javascript
+#+begin_src emacs-lisp
+(add-to-list 'load-path "~/lib/emacs/js2-mode")
+(require 'js2-mode)
+
+(defun dan/scratch-js-in-html ()
+  (interactive)
+  (find-file "/tmp/scratch.html")
+  (delete-region (point-min) (point-max))
+  (insert "<html>
+<script type=\"text/javascript\">
+
+</script>
+</html>")
+  (previous-line 2)
+  (beginning-of-line))
 #+end_src
 
 *** Lua
@@ -1155,25 +1231,81 @@ http://xahlee.org/emacs/emacs_html.html
 (dan/require 'plantuml-mode)
 #+end_src
 *** Python
+**** general
 #+begin_src emacs-lisp
 (setenv "PYTHONPATH" (getenv "HOME"))
 
 (defun dan/py-backspace-w-paredit ()
   "backspace binding for python-mode with paredit"
   (interactive)
-  (call-interactively
-   (if (and paredit-mode (looking-back "[ \t]"))
-     'paredit-backward-delete
-     'py-electric-backspace)))
+  (condition-case nil
+      (call-interactively
+       (if (and paredit-mode (looking-back "[ \t]"))
+           'paredit-backward-delete
+         'py-electric-backspace))
+    (error (call-interactively 'delete-backward-char))))
+
+(defun dan/insert-ipdb-set-trace ()
+  (interactive)
+  (indent-for-tab-command)
+  (insert "import ipdb ; ipdb.set_trace()"))
 #+end_src
 
 **** Python.el
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle yes
 (add-to-list 'load-path "~/lib/emacs/python.el")
 (require 'python)
+
+(defun dan/inferior-python-mode-hook-function ()
+     (setq truncate-lines t))
+
+(add-hook 'inferior-python-mode-hook
+          'dan/inferior-python-mode-hook-function)
 #+end_src
-**** Python-mode.el
-#+begin_src emacs-lisp :noweb yes :tangle yes
+**** Ropemacs
+#+begin_src emacs-lisp :tangle no
+(add-to-list 'load-path "~/lib/emacs/Pymacs")
+(require 'pymacs)
+
+(autoload 'pymacs-apply "pymacs")
+(autoload 'pymacs-call "pymacs")
+(autoload 'pymacs-eval "pymacs" nil t)
+(autoload 'pymacs-exec "pymacs" nil t)
+(autoload 'pymacs-load "pymacs" nil t)
+
+;; ropemacs
+(setq ropemacs-enable-shortcuts nil)
+(setq ropemacs-local-prefix "C-c C-p")
+(pymacs-load "ropemacs" "rope-")
+#+end_src
+**** autocomplete
+#+begin_src emacs-lisp :tangle no
+;; http://stackoverflow.com/questions/2855378/ropemacs-usage-tutorial
+(add-to-list 'load-path "~/lib/emacs/auto-complete")
+(require 'auto-complete)
+(global-auto-complete-mode t)
+;; (setq ropemacs-enable-autoimport t)
+#+end_src
+
+**** Working with python include lines
+#+begin_src emacs-lisp
+(defun python-import-bounds-of-python-import-at-point ()
+   "Return the start and end points of python-import at current point."
+   (let ((characters "A-Za-z_."))
+     (save-excursion
+       (re-search-backward (concat "[^" characters "]") nil t)
+       (forward-char 1)
+       (if (looking-at (concat "[" characters "]+"))
+           (cons (point) (match-end 0))
+         nil))))
+
+(put 'python-import 'bounds-of-thing-at-point
+     'python-import-bounds-of-python-import-at-point)
+#+end_src
+
+**** Unused
+***** Python-mode.el
+#+begin_src emacs-lisp :noweb yes :tangle no
 (add-to-list 'load-path "~/lib/emacs/python-mode")
 (require 'python-mode)
 (setq py-python-command-args '("-i" "-colors" "Linux"))
@@ -1216,21 +1348,10 @@ http://xahlee.org/emacs/emacs_html.html
                                    (font-lock-syntactic-keywords
                                     . python-font-lock-syntactic-keywords))))
 
-#+end_src
-**** Working with python include lines
-#+begin_src emacs-lisp
-(defun python-import-bounds-of-python-import-at-point ()
-   "Return the start and end points of python-import at current point."
-   (let ((characters "A-Za-z_."))
-     (save-excursion
-       (re-search-backward (concat "[^" characters "]") nil t)
-       (forward-char 1)
-       (if (looking-at (concat "[" characters "]+"))
-           (cons (point) (match-end 0))
-         nil))))
-
-(put 'python-import 'bounds-of-thing-at-point
-     'python-import-bounds-of-python-import-at-point)
+(defun dan/django-shell ()
+  (interactive)
+  (let ((py-which-args '("./manage.py"  "shell")))
+    (py-shell)))
 #+end_src
 *** Shell
 #+begin_src emacs-lisp
@@ -1257,7 +1378,6 @@ http://xahlee.org/emacs/emacs_html.html
           (string-match "\\`\\s-*\\'" str)
           ;; Don't store consecutive identical input
           (string= str (nth 0 (ring-elements eshell-history-ring)))))))
-
 #+end_src
 *** ESS
 **** Misc
@@ -1475,7 +1595,6 @@ obj[-grep(re, obj)]
 (add-hook
  'gnus-after-exiting-gnus-hook
  (lambda () (if (get-buffer "*Group*") (kill-buffer "*Group*"))))
-
 #+end_src
 
 *** Sending
@@ -1761,6 +1880,10 @@ many roles.  You may also use `message-alternative-emails' instead.
 (setq magit-save-some-buffers nil)
 (setq magit-process-popup-time 1)
 (setq magit-revert-item-confirm t)
+(defun dan/magit-status (&optional arg)
+  (interactive "P")
+  (call-interactively 'magit-status)
+  (unless arg (delete-other-windows)))
 (defun dan/magit-kill-git-process ()
   (interactive)
   ;; (kill-process magit-process) ? doesn't do what I want.
@@ -1826,7 +1949,7 @@ many roles.  You may also use `message-alternative-emails' instead.
 
 (add-hook 'ess-mode-hook 'dan/paredit-nolisp-mode)
 (add-hook 'inferior-ess-mode-hook 'dan/paredit-nolisp-mode)
-(add-hook 'python-mode-hook 'dan/paredit-nolisp-mode)
+;; (add-hook 'python-mode-hook 'dan/paredit-nolisp-mode)
 (add-hook 'comint-mode-hook 'dan/paredit-nolisp-mode)
 
 (defun dan/paredit-forward-token-w-parens ()
@@ -1863,6 +1986,7 @@ many roles.  You may also use `message-alternative-emails' instead.
 
   (defun dan/yas-tab-setup ()
     ;; Initially by Eric for Org-mode hook
+    (interactive)
     (make-variable-buffer-local 'yas/trigger-key)
     (setq yas/trigger-key [tab])
     (define-key yas/keymap [tab] 'yas/next-field-group)))
@@ -2446,7 +2570,9 @@ rubber -f -m xelatex somefile.tex
       (mapcar
        (lambda
          (dummy)
-         "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f")
+         ;; "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+         "pdflatex -interaction nonstopmode -output-directory %o %f"
+         )
        '(1 2 3)))
 (add-to-list 'org-export-latex-minted-langs '(R "r"))
 (add-to-list 'org-export-latex-minted-langs '(octave "matlab"))
@@ -2807,6 +2933,8 @@ I didn't get this to work.
  '(global-map .
               (("\C-b" . backward-sexp)
                ("\C-f" . forward-sexp)
+               ("\C-r" . isearch-backward-regexp)
+               ("\C-s" . isearch-forward-regexp)
                ("\C-\\" . indent-region)
                ("\C-x\C-b" . org-buffers-list)
                ("\C-x\C-f" . dan/find-file)
@@ -2820,13 +2948,14 @@ I didn't get this to work.
                ("\C-ce" . show-all)
                ("\C-cf" . dan/find-function-or-library)
                ("\C-c\M-f" . rgrep)
-               ("\C-cg" . magit-status)
+               ("\C-cg" . dan/magit-status)
                ("\C-ck" . bury-buffer)
                ("\C-ci" . dan/eol-column-line)
                ("\C-cl" . org-store-link)
                ("\C-cm" . dan/switch-to-minibuffer)
                ("\C-cn" . dan/show-buffer-file-name)
                ("\C-co" . dan/scratch-buffer)
+               ("\C-cp" . paredit-mode)
                ("\C-cr" . replace-regexp)
                ("\C-cs" . search-forward-symbol-at-point)
                ("\C-cv" . dan/show-variable)
@@ -2885,6 +3014,18 @@ I didn't get this to work.
                (("t" . toggle-window-split)
                 ("s" . dan/switch-windows))))
 #+end_src
+** Coffee
+#+begin_src emacs-lisp
+(dan/register-key-bindings
+ '("coffee" .
+   (("\C-c\C-l" . coffee-compile-file)
+    ("\C-c\C-r" . coffee-compile-region)
+    ("\C-c\C-c" . dan/coffee-execute)
+    ("\C-cl" . dan/insert-console-log)
+    ([(return)] . newline)
+    ("\C-j" . newline-and-indent))))
+#+end_src
+
 ** Dired
 #+begin_src emacs-lisp
 (require 'dired)
@@ -3003,10 +3144,11 @@ I didn't get this to work.
    (([C-tab] . python-shell-completion-complete-or-indent))))
 #+end_src
 *** python
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle yes
 (dan/register-key-bindings
  '("python" .
-   (("\C-c\C-z" . python-shell-switch-to-shell))))
+   (("\C-c\C-z" . python-shell-switch-to-shell)
+    ("\C-cd" . dan/insert-ipdb-set-trace))))
 #+end_src
 
 *** python-mode.el
@@ -3016,7 +3158,8 @@ I didn't get this to work.
  '("py" .
    (([(control return)] . dan/py-eval-line)
     ("\C-c\C-f" . dan/ffap-python-import)
-    ("\C-c\C-z" . py-shell))))
+    ("\C-c\C-z" . py-shell)
+    ("\C-cd" . dan/insert-ipdb-set-trace))))
 #+end_src
 ** Texinfo
 #+begin_src emacs-lisp
@@ -3068,20 +3211,20 @@ I didn't get this to work.
 ** Start-up
 #+begin_src emacs-lisp
 (color-theme-initialize)
-(color-theme-charcoal-black)
-(color-theme-emacs-21) ;; hack to avoid square in bottom right on fullscreen
-(color-theme-charcoal-black)
+;; (color-theme-charcoal-black)
+;; (color-theme-emacs-21) ;; hack to avoid square in bottom right on fullscreen
+;; (color-theme-charcoal-black)
 (case dan/operating-system
   ('linux
    (set-face-attribute 'default nil :height 110 :family "DejaVu Sans Mono"))
   ('darwin
-   (set-face-attribute 'default nil :height 170)))
-;;  :weight 'bold :family 'default :foundry 'default :font 'unspecified
+   (set-face-attribute 'default nil :height 135)))
+;; :weight 'bold :family 'default :foundry 'default :font 'unspecified
 (dan/sanitise-faces)
 (dan/set-show-paren-style)
 (nconc default-frame-alist '((cursor-type . bar)))
-(set-face-attribute 'org-block-begin-line nil :box nil :overline nil)
-(set-face-attribute 'org-block-end-line nil :box nil :underline nil)
+;; (set-face-attribute 'org-block-begin-line nil :box nil :overline nil)
+;; (set-face-attribute 'org-block-end-line nil :box nil :underline nil)
 #+end_src
 
 ** Transparency
@@ -3109,7 +3252,6 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+begin_src emacs-lisp :tangle no
 (set-face-attribute 'py-pseudo-keyword-face nil :foreground "salmon")
 (set-face-attribute 'py-builtins-face nil :foreground "salmon")
-(set-face-attribute 'magit-item-highlight nil :background "secondarySelectedControlColor")
 (set-face-attribute 'default-bold nil :weight "normal")
 #+end_src
 
