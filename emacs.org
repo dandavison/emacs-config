@@ -921,7 +921,7 @@ parenthesis-delimited list of symbols at point"
 #+begin_src emacs-lisp
 ;; This doesn't work with org-src-mode code buffers as their
 ;; buffer-file-name doesn't correspond to a file
-;; (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
+(add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
 
 (defun dan/query-delete-trailing-whitespace ()
   "If there's trailing whitespace ask to delete it"
