@@ -1186,16 +1186,22 @@ http://xahlee.org/emacs/emacs_html.html
 (defun dan/coffee-execute ()
   (interactive)
   (shell-command-on-region (point-min) (point-max) "coffee"))
-(defun dan/insert-console-log ()
+(defun dan/coffee-insert-console-log ()
   (interactive)
   ;; (indent-for-tab-command) coffee indenting is bad
   (insert "console.log "))
+
+(defun dan/coffee-insert-debugger ()
+  (interactive)
+  ;; (indent-for-tab-command) coffee indenting is bad
+  (insert "debugger"))
 #+end_src
 
 *** Javascript
 #+begin_src emacs-lisp
 (add-to-list 'load-path "~/lib/emacs/js2-mode")
 (require 'js2-mode)
+(add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
 
 (defun dan/scratch-js-in-html ()
   (interactive)
@@ -3021,7 +3027,8 @@ I didn't get this to work.
    (("\C-c\C-l" . coffee-compile-file)
     ("\C-c\C-r" . coffee-compile-region)
     ("\C-c\C-c" . dan/coffee-execute)
-    ("\C-cl" . dan/insert-console-log)
+    ("\C-cd" . dan/coffee-insert-debugger)
+    ("\C-cl" . dan/coffee-insert-console-log)
     ([(return)] . newline)
     ("\C-j" . newline-and-indent))))
 #+end_src
