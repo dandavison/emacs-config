@@ -217,10 +217,10 @@ Wait for REST between each attempt."
 
 ** Trace functions
 #+begin_src emacs-lisp
-(defun dan/trace-functions (regexp)
+(defun dan/trace-functions (&optional regexp)
   "Trace functions with names matching regexp"
   ;; TODO: read regexp from minibuffer
-  (interactive)
+  (interactive "sTrace functions matching: ")
   (mapc 'trace-function
         (loop for x being the symbols
               if (and (fboundp x) (string-match regexp (symbol-name x)))
