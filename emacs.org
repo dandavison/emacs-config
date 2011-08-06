@@ -1109,6 +1109,10 @@ parenthesis-delimited list of symbols at point"
 
 (add-hook 'dired-after-readin-hook 'dan/dired-delete-total-line)
 
+(defun dan/dired-no-ask ()
+  (interactive)
+  (dired default-directory))
+
 #+end_src
 *** Dired for git repo
 [[mairix:t:@@m1630s27or.fsf@65-070.eduroam.rwth-aachen.de][Email from Andrea Crotti: Re: Simple useful function]]
@@ -2945,6 +2949,7 @@ I didn't get this to work.
                ("\C-x\C-b" . org-buffers-list)
                ("\C-x\C-f" . dan/find-file)
                ("\C-x\M-f" . find-file-at-point)
+               ("\C-xd" . dan/dired-no-ask)
                ("\C-ca" . org-agenda)
                ("\C-cb" . org-iswitchb)
                ("\C-n" . dan/next-line-and-indent)
