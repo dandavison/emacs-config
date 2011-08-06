@@ -187,6 +187,7 @@ Wait for REST between each attempt."
             ('darwin
             (list $HOME/bin
                   "/usr/local/Cellar/python/2.7.2/bin/"
+                  "/usr/local/share/python"
                   "/usr/local/bin"
                   "/usr/local/share/npm/bin"
                   "/usr/texbin"))
