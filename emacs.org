@@ -1901,7 +1901,7 @@ many roles.  You may also use `message-alternative-emails' instead.
 
 (set-face-attribute 'magit-diff-add nil :foreground "Green")
 (set-face-attribute 'magit-diff-del nil :foreground "Red")
-(set-face-attribute 'magit-item-highlight nil :background "#01293A") ;; "#01395C"
+(set-face-attribute 'magit-item-highlight nil :background "#01294A") ;; "#01395C"
 (set-face-attribute 'magit-diff-hunk-header nil :background "keyboardFocusIndicatorColor")
 ;; (set-face-attribute 'magit-item-highlight nil :background "secondarySelectedControlColor")
 #+end_src
