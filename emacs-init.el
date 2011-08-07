@@ -5,7 +5,7 @@
 (require 'org-install)
 (require 'org)
 (org-babel-load-file "~/config/emacs/emacs.org")
-(org-babel-load-file "~/dotfiles/davison/emacs_davison/counsyl.org")
+(org-babel-load-file "~/dotfiles/davison/emacs_counsyl/counsyl.org")
 
 ;; ;; (add-to-list 'load-path "~/emacs/emacs-starter-kit")
 ;; ;; (load-file "~/emacs/emacs-starter-kit/init.el")
