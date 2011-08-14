@@ -924,16 +924,20 @@ parenthesis-delimited list of symbols at point"
 ;; buffer-file-name doesn't correspond to a file
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
 
+(defvar dan/delete-trailing-whitespace-major-modes
+  '(python-mode))
+
 (defun dan/query-delete-trailing-whitespace ()
   "If there's trailing whitespace ask to delete it"
-  (unless buffer-read-only
-    (save-excursion
-      (save-window-excursion
-        (save-restriction
-          (goto-char (point-min))
-          (and (re-search-forward "[ \t]$" nil t)
-               ;; (yes-or-no-p "Delete trailing whitespace?")
-               (delete-trailing-whitespace)))))))
+  (when (memq major-mode dan/delete-trailing-whitespace-major-modes)
+    (unless buffer-read-only
+      (save-excursion
+        (save-window-excursion
+          (save-restriction
+            (goto-char (point-min))
+            (and (re-search-forward "[ \t]$" nil t)
+                 ;; (yes-or-no-p "Delete trailing whitespace?")
+                 (delete-trailing-whitespace))))))))
 
 (add-hook 'before-save-hook 'dan/query-delete-trailing-whitespace)
 #+end_src
