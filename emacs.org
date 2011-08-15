@@ -870,7 +870,6 @@ parenthesis-delimited list of symbols at point"
 (setq minibuffer-message-timeout 0.5)
 (setq parens-require-spaces nil)
 (setq require-final-newline 'visit-save)
-(setq tags-file-name "~/src/.tags")
 (setq vc-follow-symlinks t)
 (setq x-alt-keysym 'meta)
 (setq backup-inhibited t)
@@ -1278,7 +1277,15 @@ http://xahlee.org/emacs/emacs_html.html
           'dan/inferior-python-mode-hook-function)
 #+end_src
 **** Ropemacs
-#+begin_src emacs-lisp :tangle no
+     Need to
+     1. install pymacs python module
+	download, make, python setup.py install
+     2. pip install rope
+     3. pip install ropemode
+     4. install ropemacs
+	download, make, python setup.py install
+
+#+begin_src emacs-lisp :tangle yes
 (add-to-list 'load-path "~/lib/emacs/Pymacs")
 (require 'pymacs)
 
@@ -1289,10 +1296,17 @@ http://xahlee.org/emacs/emacs_html.html
 (autoload 'pymacs-load "pymacs" nil t)
 
 ;; ropemacs
+;; http://stackoverflow.com/questions/2855378/ropemacs-usage-tutorial
 (setq ropemacs-enable-shortcuts nil)
 (setq ropemacs-local-prefix "C-c C-p")
 (pymacs-load "ropemacs" "rope-")
 #+end_src
+**** pysmell
+#+begin_src python :tangle no
+(add-to-list 'load-path "~/lib/python/pysmell")
+(require 'pysmell)
+#+end_src
+
 **** autocomplete
 #+begin_src emacs-lisp :tangle no
 ;; http://stackoverflow.com/questions/2855378/ropemacs-usage-tutorial
@@ -3165,7 +3179,8 @@ I didn't get this to work.
 (dan/register-key-bindings
  '("python" .
    (("\C-c\C-z" . python-shell-switch-to-shell)
-    ("\C-cd" . dan/insert-ipdb-set-trace))))
+    ("\C-cd" . dan/insert-ipdb-set-trace)
+    ("\M-." . rope-goto-definition))))
 #+end_src
 
 *** python-mode.el
