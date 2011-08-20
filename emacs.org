@@ -1299,6 +1299,28 @@ http://xahlee.org/emacs/emacs_html.html
 (setq ropemacs-enable-shortcuts nil)
 (setq ropemacs-local-prefix "C-c C-p")
 (pymacs-load "ropemacs" "rope-")
+
+
+
+(defun dan/rope-goto-definition-of-thing-read-from-minibuffer (string)
+  (interactive "sGo to definition of: ")
+  (save-excursion
+    (goto-char (point-max))
+    (unless (eq (char-before) ?\n) (insert ?\n))
+    (insert string)
+    (let ((buff (current-buffer)))
+      (rope-goto-definition)
+      (set-buffer buff)
+      (kill-line 0))))
+
+(defalias 'dan/rope-goto-definition-of-thing-at-point 'rope-goto-definition)
+
+(defun dan/rope-goto-definition (&optional arg)
+  (interactive "P")
+  (push-mark)
+  (call-interactively
+   (if arg 'dan/rope-goto-definition-of-thing-read-from-minibuffer
+     'dan/rope-goto-definition-of-thing-at-point)))
 #+end_src
 **** pysmell
 #+begin_src python :tangle no
@@ -3179,7 +3201,7 @@ I didn't get this to work.
  '("python" .
    (("\C-c\C-z" . python-shell-switch-to-shell)
     ("\C-cd" . dan/insert-ipdb-set-trace)
-    ("\M-." . rope-goto-definition))))
+    ("\M-." . dan/rope-goto-definition))))
 #+end_src
 
 *** python-mode.el
