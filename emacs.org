@@ -798,15 +798,13 @@ parenthesis-delimited list of symbols at point"
 
 ** Completion
 #+begin_src emacs-lisp :tangle no
-;; ;; Things that I'm not really interested in seeing in emacs
-;; ;; (you can still open them explicitly)
 (setq dan/ignored-extensions
       '(".html" ".csv" ".ps" ".bst" ".cls"
         ".fdf" ".spl" ".aux" ".ppt" ".doc" ".xls" ".mp3" ".org"))
 
 (setq completion-ignored-extensions
       (union completion-ignored-extensions
-             dan/ignored-extensions :test 'equal)))
+             dan/ignored-extensions :test 'equal))
 
 (require 'ido)
 
@@ -817,7 +815,6 @@ parenthesis-delimited list of symbols at point"
       dan/ignored-extensions)
 
 (add-to-list 'ido-ignore-buffers "\\*") ;; if you want *scratch* or *R* just type it
-;; (add-to-list 'ido-ignore-files "^[^.]+$") ;; files must have a . in their name (experimental)
 #+end_src
 ** Search
 #+begin_src emacs-lisp
