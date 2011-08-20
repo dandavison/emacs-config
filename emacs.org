@@ -815,6 +815,8 @@ parenthesis-delimited list of symbols at point"
       dan/ignored-extensions)
 
 (add-to-list 'ido-ignore-buffers "\\*") ;; if you want *scratch* or *R* just type it
+(add-to-list 'ido-ignore-buffers
+             (lambda (buff) (eq (with-current-buffer buff major-mode) 'dired-mode)))
 #+end_src
 ** Search
 #+begin_src emacs-lisp
