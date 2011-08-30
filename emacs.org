@@ -797,9 +797,9 @@ parenthesis-delimited list of symbols at point"
 #+end_src
 
 ** Completion
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle yes
 (setq dan/ignored-extensions
-      '(".html" ".csv" ".ps" ".bst" ".cls"
+      '(".html" ".ps" ".bst" ".cls" ".pyc"
         ".fdf" ".spl" ".aux" ".ppt" ".doc" ".xls" ".mp3" ".org"))
 
 (setq completion-ignored-extensions
@@ -1116,6 +1116,11 @@ parenthesis-delimited list of symbols at point"
   (interactive)
   (dired default-directory))
 
+(setq dired-omit-extensions
+      (append dan/ignored-extensions
+              dired-latex-unclean-extensions
+              dired-bibtex-unclean-extensions
+              dired-texinfo-unclean-extensions))
 #+end_src
 *** Dired for git repo
 [[mairix:t:@@m1630s27or.fsf@65-070.eduroam.rwth-aachen.de][Email from Andrea Crotti: Re: Simple useful function]]
