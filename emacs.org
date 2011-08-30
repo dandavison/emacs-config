@@ -1922,6 +1922,11 @@ many roles.  You may also use `message-alternative-emails' instead.
 (ad-activate 'mm-url-insert)
 #+end_src
 
+** Hide-lines
+#+begin_src emacs-lisp
+(require 'hide-lines)
+#+end_src
+
 ** Mo git blame
 #+begin_src emacs-lisp
 (add-to-list 'load-path "~/lib/emacs/mo-git-blame")
