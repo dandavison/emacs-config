@@ -2094,6 +2094,19 @@ many roles.  You may also use `message-alternative-emails' instead.
 #+end_src
 ** Org
 *** Functions
+**** Table import
+#+begin_src emacs-lisp
+(defun dan/org-table-import ()
+  (interactive)
+  (let* ((table-file buffer-file-name)
+         (org-buffer (concat (file-name-nondirectory table-file) ".org")))
+    (if (get-buffer org-buffer)
+        (error "Buffer already exists: %s" org-buffer)
+      (switch-to-buffer org-buffer)
+      (org-mode)
+      (org-table-import table-file nil))))
+#+end_src
+
 **** Toggle src content indentation
 #+begin_src emacs-lisp
 (defun dan/toggle-org-src-content-indentation ()
