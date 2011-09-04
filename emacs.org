@@ -836,6 +836,12 @@ parenthesis-delimited list of symbols at point"
 
 #+end_src
 
+** Compile
+#+begin_src emacs-lisp
+;; Don't offer to save directories!
+(setq compilation-save-buffers-predicate (lambda () nil))
+#+end_src
+
 ** Comint
 #+begin_src emacs-lisp
 (setq comint-input-ring-size 1024)
