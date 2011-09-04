@@ -27,6 +27,15 @@
 #+end_src
 
 * My functions
+** codequality
+#+begin_src emacs-lisp
+(defun dan/codequality (&optional dir)
+  (interactive "DBase Directory: ")
+  (compile
+   (format
+    "find %s -type f -name '*.py' | xargs codequality '{}' \;" dir)))
+#+end_src
+
 ** screenshot
 http://thread.gmane.org/gmane.emacs.orgmode/33770
 #+begin_src emacs-lisp
