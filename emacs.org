@@ -1352,12 +1352,11 @@ http://xahlee.org/emacs/emacs_html.html
   (if (null comint-input-ring)
       (error "This buffer has no comint history"))
   (let ((history
-         (mapconcat #'identity
-                    (org-uniquify (ring-elements comint-input-ring))
-                    "\n")))
+         (org-uniquify (append (dan/read-comint-history file)
+                               (ring-elements comint-input-ring)))))
     (with-temp-buffer
-    (insert history "\n")
-    (append-to-file (point-min) (point-max) file))))
+      (insert (mapconcat #'identity history "\n") "\n")
+      (write-file file))))
 
 (add-hook 'inferior-python-mode-hook
           (lambda () (dan/load-comint-history "~/.ipython/history")))
