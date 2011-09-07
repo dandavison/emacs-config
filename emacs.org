@@ -1345,6 +1345,21 @@ http://xahlee.org/emacs/emacs_html.html
 
 (add-hook 'inferior-python-mode-hook
           'dan/inferior-python-mode-hook-function)
+
+(setq python-shell-interpreter "ipython"
+      python-shell-interpreter-args ""
+      python-shell-completion-setup-code ""
+      python-shell-prompt-regexp ">>> "
+      python-shell-prompt-output-regexp "")
+
+;; python-shell-completion-string-code
+;; "';'.join(get_ipython().Completer.all_completions('''%s'''))\n"
+
+;; For iPython 0.10 everything would be the same except for
+;; `python-shell-completion-string-code':
+
+(setq python-shell-completion-string-code "';'.join(__IP.complete('''%s'''))\n")
+
 (defun dan/load-comint-history (&optional file)
   (interactive "fHistory file: ")
   (if (null comint-input-ring)
