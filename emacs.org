@@ -1777,7 +1777,7 @@ obj[-grep(re, obj)]
 
 (setq gnus-group-sort-function 'dan/gnus-group-sort)
 (add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
-(add-hook 'gnus-group-mode-hook 'dan/yas-tab-setup)
+;; (add-hook 'gnus-group-mode-hook 'dan/yas-tab-setup)
 (add-hook 'gnus-group-mode-hook 'yas/minor-mode-off)
 (setq gnus-group-uncollapsed-levels 2)
 #+end_src
@@ -2128,7 +2128,7 @@ many roles.  You may also use `message-alternative-emails' instead.
 #+end_src
 
 ** Yasnippet
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle yes
 (add-to-list 'load-path "~/lib/emacs/yasnippet")
 (when (dan/require 'yasnippet)
   (yas/initialize)
@@ -2392,7 +2392,7 @@ by Vitalie S.
 *** Hook
 #+begin_src emacs-lisp
 ;; (org-indent-mode t)
-(add-hook 'org-mode-hook 'dan/yas-tab-setup)
+;; (add-hook 'org-mode-hook 'dan/yas-tab-setup)
 #+end_src
 *** Misc
 #+begin_src emacs-lisp
