@@ -1335,6 +1335,36 @@ http://xahlee.org/emacs/emacs_html.html
 
 (add-hook 'inferior-python-mode-hook
           'dan/inferior-python-mode-hook-function)
+(defun dan/load-comint-history (&optional file)
+  (interactive "fHistory file: ")
+  (if (null comint-input-ring)
+      (error "This buffer has no comint history"))
+  (mapc (lambda (item) (ring-insert+extend comint-input-ring item 'grow))
+        ))
+
+(defun dan/read-comint-history (file)
+  (split-string (with-temp-buffer
+                        (insert-file-contents file)
+                        (buffer-string)) "\n" t))
+
+(defun dan/dump-comint-history (&optional file)
+  (interactive "fHistory file: ")
+  (if (null comint-input-ring)
+      (error "This buffer has no comint history"))
+  (let ((history
+         (mapconcat #'identity
+                    (org-uniquify (ring-elements comint-input-ring))
+                    "\n")))
+    (with-temp-buffer
+    (insert history "\n")
+    (append-to-file (point-min) (point-max) file))))
+
+(add-hook 'inferior-python-mode-hook
+          (lambda () (dan/load-comint-history "~/.ipython/history")))
+
+(add-hook 'kill-buffer-hook
+          (lambda () (when (eq major-mode 'inferior-python-mode)
+                  (dan/dump-comint-history "~/.ipython/history"))))
 #+end_src
 **** Ropemacs
      Need to
