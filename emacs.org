@@ -1365,7 +1365,7 @@ http://xahlee.org/emacs/emacs_html.html
   (if (null comint-input-ring)
       (error "This buffer has no comint history"))
   (mapc (lambda (item) (ring-insert+extend comint-input-ring item 'grow))
-        ))
+        (dan/read-comint-history file)))
 
 (defun dan/read-comint-history (file)
   (split-string (with-temp-buffer
