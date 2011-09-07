@@ -3312,7 +3312,7 @@ I didn't get this to work.
 #+begin_src emacs-lisp :tangle no
 (dan/register-key-bindings
  '("inferior-python" .
-   (([C-tab] . python-shell-completion-complete-or-indent))))
+   ()))
 #+end_src
 *** python
 #+begin_src emacs-lisp :tangle yes
