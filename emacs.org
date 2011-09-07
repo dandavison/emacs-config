@@ -27,6 +27,16 @@
 #+end_src
 
 * My functions
+** indent or complete
+#+begin_src emacs-lisp
+(defun dan/indent-or-complete ()
+  (interactive)
+  (if (and (looking-at "[ \n)]")
+           (looking-back "[^ \n]"))
+      (complete-symbol nil)
+    (indent-for-tab-command)))
+#+end_src
+
 ** codequality
 #+begin_src emacs-lisp
 (defun dan/codequality (&optional dir)
@@ -3202,6 +3212,7 @@ I didn't get this to work.
    (("\C-cd" . edebug-defun)
     ("\C-c\C-l" . dan/eval-buffer-confirm)
     ("\M-so" . occur)
+    ([tab] . dan/indent-or-complete)
     ([(control left)] . winner-undo)
     ([(control right)] . winner-redo))))
 #+end_src
