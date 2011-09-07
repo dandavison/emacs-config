@@ -43,7 +43,7 @@
   (interactive "DBase Directory: ")
   (compile
    (format
-    "find %s -type f -name '*.py' | xargs codequality '{}' \;" dir)))
+    "find %s -type f -name '*.py' | grep -Fv '/migrations/'  | xargs codequality '{}' \;" dir dir)))
 #+end_src
 
 ** screenshot
