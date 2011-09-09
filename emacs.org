@@ -1325,7 +1325,7 @@ http://xahlee.org/emacs/emacs_html.html
 *** Python
 **** general
 #+begin_src emacs-lisp
-(setenv "PYTHONPATH" (getenv "HOME"))
+;; (setenv "PYTHONPATH" (getenv "HOME"))
 
 (defun dan/py-backspace-w-paredit ()
   "backspace binding for python-mode with paredit"
@@ -3445,8 +3445,6 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 
 ** Face hacks
 #+begin_src emacs-lisp :tangle no
-(set-face-attribute 'py-pseudo-keyword-face nil :foreground "salmon")
-(set-face-attribute 'py-builtins-face nil :foreground "salmon")
 (set-face-attribute 'default-bold nil :weight "normal")
 #+end_src
 
