@@ -3393,6 +3393,7 @@ I didn't get this to work.
 #+begin_src emacs-lisp
 (add-hook 'find-file-hook 'dan/sanitise-faces)
 (add-hook 'find-file-hook 'dan/set-show-paren-style)
+(setq mouse-highlight nil)
 #+end_src
 ** Vanilla
 #+begin_src emacs-lisp
