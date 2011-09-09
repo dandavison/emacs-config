@@ -840,6 +840,14 @@ parenthesis-delimited list of symbols at point"
 (let ((is-dired-buffer? (lambda (buff) (eq (with-current-buffer buff major-mode) 'dired-mode))))
   (add-to-list 'ido-ignore-buffers is-dired-buffer?)
   (add-to-list 'winner-boring-buffers is-dired-buffer?))
+
+(setq completion-show-help nil)
+
+(add-hook 'completion-list-mode-hook
+          (lambda () 
+            (unless (minibufferp (current-buffer)) (progn (goto-char (point-min))
+                    (and (looking-at "Possible completions are:")
+                         (kill-line 1))))))
 #+end_src
 ** Search
 #+begin_src emacs-lisp
