@@ -2172,6 +2172,7 @@ many roles.  You may also use `message-alternative-emails' instead.
 #+begin_src emacs-lisp :tangle yes
 (add-to-list 'load-path "~/lib/emacs/yasnippet")
 (when (dan/require 'yasnippet)
+  (setq yas/extra-mode-hooks nil)
   (yas/initialize)
   (mapc (lambda (dir)
           (let ((dir (expand-file-name dir)))
