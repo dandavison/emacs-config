@@ -2127,6 +2127,7 @@ many roles.  You may also use `message-alternative-emails' instead.
              '((lambda (&rest args) nil)))
         ;; Use paredit for {}
         (local-set-key "{" 'paredit-open-curly)
+        (local-set-key "'" 'dan/paredit-singlequote)        
         (local-set-key [backspace] 'dan/py-backspace-w-paredit))
     (error (message "Failed to activate paredit mode"))))
 
@@ -2140,12 +2141,25 @@ many roles.  You may also use `message-alternative-emails' instead.
   (if (looking-at "(") (forward-sexp)))
 
 ;; http://stackoverflow.com/questions/2665292/how-can-i-get-paredit-mode-when-doing-eval-expression
-(defun dan/conditionally-enable-paredit-mode ()
-  "enable paredit-mode during eval-expression"
-  (if (eq this-command 'eval-expression)
-      (paredit-mode 1)))
-(add-hook 'minibuffer-setup-hook 'dan/conditionally-enable-paredit-mode)
+(defun dan/configure-minibuffer-for-lisp ()
+  (when (eq this-command 'eval-expression)
+    (setq completion-at-point-functions '(lisp-completion-at-point t))
+    (local-set-key [tab] 'complete-symbol)
+    (paredit-mode 1)))
+(add-hook 'minibuffer-setup-hook 'dan/configure-minibuffer-for-lisp)
 
+(defun dan/paredit-singlequote (&optional n)
+  "Copied from paredit-doublequote"
+  (interactive "P")
+  (cond ((paredit-in-string-p)
+         (if (eq (cdr (paredit-string-start+end-points))
+                 (point))
+             (forward-char)             ; We're on the closing quote.
+             (insert ?\\ ?\' )))
+        ((paredit-in-comment-p)
+         (insert ?\' ))
+        ((not (paredit-in-char-p))
+         (paredit-insert-pair n ?\' ?\' 'paredit-forward-for-quote))))
 #+end_src
 
 ** Tramp
