@@ -1334,7 +1334,7 @@ http://xahlee.org/emacs/emacs_html.html
       (call-interactively
        (if (and paredit-mode (looking-back "[ \t]"))
            'paredit-backward-delete
-         'py-electric-backspace))
+         'python-indent-dedent-line-backspace))   ;; was py-electric-backspace
     (error (call-interactively 'delete-backward-char))))
 
 (defun dan/insert-ipdb-set-trace ()
@@ -1348,25 +1348,17 @@ http://xahlee.org/emacs/emacs_html.html
 (add-to-list 'load-path "~/lib/emacs/python.el")
 (require 'python)
 
-(defun dan/inferior-python-mode-hook-function ()
-     (setq truncate-lines t))
-
-(add-hook 'inferior-python-mode-hook
-          'dan/inferior-python-mode-hook-function)
-
 (setq python-shell-interpreter "ipython"
-      python-shell-interpreter-args ""
+      python-shell-interpreter-args "-colors NoColor"
       python-shell-completion-setup-code ""
       python-shell-prompt-regexp ">>> "
-      python-shell-prompt-output-regexp "")
-
-;; python-shell-completion-string-code
-;; "';'.join(get_ipython().Completer.all_completions('''%s'''))\n"
+      python-shell-prompt-output-regexp "    "
+      python-shell-completion-string-code
+      "';'.join(get_ipython().Completer.all_completions('''%s'''))\n")
 
 ;; For iPython 0.10 everything would be the same except for
 ;; `python-shell-completion-string-code':
-
-(setq python-shell-completion-string-code "';'.join(__IP.complete('''%s'''))\n")
+;; (setq python-shell-completion-string-code "';'.join(__IP.complete('''%s'''))\n")
 
 (defun dan/load-comint-history (&optional file)
   (interactive "fHistory file: ")
@@ -1391,8 +1383,21 @@ http://xahlee.org/emacs/emacs_html.html
       (insert (mapconcat #'identity history "\n") "\n")
       (write-file file))))
 
+(defun dan/inferior-python-mode-hook-function ()
+     (setq truncate-lines t)
+     (dan/load-comint-history "~/.ipython/history"))
+
+(defun dan/python-mode-hook-function ()
+  (add-to-list (make-local-variable 'comint-dynamic-complete-functions)
+               'python-completion-complete-at-point))
+
 (add-hook 'inferior-python-mode-hook
-          (lambda () (dan/load-comint-history "~/.ipython/history")))
+          'dan/inferior-python-mode-hook-function)
+
+(add-hook 'python-mode-hook
+          'dan/python-mode-hook-function)
+
+(add-hook 'python-mode-hook 'dan/paredit-nolisp-mode)
 
 (add-hook 'kill-buffer-hook
           (lambda () (when (eq major-mode 'inferior-python-mode)
@@ -2127,7 +2132,6 @@ many roles.  You may also use `message-alternative-emails' instead.
 
 (add-hook 'ess-mode-hook 'dan/paredit-nolisp-mode)
 (add-hook 'inferior-ess-mode-hook 'dan/paredit-nolisp-mode)
-;; (add-hook 'python-mode-hook 'dan/paredit-nolisp-mode)
 (add-hook 'comint-mode-hook 'dan/paredit-nolisp-mode)
 
 (defun dan/paredit-forward-token-w-parens ()
@@ -3343,7 +3347,8 @@ I didn't get this to work.
  '("python" .
    (("\C-c\C-z" . python-shell-switch-to-shell)
     ("\C-cd" . dan/insert-ipdb-set-trace)
-    ("\M-." . dan/rope-goto-definition))))
+    ("\M-." . dan/rope-goto-definition)
+    ([tab] . python-shell-completion-complete-or-indent))))
 #+end_src
 
 *** python-mode.el
