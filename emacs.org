@@ -843,11 +843,11 @@ parenthesis-delimited list of symbols at point"
 
 (setq completion-show-help nil)
 
-(add-hook 'completion-list-mode-hook
-          (lambda () 
-            (unless (minibufferp (current-buffer)) (progn (goto-char (point-min))
-                    (and (looking-at "Possible completions are:")
-                         (kill-line 1))))))
+;; (add-hook 'completion-list-mode-hook
+;;           (lambda () 
+;;             (unless (minibufferp (current-buffer)) (progn (goto-char (point-min))
+;;                     (and (looking-at "Possible completions are:")
+;;                          (kill-line 1))))))
 #+end_src
 ** Search
 #+begin_src emacs-lisp
