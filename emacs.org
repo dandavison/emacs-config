@@ -1350,15 +1350,16 @@ http://xahlee.org/emacs/emacs_html.html
 
 (setq python-shell-interpreter "ipython"
       python-shell-interpreter-args "--colors=NoColor"
-      python-shell-completion-setup-code ""
       python-shell-prompt-regexp ">>> "
-      python-shell-prompt-output-regexp "    "
-      python-shell-completion-string-code
-      "';'.join(get_ipython().Completer.all_completions('''%s'''))\n")
+      python-shell-prompt-output-regexp "    ")
 
-;; For iPython 0.10 everything would be the same except for
-;; `python-shell-completion-string-code':
-;; (setq python-shell-completion-string-code "';'.join(__IP.complete('''%s'''))\n")
+(setq python-shell-interpreter "ipython"
+      python-shell-completion-setup-code
+      "from IPython.core.completerlib import module_completion\n"
+      python-shell-completion-string-code
+      "';'.join(get_ipython().Completer.all_completions('''%s'''))\n"
+      python-shell-module-completion-string-code
+      "';'.join(module_completion('''%s'''))\n")
 
 (defun dan/load-comint-history (&optional file)
   (interactive "fHistory file: ")
