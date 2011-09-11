@@ -927,6 +927,8 @@ parenthesis-delimited list of symbols at point"
 ;; (setq kill-buffer-query-functions '(lambda() t))
 
 ;; (transient-mark-mode t) ;; something turns it off
+
+(setq source-directory (expand-file-name "~/lib/emacs/emacs/src"))
 #+end_src
 *** Safe local variables
 #+begin_src emacs-lisp :results pp
