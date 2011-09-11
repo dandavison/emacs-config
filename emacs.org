@@ -837,6 +837,8 @@ parenthesis-delimited list of symbols at point"
 
 (add-to-list 'ido-ignore-buffers "\\*") ;; if you want *scratch* or *R* just type it
 
+(add-to-list 'load-path "~/lib/emacs/winner-mode")
+(require 'winner)
 (let ((is-dired-buffer? (lambda (buff) (eq (with-current-buffer buff major-mode) 'dired-mode))))
   (add-to-list 'ido-ignore-buffers is-dired-buffer?)
   (add-to-list 'winner-boring-buffers is-dired-buffer?))
