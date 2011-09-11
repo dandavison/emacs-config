@@ -1403,6 +1403,13 @@ http://xahlee.org/emacs/emacs_html.html
 (add-hook 'kill-buffer-hook
           (lambda () (when (eq major-mode 'inferior-python-mode)
                   (dan/dump-comint-history "~/.ipython/history"))))
+
+
+;; (defun pcomplete-inferior-python-setup ()
+;;   "Setup `inferior-python-mode' to use pcomplete."
+;;   (pcomplete-comint-setup 'comint-dynamic-complete-functions))
+
+;; (add-hook 'inferior-python-mode-hook 'pcomplete-inferior-python-setup)
 #+end_src
 **** Ropemacs
      Need to
