@@ -1332,9 +1332,9 @@ http://xahlee.org/emacs/emacs_html.html
   (interactive)
   (condition-case nil
       (call-interactively
-       (if (and paredit-mode (looking-back "[ \t]"))
-           'paredit-backward-delete
-         'python-indent-dedent-line-backspace))   ;; was py-electric-backspace
+       (if (looking-back "^[ \t]+")
+           'python-indent-dedent-line-backspace ;; was py-electric-backspace
+         'paredit-backward-delete))
     (error (call-interactively 'delete-backward-char))))
 
 (defun dan/insert-ipdb-set-trace ()
