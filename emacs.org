@@ -819,14 +819,14 @@ parenthesis-delimited list of symbols at point"
 #+begin_src emacs-lisp :tangle yes
 (setq dan/ignored-extensions
       '(".html" ".ps" ".bst" ".cls" ".pyc"
-        ".fdf" ".spl" ".aux" ".ppt" ".doc" ".xls" ".mp3" ".org"))
+        ".fdf" ".spl" ".aux" ".ppt" ".doc" ".xls" ".mp3"))
 
 (setq completion-ignored-extensions
       (union completion-ignored-extensions
              dan/ignored-extensions :test 'equal))
 
 (require 'ido)
-(setq ido-ignore-files '()
+(setq ido-ignore-files '("\\`#")
       ido-ignore-buffers '())
 
 ;; As regexps, these should really have terminal $
