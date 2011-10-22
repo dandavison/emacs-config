@@ -4,8 +4,9 @@
 (setq org-confirm-babel-evaluate nil)
 (require 'org-install)
 (require 'org)
+
 (org-babel-load-file "~/config/emacs/emacs.org")
-(org-babel-load-file "~/dotfiles/davison/emacs_counsyl/counsyl.org")
+(org-babel-load-file "~/config/emacs/extra.org")
 
 ;; ;; (add-to-list 'load-path "~/emacs/emacs-starter-kit")
 ;; ;; (load-file "~/emacs/emacs-starter-kit/init.el")
@@ -26,3 +27,16 @@
 ;;  ;; If there is more than one, they won't work right.
 ;;  '(default ((t (:inherit nil :stipple nil :background "#232323" :foreground "#E6E1DC" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 130 :width normal :foundry "apple" :family "Monaco"))))
 ;;  '(magit-section-title ((t nil))))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(canlock-password "6be815a8b1ebd5880b78a2c06ecfb1b908c8ec74")
+ '(session-use-package t nil (session)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(comint-highlight-input ((t (:weight normal)))))
