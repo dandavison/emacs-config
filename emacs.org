@@ -484,7 +484,8 @@ parenthesis-delimited list of symbols at point"
             ;; unexpected default-directory
             (message "buffer-file-name: %s\tbuffer-name: %s\tdefault-directory: %s" bfn bn dd)))
       ;; non-file buffer
-      (message "buffer-file-name: %S\tbuffer-name: %s\tdefault-directory: %s" bfn bn dd))))
+      (message "buffer-file-name: %S\tbuffer-name: %s\tdefault-directory: %s" bfn bn dd))
+    (dan/save-value-to-kill-ring (file-name-nondirectory bfn))))
 #+end_src
 ** Show variable
 #+begin_src emacs-lisp
