@@ -1379,16 +1379,22 @@ http://xahlee.org/emacs/emacs_html.html
 
 (defun dan/read-comint-history (file)
   (split-string (with-temp-buffer
-                        (insert-file-contents file)
-                        (buffer-string)) "\n" t))
+                  (insert-file-contents file)
+                  (buffer-string)) "\n" t))
 
 (defun dan/dump-comint-history (&optional file)
   (interactive "fHistory file: ")
   (if (null comint-input-ring)
       (error "This buffer has no comint history"))
   (let ((history
-         (org-uniquify (append (dan/read-comint-history file)
-                               (ring-elements comint-input-ring)))))
+         ;; We uniquify on the reversed list in order to maintain the
+         ;; most recent occurrence of a command in its position, while
+         ;; deleting preceding ones.
+         (nreverse
+          (org-uniquify
+           (nreverse
+            (append (dan/read-comint-history file)
+                    (ring-elements comint-input-ring)))))))
     (with-temp-buffer
       (insert (mapconcat #'identity history "\n") "\n")
       (write-file file))))
