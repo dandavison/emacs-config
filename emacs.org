@@ -155,8 +155,7 @@ Wait for REST between each attempt."
   (with-temp-buffer
     (let ((string (format "%s" sexp)))
       (insert string)
-      (kill-ring-save (point-min) (point-max))
-      (message "Saved text to kill-ring: %s" string))))
+      (kill-ring-save (point-min) (point-max)))))
 
 (defun dan/save-buffer-file-name-to-kill-ring ()
   (interactive)
