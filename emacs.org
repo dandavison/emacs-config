@@ -3177,6 +3177,7 @@ I didn't get this to work.
                ("\C-xd" . dan/dired-no-ask)
                ("\C-ca" . org-agenda)
                ("\C-cb" . org-iswitchb)
+               ("\C-cy" . yas/expand)
                ("\C-n" . dan/next-line-and-indent)
                ("\C-p" . dan/previous-line-and-indent)
                ("\C-ca" . org-agenda)
@@ -3198,7 +3199,9 @@ I didn't get this to work.
                ("\C-cw" . delete-window)
                ("\C-c)" . blink-matching-open)
                ("\C-c," . flymake-display-err-menu-for-current-line)
+               ("\C-c\C-z" . (lambda () (switch-to-buffer "*Python*")))
                ("\C-\M-g" . lgrep)
+               ("\C-x\C-c" . kill-emacs)  ;; If it's not saved already that's your fault
                ([(control next)] . end-of-buffer)
                ([(control prior)] . beginning-of-buffer)
                ([(s tab)] . lisp-complete-symbol)
