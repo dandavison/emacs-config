@@ -1562,6 +1562,7 @@ http://xahlee.org/emacs/emacs_html.html
           (lambda()
             (comint-send-input)
             (recenter-top-bottom 0)))
+(add-hook 'shell-mode-hook 'compilation-shell-minor-mode)
 #+end_src
 *** Eshell
 #+begin_src emacs-lisp
