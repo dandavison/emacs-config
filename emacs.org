@@ -1352,18 +1352,23 @@ http://xahlee.org/emacs/emacs_html.html
 (add-to-list 'load-path "~/lib/emacs/python.el")
 (require 'python)
 
-(setq python-shell-interpreter "ipython"
-      python-shell-interpreter-args "--colors=NoColor"
+;; Recommended config from the code comments
+(setq
+ python-shell-interpreter "ipython"
+ python-shell-interpreter-args ""
+ python-shell-prompt-regexp "In \\[[0-9]+\\]: "
+ python-shell-prompt-output-regexp "Out\\[[0-9]+\\]: "
+ python-shell-completion-setup-code
+   "from IPython.core.completerlib import module_completion"
+ python-shell-module-completion-string-code
+   "';'.join(module_completion('''%s'''))\n"
+ python-shell-completion-string-code
+   "';'.join(get_ipython().Completer.all_completions('''%s'''))\n")
+
+;; My updates to config
+(setq python-shell-interpreter-args "--colors=NoColor"
       python-shell-prompt-regexp ">>> "
       python-shell-prompt-output-regexp "    ")
-
-(setq python-shell-interpreter "ipython"
-      python-shell-completion-setup-code
-      "from IPython.core.completerlib import module_completion\n"
-      python-shell-completion-string-code
-      "';'.join(get_ipython().Completer.all_completions('''%s'''))\n"
-      python-shell-module-completion-string-code
-      "';'.join(module_completion('''%s'''))\n")
 
 (defun dan/load-comint-history (&optional file)
   (interactive "fHistory file: ")
