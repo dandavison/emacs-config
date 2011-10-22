@@ -2172,17 +2172,18 @@ many roles.  You may also use `message-alternative-emails' instead.
 (add-hook 'minibuffer-setup-hook 'dan/configure-minibuffer-for-lisp)
 
 (defun dan/paredit-singlequote (&optional n)
-  "Copied from paredit-doublequote"
+  "Copied from `paredit-doublequote'"
   (interactive "P")
-  (cond ((paredit-in-string-p)
-         (if (eq (cdr (paredit-string-start+end-points))
-                 (point))
-             (forward-char)             ; We're on the closing quote.
+  (if (null paredit-mode) (insert "'")
+    (cond ((paredit-in-string-p)
+           (if (eq (cdr (paredit-string-start+end-points))
+                   (point))
+               (forward-char) ; We're on the closing quote.
              (insert ?\\ ?\' )))
-        ((paredit-in-comment-p)
-         (insert ?\' ))
-        ((not (paredit-in-char-p))
-         (paredit-insert-pair n ?\' ?\' 'paredit-forward-for-quote))))
+          ((paredit-in-comment-p)
+           (insert ?\' ))
+          ((not (paredit-in-char-p))
+           (paredit-insert-pair n ?\' ?\' 'paredit-forward-for-quote)))))
 #+end_src
 
 ** Tramp
