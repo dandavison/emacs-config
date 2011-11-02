@@ -1054,6 +1054,12 @@ index e5855ad..29f6429 100644
 #+begin_src emacs-lisp
 (add-to-list 'load-path "~/lib/emacs")
 #+end_src
+** Ack
+#+begin_src emacs-lisp
+(add-to-list 'load-path "~/lib/emacs/full-ack")
+(require 'full-ack)
+#+end_src
+
 ** Buffer lists
 *** Ibuffer
 #+begin_src emacs-lisp
