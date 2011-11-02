@@ -3200,7 +3200,7 @@ I didn't get this to work.
                ("\C-cw" . delete-window)
                ("\C-c)" . blink-matching-open)
                ("\C-c," . flymake-display-err-menu-for-current-line)
-               ("\C-c\C-z" . (lambda () (switch-to-buffer "*Python*")))
+               ("\C-c\C-z" . (lambda () (interactive) (switch-to-buffer "*Python*")))
                ("\C-\M-g" . lgrep)
                ("\C-x\C-c" . kill-emacs)  ;; If it's not saved already that's your fault
                ([(control next)] . end-of-buffer)
