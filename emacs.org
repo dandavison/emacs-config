@@ -323,10 +323,11 @@ Wait for REST between each attempt."
   (search-forward (symbol-name (symbol-at-point)) nil t)
   (backward-sexp)) ;; should be backward-symbol
 
-(defun dan/insert-double-quotes ()
+(defun dan/insert-double-quotes (&optional arg)
   (interactive)
-  (insert "\"\"")
-  (backward-char))
+  (if arg (insert "\"")
+    (insert "\"\"")
+    (backward-char)))
 
 (defun quote-list-of-symbols ()
   "Place double quotes around the comma-separated,
