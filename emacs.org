@@ -3376,7 +3376,8 @@ I didn't get this to work.
     ("\M-q" . org-src-native/fill-paragraph)
     ("\M-;" . org-src-native/comment-dwim)
     ("\C-\\" . org-src-native/indent-region)
-    ([(control \')] . dan/org-hide-block-and-switch-to-code-buffer))))
+    ([(control \')] . dan/org-hide-block-and-switch-to-code-buffer)
+    ([(control return)] . delete-other-windows))))
 #+end_src
 
 *** Eric's outline navigation bindings
