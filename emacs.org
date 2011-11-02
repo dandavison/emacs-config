@@ -27,6 +27,31 @@
 #+end_src
 
 * My functions
+** toggle read only
+#+begin_src emacs-lisp
+(defun dan/toggle-read-only (&optional arg)
+  (interactive "P")
+  (unless arg (toggle-read-only))
+  (dan/set-mode-line-background))
+
+(defun dan/set-mode-line-background ()
+  (setq minimal-mode-line-background
+        (if buffer-read-only "darkred" "sea green"))
+  ;; silly hack to make the modeline update
+  (save-window-excursion
+    (describe-variable 'minimal-mode-line-background)
+    (message "")))
+  ;; (redraw-modeline t)
+  ;; (redraw-frame (window-frame (selected-window)))
+  ;; (redraw-modeline t)
+
+(defun dan/set-read-only-maybe ()
+  (unless (equal (buffer-name) "git-rebase-todo")
+    (dan/toggle-read-only 1)))
+
+(add-hook 'find-file-hook 'dan/set-read-only-maybe)
+#+end_src
+
 ** indent or complete
 #+begin_src emacs-lisp
 (defun dan/indent-or-complete ()
@@ -3209,6 +3234,7 @@ I didn't get this to work.
                ("\C-c\C-z" . (lambda () (interactive) (switch-to-buffer "*Python*")))
                ("\C-\M-g" . lgrep)
                ("\C-x\C-c" . kill-emacs)  ;; If it's not saved already that's your fault
+               ("\C-x\C-q" . dan/toggle-read-only)
                ([(control next)] . end-of-buffer)
                ([(control prior)] . beginning-of-buffer)
                ([(s tab)] . lisp-complete-symbol)
