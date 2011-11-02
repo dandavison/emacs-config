@@ -673,7 +673,12 @@ parenthesis-delimited list of symbols at point"
 
 (defun dan/toggle-fullscreen (&optional arg)
   (interactive "P")
-  (if arg (ns-toggle-fullscreen)
+  (if arg (progn
+            (ns-toggle-fullscreen)
+            ;; hack to avoid white square in bottom right
+            (color-theme-charcoal-black)
+            (color-theme-railscasts)
+            (dan/sanitise-faces))
     (message "ns-toggle-fullscreen binding is disabled")))
 
 ;; http://www.emacswiki.org/emacs/FullScreen
