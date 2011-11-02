@@ -323,12 +323,6 @@ Wait for REST between each attempt."
   (search-forward (symbol-name (symbol-at-point)) nil t)
   (backward-sexp)) ;; should be backward-symbol
 
-(defun dan/insert-double-quotes (&optional arg)
-  (interactive)
-  (if arg (insert "\"")
-    (insert "\"\"")
-    (backward-char)))
-
 (defun quote-list-of-symbols ()
   "Place double quotes around the comma-separated,
 parenthesis-delimited list of symbols at point"
@@ -3225,7 +3219,6 @@ I didn't get this to work.
                ("\M-p" . backward-paragraph)
                ("\M-o" . dan/occur)
                ("\M-s\M-o" . dan/google)
-               ("\M-2" . dan/insert-double-quotes)
                ([delete] . winner-undo)
                ([(hyper left)] . winner-undo)
                ([(hyper right)] . winner-redo)
