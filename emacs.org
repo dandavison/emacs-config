@@ -219,7 +219,7 @@ Wait for REST between each attempt."
   (set-face-background 'show-paren-match-face (face-background 'default))
   (set-face-attribute 'show-paren-match-face nil :foreground "red"))
 #+end_src
-** Set executable paths
+** Set paths
 #+begin_src emacs-lisp
 (require 'cl)
 (defun dan/set-executable-paths ()
@@ -252,6 +252,11 @@ Wait for REST between each attempt."
            (remove-if (lambda (p) (member p exec-path)) paths)
            (delete-dups exec-path)))))
 (dan/set-executable-paths)
+
+(setenv "PYTHONPATH"
+        (concat (expand-file-name "~/lib/python/ipython")
+                ":"
+                (getenv "PYTHONPATH")))
 #+end_src
 
 ** Sudo read file
@@ -1365,8 +1370,6 @@ http://xahlee.org/emacs/emacs_html.html
 *** Python
 **** general
 #+begin_src emacs-lisp
-;; (setenv "PYTHONPATH" (getenv "HOME"))
-
 (defun dan/py-backspace-w-paredit ()
   "backspace binding for python-mode with paredit"
   (interactive)
