@@ -886,11 +886,6 @@ parenthesis-delimited list of symbols at point"
 ;;                     (and (looking-at "Possible completions are:")
 ;;                          (kill-line 1))))))
 #+end_src
-** Search
-#+begin_src emacs-lisp
-
-#+end_src
-
 ** Compile
 #+begin_src emacs-lisp
 ;; Don't offer to save directories!
@@ -1093,6 +1088,11 @@ index e5855ad..29f6429 100644
 #+begin_src emacs-lisp
 (add-to-list 'load-path "~/lib/emacs/full-ack")
 (require 'full-ack)
+#+end_src
+
+** Bookmark
+#+begin_src emacs-lisp
+(setq bookmark-sort-flag nil)
 #+end_src
 
 ** Buffer lists
