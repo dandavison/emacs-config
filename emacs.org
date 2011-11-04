@@ -942,6 +942,7 @@ parenthesis-delimited list of symbols at point"
 (setq x-alt-keysym 'meta)
 (setq backup-inhibited t)
 (setq font-lock-verbose nil)
+(setq truncate-lines t)
 
 ;; (visit-tags-table tags-file-name)
 ;; (setq font-lock-always-fontify-immediately t) where did I get that from?
@@ -1439,7 +1440,6 @@ http://xahlee.org/emacs/emacs_html.html
       (write-file file))))
 
 (defun dan/inferior-python-mode-hook-function ()
-     (setq truncate-lines t)
      (dan/load-comint-history "~/.ipython/history"))
 
 (defun dan/python-mode-hook-function ()
