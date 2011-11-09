@@ -943,7 +943,7 @@ parenthesis-delimited list of symbols at point"
 (setq backup-inhibited t)
 (setq font-lock-verbose nil)
 (setq truncate-lines t)
-
+(add-hook 'occur-mode-hook (lambda () (setq truncate-lines t)))
 ;; (visit-tags-table tags-file-name)
 ;; (setq font-lock-always-fontify-immediately t) where did I get that from?
 
@@ -1440,7 +1440,8 @@ http://xahlee.org/emacs/emacs_html.html
       (write-file file))))
 
 (defun dan/inferior-python-mode-hook-function ()
-     (dan/load-comint-history "~/.ipython/history"))
+  (setq truncate-lines t)
+  (dan/load-comint-history "~/.ipython/history"))
 
 (defun dan/python-mode-hook-function ()
   (add-to-list (make-local-variable 'comint-dynamic-complete-functions)
@@ -2130,6 +2131,9 @@ many roles.  You may also use `message-alternative-emails' instead.
   (interactive "P")
   (call-interactively 'magit-status)
   (unless arg (delete-other-windows)))
+
+(add-hook 'magit-mode-hook (lambda () (setq truncate-lines t)))
+
 (defun dan/magit-kill-git-process ()
   (interactive)
   ;; (kill-process magit-process) ? doesn't do what I want.
