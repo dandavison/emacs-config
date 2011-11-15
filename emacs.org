@@ -1680,7 +1680,7 @@ http://xahlee.org/emacs/emacs_html.html
      :tangle: no
      :END:
 
-#+source: R-builtins
+#+name: R-builtins
 #+begin_src R
 obj <- unlist(sapply(c("package:base","package:stats","package:utils","package:grDevices"), objects, all.names=TRUE))
 re <- "(^[^.[:alpha:][:digit:]]|<-|__)"  ## to remove "weird" functions
@@ -3448,7 +3448,7 @@ I didn't get this to work.
 #+end_src
 
 *** python-mode.el
-#+srcname: python-mode-bindings
+#+name: python-mode-bindings
 #+begin_src emacs-lisp :tangle no
 (dan/register-key-bindings
  '("py" .
