@@ -2498,6 +2498,25 @@ by Vitalie S.
       (replace-match (concat "<img src='\\1'/>")))))
 #+end_src
 
+**** Migrate to new code block syntax
+#+begin_src emacs-lisp
+(defun eric/update-org-buffer ()
+        "Update an Org-mode buffer to the new data, code block and call line syntax."
+        (interactive)
+        (save-excursion
+          (flet ((to-re (lst) (concat "^[ \t]*#\\+" (regexp-opt lst t)
+                                      "\\(\\[\\([[:alnum:]]+\\)\\]\\)?\\:[ \t]*"))
+                 (update (re new)
+                         (goto-char (point-min))
+                         (while (re-search-forward re nil t)
+                           (replace-match new nil nil nil 1))))
+            (let ((old-re (to-re '("RESULTS" "DATA" "SRCNAME" "SOURCE")))
+                  (lob-re (to-re '("LOB")))
+                  (case-fold-search t))
+              (update old-re "name")
+              (update lob-re "call")))))
+#+end_src
+
 *** Basics
 #+begin_src emacs-lisp
 (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
