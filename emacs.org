@@ -156,6 +156,7 @@ Wait for REST between each attempt."
           (let ((buffer-read-only)) (kill-line 1)))
       (message "No matches"))))
 
+
 (defun dan/occur-def-class ()
   (interactive)
   (push "^\\(class\\|def\\) " regexp-history)
@@ -614,7 +615,7 @@ parenthesis-delimited list of symbols at point"
            (lambda (f)
              (cons (format "%s/%s"
                            (file-name-nondirectory
-                            (substring (file-name-directory f) 0 -1))
+                           (substring (file-name-directory f) 0 -1))
                            (file-name-nondirectory f))
                    f))
                   recentf-list))
@@ -627,6 +628,7 @@ parenthesis-delimited list of symbols at point"
   (call-interactively
    (if arg 'ido-find-file 'dan/recentf-ido-find-file)))
 #+end_src
+
 
 ** Show all in all buffers
 #+begin_src emacs-lisp
@@ -853,7 +855,7 @@ parenthesis-delimited list of symbols at point"
 ** Completion
 #+begin_src emacs-lisp :tangle yes
 (setq dan/ignored-extensions
-      '(".html" ".ps" ".bst" ".cls" ".pyc"
+      '(".ps" ".bst" ".cls" ".pyc"
         ".fdf" ".spl" ".aux" ".ppt" ".doc" ".xls" ".mp3"))
 
 (setq completion-ignored-extensions
@@ -944,6 +946,12 @@ parenthesis-delimited list of symbols at point"
 (setq font-lock-verbose nil)
 (setq truncate-lines t)
 (add-hook 'occur-mode-hook (lambda () (setq truncate-lines t)))
+(add-hook 'compilation-mode-hook (lambda () (setq truncate-lines t)))
+
+;; apparently this doesn't work; must be run in a
+;; save-window-configuration or something
+;; (add-hook 'compilation-mode-hook 'delete-other-windows)
+
 ;; (visit-tags-table tags-file-name)
 ;; (setq font-lock-always-fontify-immediately t) where did I get that from?
 
@@ -962,6 +970,7 @@ parenthesis-delimited list of symbols at point"
 ;; (transient-mark-mode t) ;; something turns it off
 
 (setq source-directory (expand-file-name "~/lib/emacs/emacs/src"))
+
 #+end_src
 *** Safe local variables
 #+begin_src emacs-lisp :results pp
@@ -1406,9 +1415,9 @@ http://xahlee.org/emacs/emacs_html.html
    "';'.join(get_ipython().Completer.all_completions('''%s'''))\n")
 
 ;; My updates to config
-(setq python-shell-interpreter-args "--colors=NoColor"
-      python-shell-prompt-regexp ">>> "
-      python-shell-prompt-output-regexp "    ")
+;; (setq python-shell-interpreter-args "--colors=NoColor"
+;;       python-shell-prompt-regexp ">>> "
+;;       python-shell-prompt-output-regexp "    ")
 
 (defun dan/load-comint-history (&optional file)
   (interactive "fHistory file: ")
@@ -2141,9 +2150,11 @@ many roles.  You may also use `message-alternative-emails' instead.
 
 (set-face-attribute 'magit-diff-add nil :foreground "Green")
 (set-face-attribute 'magit-diff-del nil :foreground "Red")
-(set-face-attribute 'magit-item-highlight nil :background "#01294A") ;; "#01395C"
-(set-face-attribute 'magit-diff-hunk-header nil :background "keyboardFocusIndicatorColor")
+
+;; (set-face-attribute 'magit-item-highlight nil :background "default") ;; "#01294A" "#01395C"
+(set-face-attribute 'magit-diff-hunk-header nil :background "#01294A") ;; "keyboardFocusIndicatorColor"
 ;; (set-face-attribute 'magit-item-highlight nil :background "secondarySelectedControlColor")
+
 #+end_src
 ** Misc
 #+begin_src emacs-lisp
@@ -3310,8 +3321,8 @@ I didn't get this to work.
 (require 'dired)
 (dan/register-key-bindings
  '("dired" .
-   (([(left)] . dired-up-directory)
-    ([(right)] . dired-find-file))))
+   (([(left)] . (lambda () (interactive) (if buffer-read-only (dired-up-directory) (left-char))))
+    ([(right)] . (lambda () (interactive) (if buffer-read-only (dired-find-file) (right-char)))))))
 #+end_src
 
 ** Elisp
@@ -3384,6 +3395,7 @@ I didn't get this to work.
     ("\C-cp" . org-insert-property-drawer)
     ("\C-ct" . org-hide-block-toggle)
     ("\C-cu" . (lambda () (interactive) (org-back-to-heading)))
+    ("\C-c\C-z" . (lambda () (interactive) (switch-to-buffer "*Python*")))
     ("_" . org-src-native/underscore)
     ("\M-q" . org-src-native/fill-paragraph)
     ("\M-;" . org-src-native/comment-dwim)
@@ -3414,7 +3426,8 @@ I didn't get this to work.
 (dan/register-key-bindings
  '("paredit" .
    (([(control left)] . winner-undo)
-    ([(control right)] . winner-redo))))
+    ([(control right)] . winner-redo)
+    ([(meta up)] . identity))))
 #+end_src
 
 ** Python
