@@ -6,7 +6,7 @@
 (require 'org)
 
 (org-babel-load-file "~/config/emacs/emacs.org")
-(org-babel-load-file "~/config/emacs/extra.org")
+(load-file "~/config/emacs/extra.el")
 
 ;; ;; (add-to-list 'load-path "~/emacs/emacs-starter-kit")
 ;; ;; (load-file "~/emacs/emacs-starter-kit/init.el")
