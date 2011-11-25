@@ -3351,6 +3351,7 @@ I didn't get this to work.
    (("\C-cd" . edebug-defun)
     ("\C-c\C-l" . dan/eval-buffer-confirm)
     ("\M-so" . occur)
+    ("\M-." . find-function-at-point)
     ([tab] . dan/indent-or-complete)
     ([(control left)] . winner-undo)
     ([(control right)] . winner-redo))))
