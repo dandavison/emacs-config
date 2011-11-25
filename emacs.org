@@ -126,7 +126,8 @@ is a symbol, it is used as is.")
    (cons
     bindings-alist
     (dan/assoc-delete-all (car bindings-alist) dan/key-bindings)))
-  (dan/set-key-bindings))
+  (dan/set-key-bindings)
+  nil)
 #+end_src
 
 ** Do until no error
