@@ -500,24 +500,23 @@ parenthesis-delimited list of symbols at point"
   (let ((bn (buffer-name (current-buffer)))
         (bfn (buffer-file-name))
         (dd default-directory))
-    (if bfn
-        ;; file buffer
-        (if (string= (file-name-nondirectory bfn) bn)
-            ;; expected buffer name
-            (if (string= (file-name-directory bfn) dd)
-                ;; expected default-directory
-                (message bfn)
-              ;; unexpected default-directory
-              (message "buffer-file-name: %s\tdefault-directory: %s" bn dd))
-          ;; unexpected buffer name
+    (when bfn
+      ;; file buffer
+      (if (string= (file-name-nondirectory bfn) bn)
+          ;; expected buffer name
           (if (string= (file-name-directory bfn) dd)
               ;; expected default-directory
-              (message "buffer-file-name: %s\tbuffer-name: %s" bfn bn)
+              (message bfn)
             ;; unexpected default-directory
-            (message "buffer-file-name: %s\tbuffer-name: %s\tdefault-directory: %s" bfn bn dd)))
-      ;; non-file buffer
-      (message "buffer-file-name: %S\tbuffer-name: %s\tdefault-directory: %s" bfn bn dd))
-    (dan/save-value-to-kill-ring (file-name-nondirectory bfn))))
+            (message "buffer-file-name: %s\tdefault-directory: %s" bn dd))
+        ;; unexpected buffer name
+        (if (string= (file-name-directory bfn) dd)
+            ;; expected default-directory
+            (message "buffer-file-name: %s\tbuffer-name: %s" bfn bn)
+          ;; unexpected default-directory
+          (message "buffer-file-name: %s\tbuffer-name: %s\tdefault-directory: %s" bfn bn dd)))
+      (dan/save-value-to-kill-ring (file-name-nondirectory bfn)))
+    (message "buffer-file-name: %S\tbuffer-name: %s\tdefault-directory: %s" bfn bn dd)))
 #+end_src
 ** Show variable
 #+begin_src emacs-lisp
