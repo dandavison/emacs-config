@@ -3273,7 +3273,7 @@ I didn't get this to work.
                ("\C-cw" . delete-window)
                ("\C-c)" . blink-matching-open)
                ("\C-c," . flymake-display-err-menu-for-current-line)
-               ("\C-c\C-z" . (lambda () (interactive) (switch-to-buffer "*Python*")))
+               ("\C-c\C-z" . dan/python-shell)
                ("\C-\M-g" . lgrep)
                ("\C-x\C-c" . kill-emacs)  ;; If it's not saved already that's your fault
                ("\C-x\C-q" . dan/toggle-read-only)
@@ -3414,7 +3414,7 @@ I didn't get this to work.
     ("\C-cp" . org-insert-property-drawer)
     ("\C-ct" . org-hide-block-toggle)
     ("\C-cu" . (lambda () (interactive) (org-back-to-heading)))
-    ("\C-c\C-z" . (lambda () (interactive) (switch-to-buffer "*Python*")))
+    ("\C-c\C-z" . dan/python-shell)
     ("_" . org-src-native/underscore)
     ("\M-q" . org-src-native/fill-paragraph)
     ("\M-;" . org-src-native/comment-dwim)
@@ -3451,16 +3451,16 @@ I didn't get this to work.
 
 ** Python
 *** inferior python
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle yes
 (dan/register-key-bindings
  '("inferior-python" .
-   ()))
+   (("\C-c\C-z" . dan/python-shell))))
 #+end_src
 *** python
 #+begin_src emacs-lisp :tangle yes
 (dan/register-key-bindings
  '("python" .
-   (("\C-c\C-z" . python-shell-switch-to-shell)
+   (("\C-c\C-z" . dan/python-shell)
     ("\C-cd" . dan/insert-ipdb-set-trace)
     ("\M-." . dan/rope-goto-definition)
     ([tab] . python-shell-completion-complete-or-indent))))
