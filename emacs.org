@@ -45,14 +45,17 @@
   ;; (redraw-frame (window-frame (selected-window)))
   ;; (redraw-modeline t)
 
+(defvar dan/read-only-buffers-p t
+  "Automatically set buffers to read-only in find-file hook?")
 
 (defvar dan/no-read-only-buffers
   "Names of buffers that should not be opened in read-only mode"
   '("git-rebase-todo" "COMMIT_EDITMSG"))
 
 (defun dan/set-read-only-maybe ()
-  (unless (member (buffer-name) dan/no-read-only-buffers)
-    (dan/toggle-read-only)))
+  (when dan/read-only-buffers-p
+    (unless (member (buffer-name) dan/no-read-only-buffers)
+      (dan/toggle-read-only))))
 
 (add-hook 'find-file-hook 'dan/set-read-only-maybe)
 #+end_src
