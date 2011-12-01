@@ -1463,6 +1463,14 @@ http://xahlee.org/emacs/emacs_html.html
   (add-to-list (make-local-variable 'comint-dynamic-complete-functions)
                'python-completion-complete-at-point))
 
+(defun dan/python-shell-send-chunk ()
+  "Send the current chunk to inferior Python process."
+  (interactive)
+  (skip-chars-forward "\n")
+  (python-shell-send-region
+     (progn (backward-paragraph) (point))
+     (progn (forward-paragraph) (point))))
+
 (add-hook 'inferior-python-mode-hook
           'dan/inferior-python-mode-hook-function)
 
@@ -3471,6 +3479,7 @@ I didn't get this to work.
  '("python" .
    (("\C-c\C-z" . dan/python-shell)
     ("\C-cd" . dan/insert-ipdb-set-trace)
+    ("\C-c\C-c" . python-shell-send-defun)
     ("\M-." . dan/rope-goto-definition)
     ([tab] . python-shell-completion-complete-or-indent))))
 #+end_src
