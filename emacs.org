@@ -360,8 +360,12 @@ Wait for REST between each attempt."
 (defun search-forward-symbol-at-point ()
   "Search forward to next occurrence of thing at point"
   (interactive)
-  (search-forward (symbol-name (symbol-at-point)) nil t)
-  (backward-sexp)) ;; should be backward-symbol
+  (search-forward (symbol-name (symbol-at-point)) nil t))
+
+(defun search-backward-symbol-at-point ()
+  "Search forward to next occurrence of thing at point"
+  (interactive)
+  (search-backward (symbol-name (symbol-at-point)) nil t))
 
 (defun quote-list-of-symbols ()
   "Place double quotes around the comma-separated,
@@ -3246,6 +3250,8 @@ I didn't get this to work.
                ("\C-f" . forward-sexp)
                ("\C-r" . isearch-backward-regexp)
                ("\C-s" . isearch-forward-regexp)
+               ("\C-\M-r" . search-backward-symbol-at-point)
+               ("\C-\M-s" . search-forward-symbol-at-point)
                ("\C-\\" . indent-region)
                ([67108910] . delete-other-windows) ;; C-.
                ("\C-x\C-b" . org-buffers-list)
@@ -3271,7 +3277,6 @@ I didn't get this to work.
                ("\C-co" . dan/scratch-buffer)
                ("\C-cp" . paredit-mode)
                ("\C-cr" . replace-regexp)
-               ("\C-cs" . search-forward-symbol-at-point)
                ("\C-cv" . dan/show-variable)
                ("\C-cw" . delete-window)
                ("\C-c)" . blink-matching-open)
