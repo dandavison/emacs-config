@@ -978,6 +978,9 @@ parenthesis-delimited list of symbols at point"
 
 (setq source-directory (expand-file-name "~/lib/emacs/emacs/src"))
 
+;; remove the -e flag to xargs, use 4 processes
+(setq grep-find-command "find . -type f -print0 | xargs -P4 -0 grep -nH -e")
+(setq grep-find-template "find . <X> -type f <F> -print0 | xargs -P4 -0 grep <C> -nH -e <R>")
 #+end_src
 *** Safe local variables
 #+begin_src emacs-lisp :results pp
