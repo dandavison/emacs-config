@@ -1477,7 +1477,7 @@ http://xahlee.org/emacs/emacs_html.html
 (add-hook 'python-mode-hook
           'dan/python-mode-hook-function)
 
-(add-hook 'python-mode-hook 'dan/paredit-nolisp-mode)
+(add-hook 'python-mode-hook 'dan/paredit-not-lisp-mode)
 
 (add-hook 'kill-buffer-hook
           (lambda () (when (eq major-mode 'inferior-python-mode)
@@ -2207,8 +2207,7 @@ many roles.  You may also use `message-alternative-emails' instead.
                 (paredit-mode)
               (error (message "Failed to activate paredit mode")))))
 
-
-(defun dan/paredit-nolisp-mode ()
+(defun dan/paredit-not-lisp-mode ()
   "Turn on paredit for languages like python, R, C"
   ;; Don't insert space before parentheses
   (interactive)
@@ -2224,9 +2223,15 @@ many roles.  You may also use `message-alternative-emails' instead.
         (local-set-key [backspace] 'dan/py-backspace-w-paredit))
     (error (message "Failed to activate paredit mode"))))
 
-(add-hook 'ess-mode-hook 'dan/paredit-nolisp-mode)
-(add-hook 'inferior-ess-mode-hook 'dan/paredit-nolisp-mode)
-(add-hook 'comint-mode-hook 'dan/paredit-nolisp-mode)
+(defun dan/paredit-mode ()
+  (interactive)
+  (if (eq major-mode 'emacs-lisp-mode)
+      (paredit-mode)
+    (paredit-not-lisp-mode)))
+
+(add-hook 'ess-mode-hook 'dan/paredit-not-lisp-mode)
+(add-hook 'inferior-ess-mode-hook 'dan/paredit-not-lisp-mode)
+(add-hook 'comint-mode-hook 'dan/paredit-not-lisp-mode)
 
 (defun dan/paredit-forward-token-w-parens ()
   (interactive)
@@ -3283,7 +3288,7 @@ I didn't get this to work.
                ("\C-cm" . dan/switch-to-minibuffer)
                ("\C-cn" . dan/show-buffer-file-name)
                ("\C-co" . dan/scratch-buffer)
-               ("\C-cp" . paredit-mode)
+               ("\C-cp" . dan/paredit-mode)
                ("\C-cr" . replace-regexp)
                ("\C-cv" . dan/show-variable)
                ("\C-cw" . delete-window)
