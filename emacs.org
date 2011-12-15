@@ -2230,7 +2230,7 @@ many roles.  You may also use `message-alternative-emails' instead.
   (interactive)
   (if (eq major-mode 'emacs-lisp-mode)
       (paredit-mode)
-    (paredit-not-lisp-mode)))
+    (dan/paredit-not-lisp-mode)))
 
 (add-hook 'ess-mode-hook 'dan/paredit-not-lisp-mode)
 (add-hook 'inferior-ess-mode-hook 'dan/paredit-not-lisp-mode)
