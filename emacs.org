@@ -1348,7 +1348,15 @@ http://xahlee.org/emacs/emacs_html.html
   (insert "debugger"))
 #+end_src
 
+*** html
 #+begin_src emacs-lisp
+(add-to-list 'load-path "~/lib/emacs/django-mode")
+(require 'django-html-mode)
+(require 'django-mode)
+(yas/load-directory "~/lib/emacs/django-mode/snippets")
+(add-to-list 'auto-mode-alist '("\\.html$" . django-html-mode))
+#+end_src
+
 *** Javascript
     Seems very slow on coffeescript output of reasonable size; disabling.
 #+begin_src emacs-lisp :tangle no
