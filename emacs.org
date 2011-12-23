@@ -1348,8 +1348,10 @@ http://xahlee.org/emacs/emacs_html.html
   (insert "debugger"))
 #+end_src
 
-*** Javascript
 #+begin_src emacs-lisp
+*** Javascript
+    Seems very slow on coffeescript output of reasonable size; disabling.
+#+begin_src emacs-lisp :tangle no
 (add-to-list 'load-path "~/lib/emacs/js2-mode")
 (require 'js2-mode)
 (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
