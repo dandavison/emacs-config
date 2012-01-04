@@ -3533,6 +3533,12 @@ I didn't get this to work.
 (add-hook 'find-file-hook 'dan/set-show-paren-style)
 (setq mouse-highlight nil)
 #+end_src
+** Themes
+#+begin_src emacs-lisp
+(add-to-list 'load-path "~/lib/emacs/emacs-color-theme-solarized")
+(require 'color-theme-solarized)
+#+end_src
+
 ** Vanilla
 #+begin_src emacs-lisp
 (tool-bar-mode -1)
