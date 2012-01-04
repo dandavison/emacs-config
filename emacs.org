@@ -1353,7 +1353,6 @@ http://xahlee.org/emacs/emacs_html.html
 (add-to-list 'load-path "~/lib/emacs/django-mode")
 (require 'django-html-mode)
 (require 'django-mode)
-(yas/load-directory "~/lib/emacs/django-mode/snippets")
 (add-to-list 'auto-mode-alist '("\\.html$" . django-html-mode))
 #+end_src
 
@@ -2299,6 +2298,8 @@ many roles.  You may also use `message-alternative-emails' instead.
     (make-variable-buffer-local 'yas/trigger-key)
     (setq yas/trigger-key [tab])
     (define-key yas/keymap [tab] 'yas/next-field-group)))
+
+(yas/load-directory "~/lib/emacs/django-mode/snippets")
 #+end_src
 ** Org
 *** Functions
