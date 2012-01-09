@@ -1387,6 +1387,14 @@ http://xahlee.org/emacs/emacs_html.html
 (require 'tex-mode)
 (add-hook 'latex-mode-hook 'reftex-mode)
 #+end_src
+*** Markdown
+#+begin_src emacs-lisp
+(add-to-list 'load-path "~/lib/emacs/markdown-mode")
+(require 'markdown-mode)
+(setq auto-mode-alist (cons '("\\.md$" . markdown-mode) auto-mode-alist))
+(setq markdown-follow-wiki-link-on-enter nil)
+#+end_src
+
 *** TeXinfo
 #+begin_src emacs-lisp
 (require 'texinfo)
