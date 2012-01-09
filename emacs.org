@@ -1494,6 +1494,7 @@ http://xahlee.org/emacs/emacs_html.html
 (add-hook 'kill-buffer-hook
           (lambda () (when (eq major-mode 'inferior-python-mode)
                   (dan/dump-comint-history "~/.ipython/history"))))
+#+end_src
 
 
 ;; (defun pcomplete-inferior-python-setup ()
@@ -1501,7 +1502,7 @@ http://xahlee.org/emacs/emacs_html.html
 ;;   (pcomplete-comint-setup 'comint-dynamic-complete-functions))
 
 ;; (add-hook 'inferior-python-mode-hook 'pcomplete-inferior-python-setup)
-#+end_src
+
 **** Ropemacs
      Need to
      1. install pymacs python module
