@@ -1204,6 +1204,7 @@ index e5855ad..29f6429 100644
 ** Flymake
 #+begin_src emacs-lisp
 (require 'flymake)
+(require 'flymake-cursor)
 (defun dan/flymake-pyflakes-init ()
   ;; Make sure it's not a remote buffer or flymake would not work
   ;; tramp-list-remote-buffers doesn't exist in recent tramp
@@ -1360,6 +1361,11 @@ http://xahlee.org/emacs/emacs_html.html
 
 *** Javascript
     Seems very slow on coffeescript output of reasonable size; disabling.
+#+begin_src emacs-lisp
+(add-to-list 'auto-mode-alist '("\\.json$" . js-mode))
+#+end_src
+
+
 #+begin_src emacs-lisp :tangle no
 (add-to-list 'load-path "~/lib/emacs/js2-mode")
 (require 'js2-mode)
@@ -1537,9 +1543,9 @@ http://xahlee.org/emacs/emacs_html.html
 (setq ropemacs-enable-shortcuts nil)
 (setq ropemacs-local-prefix "C-c C-p")
 (pymacs-load "ropemacs" "rope-")
+#+end_src
 
-
-
+#+begin_src emacs-lisp
 (defun dan/rope-goto-definition-of-thing-read-from-minibuffer (string)
   (interactive "sGo to definition of: ")
   (save-excursion
@@ -3341,6 +3347,7 @@ I didn't get this to work.
                ([(super left)] . winner-undo)
                ([(super right)] . winner-redo)
                ([(super return)] . dan/toggle-fullscreen)
+               ([(meta up)] . org-meta-up)
                ([f4] . (lambda () (interactive) (find-file "~/Notes/notes.org")))
                ([f5] . (lambda () (interactive) (switch-to-buffer "*Python*")))
                ([f6] . dan/find-file-emacs-config)
@@ -3511,6 +3518,7 @@ I didn't get this to work.
     ("\C-cd" . dan/insert-ipdb-set-trace)
     ("\C-c\C-c" . python-shell-send-defun)
     ("\M-." . dan/rope-goto-definition)
+    ([(meta up)] . org-meta-up)
     ([tab] . python-shell-completion-complete-or-indent))))
 #+end_src
 
