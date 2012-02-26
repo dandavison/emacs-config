@@ -27,6 +27,26 @@
 #+end_src
 
 * My functions
+** open file from clipboard contents
+#+begin_src emacs-lisp
+(defun dan/open-github-path-from-clipboard ()
+  (interactive)
+  (with-temp-buffer
+    (save-excursion (clipboard-yank))
+    (when (looking-at
+           (concat
+            "https://github\..+\.com"
+            "/dev/\\([^/]+\\)/"  ;; repo
+            "\\(blob\\|tree\\)/"
+            "\\([^/]+\\)/"       ;; branch
+            "\\(.+\\)"))         ;; path
+      (let ((repo (match-string 1))
+            (branch (match-string 3))
+            (path (match-string 4)))
+        (find-file (format "~/%s/%s" repo path))))
+    (message (buffer-string))))
+#+end_src
+
 ** toggle read only
 #+begin_src emacs-lisp
 (defun dan/toggle-read-only (&optional arg)
@@ -3344,6 +3364,7 @@ I didn't get this to work.
                ([(hyper right)] . winner-redo)
                ([(control left)] . winner-undo)
                ([(control right)] . winner-redo)
+               ([(super o)] . dan/open-github-path-from-clipboard)
                ([(super left)] . winner-undo)
                ([(super right)] . winner-redo)
                ([(super return)] . dan/toggle-fullscreen)
