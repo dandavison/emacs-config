@@ -1354,6 +1354,7 @@ http://xahlee.org/emacs/emacs_html.html
 (add-to-list 'auto-mode-alist '("\\.coffee$" . coffee-mode))
 (add-to-list 'auto-mode-alist '("Cakefile" . coffee-mode))
 (setq coffee-tab-width 4)
+(setq coffee-js-mode 'js-mode)
 (defun dan/coffee-mode-hook-fun ()
   (set (make-local-variable 'tab-width) coffee-tab-width)
   (dan/paredit-not-lisp-mode))
