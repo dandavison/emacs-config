@@ -2997,6 +2997,9 @@ rubber -f -m xelatex somefile.tex
 (setq org-edit-src-content-indentation 0)
 
 (setq org-edit-src-persistent-message nil)
+
+(add-hook 'org-babel-post-tangle-hook
+          (lambda () (when (eq major-mode 'coffee-mode) (coffee-compile-file))))
 #+end_src
 
 **** Native commands
