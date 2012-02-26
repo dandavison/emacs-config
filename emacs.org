@@ -1417,6 +1417,7 @@ http://xahlee.org/emacs/emacs_html.html
 #+begin_src emacs-lisp
 (require 'tex-mode)
 (add-hook 'latex-mode-hook 'reftex-mode)
+(add-hook 'latex-mode-hook (lambda () (setq truncate-lines t)))
 #+end_src
 *** Markdown
 #+begin_src emacs-lisp
