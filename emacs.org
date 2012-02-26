@@ -3227,7 +3227,7 @@ issued in a language major-mode buffer."
 
 ** Org-buffers
    :PROPERTIES:
-   :tangle: no
+   :tangle: yes
    :END:
 
 #+begin_src emacs-lisp
@@ -3239,7 +3239,9 @@ issued in a language major-mode buffer."
   ;; (add-hook 'org-buffers-mode-hook 'dan/set-org-buffers-visibility)
   ;; (setq special-display-buffer-names `(,org-buffers-buffer-name))
   )
- #+end_src
+
+(setq org-buffers-include-recent-files nil)
+#+end_src
 
 ** Session
 #+begin_src emacs-lisp
