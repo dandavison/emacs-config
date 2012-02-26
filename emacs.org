@@ -1225,6 +1225,7 @@ index e5855ad..29f6429 100644
 ** Flymake
 #+begin_src emacs-lisp
 (require 'flymake)
+(add-to-list 'load-path "~/lib/emacs/flymake-cursor")
 (require 'flymake-cursor)
 (defun dan/flymake-pyflakes-init ()
   ;; Make sure it's not a remote buffer or flymake would not work
