@@ -1283,6 +1283,8 @@ index e5855ad..29f6429 100644
               dired-latex-unclean-extensions
               dired-bibtex-unclean-extensions
               dired-texinfo-unclean-extensions))
+
+(setq dired-omit-files (concat dired-omit-files "\\|^\\."))
 #+end_src
 *** Dired for git repo
 [[mairix:t:@@m1630s27or.fsf@65-070.eduroam.rwth-aachen.de][Email from Andrea Crotti: Re: Simple useful function]]
