@@ -1789,6 +1789,13 @@ obj[-grep(re, obj)]
 (color-theme-railscasts)
 #+end_src
 
+** Emacs Chrome
+#+begin_src emacs-lisp
+(add-to-list 'load-path "~/lib/browser-extensions/emacs_chrome/servers")
+(require 'edit-server)
+(edit-server-start)
+#+end_src
+
 ** Elpa
 #+begin_src emacs-lisp
 (let ((elpa-file
