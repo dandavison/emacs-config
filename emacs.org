@@ -1388,6 +1388,8 @@ http://xahlee.org/emacs/emacs_html.html
     Seems very slow on coffeescript output of reasonable size; disabling.
 #+begin_src emacs-lisp
 (add-to-list 'auto-mode-alist '("\\.json$" . js-mode))
+
+(add-hook 'js-mode-hook 'dan/coffee-mode-hook-fun)
 #+end_src
 
 
