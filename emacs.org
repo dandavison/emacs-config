@@ -883,7 +883,7 @@ parenthesis-delimited list of symbols at point"
 ** Completion
 #+begin_src emacs-lisp :tangle yes
 (setq dan/ignored-extensions
-      '(".ps" ".bst" ".cls" ".pyc"
+      '(".ps" ".bst" ".cls" ".pyc" ".elc"
         ".fdf" ".spl" ".aux" ".ppt" ".doc" ".xls" ".mp3"))
 
 (setq completion-ignored-extensions
