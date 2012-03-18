@@ -27,6 +27,15 @@
 #+end_src
 
 * My functions
+** git
+   #+begin_src emacs-lisp
+   (defun dan/git-dir ()
+     "Root dir of current repo"
+     (interactive)
+     (file-name-directory
+      (org-babel-chomp (shell-command-to-string "git rev-parse --git-dir"))))   
+   #+end_src
+   
 ** open file from clipboard contents
 #+begin_src emacs-lisp
 (defun dan/open-github-path-from-clipboard ()
