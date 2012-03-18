@@ -1532,12 +1532,24 @@ http://xahlee.org/emacs/emacs_html.html
       (write-file file))))
 
 (defun dan/inferior-python-mode-hook-function ()
-  (setq truncate-lines t)
-  (dan/load-comint-history "~/.ipython/history"))
+  (setq truncate-lines t))
+;; (dan/load-comint-history "~/.ipython/history")
+
+(add-hook 'inferior-python-mode-hook
+          'dan/inferior-python-mode-hook-function)
 
 (defun dan/python-mode-hook-function ()
   (add-to-list (make-local-variable 'comint-dynamic-complete-functions)
                'python-completion-complete-at-point))
+
+(add-hook 'python-mode-hook
+          'dan/python-mode-hook-function)
+
+(add-hook 'python-mode-hook 'dan/paredit-not-lisp-mode)
+
+;; (add-hook 'kill-buffer-hook
+;;           (lambda () (when (eq major-mode 'inferior-python-mode)
+;;                   (dan/dump-comint-history "~/.ipython/history"))))
 
 (defun dan/python-shell-send-chunk ()
   "Send the current chunk to inferior Python process."
@@ -1546,18 +1558,6 @@ http://xahlee.org/emacs/emacs_html.html
   (python-shell-send-region
      (progn (backward-paragraph) (point))
      (progn (forward-paragraph) (point))))
-
-(add-hook 'inferior-python-mode-hook
-          'dan/inferior-python-mode-hook-function)
-
-(add-hook 'python-mode-hook
-          'dan/python-mode-hook-function)
-
-(add-hook 'python-mode-hook 'dan/paredit-not-lisp-mode)
-
-(add-hook 'kill-buffer-hook
-          (lambda () (when (eq major-mode 'inferior-python-mode)
-                  (dan/dump-comint-history "~/.ipython/history"))))
 #+end_src
 
 
