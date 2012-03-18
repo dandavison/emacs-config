@@ -63,13 +63,17 @@
   (unless arg (toggle-read-only))
   (dan/set-mode-line-background))
 
+(defvar dan/mode-line-force-color-update-hack t)
+
 (defun dan/set-mode-line-background ()
   (setq minimal-mode-line-background
         (if buffer-read-only "darkred" "sea green"))
-  ;; silly hack to make the modeline update
-  (save-window-excursion
-    (describe-variable 'minimal-mode-line-background)
-    (message "")))
+  (if dan/mode-line-force-color-update-hack
+      ;; silly hack to make the modeline update
+      (save-window-excursion
+        (describe-variable 'minimal-mode-line-background)
+        (message ""))))
+
   ;; (redraw-modeline t)
   ;; (redraw-frame (window-frame (selected-window)))
   ;; (redraw-modeline t)
