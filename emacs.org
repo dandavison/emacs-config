@@ -619,6 +619,17 @@ parenthesis-delimited list of symbols at point"
   (interactive "P")
   (call-interactively
    (if arg 'find-library 'find-function)))
+
+(defun dan/find-function-at-point ()
+  "Find directly the function at point.
+
+Straight copy of `find-function-at-point` but using
+`find-function` instead of `finf-function-other-window`."
+  (interactive)
+  (let ((symb (function-called-at-point)))
+    (when symb
+      (find-function symb))))
+
 #+end_src
 
 ** Require
@@ -1472,7 +1483,7 @@ http://xahlee.org/emacs/emacs_html.html
  python-shell-prompt-output-regexp "Out\\[[0-9]+\\]: "
  python-shell-completion-setup-code
    "from IPython.core.completerlib import module_completion"
- python-shell-module-completion-string-code
+ python-shell-completion-module-string-code
    "';'.join(module_completion('''%s'''))\n"
  python-shell-completion-string-code
    "';'.join(get_ipython().Completer.all_completions('''%s'''))\n")
@@ -3445,7 +3456,7 @@ I didn't get this to work.
    (("\C-cd" . edebug-defun)
     ("\C-c\C-l" . dan/eval-buffer-confirm)
     ("\M-so" . occur)
-    ("\M-." . find-function-at-point)
+    ("\M-." . dan/find-function-at-point)
     ([tab] . dan/indent-or-complete)
     ([(control left)] . winner-undo)
     ([(control right)] . winner-redo))))
