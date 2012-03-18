@@ -706,6 +706,7 @@ Straight copy of `find-function-at-point` but using
   (let* ((modes
           `(("org-mode" . "org")
             ("python-mode" . "py")
+            ("coffee-mode" . "coffee")
             ("emacs-lisp-mode" . "el")
             ("js-mode" . "js")))
          (buf-file-name (buffer-file-name (current-buffer)))
