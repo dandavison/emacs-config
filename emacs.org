@@ -1514,9 +1514,9 @@ http://xahlee.org/emacs/emacs_html.html
    "';'.join(get_ipython().Completer.all_completions('''%s'''))\n")
 
 ;; My updates to config
-;; (setq python-shell-interpreter-args "--colors=NoColor"
-;;       python-shell-prompt-regexp ">>> "
-;;       python-shell-prompt-output-regexp "    ")
+(setq python-shell-prompt-regexp ">>> "
+      python-shell-prompt-output-regexp "    ")
+;; python-shell-interpreter-args "--colors=NoColor"
 
 (defun dan/load-comint-history (&optional file)
   (interactive "fHistory file: ")
