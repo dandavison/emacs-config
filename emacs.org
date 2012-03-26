@@ -3443,6 +3443,7 @@ I didn't get this to work.
                ("\C-c," . flymake-display-err-menu-for-current-line)
                ("\C-c\C-z" . dan/python-shell)
                ("\C-\M-g" . lgrep)
+               ("\C-x1" . (lambda () (interactive) (message "M-return")))
                ("\C-x\C-c" . kill-emacs)  ;; If it's not saved already that's your fault
                ("\C-x\C-q" . dan/toggle-read-only)
                ([(control next)] . end-of-buffer)
@@ -3454,7 +3455,6 @@ I didn't get this to work.
                ("\M-n" . forward-paragraph)
                ("\M-p" . backward-paragraph)
                ("\M-o" . dan/occur)
-               ("\M-s\M-o" . dan/google)
                ([delete] . winner-undo)
                ([(hyper left)] . winner-undo)
                ([(hyper right)] . winner-redo)
@@ -3510,8 +3510,8 @@ I didn't get this to work.
 (require 'dired)
 (dan/register-key-bindings
  '("dired" .
-   (([(left)] . (lambda () (interactive) (if buffer-read-only (dired-up-directory) (left-char))))
-    ([(right)] . (lambda () (interactive) (if buffer-read-only (dired-find-file) (right-char)))))))
+   (([(left)] . (lambda () (interactive) (if buffer-read-only (dired-up-directory) (call-interactively 'left-char))))
+    ([(right)] . (lambda () (interactive) (if buffer-read-only (dired-find-file) (call-interactively 'right-char)))))))
 #+end_src
 
 ** Elisp
@@ -3633,7 +3633,9 @@ I didn't get this to work.
 #+begin_src emacs-lisp :tangle yes
 (dan/register-key-bindings
  '("inferior-python" .
-   (("\C-c\C-z" . dan/python-shell))))
+   (("\C-c\C-z" . dan/python-shell)
+    ("\C-cd" . python-cd)
+    ("\M-." . dan/rope-goto-definition))))
 #+end_src
 *** python
 #+begin_src emacs-lisp :tangle yes
@@ -3641,8 +3643,10 @@ I didn't get this to work.
  '("python" .
    (("\C-c\C-z" . dan/python-shell)
     ("\C-cd" . dan/insert-ipdb-set-trace)
-    ("\C-c\C-c" . python-shell-send-defun)
+    ("\C-c\C-c" . python-shell-send-buffer)
     ("\M-." . dan/rope-goto-definition)
+    ([(meta shift right)] . python-indent-shift-right)
+    ([(meta shift left)] . python-indent-shift-left)
     ([(meta up)] . org-meta-up)
     ([tab] . python-shell-completion-complete-or-indent))))
 #+end_src
