@@ -103,10 +103,17 @@
   "Names of buffers that should not be opened in read-only mode"
   '("git-rebase-todo" "COMMIT_EDITMSG"))
 
+(defun dan/no-auto-read-only-p (buffer)
+  (cond
+   ((member (buffer-name buffer) dan/no-read-only-buffers))
+   ((eq (with-current-buffer buffer major-mode) 'dired-mode))
+   ((string-match "^scratch\." (buffer-name buffer)))
+   (t nil)))
+
 (defun dan/set-read-only-maybe ()
   (when dan/read-only-buffers-p
-    (unless (member (buffer-name) dan/no-read-only-buffers)
-      (dan/toggle-read-only))))
+    (unless (dan/no-auto-read-only-p (current-buffer))
+        (dan/toggle-read-only))))
 
 (add-hook 'find-file-hook 'dan/set-read-only-maybe)
 #+end_src
