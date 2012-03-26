@@ -855,7 +855,7 @@ Straight copy of `find-function-at-point` but using
 
 ** Outline
    :PROPERTIES:
-   :tangle: yes
+   :tangle: no
    :END:
 
   [[gnus:org#87zlb6vt8m.fsf@mundaneum.com][Email from Sébastien Vauban: {Orgmode} Re: org-style foldin]]
@@ -3447,7 +3447,7 @@ I didn't get this to work.
                ([(control next)] . end-of-buffer)
                ([(control prior)] . beginning-of-buffer)
                ([(s tab)] . lisp-complete-symbol)
-               ([(shift tab)] . org-cycle)
+;;               ([(shift tab)] . org-cycle)
                ([(meta tab)] . pcomplete)
                ("\M-(" . dan/enclose-rest-of-line-in-parentheses)
                ("\M-n" . forward-paragraph)
@@ -3562,6 +3562,14 @@ I didn't get this to work.
  '("gnus-article" .
    (("\C-n" . dan/gnus-article-goto-next-article))))
 #+end_src
+** hide-show
+#+begin_src emacs-lisp
+(dan/register-key-bindings
+ '(hs-minor-mode-map .
+    (([C-tab] . hs-toggle-hiding)
+     ([(shift tab)] . hs-hide-all))))
+#+end_src
+
 ** Latex
 #+begin_src emacs-lisp
 (dan/register-key-bindings
