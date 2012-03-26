@@ -27,6 +27,24 @@
 #+end_src
 
 * My functions
+** paint buffer accprding to predicate function
+#+begin_src emacs-lisp
+(defun dan/paint-buffer-by-predicate (predicate)
+  "Set background color at position x according to value of predicate."
+  (interactive)
+  (font-lock-mode -1)
+  (let ((color "#4b89d0"))
+    (save-excursion
+      (goto-char (point-min))
+      (while (not (eobp))
+        (if (funcall predicate)
+            (put-text-property
+             (point) (1+ (point))
+             'face
+             `(:background ,color)))
+        (forward-char 1)))))
+#+end_src
+
 ** git
    #+begin_src emacs-lisp
    (defun dan/git-dir ()
