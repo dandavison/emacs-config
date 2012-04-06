@@ -27,6 +27,28 @@
 #+end_src
 
 * My functions
+** find
+#+begin_src emacs-lisp
+(setq dan/find-command
+  (concat "find %s " 
+          "\\( -path \\*/.git -o -path \\*/migrations \\) -prune "
+          "-o -type f \\( -iname \\*.py -o -iname \\*.coffee -iname \\*.js -o -iname \\*.html -o -iname \\*.css \\) "
+          "-print0 | xargs -P2 -0 grep -i -nH -e %s"))
+
+;; Didn't get regexp-history to work with read-from-minibuffer
+;; (and tap (push tap regexp-history))
+
+(defun dan/find (&optional arg)
+  (interactive "P")
+  (compile
+   (format
+    dan/find-command
+    (dan/git-dir)
+    (if arg
+        (read-from-minibuffer "Regexp: " nil nil nil regexp-history)
+      (or (thing-at-point 'symbol) (error "No word at point"))))))
+#+end_src
+
 ** paint buffer accprding to predicate function
 #+begin_src emacs-lisp
 (defun dan/paint-buffer-by-predicate (predicate)
@@ -3426,7 +3448,7 @@ I didn't get this to work.
                ("\C-c\C-a" . show-all)
                ("\C-ce" . show-all)
                ("\C-cf" . dan/find-function-or-library)
-               ("\C-c\M-f" . rgrep)
+               ("\C-c\M-f" . dan/find)
                ("\C-cg" . dan/magit-status)
                ("\C-ck" . bury-buffer)
                ("\C-ci" . dan/eol-column-line)
