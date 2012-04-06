@@ -3604,6 +3604,7 @@ I didn't get this to work.
 #+end_src
 ** hide-show
 #+begin_src emacs-lisp
+(require 'hideshow)
 (dan/register-key-bindings
  '(hs-minor-mode-map .
     (([C-tab] . hs-toggle-hiding)
