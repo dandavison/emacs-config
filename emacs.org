@@ -3503,7 +3503,7 @@ I didn't get this to work.
                ([(super left)] . winner-undo)
                ([(super right)] . winner-redo)
                ([(super return)] . dan/toggle-fullscreen)
-               ([(meta up)] . org-meta-up)
+               ([(meta up)] . org-metaup)
                ([f4] . (lambda () (interactive) (find-file "~/Notes/notes.org")))
                ([f5] . (lambda () (interactive) (switch-to-buffer "*Python*")))
                ([f6] . dan/find-file-emacs-config)
@@ -3686,7 +3686,7 @@ I didn't get this to work.
     ("\M-." . dan/rope-goto-definition)
     ([(meta shift right)] . python-indent-shift-right)
     ([(meta shift left)] . python-indent-shift-left)
-    ([(meta up)] . org-meta-up)
+    ([(meta up)] . org-metaup)
     ([tab] . python-shell-completion-complete-or-indent))))
 #+end_src
 
