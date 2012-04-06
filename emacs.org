@@ -1882,7 +1882,7 @@ obj[-grep(re, obj)]
 #+end_src
 
 ** Bbdb
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (add-to-list 'load-path "~/lib/emacs/bbdb/lisp")
 (require 'bbdb)
 (require 'bbdb-gnus)
@@ -1906,8 +1906,8 @@ obj[-grep(re, obj)]
 #+end_src
 
 ** Emacs Chrome
-#+begin_src emacs-lisp
-(add-to-list 'load-path "~/lib/browser-extensions/emacs_chrome/servers")
+#+begin_src emacs-lisp :tangle no
+(add-to-list 'load-path "~/src/editor_chrome/servers")
 (require 'edit-server)
 (edit-server-start)
 #+end_src
