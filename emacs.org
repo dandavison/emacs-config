@@ -1638,6 +1638,20 @@ http://xahlee.org/emacs/emacs_html.html
   (python-shell-send-region
      (progn (backward-paragraph) (point))
      (progn (forward-paragraph) (point))))
+
+
+(defun dan/import-at-point ()
+  (interactive)
+  (let ((end (point))
+        (word (thing-at-point 'symbol)))
+    (backward-word)
+    (delete-region (point) end)
+    (insert
+     (format
+      "from %s import %s"
+      (python-util-strip-quotes
+       (python-shell-send-string-no-output
+        (concat word ".__module__"))) word))))
 #+end_src
 
 
