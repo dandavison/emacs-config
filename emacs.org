@@ -49,7 +49,7 @@
       (or (thing-at-point 'symbol) (error "No word at point"))))))
 #+end_src
 
-** paint buffer accprding to predicate function
+** paint buffer according to predicate function
 #+begin_src emacs-lisp
 (defun dan/paint-buffer-by-predicate (predicate)
   "Set background color at position x according to value of predicate."
@@ -64,7 +64,9 @@
              (point) (1+ (point))
              'face
              `(:background ,color)))
-        (forward-char 1)))))
+        (forward-char 1)
+        (if (eq (mod (point) 1000) 0)
+            (message "%d" (point)))))))
 #+end_src
 
 ** git
@@ -297,8 +299,10 @@ Wait for REST between each attempt."
   (interactive)
   ;; (set-face-background 'region (face-background 'default)) ;; don't highlight region
   (set-face-background 'fringe (face-background 'default)) ;; don't have different color fringe
-  ;; (set-face-background 'highlight (face-background 'default))
-  ;; (set-face-foreground 'highlight (face-foreground 'font-lock-comment-face))
+
+  (set-face-background 'highlight (face-background 'default))
+  (set-face-foreground 'highlight (face-foreground 'font-lock-comment-face))
+
   ;; (set-face-foreground 'cursor (face-foreground 'font-lock-comment-face))
   (set-cursor-color "red")
   (set-face-attribute 'org-hide nil
@@ -750,7 +754,10 @@ Straight copy of `find-function-at-point` but using
 (defun dan/find-file (&optional arg)
   (interactive "P")
   (call-interactively
-   (if arg 'ido-find-file 'dan/recentf-ido-find-file)))
+   (cond
+     ((not arg) 'fuzzy-find-in-project)
+     ((equal arg '(4)) 'dan/recentf-ido-find-file)
+     ((equal arg '(16)) 'ido-find-file))))
 #+end_src
 
 
@@ -1314,6 +1321,17 @@ index e5855ad..29f6429 100644
 (setq recentf-max-saved-items nil)
 #+end_src
 
+** Find-file
+#+begin_src emacs-lisp
+(add-to-list 'load-path "~/lib/emacs/find-file-in-project")
+(require 'find-file-in-project)
+;; (setq ffip-find-options "\\( -path \\*/.git -o -path \\*/migrations -o -path \\*/build \\) -prune")
+
+
+(add-to-list 'load-path "~/lib/emacs/fuzzy-find-in-project")
+(require 'fuzzy-find-in-project)
+#+end_src
+
 ** Flyspell
 #+begin_src emacs-lisp
 (setq flyspell-issue-message-flag nil)
@@ -1399,7 +1417,7 @@ index e5855ad..29f6429 100644
 ** Languages
 *** Load path
 #+begin_src emacs-lisp
-;; (add-to-list 'load-path "~/lib/emacs/ruby-emacs")
+(add-to-list 'load-path "~/lib/emacs/ruby-emacs")
 (add-to-list 'load-path "~/lib/emacs/gnuplot-mode.0.6.0")
 (add-to-list 'load-path "~/lib/emacs/matlab")
 #+end_src
@@ -1560,6 +1578,10 @@ http://xahlee.org/emacs/emacs_html.html
 #+end_src
 
 **** Python.el
+
+Alternative completion approach; haven't investigated this.
+http://chrispoole.com/downloads/ac-python.el
+
 #+begin_src emacs-lisp :tangle yes
 (add-to-list 'load-path "~/lib/emacs/python.el")
 (require 'python)
@@ -1581,6 +1603,8 @@ http://xahlee.org/emacs/emacs_html.html
 (setq python-shell-prompt-regexp ">>> "
       python-shell-prompt-output-regexp "    ")
 ;; python-shell-interpreter-args "--colors=NoColor"
+
+(setq python-shell-enable-syntax-highlighting nil)
 
 (defun dan/load-comint-history (&optional file)
   (interactive "fHistory file: ")
@@ -2341,7 +2365,7 @@ many roles.  You may also use `message-alternative-emails' instead.
   ;; (kill-process magit-process) ? doesn't do what I want.
   (kill-buffer magit-process-buffer-name))
 
-(set-face-attribute 'magit-diff-add nil :foreground "Green")
+(set-face-attribute 'magit-diff-add nil :foreground "green") ;; darkgreen
 (set-face-attribute 'magit-diff-del nil :foreground "Red")
 
 ;; (set-face-attribute 'magit-item-highlight nil :background "default") ;; "#01294A" "#01395C"
@@ -2349,6 +2373,19 @@ many roles.  You may also use `message-alternative-emails' instead.
 ;; (set-face-attribute 'magit-item-highlight nil :background "secondarySelectedControlColor")
 
 #+end_src
+** Markdown
+#+begin_src emacs-lisp :tangle no
+(add-hook
+ 'markdown-mode-hook
+ (lambda () (add-hook
+        'after-save-hook
+        (lambda ()
+          (shell-command
+           (format
+            "git add %s && git commit --amend -C HEAD"
+            (buffer-file-name)))))))
+#+end_src
+
 ** Misc
 #+begin_src emacs-lisp
 (dan/require 'regex-tool)
@@ -2407,7 +2444,7 @@ many roles.  You may also use `message-alternative-emails' instead.
       (paredit-mode)
     (dan/paredit-not-lisp-mode)))
 
-(add-hook 'ess-mode-hook 'dan/paredit-not-lisp-mode)
+;; (add-hook 'ess-mode-hook 'dan/paredit-not-lisp-mode)
 (add-hook 'inferior-ess-mode-hook 'dan/paredit-not-lisp-mode)
 (add-hook 'comint-mode-hook 'dan/paredit-not-lisp-mode)
 
@@ -3483,12 +3520,11 @@ I didn't get this to work.
                ("\C-c\C-z" . dan/python-shell)
                ("\C-\M-g" . lgrep)
                ("\C-x1" . (lambda () (interactive) (message "M-return")))
+               ("\C-x\C-f" . dan/find-file)
                ("\C-x\C-c" . kill-emacs)  ;; If it's not saved already that's your fault
                ("\C-x\C-q" . dan/toggle-read-only)
                ([(control next)] . end-of-buffer)
                ([(control prior)] . beginning-of-buffer)
-               ([(s tab)] . lisp-complete-symbol)
-;;               ([(shift tab)] . org-cycle)
                ([(meta tab)] . pcomplete)
                ("\M-(" . dan/enclose-rest-of-line-in-parentheses)
                ("\M-n" . forward-paragraph)
@@ -3765,7 +3801,7 @@ I didn't get this to work.
   ('linux
    (set-face-attribute 'default nil :height 110 :family "DejaVu Sans Mono"))
   ('darwin
-   (set-face-attribute 'default nil :height 135)))
+   (set-face-attribute 'default nil :height 125)))
 ;; :weight 'bold :family 'default :foundry 'default :font 'unspecified
 (dan/sanitise-faces)
 (dan/set-show-paren-style)
@@ -3812,6 +3848,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 (if (eq dan/operating-system 'linux)
     (nnmairix-update-database))
 (dan/set-key-bindings)
+(dan/keys-enforce-global-bindings)
 (if nil
     (org-agenda-list)
   (delete-other-windows))
