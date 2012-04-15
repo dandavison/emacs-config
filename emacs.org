@@ -3405,6 +3405,13 @@ issued in a language major-mode buffer."
 (setq org-buffers-include-recent-files nil)
 #+end_src
 
+** Org-csv editor
+#+begin_src emacs-lisp
+(add-to-list 'load-path "~/src/emacs/org-csv")
+(require 'org-csv)
+(add-to-list 'auto-mode-alist '("\\.[ct]sv$" . org-csv))
+#+end_src
+
 ** Session
 #+begin_src emacs-lisp
 (add-to-list 'load-path "~/lib/emacs/session/lisp")
