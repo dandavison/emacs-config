@@ -47,6 +47,11 @@
     (if arg
         (read-from-minibuffer "Regexp: " nil nil nil regexp-history)
       (or (thing-at-point 'symbol) (error "No word at point"))))))
+
+(defun dan/fuzzy-find-change-root-dir (directory)
+  "Change current directory in emacs and in the python process"
+  (interactive "Dfuzzy-find root directory: ")
+  (setq fuzzy-find-project-root directory))
 #+end_src
 
 ** paint buffer according to predicate function
@@ -759,7 +764,6 @@ Straight copy of `find-function-at-point` but using
      ((equal arg '(4)) 'dan/recentf-ido-find-file)
      ((equal arg '(16)) 'ido-find-file))))
 #+end_src
-
 
 ** Show all in all buffers
 #+begin_src emacs-lisp
