@@ -1,4 +1,6 @@
 (setq max-mini-window-height nil)
+(add-to-list 'load-path "~/lib/emacs/python.el")
+(require 'python)
 (add-to-list 'load-path "~/lib/emacs/org/lisp")
 (setq org-babel-load-languages '((emacs-lisp . t) (R . t)))
 (setq org-confirm-babel-evaluate nil)
