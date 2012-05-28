@@ -31,7 +31,7 @@
 #+begin_src emacs-lisp
 (setq dan/find-command
   (concat "find %s " 
-          "\\( -path \\*/.git -o -path \\*/migrations \\) -prune "
+          "\\( -path \\*/.git -o -path \\*/migrations -o -path \\*/build -o -path \\*thirdparty \\) -prune "
           "-o -type f \\( -iname \\*.py -o -iname \\*.coffee -iname \\*.js -o -iname \\*.html -o -iname \\*.css \\) "
           "-print0 | xargs -P2 -0 grep -i -nH -e %s"))
 
@@ -74,15 +74,6 @@
             (message "%d" (point)))))))
 #+end_src
 
-** git
-   #+begin_src emacs-lisp
-   (defun dan/git-dir ()
-     "Root dir of current repo"
-     (interactive)
-     (file-name-directory
-      (org-babel-chomp (shell-command-to-string "git rev-parse --git-dir"))))   
-   #+end_src
-   
 ** open file from clipboard contents
 #+begin_src emacs-lisp
 (defun dan/open-github-path-from-clipboard ()
@@ -637,7 +628,7 @@ parenthesis-delimited list of symbols at point"
             (message "buffer-file-name: %s\tbuffer-name: %s" bfn bn)
           ;; unexpected default-directory
           (message "buffer-file-name: %s\tbuffer-name: %s\tdefault-directory: %s" bfn bn dd)))
-      (dan/save-value-to-kill-ring (file-name-nondirectory bfn)))
+      (dan/save-value-to-kill-ring bfn))
     (message "buffer-file-name: %S\tbuffer-name: %s\tdefault-directory: %s" bfn bn dd)))
 #+end_src
 ** Show variable
@@ -760,8 +751,8 @@ Straight copy of `find-function-at-point` but using
   (interactive "P")
   (call-interactively
    (cond
-     ((not arg) 'fuzzy-find-in-project)
-     ((equal arg '(4)) 'dan/recentf-ido-find-file)
+     ((not arg) 'dan/recentf-ido-find-file)
+     ((equal arg '(4)) 'fuzzy-find-in-project)
      ((equal arg '(16)) 'ido-find-file))))
 #+end_src
 
@@ -795,7 +786,8 @@ Straight copy of `find-function-at-point` but using
             ("python-mode" . "py")
             ("coffee-mode" . "coffee")
             ("emacs-lisp-mode" . "el")
-            ("js-mode" . "js")))
+            ("js-mode" . "js")
+            ("compilation-mode" . "compilation")))
          (buf-file-name (buffer-file-name (current-buffer)))
          (buf-mode
           (or (assoc (symbol-name major-mode) modes)
@@ -888,6 +880,7 @@ Straight copy of `find-function-at-point` but using
 
 ** Outline
 #+begin_src emacs-lisp
+(require 'org)
 (add-hook 'outline-minor-mode-hook
           (lambda ()
             (define-key outline-minor-mode-map [(control tab)] 'org-cycle)
@@ -1080,6 +1073,7 @@ Straight copy of `find-function-at-point` but using
 (setq truncate-lines t)
 (add-hook 'occur-mode-hook (lambda () (setq truncate-lines t)))
 (add-hook 'compilation-mode-hook (lambda () (setq truncate-lines t)))
+(setq indent-tabs-mode nil)
 
 ;; apparently this doesn't work; must be run in a
 ;; save-window-configuration or something
@@ -1151,7 +1145,7 @@ Straight copy of `find-function-at-point` but using
           (save-restriction
             (goto-char (point-min))
             (and (re-search-forward "[ \t]$" nil t)
-                 ;; (yes-or-no-p "Delete trailing whitespace?")
+                 (yes-or-no-p "Delete trailing whitespace?")
                  (delete-trailing-whitespace))))))))
 
 (add-hook 'before-save-hook 'dan/query-delete-trailing-whitespace)
@@ -1356,6 +1350,11 @@ index e5855ad..29f6429 100644
 
 (add-to-list 'flymake-allowed-file-name-masks
              '("\\.py\\'" dan/flymake-pyflakes-init))
+
+(defun dan/flymake ()
+  (interactive)
+  (call-interactively 'flymake-mode)
+  (message (format "flymake %s" (if flymake-mode "on" "off"))))
 #+end_src
 
 ** Dired
@@ -1475,6 +1474,7 @@ http://xahlee.org/emacs/emacs_html.html
 (setq coffee-js-mode 'js-mode)
 (defun dan/coffee-mode-hook-fun ()
   (set (make-local-variable 'tab-width) coffee-tab-width)
+  (set (make-local-variable 'indent-tabs-mode) nil)
   (dan/paredit-not-lisp-mode))
 
 (add-hook 'coffee-mode-hook 'dan/coffee-mode-hook-fun)
@@ -1493,6 +1493,7 @@ http://xahlee.org/emacs/emacs_html.html
 
 (add-hook 'after-save-hook
           (lambda () (when (eq major-mode 'coffee-mode) (coffee-compile-file))))
+
 #+end_src
 
 *** html
@@ -1562,20 +1563,75 @@ http://xahlee.org/emacs/emacs_html.html
 *** Python
 **** general
 #+begin_src emacs-lisp
-(defun dan/py-backspace-w-paredit ()
-  "backspace binding for python-mode with paredit"
+(defvar dan/python-exec-lines
+  "import sys
+import os
+sys.path.append(os.path.expanduser('~'))
+")
+
+;; %load_ext autoreload
+;; %autoreload 2
+
+(defun dan/python-eval-exec-lines ()
+  "Hack until shellplus honors `exec_lines`"
   (interactive)
-  (condition-case nil
-      (call-interactively
-       (if (looking-back "^[ \t]+")
-           'python-indent-dedent-line-backspace ;; was py-electric-backspace
-         'paredit-backward-delete))
-    (error (call-interactively 'delete-backward-char))))
+  (with-current-buffer "*Python*"
+    (python-shell-send-string-no-output
+     dan/python-exec-lines
+     (get-buffer-process (current-buffer)))))
+
+(defun dan/python (cmd)
+  (let* ((buf-name "*Python*")
+         (process-buffer (get-buffer buf-name)))
+    (when (and restart process-buffer) (kill-buffer buf-name))
+    (unless (and process-buffer (get-buffer-process process-buffer))
+      (run-python nil cmd)
+      (dan/python-eval-exec-lines)
+      (setq process-buffer (get-buffer buf-name)))
+    (switch-to-buffer process-buffer)))
+
+(defun dan/ipython (&optional restart)
+  (interactive "P")
+  (dan/python
+   (concat "~/lib/python/ipython/ipython.py console "
+           (read-from-minibuffer "Arguments: "))))
+
+
+;; -W ignore:Module:UserWarning %s
+
+(add-hook 'python-mode-hook
+          (lambda () (local-set-key "\C-c\C-z" #'dan/ipython)))
+(global-set-key "\C-c\C-z" #'dan/ipython)
 
 (defun dan/insert-ipdb-set-trace ()
   (interactive)
   (indent-for-tab-command)
   (insert "import ipdb ; ipdb.set_trace()"))
+
+(defun dan/insert-import-numpy ()
+  (interactive)
+  (indent-for-tab-command)
+  (insert "import numpy as np"))
+
+(fset 'dict-literal-to-kwargs
+   (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote ([3 114 up up return up up return] 0 "%d")) arg)))
+
+(defun dan/dict-literal-to-kwargs ()
+  (interactive)
+  (save-excursion
+    (goto-char (region-beginning))
+    (while (re-search-forward "'\([^']+\)': *\([^,]+\)," (region-end) t)
+      (replace-match
+       (format "%s=%s," (match-string 1) (match-string 2))))))
+
+(defun dan/kwargs-to-dict-literal ()
+  (interactive)
+  (save-excursion
+    (goto-char (region-beginning))
+    (while (re-search-forward "'\([^ ]+\)'=\([^ ]+\)," (region-end) t)
+      (replace-match
+       (format "'%s': %s," (match-string 1) (match-string 2))))))
+
 #+end_src
 
 **** Python.el
@@ -1586,6 +1642,8 @@ http://chrispoole.com/downloads/ac-python.el
 #+begin_src emacs-lisp :tangle yes
 (add-to-list 'load-path "~/lib/emacs/python.el")
 (require 'python)
+(setq auto-mode-alist (cons '("\\.pyw$" . python-mode) auto-mode-alist))
+(setq auto-mode-alist (cons '("\\.pyx$" . python-mode) auto-mode-alist))
 
 ;; Recommended config from the code comments
 (setq
@@ -1665,6 +1723,11 @@ http://chrispoole.com/downloads/ac-python.el
      (progn (forward-paragraph) (point))))
 
 
+(defun dan/strip-quotes (string)
+  (if (string-match "[\"']+\\(.+\\)[\"']+" string)
+      (match-string 1 string)
+    string))
+
 (defun dan/import-at-point ()
   (interactive)
   (let ((end (point))
@@ -1674,9 +1737,20 @@ http://chrispoole.com/downloads/ac-python.el
     (insert
      (format
       "from %s import %s"
-      (python-util-strip-quotes
+      (dan/strip-quotes
        (python-shell-send-string-no-output
         (concat word ".__module__"))) word))))
+
+;;; Change directory
+(defun dan/python-cd (directory)
+  "Change current directory in emacs and in the python process"
+  (interactive "DChange directory: ")
+  (let ((process (get-buffer-process (current-buffer)))
+       (directory (expand-file-name directory)))
+    (cd-absolute directory)
+    (python-shell-send-string-no-output
+     (format "import os; os.chdir('%s')" directory)
+     process)))
 #+end_src
 
 
@@ -1685,6 +1759,13 @@ http://chrispoole.com/downloads/ac-python.el
 ;;   (pcomplete-comint-setup 'comint-dynamic-complete-functions))
 
 ;; (add-hook 'inferior-python-mode-hook 'pcomplete-inferior-python-setup)
+
+**** Ein
+#+begin_src emacs-lisp :tangle no
+(add-to-list 'load-path "~/lib/emacs/emacs-websocket")
+(add-to-list 'load-path "~/lib/emacs/emacs-ipython-notebook")
+(require 'ein)
+#+end_src
 
 **** Ropemacs
      Need to
@@ -2439,28 +2520,33 @@ many roles.  You may also use `message-alternative-emails' instead.
         (local-set-key [backspace] 'dan/py-backspace-w-paredit))
     (error (message "Failed to activate paredit mode"))))
 
-(defun dan/paredit-mode ()
+(defun dan/py-backspace-w-paredit ()
+  "backspace binding for python-mode with paredit"
   (interactive)
-  (if (eq major-mode 'emacs-lisp-mode)
-      (paredit-mode)
-    (dan/paredit-not-lisp-mode)))
+  (condition-case nil
+      (call-interactively
+       (if (looking-back "^[ \t]+")
+           'python-indent-dedent-line-backspace ;; was py-electric-backspace
+         'paredit-backward-delete))
+    (error (call-interactively 'delete-backward-char))))
 
-;; (add-hook 'ess-mode-hook 'dan/paredit-not-lisp-mode)
-(add-hook 'inferior-ess-mode-hook 'dan/paredit-not-lisp-mode)
-(add-hook 'comint-mode-hook 'dan/paredit-not-lisp-mode)
+(defun dan/paredit-mode (&optional force)
+  (interactive "P")
+  (let (contents point)
+    (when force
+        ;; Get rid of anything that might upset paredit
+        (setq contents (buffer-string)
+              point (point))
+        (delete-region (point-min) (point-max)))
+    (if (eq major-mode 'emacs-lisp-mode)
+        (paredit-mode)
+      (dan/paredit-not-lisp-mode))
+    (when force (insert contents) (goto-char point))))
 
 (defun dan/paredit-forward-token-w-parens ()
   (interactive)
   (forward-symbol)
   (if (looking-at "(") (forward-sexp)))
-
-;; http://stackoverflow.com/questions/2665292/how-can-i-get-paredit-mode-when-doing-eval-expression
-(defun dan/configure-minibuffer-for-lisp ()
-  (when (eq this-command 'eval-expression)
-    (setq completion-at-point-functions '(lisp-completion-at-point t))
-    (local-set-key [tab] 'complete-symbol)
-    (paredit-mode 1)))
-(add-hook 'minibuffer-setup-hook 'dan/configure-minibuffer-for-lisp)
 
 (defun dan/paredit-singlequote (&optional n)
   "Copied from `paredit-doublequote'"
@@ -2475,6 +2561,19 @@ many roles.  You may also use `message-alternative-emails' instead.
            (insert ?\' ))
           ((not (paredit-in-char-p))
            (paredit-insert-pair n ?\' ?\' 'paredit-forward-for-quote)))))
+
+;; (add-hook 'ess-mode-hook 'dan/paredit-not-lisp-mode)
+(add-hook 'inferior-ess-mode-hook ' dan/paredit-not-lisp-mode)
+(add-hook 'comint-mode-hook 'dan/paredit-not-lisp-mode)
+
+;; http://stackoverflow.com/questions/2665292/how-can-i-get-paredit-mode-when-doing-eval-expression
+(defun dan/configure-minibuffer-for-lisp ()
+  (when (eq this-command 'eval-expression)
+    (setq completion-at-point-functions '(lisp-completion-at-point t))
+    (local-set-key [tab] 'complete-symbol)
+    (paredit-mode 1)))
+(add-hook 'minibuffer-setup-hook 'dan/configure-minibuffer-for-lisp)
+
 #+end_src
 
 ** Tramp
@@ -3525,7 +3624,7 @@ I didn't get this to work.
                ("\C-cw" . delete-window)
                ("\C-c)" . blink-matching-open)
                ("\C-c," . flymake-display-err-menu-for-current-line)
-               ("\C-c\C-z" . dan/python-shell)
+               ("\C-c\C-z" . dan/ipython)
                ("\C-\M-g" . lgrep)
                ("\C-x1" . (lambda () (interactive) (message "M-return")))
                ("\C-x\C-f" . dan/find-file)
@@ -3718,7 +3817,8 @@ I didn't get this to work.
 (dan/register-key-bindings
  '("inferior-python" .
    (("\C-c\C-z" . dan/python-shell)
-    ("\C-cd" . python-cd)
+    ("\C-c\M-n" . dan/insert-import-numpy)
+    ("\C-cd" . dan/python-cd)
     ("\M-." . dan/rope-goto-definition))))
 #+end_src
 *** python
@@ -3727,6 +3827,7 @@ I didn't get this to work.
  '("python" .
    (("\C-c\C-z" . dan/python-shell)
     ("\C-cd" . dan/insert-ipdb-set-trace)
+    ("\C-c\M-n" . dan/insert-import-numpy)
     ("\C-c\C-c" . python-shell-send-buffer)
     ("\M-." . dan/rope-goto-definition)
     ([(meta shift right)] . python-indent-shift-right)
