@@ -158,32 +158,8 @@ insert a link in the current file."
            (file-name-nondirectory (buffer-file-name))))))
 #+end_src
 
-** dan/set-key-bindings
+** key bindings
 #+begin_src emacs-lisp
-(defvar dan/key-bindings nil
-  "List of all key bindings.
-This is an alist of alists. The key of the top level alist
-references a key map. If the key is a string, the string
-\"-mode-map\" is appended to it when finding the mode-map. If it
-is a symbol, it is used as is.")
-
-(defun dan/set-key-bindings (&optional mode-map in-mode-map)
-  "Set custom key bindings
-Optional argument MODE-MAP sets bindings in that mode only
-Optional argument IN-MODE-MAP sets MODE-MAP bindings in IN-MODE-MAP
-"
-  (interactive)
-  (mapc (lambda (pair)
-          (let* ((map (or in-mode-map (car pair)))
-                 (bindings (cdr pair)))
-            (if (stringp map) (setq map (intern (concat map "-mode-map"))))
-            (if (symbolp map) (setq map (eval map)))
-            (mapc (lambda (binding)
-                    (define-key map (car binding) (cdr binding)))
-                  bindings)))
-        (or (and mode-map `(,(assoc mode-map dan/key-bindings)))
-            dan/key-bindings)))
-
 (defun dan/keys-enforce-global-bindings ()
   "Enforce global bindings in all buffers"
   (interactive)
@@ -192,22 +168,6 @@ Optional argument IN-MODE-MAP sets MODE-MAP bindings in IN-MODE-MAP
    (delete-dups
     (mapcar (lambda (buf) (with-current-buffer buf (current-local-map)))
             (buffer-list)))))
-
-(defun dan/assoc-delete-all (key alist)
-  "Like `assq-delete-all' but using `equal' for comparison"
-  (delq nil
-        (mapcar (lambda (el) (unless (equal (car el) key) el))
-                alist)))
-
-(defun dan/register-key-bindings (bindings-alist)
-  "Add bindings in dan/key-bindings"
-  (setq
-   dan/key-bindings
-   (cons
-    bindings-alist
-    (dan/assoc-delete-all (car bindings-alist) dan/key-bindings)))
-  (dan/set-key-bindings)
-  nil)
 #+end_src
 
 ** Do until no error
