@@ -1149,6 +1149,10 @@ Straight copy of `find-function-at-point` but using
                  (delete-trailing-whitespace))))))))
 
 (add-hook 'before-save-hook 'dan/query-delete-trailing-whitespace)
+
+;; Make sure code is visible when jumping into it from compilation buffer
+(add-hook 'next-error-hook #'show-all)
+(add-hook 'find-function-after-hook #'show-all)
 #+end_src
 ** Info
 #+begin_src emacs-lisp :tangle no
@@ -1355,6 +1359,14 @@ index e5855ad..29f6429 100644
   (interactive)
   (call-interactively 'flymake-mode)
   (message (format "flymake %s" (if flymake-mode "on" "off"))))
+#+end_src
+
+** git
+#+begin_src emacs-lisp
+(defun dan/git-dir ()
+  "Root dir of current repo"
+  (file-name-directory
+   (org-babel-chomp (shell-command-to-string "git rev-parse --git-dir"))))
 #+end_src
 
 ** Dired
@@ -1585,7 +1597,7 @@ sys.path.append(os.path.expanduser('~'))
          (process-buffer (get-buffer buf-name)))
     (when (and restart process-buffer) (kill-buffer buf-name))
     (unless (and process-buffer (get-buffer-process process-buffer))
-      (run-python nil cmd)
+      (run-python nil (eval cmd))
       (dan/python-eval-exec-lines)
       (setq process-buffer (get-buffer buf-name)))
     (switch-to-buffer process-buffer)))
@@ -1593,8 +1605,8 @@ sys.path.append(os.path.expanduser('~'))
 (defun dan/ipython (&optional restart)
   (interactive "P")
   (dan/python
-   (concat "~/lib/python/ipython/ipython.py console "
-           (read-from-minibuffer "Arguments: "))))
+   '(concat "~/lib/python/ipython/ipython.py console "
+            (read-from-minibuffer "Arguments: "))))
 
 
 ;; -W ignore:Module:UserWarning %s
