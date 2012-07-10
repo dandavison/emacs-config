@@ -29,24 +29,9 @@
 * My functions
 ** find
 #+begin_src emacs-lisp
-(setq dan/find-command
-  (concat "find %s " 
-          "\\( -path \\*/.git -o -path \\*/migrations -o -path \\*/build -o -path \\*thirdparty \\) -prune "
-          "-o -type f \\( -iname \\*.py -o -iname \\*.coffee -iname \\*.js -o -iname \\*.html -o -iname \\*.css \\) "
-          "-print0 | xargs -P2 -0 grep -i -nH -e %s"))
-
 ;; Didn't get regexp-history to work with read-from-minibuffer
 ;; (and tap (push tap regexp-history))
 
-(defun dan/find (&optional arg)
-  (interactive "P")
-  (compile
-   (format
-    dan/find-command
-    (dan/git-dir)
-    (if arg
-        (read-from-minibuffer "Regexp: " nil nil nil regexp-history)
-      (or (thing-at-point 'symbol) (error "No word at point"))))))
 
 (defun dan/fuzzy-find-change-root-dir (directory)
   "Change current directory in emacs and in the python process"
@@ -1359,14 +1344,6 @@ index e5855ad..29f6429 100644
   (interactive)
   (call-interactively 'flymake-mode)
   (message (format "flymake %s" (if flymake-mode "on" "off"))))
-#+end_src
-
-** git
-#+begin_src emacs-lisp
-(defun dan/git-dir ()
-  "Root dir of current repo"
-  (file-name-directory
-   (org-babel-chomp (shell-command-to-string "git rev-parse --git-dir"))))
 #+end_src
 
 ** Dired
