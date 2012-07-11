@@ -198,6 +198,19 @@ Wait for REST between each attempt."
       (message "No matches"))))
 
 
+(defvar dan/highlighted nil)
+
+(defun dan/highlight ()
+  (interactive)
+  (if dan/highlighted
+      (progn
+        (unhighlight-regexp dan/highlighted)
+        (setq dan/highlighted nil))
+    (let ((tap (thing-at-point 'symbol)))
+       (highlight-regexp tap 'isearch-fail)
+       (setq dan/highlighted tap))))
+
+
 (defun dan/occur-def-class ()
   (interactive)
   (push "^\\(class\\|def\\) " regexp-history)
@@ -3586,6 +3599,7 @@ I didn't get this to work.
                ("\M-n" . forward-paragraph)
                ("\M-p" . backward-paragraph)
                ("\M-o" . dan/occur)
+               ("\M-i" . dan/highlight)
                ([delete] . winner-undo)
                ([(hyper left)] . winner-undo)
                ([(hyper right)] . winner-redo)
