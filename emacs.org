@@ -2460,37 +2460,14 @@ many roles.  You may also use `message-alternative-emails' instead.
 ** Paredit
 #+begin_src emacs-lisp
 (require 'paredit)
+(add-to-list 'load-path "~/src/emacs/paredit-not-lisp")
+(require 'paredit-not-lisp)
+
 (add-hook 'emacs-lisp-mode-hook
           (lambda ()
             (condition-case nil
                 (paredit-mode)
               (error (message "Failed to activate paredit mode")))))
-
-(defun dan/paredit-not-lisp-mode ()
-  "Turn on paredit for languages like python, R, C"
-  ;; Don't insert space before parentheses
-  (interactive)
-  (condition-case nil
-      (progn
-        (paredit-mode)
-        (set (make-local-variable
-              'paredit-space-for-delimiter-predicates)
-             '((lambda (&rest args) nil)))
-        ;; Use paredit for {}
-        (local-set-key "{" 'paredit-open-curly)
-        (local-set-key "'" 'dan/paredit-singlequote)        
-        (local-set-key [backspace] 'dan/py-backspace-w-paredit))
-    (error (message "Failed to activate paredit mode"))))
-
-(defun dan/py-backspace-w-paredit ()
-  "backspace binding for python-mode with paredit"
-  (interactive)
-  (condition-case nil
-      (call-interactively
-       (if (looking-back "^[ \t]+")
-           'python-indent-dedent-line-backspace ;; was py-electric-backspace
-         'paredit-backward-delete))
-    (error (call-interactively 'delete-backward-char))))
 
 (defun dan/paredit-mode (&optional force)
   (interactive "P")
@@ -2502,31 +2479,12 @@ many roles.  You may also use `message-alternative-emails' instead.
         (delete-region (point-min) (point-max)))
     (if (eq major-mode 'emacs-lisp-mode)
         (paredit-mode)
-      (dan/paredit-not-lisp-mode))
+      (pnl/not-lisp-mode))
     (when force (insert contents) (goto-char point))))
 
-(defun dan/paredit-forward-token-w-parens ()
-  (interactive)
-  (forward-symbol)
-  (if (looking-at "(") (forward-sexp)))
-
-(defun dan/paredit-singlequote (&optional n)
-  "Copied from `paredit-doublequote'"
-  (interactive "P")
-  (if (null paredit-mode) (insert "'")
-    (cond ((paredit-in-string-p)
-           (if (eq (cdr (paredit-string-start+end-points))
-                   (point))
-               (forward-char) ; We're on the closing quote.
-             (insert ?\\ ?\' )))
-          ((paredit-in-comment-p)
-           (insert ?\' ))
-          ((not (paredit-in-char-p))
-           (paredit-insert-pair n ?\' ?\' 'paredit-forward-for-quote)))))
-
 ;; (add-hook 'ess-mode-hook 'dan/paredit-not-lisp-mode)
-(add-hook 'inferior-ess-mode-hook ' dan/paredit-not-lisp-mode)
-(add-hook 'comint-mode-hook 'dan/paredit-not-lisp-mode)
+(add-hook 'inferior-ess-mode-hook 'paredit-not-lisp-mode)
+(add-hook 'comint-mode-hook 'paredit-not-lisp-mode)
 
 ;; http://stackoverflow.com/questions/2665292/how-can-i-get-paredit-mode-when-doing-eval-expression
 (defun dan/configure-minibuffer-for-lisp ()
@@ -2535,7 +2493,6 @@ many roles.  You may also use `message-alternative-emails' instead.
     (local-set-key [tab] 'complete-symbol)
     (paredit-mode 1)))
 (add-hook 'minibuffer-setup-hook 'dan/configure-minibuffer-for-lisp)
-
 #+end_src
 
 ** Tramp
