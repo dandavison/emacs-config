@@ -1555,7 +1555,7 @@ sys.path.append(os.path.expanduser('~'))
      dan/python-exec-lines
      (get-buffer-process (current-buffer)))))
 
-(defun dan/python (cmd)
+(defun dan/python (cmd restart)
   (let* ((buf-name "*Python*")
          (process-buffer (get-buffer buf-name)))
     (when (and restart process-buffer) (kill-buffer buf-name))
@@ -1569,13 +1569,14 @@ sys.path.append(os.path.expanduser('~'))
 
 (defun dan/ipython (&optional restart)
   (interactive "P")
-  (dan/python dan/ipython-command))
+  (dan/python dan/ipython-command restart))
 
 (defun dan/ipython-console (&optional restart)
   (interactive "P")
   (dan/python
    '(concat "~/lib/python/ipython/ipython.py console "
-            (read-from-minibuffer "Arguments: " "--existing"))))
+            (read-from-minibuffer "Arguments: " "--existing"))
+   restart))
 
 
 ;; -W ignore:Module:UserWarning %s
