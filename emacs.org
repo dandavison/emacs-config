@@ -1450,7 +1450,7 @@ http://xahlee.org/emacs/emacs_html.html
 (defun dan/coffee-mode-hook-fun ()
   (set (make-local-variable 'tab-width) coffee-tab-width)
   (set (make-local-variable 'indent-tabs-mode) nil)
-  (dan/paredit-not-lisp-mode))
+  (paredit-not-lisp-mode))
 
 (add-hook 'coffee-mode-hook 'dan/coffee-mode-hook-fun)
 (defun dan/coffee-execute ()
@@ -1683,7 +1683,7 @@ http://chrispoole.com/downloads/ac-python.el
 (add-hook 'python-mode-hook
           'dan/python-mode-hook-function)
 
-(add-hook 'python-mode-hook 'dan/paredit-not-lisp-mode)
+(add-hook 'python-mode-hook 'paredit-not-lisp-mode)
 
 ;; (add-hook 'kill-buffer-hook
 ;;           (lambda () (when (eq major-mode 'inferior-python-mode)
@@ -2492,10 +2492,16 @@ many roles.  You may also use `message-alternative-emails' instead.
         (delete-region (point-min) (point-max)))
     (if (eq major-mode 'emacs-lisp-mode)
         (paredit-mode)
-      (pnl/not-lisp-mode))
+      (paredit-not-lisp-mode))
     (when force (insert contents) (goto-char point))))
 
-;; (add-hook 'ess-mode-hook 'dan/paredit-not-lisp-mode)
+
+;; (add-hook 'ess-mode-hook 'paredit-not-lisp-mode)
+;; if: Point is not in a function according to 'ess-function-pattern'.
+
+(fset 'ess-beginning-of-defun (lambda () (ess-beginning-of-defun 'no-error)))
+
+
 (add-hook 'inferior-ess-mode-hook 'paredit-not-lisp-mode)
 (add-hook 'comint-mode-hook 'paredit-not-lisp-mode)
 
