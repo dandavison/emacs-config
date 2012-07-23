@@ -164,10 +164,11 @@ insert a link in the current file."
   "Enforce global bindings in all buffers"
   (interactive)
   (mapc
-   (lambda (map) (dan/set-key-bindings 'global-map map))
+   (lambda (map) (dan--set-key-bindings 'global-map map))
    (delete-dups
     (mapcar (lambda (buf) (with-current-buffer buf (current-local-map)))
-            (buffer-list)))))
+            (buffer-list))))
+  nil)
 #+end_src
 
 ** Do until no error
@@ -3876,7 +3877,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 
 (if (eq dan/operating-system 'linux)
     (nnmairix-update-database))
-(dan/set-key-bindings)
+(dan--set-key-bindings)
 (dan/keys-enforce-global-bindings)
 (if nil
     (org-agenda-list)
