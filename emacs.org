@@ -1406,6 +1406,18 @@ index e5855ad..29f6429 100644
 (setq compilation-read-command nil)
 #+end_src
 
+*** Lisp
+**** Slime
+#+begin_src emacs-lisp
+(add-hook 'slime-repl-mode-hook (lambda () (paredit-mode 1)))
+#+end_src
+**** Clojure
+#+begin_src emacs-lisp
+(add-to-list 'load-path "~/lib/emacs/clojure-mode")
+(require 'clojure-mode)
+(add-hook 'clojure-mode-hook (lambda () (paredit-mode 1)))
+#+end_src
+
 *** CSS
 http://xahlee.org/emacs/emacs_html.html
 #+begin_src emacs-lisp
