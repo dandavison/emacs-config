@@ -1563,7 +1563,11 @@ sys.path.append(os.path.expanduser('~'))
       (run-python nil (eval cmd))
       (dan/python-eval-exec-lines)
       (setq process-buffer (get-buffer buf-name)))
-    (switch-to-buffer process-buffer)))
+    (switch-to-buffer process-buffer)
+    ;; Start up clean
+    ;; (sleep-for 5)
+    (delete-region (point-min) (point-max))
+    (comint-send-input)))
 
 (defvar dan/ipython-command "ipython")
 
