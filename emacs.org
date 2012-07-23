@@ -1565,11 +1565,17 @@ sys.path.append(os.path.expanduser('~'))
       (setq process-buffer (get-buffer buf-name)))
     (switch-to-buffer process-buffer)))
 
+(defvar dan/ipython-command "ipython")
+
 (defun dan/ipython (&optional restart)
+  (interactive "P")
+  (dan/python dan/ipython-command))
+
+(defun dan/ipython-console (&optional restart)
   (interactive "P")
   (dan/python
    '(concat "~/lib/python/ipython/ipython.py console "
-            (read-from-minibuffer "Arguments: "))))
+            (read-from-minibuffer "Arguments: " "--existing"))))
 
 
 ;; -W ignore:Module:UserWarning %s
@@ -3715,7 +3721,7 @@ I didn't get this to work.
     ("\C-cp" . org-insert-property-drawer)
     ("\C-ct" . org-hide-block-toggle)
     ("\C-cu" . (lambda () (interactive) (org-back-to-heading)))
-    ("\C-c\C-z" . dan/python-shell)
+    ("\C-c\C-z" . dan/ipython)
     ("_" . org-src-native/underscore)
     ("\M-q" . org-src-native/fill-paragraph)
     ("\M-;" . org-src-native/comment-dwim)
@@ -3755,7 +3761,7 @@ I didn't get this to work.
 #+begin_src emacs-lisp :tangle yes
 (dan/register-key-bindings
  '("inferior-python" .
-   (("\C-c\C-z" . dan/python-shell)
+   (("\C-c\C-z" . dan/ipython)
     ("\C-c\M-n" . dan/insert-import-numpy)
     ("\C-cd" . dan/python-cd)
     ("\M-." . dan/rope-goto-definition))))
@@ -3764,7 +3770,7 @@ I didn't get this to work.
 #+begin_src emacs-lisp :tangle yes
 (dan/register-key-bindings
  '("python" .
-   (("\C-c\C-z" . dan/python-shell)
+   (("\C-c\C-z" . dan/ipython)
     ("\C-cd" . dan/insert-ipdb-set-trace)
     ("\C-c\M-n" . dan/insert-import-numpy)
     ("\C-c\C-c" . python-shell-send-buffer)
