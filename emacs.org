@@ -1113,6 +1113,15 @@ Straight copy of `find-function-at-point` but using
 (add-hook 'next-error-hook #'show-all)
 (add-hook 'find-function-after-hook #'show-all)
 #+end_src
+*** advice
+#+begin_src emacs-lisp
+(defadvice goto-line (after reveal)
+  "Ensure target location is not hidden"
+  (show-all))
+
+(ad-activate 'goto-line)
+#+end_src
+
 ** Info
 #+begin_src emacs-lisp :tangle no
 (require 'info)
