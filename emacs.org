@@ -1327,6 +1327,8 @@ index e5855ad..29f6429 100644
   (interactive)
   (call-interactively 'flymake-mode)
   (message (format "flymake %s" (if flymake-mode "on" "off"))))
+
+(setq flymake-log-level 3)
 #+end_src
 
 ** Dired
@@ -3789,6 +3791,7 @@ I didn't get this to work.
     ("\C-c\M-n" . dan/insert-import-numpy)
     ("\C-c\C-c" . python-shell-send-buffer)
     ("\M-." . dan/rope-goto-definition)
+    ("\C-c," . flymake-goto-next-error)
     ([(meta shift right)] . python-indent-shift-right)
     ([(meta shift left)] . python-indent-shift-left)
     ([(meta up)] . org-metaup)
@@ -3902,6 +3905,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 ** Face hacks
 #+begin_src emacs-lisp :tangle no
 (set-face-attribute 'default-bold nil :weight "normal")
+(copy-face 'magit-diff-del 'flymake-errline)
 #+end_src
 
 * Start-up
