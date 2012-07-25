@@ -86,7 +86,7 @@
   (unless arg (toggle-read-only))
   (dan/set-mode-line-background))
 
-(defvar dan/mode-line-force-color-update-hack t)
+(defvar dan/mode-line-force-color-update-hack nil)
 
 (defun dan/set-mode-line-background ()
   (setq minimal-mode-line-background
