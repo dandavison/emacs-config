@@ -2502,6 +2502,7 @@ many roles.  You may also use `message-alternative-emails' instead.
 
 ** Paredit
 #+begin_src emacs-lisp
+(add-to-list 'load-path "~/lib/emacs/paredit")
 (require 'paredit)
 (add-to-list 'load-path "~/src/emacs/paredit-not-lisp")
 (require 'paredit-not-lisp)
