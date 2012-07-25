@@ -353,7 +353,7 @@ Wait for REST between each attempt."
   "Trace functions with names matching regexp"
   ;; TODO: read regexp from minibuffer
   (interactive "sTrace functions matching: ")
-  (mapc 'trace-function
+  (mapc (lambda (sym) (message "Tracing %s" (symbol-name sym)) (trace-function sym)) 
         (loop for x being the symbols
               if (and (fboundp x) (string-match regexp (symbol-name x)))
               collect x)))
