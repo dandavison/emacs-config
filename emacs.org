@@ -2183,7 +2183,7 @@ obj[-grep(re, obj)]
 (setq gnus-group-sort-function 'dan/gnus-group-sort)
 (add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
 ;; (add-hook 'gnus-group-mode-hook 'dan/yas-tab-setup)
-(add-hook 'gnus-group-mode-hook 'yas/minor-mode-off)
+;; (add-hook 'gnus-group-mode-hook 'yas/minor-mode-off)
 (setq gnus-group-uncollapsed-levels 2)
 #+end_src
 
@@ -2555,6 +2555,7 @@ many roles.  You may also use `message-alternative-emails' instead.
 (add-to-list 'load-path "~/lib/emacs/yasnippet")
 (when (dan/require 'yasnippet)
   (setq yas/extra-mode-hooks nil)
+  (setq yas/trigger-key "\C-cy")
   (yas/initialize)
   (mapc (lambda (dir)
           (let ((dir (expand-file-name dir)))
@@ -2566,8 +2567,8 @@ many roles.  You may also use `message-alternative-emails' instead.
   (defun dan/yas-tab-setup ()
     ;; Initially by Eric for Org-mode hook
     (interactive)
-    (make-variable-buffer-local 'yas/trigger-key)
-    (setq yas/trigger-key [tab])
+;;    (make-variable-buffer-local 'yas/trigger-key)
+;;    (setq yas/trigger-key [tab])
     (define-key yas/keymap [tab] 'yas/next-field-group)))
 
 (yas/load-directory "~/lib/emacs/django-mode/snippets")
