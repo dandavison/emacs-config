@@ -24,6 +24,14 @@
    (mapcar
     (lambda (x) (format "%s/starter-kit-%s.org" dotfiles-dir (symbol-name x)))
     dan/starter-kit-components)))
+
+(defun esk/pretty-lambdas ()
+  (font-lock-add-keywords
+   nil `(("(?\\(lambda\\>\\)"
+          (0 (progn (compose-region (match-beginning 1) (match-end 1)
+                                    ,(make-char 'greek-iso8859-7 107))
+                    nil))))))
+
 #+end_src
 
 * My functions
@@ -1397,7 +1405,7 @@ index e5855ad..29f6429 100644
 #+end_src
 *** Elisp
 #+begin_src emacs-lisp
-(add-hook 'emacs-lisp-mode-hook 'pretty-lambdas)
+(add-hook 'emacs-lisp-mode-hook 'esk/pretty-lambdas)
 #+end_src
 *** C & C++
 #+begin_src emacs-lisp
