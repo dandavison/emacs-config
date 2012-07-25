@@ -16,7 +16,7 @@
 * Starter kit
 #+begin_src emacs-lisp
 (setq dan/starter-kit-components-all '(bindings defuns eshell lisp misc org perl registers ruby yasnippet))
-(setq dan/starter-kit-components '(defuns))
+(setq dan/starter-kit-components '())
 
 (let ((dotfiles-dir "~/lib/emacs/emacs-starter-kit"))
   (mapcar
