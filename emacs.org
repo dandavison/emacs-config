@@ -947,6 +947,7 @@ Straight copy of `find-function-at-point` but using
 
 ** Completion
 #+begin_src emacs-lisp :tangle yes
+(setq tab-always-indent 'complete)
 (setq dan/ignored-extensions
       '(".ps" ".bst" ".cls" ".pyc" ".elc"
         ".fdf" ".spl" ".aux" ".ppt" ".doc" ".xls" ".mp3"))
