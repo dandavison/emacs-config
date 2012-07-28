@@ -1732,6 +1732,12 @@ http://chrispoole.com/downloads/ac-python.el
      (progn (backward-paragraph) (point))
      (progn (forward-paragraph) (point))))
 
+(defun dan/python-current-defun-name ()
+  (interactive)
+  (save-excursion
+    (beginning-of-defun)
+    (looking-at python-nav-beginning-of-defun-regexp)
+    (message (match-string 1))))
 
 (defun dan/strip-quotes (string)
   (if (string-match "[\"']+\\(.+\\)[\"']+" string)
