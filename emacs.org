@@ -1469,7 +1469,7 @@ http://xahlee.org/emacs/emacs_html.html
 (defun dan/coffee-mode-hook-fun ()
   (set (make-local-variable 'tab-width) coffee-tab-width)
   (set (make-local-variable 'indent-tabs-mode) nil)
-  (paredit-not-lisp-mode))
+  (paredit-c-mode))
 
 (add-hook 'coffee-mode-hook 'dan/coffee-mode-hook-fun)
 (defun dan/coffee-execute ()
@@ -1713,7 +1713,7 @@ http://chrispoole.com/downloads/ac-python.el
 (add-hook 'python-mode-hook
           'dan/python-mode-hook-function)
 
-(add-hook 'python-mode-hook 'paredit-not-lisp-mode)
+(remove-hook 'python-mode-hook 'paredit-c-mode)
 
 ;; (add-hook 'kill-buffer-hook
 ;;           (lambda () (when (eq major-mode 'inferior-python-mode)
@@ -2504,8 +2504,8 @@ many roles.  You may also use `message-alternative-emails' instead.
 #+begin_src emacs-lisp
 (add-to-list 'load-path "~/lib/emacs/paredit")
 (require 'paredit)
-(add-to-list 'load-path "~/src/emacs/paredit-not-lisp")
-(require 'paredit-not-lisp)
+(add-to-list 'load-path "~/src/emacs/paredit-c")
+(require 'paredit-c)
 
 (add-hook 'emacs-lisp-mode-hook
           (lambda ()
@@ -2523,18 +2523,18 @@ many roles.  You may also use `message-alternative-emails' instead.
         (delete-region (point-min) (point-max)))
     (if (eq major-mode 'emacs-lisp-mode)
         (paredit-mode)
-      (paredit-not-lisp-mode))
+      (paredit-c-mode))
     (when force (insert contents) (goto-char point))))
 
 
-;; (add-hook 'ess-mode-hook 'paredit-not-lisp-mode)
+;; (add-hook 'ess-mode-hook 'paredit-c-mode)
 ;; if: Point is not in a function according to 'ess-function-pattern'.
 
 (fset 'ess-beginning-of-defun (lambda () (ess-beginning-of-defun 'no-error)))
 
 
-(add-hook 'inferior-ess-mode-hook 'paredit-not-lisp-mode)
-(add-hook 'comint-mode-hook 'paredit-not-lisp-mode)
+(add-hook 'inferior-ess-mode-hook 'paredit-c-mode)
+(add-hook 'comint-mode-hook 'paredit-c-mode)
 
 ;; http://stackoverflow.com/questions/2665292/how-can-i-get-paredit-mode-when-doing-eval-expression
 (defun dan/configure-minibuffer-for-lisp ()
