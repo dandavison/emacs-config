@@ -2494,7 +2494,7 @@ many roles.  You may also use `message-alternative-emails' instead.
 
 ** Minimal
 #+begin_src emacs-lisp
-(add-to-list 'load-path "~/lib/emacs/minimal")
+(add-to-list 'load-path "~/src/emacs/minimal")
 (when (dan/require 'minimal)
   (minimal-mode t)
   (setq minimal-mode-line-background "sea green")
