@@ -1707,6 +1707,7 @@ http://chrispoole.com/downloads/ac-python.el
           'dan/inferior-python-mode-hook-function)
 
 (defun dan/python-mode-hook-function ()
+  (setq forward-sexp-function nil) ; for use with paredit
   (add-to-list (make-local-variable 'comint-dynamic-complete-functions)
                'python-completion-complete-at-point))
 
