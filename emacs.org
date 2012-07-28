@@ -216,8 +216,12 @@ Wait for REST between each attempt."
         (unhighlight-regexp dan/highlighted)
         (setq dan/highlighted nil))
     (let ((tap (thing-at-point 'symbol)))
-       (highlight-regexp tap 'isearch-fail)
+       (highlight-regexp tap 'magit-diff-del)
        (setq dan/highlighted tap))))
+
+(defun dan/highlight-occur ()
+  (interactive)
+  (occur dan/highlighted))
 
 
 (defun dan/occur-def-class ()
@@ -1337,7 +1341,7 @@ index e5855ad..29f6429 100644
   (call-interactively 'flymake-mode)
   (message (format "flymake %s" (if flymake-mode "on" "off"))))
 
-(setq flymake-log-level 3)
+(setq flymake-log-level 1)
 #+end_src
 
 ** Dired
@@ -1582,11 +1586,11 @@ sys.path.append(os.path.expanduser('~'))
     (unless (and process-buffer (get-buffer-process process-buffer))
       (run-python nil (eval cmd))
       (dan/python-eval-exec-lines)
+      ;; Start up clean
+      ;; (sleep-for 5)
+      ;; (delete-region (point-min) (point-max))
       (setq process-buffer (get-buffer buf-name)))
     (switch-to-buffer process-buffer)
-    ;; Start up clean
-    ;; (sleep-for 5)
-    (delete-region (point-min) (point-max))
     (comint-send-input)))
 
 (defvar dan/ipython-command "ipython")
@@ -1612,7 +1616,7 @@ sys.path.append(os.path.expanduser('~'))
 (defun dan/insert-ipdb-set-trace ()
   (interactive)
   (indent-for-tab-command)
-  (insert "import ipdb ; ipdb.set_trace()"))
+  (insert "import (traceback, ipdb) ; print traceback.format_exc() ; ipdb.set_trace()"))
 
 (defun dan/insert-import-numpy ()
   (interactive)
@@ -1637,7 +1641,6 @@ sys.path.append(os.path.expanduser('~'))
     (while (re-search-forward "'\([^ ]+\)'=\([^ ]+\)," (region-end) t)
       (replace-match
        (format "'%s': %s," (match-string 1) (match-string 2))))))
-
 #+end_src
 
 **** Python.el
@@ -1758,6 +1761,7 @@ http://chrispoole.com/downloads/ac-python.el
     (python-shell-send-string-no-output
      (format "import os; os.chdir('%s')" directory)
      process)))
+
 #+end_src
 
 
@@ -3807,7 +3811,7 @@ I didn't get this to work.
     ([(meta shift right)] . python-indent-shift-right)
     ([(meta shift left)] . python-indent-shift-left)
     ([(meta up)] . org-metaup)
-    ([tab] . python-shell-completion-complete-or-indent))))
+    ([tab] . dan/indent-or-complete))))
 #+end_src
 
 *** python-mode.el
