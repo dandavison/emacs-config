@@ -2584,13 +2584,15 @@ many roles.  You may also use `message-alternative-emails' instead.
 (when (dan/require 'yasnippet)
   (setq yas/extra-mode-hooks nil)
   (setq yas/trigger-key "\C-cy")
+  (define-key yas/keymap [tab] 'yas/next-field-group)
   (yas/initialize)
   (mapc (lambda (dir)
           (let ((dir (expand-file-name dir)))
             (if (file-exists-p dir) (yas/load-directory dir))))
         '("~/lib/emacs/yasnippet/snippets"
           "~/lib/emacs/Worg/org-contrib/babel/snippets"
-          "~/lib/emacs/yasnippet-ess"))
+          "~/lib/emacs/yasnippet-ess"
+          "~/config/emacs/snippets"))
 
   (defun dan/yas-tab-setup ()
     ;; Initially by Eric for Org-mode hook
