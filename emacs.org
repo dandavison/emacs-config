@@ -1718,7 +1718,7 @@ http://chrispoole.com/downloads/ac-python.el
 (add-hook 'python-mode-hook
           'dan/python-mode-hook-function)
 
-(remove-hook 'python-mode-hook 'paredit-c-mode)
+(add-hook 'python-mode-hook 'paredit-c-mode)
 
 ;; (add-hook 'kill-buffer-hook
 ;;           (lambda () (when (eq major-mode 'inferior-python-mode)
