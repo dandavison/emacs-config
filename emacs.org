@@ -1613,10 +1613,12 @@ sys.path.append(os.path.expanduser('~'))
           (lambda () (local-set-key "\C-c\C-z" #'dan/ipython)))
 (global-set-key "\C-c\C-z" #'dan/ipython)
 
-(defun dan/insert-ipdb-set-trace ()
-  (interactive)
+(defun dan/insert-ipdb-set-trace (&optional traceback)
+  (interactive "P")
   (indent-for-tab-command)
-  (insert "import (traceback, ipdb) ; print traceback.format_exc() ; ipdb.set_trace()"))
+  (if traceback
+      (insert "import traceback ; import ipdb ; print traceback.format_exc() ; ipdb.set_trace()")
+  (insert "import ipdb ; ipdb.set_trace()")))
 
 (defun dan/insert-import-numpy ()
   (interactive)
