@@ -1735,9 +1735,24 @@ http://chrispoole.com/downloads/ac-python.el
 (defun dan/python-current-defun-name ()
   (interactive)
   (save-excursion
-    (beginning-of-defun)
-    (looking-at python-nav-beginning-of-defun-regexp)
-    (message (match-string 1))))
+    (let* ((get-name (lambda ()
+                       (beginning-of-defun)
+                       (looking-at python-nav-beginning-of-defun-regexp)
+                       (match-string 1)))
+           (names `(,(funcall get-name)))
+           name)
+      (when (looking-at "[ \t]")
+        (while (looking-at "[ \t]")
+            (setq name (funcall get-name)))
+          (push name names))
+      (message (mapconcat #'identity names ".")))))
+
+(defun dan/python-where-am-i ()
+  (interactive)
+  (message
+   "%s %s"
+   (dan/python-current-defun-name)
+   (dan/eol-column-line)))
 
 (defun dan/strip-quotes (string)
   (if (string-match "[\"']+\\(.+\\)[\"']+" string)
@@ -3810,8 +3825,10 @@ I didn't get this to work.
  '("python" .
    (("\C-c\C-z" . dan/ipython)
     ("\C-cd" . dan/insert-ipdb-set-trace)
+    ("\C-ci" . dan/python-where-am-i)
     ("\C-c\M-n" . dan/insert-import-numpy)
     ("\C-c\C-c" . python-shell-send-buffer)
+    ("\C-xrm" . (lambda () (interactive) (bookmark-set (dan/python-current-defun-name))))
     ("\M-." . dan/rope-goto-definition)
     ("\C-c," . flymake-goto-next-error)
     ([(meta shift right)] . python-indent-shift-right)
