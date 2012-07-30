@@ -39,8 +39,6 @@
 #+begin_src emacs-lisp
 ;; Didn't get regexp-history to work with read-from-minibuffer
 ;; (and tap (push tap regexp-history))
-
-
 (defun dan/fuzzy-find-change-root-dir (directory)
   "Change current directory in emacs and in the python process"
   (interactive "Dfuzzy-find root directory: ")
@@ -869,7 +867,7 @@ Straight copy of `find-function-at-point` but using
   (org-content))
 
 (add-hook 'python-mode-hook
-           (lambda () (dan/set-up-outline-minor-mode "\\(def .+\\|class .+\\|##\\)")))
+           (lambda () (dan/set-up-outline-minor-mode "[ \t]*\\(def .+\\|class .+\\|##\\)")))
 (add-hook 'emacs-lisp-mode-hook
           (lambda () (dan/set-up-outline-minor-mode "\\((\\|;;;\\)")))
 (add-hook 'ess-mode-hook
@@ -2481,7 +2479,7 @@ many roles.  You may also use `message-alternative-emails' instead.
   ;; (kill-process magit-process) ? doesn't do what I want.
   (kill-buffer magit-process-buffer-name))
 
-(set-face-attribute 'magit-diff-add nil :foreground "green") ;; darkgreen
+(set-face-attribute 'magit-diff-add nil :foreground "darkgreen") ;; darkgreen
 (set-face-attribute 'magit-diff-del nil :foreground "Red")
 
 ;; (set-face-attribute 'magit-item-highlight nil :background "default") ;; "#01294A" "#01395C"
@@ -2572,6 +2570,12 @@ many roles.  You may also use `message-alternative-emails' instead.
     (local-set-key [tab] 'complete-symbol)
     (paredit-mode 1)))
 (add-hook 'minibuffer-setup-hook 'dan/configure-minibuffer-for-lisp)
+#+end_src
+
+** Search
+#+begin_src emacs-lisp
+(add-to-list 'load-path "~/lib/emacs/textmate.el")
+(require 'textmate)
 #+end_src
 
 ** Tramp
