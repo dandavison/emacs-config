@@ -35,6 +35,13 @@
 #+end_src
 
 * My functions
+** Don't fucking do that
+#+begin_src emacs-lisp
+(defun dan/dontfuckingdothat ()
+  (interactive)
+  (message "Don't fucking do that."))
+#+end_src
+   
 ** find
 #+begin_src emacs-lisp
 ;; Didn't get regexp-history to work with read-from-minibuffer
@@ -3630,6 +3637,7 @@ I didn't get this to work.
                ("\C-c)" . blink-matching-open)
                ("\C-c," . flymake-display-err-menu-for-current-line)
                ("\C-c\C-z" . dan/ipython)
+               ("\C-z" . dan/dontfuckingdothat)
                ("\C-\M-g" . lgrep)
                ("\C-x1" . (lambda () (interactive) (message "M-return")))
                ("\C-x\C-f" . dan/find-file)
