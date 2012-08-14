@@ -875,6 +875,10 @@ Straight copy of `find-function-at-point` but using
 
 (add-hook 'python-mode-hook
            (lambda () (dan/set-up-outline-minor-mode "[ \t]*\\(def .+\\|class .+\\|##\\)")))
+
+(add-hook 'markdown-mode-hook
+           (lambda () (dan/set-up-outline-minor-mode "##")))
+
 (add-hook 'emacs-lisp-mode-hook
           (lambda () (dan/set-up-outline-minor-mode "\\((\\|;;;\\)")))
 (add-hook 'ess-mode-hook
@@ -1553,6 +1557,19 @@ http://xahlee.org/emacs/emacs_html.html
 (require 'markdown-mode)
 (setq auto-mode-alist (cons '("\\.md$" . markdown-mode) auto-mode-alist))
 (setq markdown-follow-wiki-link-on-enter nil)
+(setq markdown-css-path (expand-file-name "~/lib/gollum/gollum.css"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
+(add-hook
+ 'markdown-mode-hook
+ (lambda () (add-hook
+        'after-save-hook
+        (lambda ()
+          (shell-command
+           (format
+            "git add %s && git commit --amend -C HEAD"
+            (buffer-file-name)))))))
 #+end_src
 
 *** TeXinfo
@@ -2494,19 +2511,6 @@ many roles.  You may also use `message-alternative-emails' instead.
 ;; (set-face-attribute 'magit-item-highlight nil :background "secondarySelectedControlColor")
 
 #+end_src
-** Markdown
-#+begin_src emacs-lisp :tangle no
-(add-hook
- 'markdown-mode-hook
- (lambda () (add-hook
-        'after-save-hook
-        (lambda ()
-          (shell-command
-           (format
-            "git add %s && git commit --amend -C HEAD"
-            (buffer-file-name)))))))
-#+end_src
-
 ** Misc
 #+begin_src emacs-lisp
 (dan/require 'regex-tool)
@@ -3457,6 +3461,11 @@ issued in a language major-mode buffer."
 #+begin_src emacs-lisp
 (add-to-list 'load-path "~/lib/emacs/org-mode/contrib/lisp")
 #+end_src
+**** Org-md
+#+begin_src emacs-lisp
+(require 'org-md)
+#+end_src
+
 **** Htmlize
 #+begin_src emacs-lisp
 (dan/require 'htmlize)
