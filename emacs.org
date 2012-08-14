@@ -26,12 +26,12 @@
     dan/starter-kit-components)))
 
 (defun esk/pretty-lambdas ()
+  (interactive)
   (font-lock-add-keywords
    nil `(("(?\\(lambda\\>\\)"
           (0 (progn (compose-region (match-beginning 1) (match-end 1)
                                     ,(make-char 'greek-iso8859-7 107))
                     nil))))))
-
 #+end_src
 
 * My functions
@@ -1601,7 +1601,7 @@ sys.path.append(os.path.expanduser('~'))
      dan/python-exec-lines
      (get-buffer-process (current-buffer)))))
 
-(defun dan/python (cmd restart)
+(defun dan/python (cmd split &optional restart)
   (let* ((buf-name "*Python*")
          (process-buffer (get-buffer buf-name)))
     (when (and restart process-buffer) (kill-buffer buf-name))
@@ -1612,21 +1612,22 @@ sys.path.append(os.path.expanduser('~'))
       ;; (sleep-for 5)
       ;; (delete-region (point-min) (point-max))
       (setq process-buffer (get-buffer buf-name)))
-    (switch-to-buffer process-buffer)
-    (comint-send-input)))
+    (if split
+        (set-window-buffer (split-window-below) process-buffer)
+      (switch-to-buffer process-buffer))))
 
 (defvar dan/ipython-command "ipython")
 
-(defun dan/ipython (&optional restart)
+(defun dan/ipython (&optional arg)
   (interactive "P")
-  (dan/python dan/ipython-command restart))
+  (dan/python dan/ipython-command arg))
 
-(defun dan/ipython-console (&optional restart)
+(defun dan/ipython-console (&optional arg)
   (interactive "P")
   (dan/python
    '(concat "~/lib/python/ipython/ipython.py console "
             (read-from-minibuffer "Arguments: " "--existing"))
-   restart))
+   arg))
 
 
 ;; -W ignore:Module:UserWarning %s
@@ -1728,6 +1729,7 @@ http://chrispoole.com/downloads/ac-python.el
       (write-file file))))
 
 (defun dan/inferior-python-mode-hook-function ()
+  (esk/pretty-lambdas)
   (setq truncate-lines t))
 ;; (dan/load-comint-history "~/.ipython/history")
 
@@ -1735,6 +1737,7 @@ http://chrispoole.com/downloads/ac-python.el
           'dan/inferior-python-mode-hook-function)
 
 (defun dan/python-mode-hook-function ()
+  (esk/pretty-lambdas)
   (setq forward-sexp-function nil) ; for use with paredit
   (add-to-list (make-local-variable 'comint-dynamic-complete-functions)
                'python-completion-complete-at-point))
@@ -2503,7 +2506,7 @@ many roles.  You may also use `message-alternative-emails' instead.
   ;; (kill-process magit-process) ? doesn't do what I want.
   (kill-buffer magit-process-buffer-name))
 
-(set-face-attribute 'magit-diff-add nil :foreground "darkgreen") ;; darkgreen
+(set-face-attribute 'magit-diff-add nil :foreground "green") ;; darkgreen
 (set-face-attribute 'magit-diff-del nil :foreground "Red")
 
 ;; (set-face-attribute 'magit-item-highlight nil :background "default") ;; "#01294A" "#01395C"
@@ -3140,6 +3143,7 @@ may use one of several remember targets"
         (cons "svg" org-export-html-inline-image-extensions)))
 
 (setq org-export-with-LaTeX-fragments t)
+(setq org-export-with-sub-superscripts nil)
 (setq org-export-copy-to-kill-ring nil)
 (setq org-export-allow-BIND t)
 
@@ -3740,7 +3744,7 @@ I didn't get this to work.
     ("\C-cd" . dan/ess-list-R-function-definitions)
     ("\C-ck" . dan/ess-kill-line-and-indent)
     ("\C-cx" . dan/ess-recover-R-process)
-    ([(control return)] . ess-eval-line-and-step)
+    ([(control return)] . delete-other-windows)
     ([(shift tab)] . ess-complete-object-name))))
 
 (dan/register-key-bindings
