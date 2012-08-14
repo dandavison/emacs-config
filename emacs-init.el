@@ -2,11 +2,8 @@
 (add-to-list 'load-path "~/lib/emacs/python.el")
 (require 'python)
 (add-to-list 'load-path "~/lib/emacs/org/lisp")
-(setq org-babel-load-languages '((emacs-lisp . t) (R . t)))
-(setq org-confirm-babel-evaluate nil)
 (require 'org-install)
 (require 'org)
-
 
 (add-to-list 'load-path "~/projects/counsyl.el")
 (require 'counsyl)
@@ -34,6 +31,7 @@
    (("\C-c\M-i" . counsyl/import))))
 
 
-
+(setq org-babel-load-languages '((emacs-lisp . t) (R . t)))
+(setq org-confirm-babel-evaluate nil)
 (org-babel-load-file "~/config/emacs/emacs.org")
 (load-file "~/config/emacs/extra.el")
