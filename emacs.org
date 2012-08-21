@@ -35,6 +35,34 @@
 #+end_src
 
 * My functions
+** After-save command
+#+begin_src emacs-lisp
+(defvar dan/after-save-command nil
+  "This string will be executed as a shell command after saving
+  the buffer.")
+
+(defun dan/do-after-save-command ()
+  (when dan/after-save-command
+    (message dan/after-save-command)
+    (save-window-excursion
+      (async-shell-command dan/after-save-command))))
+
+(add-hook 'after-save-hook 'dan/do-after-save-command)
+
+(defun dan/set-after-save-command (cmd)
+  (interactive "sCommand: ")
+  (set (make-local-variable 'dan/after-save-command) cmd))
+
+(defun dan/sync ()
+  (interactive)
+  (let ((from (file-name-nondirectory (buffer-file-name)))
+        (to (format "%s/%s" "testp-dan:website" (counsyl--git-relative-path))))
+    (dan/set-after-save-command
+     (read-from-minibuffer
+      "Sync command: "
+      (format "rsync -u %s %s" from to)))))
+#+end_src
+
 ** Don't fucking do that
 #+begin_src emacs-lisp
 (defun dan/dontfuckingdothat ()
