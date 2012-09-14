@@ -53,10 +53,11 @@
   (interactive "sCommand: ")
   (set (make-local-variable 'dan/after-save-command) cmd))
 
-(defun dan/sync ()
-  (interactive)
-  (let ((from (file-name-nondirectory (buffer-file-name)))
-        (to (format "%s/%s" "testp-dan:website" (counsyl--git-relative-path))))
+(defun dan/sync (&optional seq)
+  (interactive "P")
+  (let* ((remote (if seq "seq-analysis:seq_pipeline" "testp-dan:website"))
+         (from (file-name-nondirectory (buffer-file-name)))
+         (to (format "%s/%s" remote (counsyl--git-relative-path))))
     (dan/set-after-save-command
      (read-from-minibuffer
       "Sync command: "
@@ -142,7 +143,7 @@
   ;; (redraw-frame (window-frame (selected-window)))
   ;; (redraw-modeline t)
 
-(defvar dan/read-only-buffers-p t
+(defvar dan/read-only-buffers-p nil
   "Automatically set buffers to read-only in find-file hook?")
 
 (defvar dan/no-read-only-buffers
@@ -1154,7 +1155,7 @@ Straight copy of `find-function-at-point` but using
           (save-restriction
             (goto-char (point-min))
             (and (re-search-forward "[ \t]$" nil t)
-                 (yes-or-no-p "Delete trailing whitespace?")
+                 ;; (yes-or-no-p "Delete trailing whitespace?")
                  (delete-trailing-whitespace))))))))
 
 (add-hook 'before-save-hook 'dan/query-delete-trailing-whitespace)
@@ -1357,28 +1358,28 @@ index e5855ad..29f6429 100644
 ** Flymake
 #+begin_src emacs-lisp
 (require 'flymake)
-(add-to-list 'load-path "~/lib/emacs/flymake-cursor")
-(require 'flymake-cursor)
-(defun dan/flymake-pyflakes-init ()
-  ;; Make sure it's not a remote buffer or flymake would not work
-  ;; tramp-list-remote-buffers doesn't exist in recent tramp
-  (when t ;; (not (subsetp (list (current-buffer)) (tramp-list-remote-buffers)))
-    (let* ((temp-file (flymake-init-create-temp-buffer-copy
+(defun dan/flymake-init ()
+  (let* ((temp-file (flymake-init-create-temp-buffer-copy
                        'flymake-create-temp-inplace))
            (local-file (file-relative-name
                         temp-file
                         (file-name-directory buffer-file-name))))
-      (list "codequality" (list local-file)))))
+      (list "codequality" (list local-file))))
 
 (add-to-list 'flymake-allowed-file-name-masks
-             '("\\.py\\'" dan/flymake-pyflakes-init))
+             '("\\.py\\'" dan/flymake-init))
 
 (defun dan/flymake ()
   (interactive)
   (call-interactively 'flymake-mode)
   (message (format "flymake %s" (if flymake-mode "on" "off"))))
 
+
+(add-to-list 'load-path "~/lib/emacs/flymake-cursor")
+(require 'flymake-cursor)
+
 (setq flymake-log-level 1)
+
 #+end_src
 
 ** Dired
@@ -1634,7 +1635,7 @@ sys.path.append(os.path.expanduser('~'))
          (process-buffer (get-buffer buf-name)))
     (when (and restart process-buffer) (kill-buffer buf-name))
     (unless (and process-buffer (get-buffer-process process-buffer))
-      (run-python nil (eval cmd))
+      (run-python (eval cmd))
       (dan/python-eval-exec-lines)
       ;; Start up clean
       ;; (sleep-for 5)
@@ -1679,21 +1680,47 @@ sys.path.append(os.path.expanduser('~'))
 (fset 'dict-literal-to-kwargs
    (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote ([3 114 up up return up up return] 0 "%d")) arg)))
 
-(defun dan/dict-literal-to-kwargs ()
-  (interactive)
-  (save-excursion
-    (goto-char (region-beginning))
-    (while (re-search-forward "'\([^']+\)': *\([^,]+\)," (region-end) t)
-      (replace-match
-       (format "%s=%s," (match-string 1) (match-string 2))))))
+;; (defun dan/python-dict-literal-to-kwargs ()
+;;   (interactive)
+;;   (save-excursion
+;;     (goto-char (region-beginning))
+;;     (while (re-search-forward "'\\([^']+\\)': *\\([^,]+\\)," (region-end) t)
+;;       (replace-match
+;;        (format "%s=%s," (match-string 1) (match-string 2))))))
 
-(defun dan/kwargs-to-dict-literal ()
+;; (defun dan/python-kwargs-to-dict-literal ()
+;;   (interactive)
+;;   (save-excursion
+;;     (goto-char (region-beginning))
+;;     (while (re-search-forward "\\([^ =]+\\)" (region-end) t) ;; "\\([^ =]+\\)=\\([^ ]+\\),"
+;;       (replace-match
+;;        (format "'%s': %s," (match-string 1) (match-string 2))))))
+
+
+(defun dan/python-dict-literal-to-kwargs ()
   (interactive)
-  (save-excursion
-    (goto-char (region-beginning))
-    (while (re-search-forward "'\([^ ]+\)'=\([^ ]+\)," (region-end) t)
-      (replace-match
-       (format "'%s': %s," (match-string 1) (match-string 2))))))
+  (replace-regexp
+   "[\"']\\([^\"']+\\)[\"']: \\([^,]+\\),"
+   "\\1=\\2,"
+   nil (region-beginning) (region-end)))
+
+(defun dan/python-kwargs-to-dict-literal ()
+  (interactive)
+  (replace-regexp
+   " \\([^ =]+\\)=\\([^,]+\\),"
+   " '\\1': \\2,"
+   nil (region-beginning) (region-end)))
+
+(defun dan/python-prep-paste ()
+  (interactive)
+  (let ((frag (buffer-substring (region-beginning) (region-end))))
+    (with-current-buffer "*scratch*"
+      (insert frag)
+      (org-do-remove-indentation 999)
+      (goto-char (point-min))
+      (replace-regexp "\n" " ")
+      (kill-ring-save (point-min) (point-max)))))
+
 #+end_src
 
 **** Python.el
@@ -1798,7 +1825,7 @@ http://chrispoole.com/downloads/ac-python.el
            name)
       (when (looking-at "[ \t]")
         (while (looking-at "[ \t]")
-            (setq name (funcall get-name)))
+          (setq name (funcall get-name)))
           (push name names))
       (message (mapconcat #'identity names ".")))))
 
@@ -2113,6 +2140,11 @@ obj[-grep(re, obj)]
            (load elpa-file))
       (package-initialize)))
 #+end_src
+** Erc
+#+begin_src emacs-lisp
+
+#+end_src
+
 ** Google Search
 #+begin_src emacs-lisp
 (defun dan/google ()
@@ -2135,11 +2167,6 @@ obj[-grep(re, obj)]
 (add-to-list 'load-path "~/lib/emacs/google-weather-el")
 (dan/require 'google-weather)
 (dan/require 'org-google-weather)
-#+end_src
-
-** Gnugol
-#+begin_src emacs-lisp
-(require 'gnugol)
 #+end_src
 
 ** Gnus lite
@@ -3494,7 +3521,7 @@ issued in a language major-mode buffer."
 (add-to-list 'load-path "~/lib/emacs/org-mode/contrib/lisp")
 #+end_src
 **** Org-md
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (require 'org-md)
 #+end_src
 
@@ -3663,6 +3690,7 @@ I didn't get this to work.
                ("\C-ce" . show-all)
                ("\C-cf" . dan/find-function-or-library)
                ("\C-c\M-f" . dan/find)
+               ("\C-c\C-xf" . font-lock-fontify-buffer)
                ("\C-cg" . dan/magit-status)
                ("\C-ck" . bury-buffer)
                ("\C-ci" . dan/eol-column-line)
@@ -3679,6 +3707,7 @@ I didn't get this to work.
                ("\C-c," . flymake-display-err-menu-for-current-line)
                ("\C-c\C-z" . dan/ipython)
                ("\C-z" . dan/dontfuckingdothat)
+               ("\C-c\M-r" . rgrep)
                ("\C-\M-g" . lgrep)
                ("\C-x1" . (lambda () (interactive) (message "M-return")))
                ("\C-x\C-f" . dan/find-file)
@@ -3716,6 +3745,7 @@ I didn't get this to work.
             (local-set-key [delete] 'winner-undo)
             (local-set-key [(super left)] 'winner-undo)
             (local-set-key [(super right)] 'winner-redo)))
+
 #+end_src
 ** C
 #+begin_src emacs-lisp
