@@ -243,15 +243,17 @@ Wait for REST between each attempt."
 
 (defvar dan/highlighted nil)
 
-(defun dan/highlight ()
-  (interactive)
+(defun dan/highlight (&optional arg)
+  (interactive "P")
   (if dan/highlighted
       (progn
         (unhighlight-regexp dan/highlighted)
         (setq dan/highlighted nil))
-    (let ((tap (thing-at-point 'symbol)))
-       (highlight-regexp tap 'magit-diff-del)
-       (setq dan/highlighted tap))))
+    (if arg
+        (setq dan/highlighted (read-from-minibuffer "Highlight: "))
+        (let ((tap (thing-at-point 'symbol)))
+          (highlight-regexp tap 'magit-diff-del)
+          (setq dan/highlighted tap)))))
 
 (defun dan/highlight-occur ()
   (interactive)
