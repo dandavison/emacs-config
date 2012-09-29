@@ -1892,7 +1892,7 @@ http://chrispoole.com/downloads/ac-python.el
      4. install ropemacs
 	download, make, python setup.py install
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle no
 (add-to-list 'load-path "~/lib/emacs/Pymacs")
 (require 'pymacs)
 
@@ -2172,6 +2172,10 @@ obj[-grep(re, obj)]
 #+end_src
 
 ** Gnus lite
+    :PROPERTIES:
+    :tangle: no
+    :END:
+   
 #+begin_src emacs-lisp :tangle gnus-bug.el
 (setq gnus-select-method '(nntp "news.gmane.org"))
 
@@ -2212,6 +2216,10 @@ obj[-grep(re, obj)]
 #+end_src
 
 ** Gnus
+    :PROPERTIES:
+    :tangle: no
+    :END:
+
 *** General
 #+begin_src emacs-lisp
 (add-to-list 'load-path "~/lib/emacs/gnus/lisp")
