@@ -2627,6 +2627,9 @@ many roles.  You may also use `message-alternative-emails' instead.
 
 ;; (add-hook 'ess-mode-hook 'paredit-c-mode)
 ;; if: Point is not in a function according to 'ess-function-pattern'.
+;; -> redefine ess-beginning-of-defun to default to 'no-error
+;; but now, on open smooth paren:
+;; forward-list: Scan error: "Unbalanced parentheses", 21, 23 [2 times]
 
 (fset 'ess-beginning-of-defun (lambda () (ess-beginning-of-defun 'no-error)))
 
