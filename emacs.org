@@ -331,45 +331,6 @@ Wait for REST between each attempt."
 #+end_src
 ** Set paths
 #+begin_src emacs-lisp
-(require 'cl)
-(defun dan/set-executable-paths ()
-  "Set $PATH and `exec-path'."
-  (interactive)
-  (let* (($HOME (getenv "HOME"))
-         ($HOME/bin (concat $HOME "/" "bin"))
-         ($PATH
-          (delete-dups
-           (split-string (getenv "PATH") path-separator)))
-         (paths
-          (case dan/operating-system
-            ('darwin
-            (list $HOME/bin
-                  "/usr/local/Cellar/python/2.7.2/bin/"
-                  "/usr/local/share/python"
-                  "/usr/local/bin"
-                  (concat $HOME "/node_modules/coffee-script/bin")
-                  "/usr/local/share/npm/bin"
-                  "/usr/texbin"))
-            (t (list $HOME/bin)))))
-    (setenv
-     "PATH"
-     (mapconcat 'identity
-                (append
-                 (remove-if (lambda (p) (member p $PATH)) paths)
-                 $PATH)
-                path-separator))
-    (setq exec-path
-          (append
-           (remove-if (lambda (p) (member p exec-path)) paths)
-           (delete-dups exec-path)))))
-(dan/set-executable-paths)
-
-(setenv "PYTHONPATH"
-        (concat (expand-file-name "~/lib/python/ipython")
-                ":"
-                (getenv "PYTHONPATH")))
-
-;; Should move to something based on this:
 (defun dan/set-exec-path-from-shell-PATH ()
   (let ((path-from-shell 
          (replace-regexp-in-string
@@ -377,8 +338,7 @@ Wait for REST between each attempt."
           (shell-command-to-string "$SHELL -l -c 'echo $PATH'"))))
     (setenv "PATH" path-from-shell)
     (setq exec-path (split-string path-from-shell path-separator))))
-;; (set-exec-path-from-shell-PATH)
-
+(dan/set-exec-path-from-shell-PATH)
 #+end_src
 
 ** Sudo read file
