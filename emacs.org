@@ -1146,7 +1146,7 @@ Straight copy of `find-function-at-point` but using
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
 
 (defvar dan/delete-trailing-whitespace-major-modes
-  '(python-mode))
+  '(python-mode ess-mode))
 
 (defun dan/query-delete-trailing-whitespace ()
   "If there's trailing whitespace ask to delete it"
