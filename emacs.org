@@ -1716,11 +1716,11 @@ sys.path.append(os.path.expanduser('~'))
 (defun dan/python-prep-paste ()
   (interactive)
   (let ((frag (buffer-substring (region-beginning) (region-end))))
-    (with-current-buffer "*scratch*"
+    (with-temp-buffer
       (insert frag)
       (org-do-remove-indentation 999)
       (goto-char (point-min))
-      (replace-regexp "\n" " ")
+      (replace-regexp "[\n \\]+" "")
       (kill-ring-save (point-min) (point-max)))))
 
 #+end_src
