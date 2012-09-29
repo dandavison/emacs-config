@@ -2564,7 +2564,7 @@ many roles.  You may also use `message-alternative-emails' instead.
   (kill-buffer magit-process-buffer-name))
 
 (set-face-attribute 'magit-diff-add nil :foreground "green") ;; darkgreen
-(set-face-attribute 'magit-diff-del nil :foreground "Red")
+(set-face-attribute 'magit-diff-del nil :foreground "red")
 
 ;; (set-face-attribute 'magit-item-highlight nil :background "default") ;; "#01294A" "#01395C"
 (set-face-attribute 'magit-diff-hunk-header nil :background "#01294A") ;; "keyboardFocusIndicatorColor"
