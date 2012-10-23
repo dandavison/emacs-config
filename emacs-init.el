@@ -5,9 +5,8 @@
 (require 'org-install)
 (require 'org)
 
-(add-to-list 'load-path "~/projects/counsyl.el")
+(add-to-list 'load-path "~/clib/counsyl.el")
 (require 'counsyl)
-(defalias 'dan/find 'counsyl/grep)
 (defalias 'dan/register-key-bindings 'counsyl/register-key-bindings)
 (defalias 'dan--set-key-bindings 'counsyl--set-key-bindings)
 (defvaralias 'dan/key-bindings 'counsyl/key-bindings)
@@ -17,9 +16,15 @@
     (when import
       (python-shell-send-string-no-output import))))
 
-(counsyl/register-key-bindings
- '(global-map .
-              (("\C-c\M-g" . counsyl/grep))))
+(defun dan/find ()
+  (interactive)
+  (call-interactively 'counsyl/grep)
+  (other-buffer))
+
+;; (counsyl/register-key-bindings
+;;  '(global-map .
+;;               (("\C-c\M-f" . dan/find))))
+
 (require 'python)
 (counsyl/register-key-bindings
  '("python" .

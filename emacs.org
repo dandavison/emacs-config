@@ -250,14 +250,15 @@ Wait for REST between each attempt."
 (defun dan/highlight (&optional arg)
   (interactive "P")
   (if dan/highlighted
+      ;; off
       (progn
         (unhighlight-regexp dan/highlighted)
         (setq dan/highlighted nil))
-    (if arg
-        (setq dan/highlighted (read-from-minibuffer "Highlight: "))
-        (let ((tap (thing-at-point 'symbol)))
-          (highlight-regexp tap 'magit-diff-del)
-          (setq dan/highlighted tap)))))
+    ;; on
+    (setq dan/highlighted
+          (if arg (read-from-minibuffer "Highlight: ")
+            (thing-at-point 'symbol)))
+    (highlight-regexp dan/highlighted 'magit-diff-del)))
 
 (defun dan/highlight-occur ()
   (interactive)
@@ -331,14 +332,14 @@ Wait for REST between each attempt."
 #+end_src
 ** Set paths
 #+begin_src emacs-lisp
-(defun dan/set-exec-path-from-shell-PATH ()
+(defun dan/set-exec-path-from-shell ()
   (let ((path-from-shell 
          (replace-regexp-in-string
           "[[:space:]\n]*$" "" 
           (shell-command-to-string "zsh -c '. ~/.zshrc 2>&/dev/null && echo $PATH'"))))
     (setenv "PATH" path-from-shell)
     (setq exec-path (split-string path-from-shell path-separator))))
-(dan/set-exec-path-from-shell-PATH)
+(dan/set-exec-path-from-shell)
 #+end_src
 
 ** Sudo read file
@@ -869,10 +870,13 @@ Straight copy of `find-function-at-point` but using
   (org-content))
 
 (add-hook 'python-mode-hook
-           (lambda () (dan/set-up-outline-minor-mode "[ \t]*\\(def .+\\|class .+\\|##\\)")))
+          (lambda () (dan/set-up-outline-minor-mode "[ \t]*\\(def .+\\|class .+\\|##\\)")))
+
+(add-hook 'coffee-mode-hook
+          (lambda () (dan/set-up-outline-minor-mode "[ \t]*\\(class .+\\)")))
 
 (add-hook 'markdown-mode-hook
-           (lambda () (dan/set-up-outline-minor-mode "##")))
+          (lambda () (dan/set-up-outline-minor-mode "##")))
 
 (add-hook 'emacs-lisp-mode-hook
           (lambda () (dan/set-up-outline-minor-mode "\\((\\|;;;\\)")))
@@ -1049,6 +1053,13 @@ Straight copy of `find-function-at-point` but using
 (setq truncate-lines t)
 (add-hook 'occur-mode-hook (lambda () (setq truncate-lines t)))
 (add-hook 'compilation-mode-hook (lambda () (setq truncate-lines t)))
+
+;; DNW
+;; Wrong type argument: window-live-p, nil
+;; (add-hook 'compilation-mode-hook (lambda () (select-window (get-window-with-predicate (lambda (win) (eq (window-buffer win) (current-buffer)))))))
+;; (remove-hook 'compilation-mode-hook (lambda () (select-window (other-window 1))))
+
+
 (setq indent-tabs-mode nil)
 
 ;; apparently this doesn't work; must be run in a
@@ -1437,8 +1448,64 @@ index e5855ad..29f6429 100644
 *** Lisp
 **** Slime
 #+begin_src emacs-lisp
+(setq inferior-lisp-program "/usr/local/bin/clisp")
+(add-to-list 'load-path "~/lib/emacs/slime/")
+
+;; These are defined with flet in slime.el, but something seems to be
+;; up with flet in emacs 24.
+(defun remap (from to)
+  (dolist (mapping (where-is-internal from slime-mode-map))
+    (define-key slime-macroexpansion-minor-mode-map mapping to)))
+(defun reader (slot) (intern (concat (symbol-name conc-name)
+                                     (symbol-name slot))))
+
+(require 'slime)
+(slime-setup)
+
 (add-hook 'slime-repl-mode-hook (lambda () (paredit-mode 1)))
 #+end_src
+
+
+**** Swank-js
+
+1. set emacs default-directory to a node project dir
+2. Modify package.json
+    #+begin_src diff
+    diff --git a/js/package.json b/js/package.json
+    index e52c8b5..414d186 100644
+    --- a/js/package.json
+    +++ b/js/package.json
+    @@ -8,5 +8,11 @@
+            "jsdom": "0.2.x",
+            "request": "1.9.x"
+         },
+    -    "engines": { "node": ">= 0.4.4" }
+    +    "engines": { "node": ">= 0.4.4" },
+    +    "devDependencies": {
+    +        "swank-js": ">=0.0.1"
+    +    },
+    +    "scripts": {
+    +        "swank": "node /usr/local/share/npm/lib/node_modules/swank-js"
+    +    }
+     }
+    #+end_src
+3. M-x slime-connect
+4. M-x slime-repl
+5. http://localhost:8009/swank-js/test.html
+6. ,set-remote
+
+
+#+begin_src emacs-lisp :tangle no
+;; Not sure if this is necessary
+(add-to-list 'load-path "~/lib/emacs/slime/contrib")
+(require 'slime-repl)
+(require 'slime-js)
+
+(add-hook 'js2-mode-hook
+          (lambda ()
+            (slime-js-minor-mode 1)))
+#+end_src
+
 **** Clojure
 #+begin_src emacs-lisp
 (add-to-list 'load-path "~/lib/emacs/clojure-mode")
@@ -1633,7 +1700,7 @@ sys.path.append(os.path.expanduser('~'))
 
 (defun dan/insert-ipdb-set-trace (&optional traceback)
   (interactive "P")
-  (indent-for-tab-command)
+  ;; (indent-for-tab-command)
   (if traceback
       (insert "import traceback ; import ipdb ; print traceback.format_exc() ; ipdb.set_trace()")
   (insert "import ipdb ; ipdb.set_trace()")))
@@ -1987,7 +2054,7 @@ http://chrispoole.com/downloads/ac-python.el
 #+end_src
 *** Eshell
 #+begin_src emacs-lisp
-(add-hook 'eshell-mode-hook 'dan/set-executable-paths)
+(add-hook 'eshell-mode-hook 'dan/set-exec-path-from-shell)
 (add-hook 'eshell-mode-hook 'paredit-mode)
 
 (setq eshell-banner-message ""
@@ -3708,6 +3775,8 @@ I didn't get this to work.
                ([(super right)] . winner-redo)
                ([(super return)] . dan/toggle-fullscreen)
                ([(meta up)] . org-metaup)
+               ([(super down)] . scroll-up-line)
+               ([(super up)] . scroll-down-line)
                ([f4] . (lambda () (interactive) (find-file "~/Notes/notes.org")))
                ([f5] . (lambda () (interactive) (switch-to-buffer "*Python*")))
                ([f6] . dan/find-file-emacs-config)
@@ -3746,7 +3815,9 @@ I didn't get this to work.
     ("\C-cd" . dan/coffee-insert-debugger)
     ("\C-cl" . dan/coffee-insert-console-log)
     ([(return)] . newline)
-    ("\C-j" . newline-and-indent))))
+    ("\C-j" . newline-and-indent)
+    ([(meta shift right)] . python-indent-shift-right)
+    ([(meta shift left)] . python-indent-shift-left))))
 #+end_src
 
 ** Dired
@@ -3870,7 +3941,8 @@ I didn't get this to work.
  '("paredit" .
    (([(control left)] . winner-undo)
     ([(control right)] . winner-redo)
-    ([(meta up)] . identity))))
+    ([(super down)] . scroll-up-line)
+    ([(super up)] . scroll-down-line))))
 #+end_src
 
 ** Python
