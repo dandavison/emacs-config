@@ -39,6 +39,25 @@
 #+end_src
 
 * My functions
+** shell-command on file
+#+begin_src emacs-lisp
+(defun dan/shell-command-on-file (cmd)
+  (interactive "sCommand: ")
+  (shell-command (format "%s %s") cmd (buffer-file-name)))
+#+end_src
+
+** indent region
+#+begin_src emacs-lisp
+(defun dan/indent-region (start end)
+  (interactive "r")
+  (save-excursion
+    (narrow-to-region start end)
+    (goto-char (point-min))
+    (while (re-search-forward "^" nil t)
+      (indent-for-tab-command))
+    (widen)))
+#+end_src
+
 ** After-save command
 #+begin_src emacs-lisp
 (defvar dan/after-save-command nil
