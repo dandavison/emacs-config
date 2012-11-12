@@ -3725,7 +3725,7 @@ I didn't get this to work.
                ("\C-s" . isearch-forward-regexp)
                ("\C-\M-r" . search-backward-symbol-at-point)
                ("\C-\M-s" . search-forward-symbol-at-point)
-               ("\C-\\" . indent-region)
+               ("\C-\\" . dan/indent-region)
                ([67108910] . delete-other-windows) ;; C-.
                ("\C-x\C-b" . org-buffers-list)
                ("\C-x\C-f" . dan/find-file)
@@ -3745,8 +3745,7 @@ I didn't get this to work.
                ("\C-cg" . dan/magit-status)
                ("\C-ck" . bury-buffer)
                ("\C-ci" . dan/eol-column-line)
-               ("\C-cl" . bookmark-bmenu-list)
-               ("\C-l" . bookmark-bmenu-list)
+               ("\C-c\M-l" . bookmark-bmenu-list)
                ("\C-cm" . bookmark-set)
                ("\C-cn" . dan/show-buffer-file-name)
                ("\C-co" . dan/scratch-buffer)
@@ -3792,6 +3791,10 @@ I didn't get this to work.
                ([(control escape)] . delete-window)
                ([(meta escape)] . delete-other-windows)
                ([escape] . dan/other-non-minibuffer-window))))
+
+(global-set-key (kbd "s-,") 'dan/show-buffer-file-name)
+(global-set-key (kbd "s-i") 'dan/eol-column-line)
+
 
 (add-hook 'after-change-major-mode-hook
           (lambda ()
@@ -3974,6 +3977,7 @@ I didn't get this to work.
     ("\C-xrm" . (lambda () (interactive) (bookmark-set (dan/python-current-defun-name))))
     ("\M-." . dan/rope-goto-definition)
     ("\C-c," . flymake-goto-next-error)
+    ("\C-c\M-p" . dan/python-prep-paste)
     ([(meta shift right)] . python-indent-shift-right)
     ([(meta shift left)] . python-indent-shift-left)
     ([(meta up)] . org-metaup)
