@@ -765,8 +765,11 @@ Straight copy of `find-function-at-point` but using
             ("python-mode" . "py")
             ("coffee-mode" . "coffee")
             ("emacs-lisp-mode" . "el")
+            ("clojure-mode" . "clj")
             ("js-mode" . "js")
-            ("compilation-mode" . "compilation")))
+            ("html-mode" . "html")
+            ("compilation-mode" . "compilation")
+            ("sql-mode" . "sql")))
          (buf-file-name (buffer-file-name (current-buffer)))
          (buf-mode
           (or (assoc (symbol-name major-mode) modes)
