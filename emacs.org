@@ -335,14 +335,18 @@ Wait for REST between each attempt."
 #+end_src
 ** Set paths
 #+begin_src emacs-lisp
-(defun dan/set-exec-path-from-shell ()
-  (let ((path-from-shell 
-         (replace-regexp-in-string
-          "[[:space:]\n]*$" "" 
-          (shell-command-to-string "zsh -c '. ~/.zshrc 2>&/dev/null && echo $PATH'"))))
-    (setenv "PATH" path-from-shell)
-    (setq exec-path (split-string path-from-shell path-separator))))
+(defun dan/set-exec-path-from-shell (&optional pathvar)
+  (let* ((pathvar (or pathvar "PATH"))
+         (path-from-shell
+          (replace-regexp-in-string
+           "[[:space:]\n]*$" ""
+           (shell-command-to-string
+            (format "zsh -c '. ~/.zshrc 2>&/dev/null && echo $%s'" pathvar)))))
+    (setenv pathvar path-from-shell)
+    (when (string-equal pathvar "PATH")
+      (setq exec-path (split-string path-from-shell path-separator)))))
 (dan/set-exec-path-from-shell)
+(dan/set-exec-path-from-shell "PYTHONPATH")
 #+end_src
 
 ** Sudo read file
