@@ -1780,7 +1780,7 @@ sys.path.append(os.path.expanduser('~'))
       (insert frag)
       (org-do-remove-indentation 999)
       (goto-char (point-min))
-      (replace-regexp "[\n \\]+" "")
+      (replace-regexp "[\n \\]+" " ")
       (kill-ring-save (point-min) (point-max)))))
 
 #+end_src
