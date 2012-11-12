@@ -40,17 +40,3 @@
 (setq org-confirm-babel-evaluate nil)
 (org-babel-load-file "~/config/emacs/emacs.org")
 (load-file "~/config/emacs/extra.el")
-
-
-
-;; Sort out this mess
-
-;; python -W ignore:Module:UserWarning
-
-;; (setq dan/ipython-command "~/website/counsyl/product/manage.py shellplus")
-
-;; (rope-open-project "~/website/build/site-packages")
-;; ;; (rope-open-project "~/seq_pipeline/")
-
-;; (setq ffip-project-root "~/website/counsyl/product")
-;; (fuzzy-find-project-root "~/website/counsyl/product")
