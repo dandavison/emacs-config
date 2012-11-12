@@ -248,22 +248,25 @@ Wait for REST between each attempt."
 (defvar dan/highlighted nil)
 
 (defun dan/highlight (&optional arg)
+  "Highlight the word at point.
+
+   With prefix arg, read the word to be highlighted from the
+   minibuffer. To remove highlighting, call the function with no
+   word at point."
   (interactive "P")
-  (if dan/highlighted
-      ;; off
-      (progn
-        (unhighlight-regexp dan/highlighted)
-        (setq dan/highlighted nil))
-    ;; on
-    (setq dan/highlighted
-          (if arg (read-from-minibuffer "Highlight: ")
-            (thing-at-point 'symbol)))
-    (highlight-regexp dan/highlighted 'magit-diff-del)))
+  (let ((to-be-highlighted
+         (if arg (read-from-minibuffer "Highlight: ")
+           (thing-at-point 'symbol))))
+    (if (equal to-be-highlighted dan/highlighted)
+        (setq to-be-highlighted nil))
+    (if to-be-highlighted
+        (highlight-regexp to-be-highlighted 'magit-diff-del)
+      (unhighlight-regexp dan/highlighted))
+    (setq dan/highlighted to-be-highlighted)))
 
 (defun dan/highlight-occur ()
   (interactive)
   (occur dan/highlighted))
-
 
 (defun dan/occur-def-class ()
   (interactive)
