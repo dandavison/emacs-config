@@ -29,10 +29,10 @@
     (lambda (x) (format "%s/starter-kit-%s.org" dotfiles-dir (symbol-name x)))
     dan/starter-kit-components)))
 
-(defun esk/pretty-lambdas (&optional keyword)
-  (interactive "sString: ")
+(defun esk/pretty-lambdas ()
+  (interactive)
   (font-lock-add-keywords
-   nil `(((format "(?\\(%s\\>\\)" (or keyword "lambda"))
+   nil `(("(?\\(lambda\\>\\)"
           (0 (progn (compose-region (match-beginning 1) (match-end 1)
                                     ,(make-char 'greek-iso8859-7 107))
                     nil))))))
@@ -1631,7 +1631,6 @@ http://xahlee.org/emacs/emacs_html.html
 
 (add-hook 'js-mode-hook 'dan/coffee-mode-hook-fun)
 
-(add-hook 'js-mode-hook '(lambda () (esk/pretty-lambdas "function")))
 
 (defun dan/scratch-js-in-html ()
   (interactive)
