@@ -39,11 +39,16 @@
 #+end_src
 
 * My functions
+** open
+#+begin_src emacs-lisp
+
+#+end_src
+
 ** shell-command on file
 #+begin_src emacs-lisp
 (defun dan/shell-command-on-file (cmd)
   (interactive "sCommand: ")
-  (shell-command (format "%s %s") cmd (buffer-file-name)))
+  (shell-command (format "%s %s" cmd (buffer-file-name))))
 #+end_src
 
 ** indent region
@@ -788,7 +793,8 @@ Straight copy of `find-function-at-point` but using
             ("js-mode" . "js")
             ("html-mode" . "html")
             ("compilation-mode" . "compilation")
-            ("sql-mode" . "sql")))
+            ("sql-mode" . "sql")
+            ("markdown-mode" . "md")))
          (buf-file-name (buffer-file-name (current-buffer)))
          (buf-mode
           (or (assoc (symbol-name major-mode) modes)
@@ -837,9 +843,10 @@ Straight copy of `find-function-at-point` but using
   (if arg (progn
             (ns-toggle-fullscreen)
             ;; hack to avoid white square in bottom right
-            (color-theme-charcoal-black)
-            (color-theme-railscasts)
-            (dan/sanitise-faces))
+            ;; (color-theme-charcoal-black)
+            ;; (color-theme-railscasts)
+            ;; (dan/sanitise-faces)
+            )
     (message "ns-toggle-fullscreen binding is disabled")))
 
 ;; http://www.emacswiki.org/emacs/FullScreen
@@ -903,6 +910,12 @@ Straight copy of `find-function-at-point` but using
 
 (add-hook 'coffee-mode-hook
           (lambda () (dan/set-up-outline-minor-mode "[ \t]*\\(class .+\\)")))
+
+;; (add-hook 'coffee-mode-hook
+;;           (lambda () (dan/set-up-outline-minor-mode "[ \t]*\\(class .+\\|[^:]+:.+[=-]>\\)")))
+
+(add-hook 'js-mode-hook
+          (lambda () (dan/set-up-outline-minor-mode ".+\\(function .+\\)")))
 
 (add-hook 'markdown-mode-hook
           (lambda () (dan/set-up-outline-minor-mode "##")))
@@ -1273,7 +1286,11 @@ index e5855ad..29f6429 100644
 
 (setq ibuffer-saved-filter-groups
       '(("default"
-         ("VBPL"
+         ("website"
+          (name . "website/counsyl"))
+         ("seq_pipeline"
+          (name . "seq_pipeline"))
+          ("VBPL"
           (or
            (name . "Papers/structure")
            (name . "^dan\.bib$")))
@@ -1312,6 +1329,8 @@ index e5855ad..29f6429 100644
            (name . "^\\*Messages\\*$")))
          ("Org"
           (mode . org-mode))
+         ("Python"
+          (mode . python-mode))
          ("ERC"
           (mode . erc-mode))
          ("Etc"
@@ -1366,7 +1385,7 @@ index e5855ad..29f6429 100644
 (require 'flymake)
 (defun dan/flymake-init ()
   (let* ((temp-file (flymake-init-create-temp-buffer-copy
-                       'flymake-create-temp-inplace))
+                     'flymake-create-temp-inplace))
            (local-file (file-relative-name
                         temp-file
                         (file-name-directory buffer-file-name))))
@@ -1374,6 +1393,9 @@ index e5855ad..29f6429 100644
 
 (add-to-list 'flymake-allowed-file-name-masks
              '("\\.py\\'" dan/flymake-init))
+
+(add-to-list 'flymake-allowed-file-name-masks
+             '("\\.js\\'" dan/flymake-init))
 
 (defun dan/flymake ()
   (interactive)
@@ -1604,18 +1626,11 @@ http://xahlee.org/emacs/emacs_html.html
 #+end_src
 
 *** Javascript
-    Seems very slow on coffeescript output of reasonable size; disabling.
 #+begin_src emacs-lisp
 (add-to-list 'auto-mode-alist '("\\.json$" . js-mode))
 
 (add-hook 'js-mode-hook 'dan/coffee-mode-hook-fun)
-#+end_src
 
-
-#+begin_src emacs-lisp :tangle no
-(add-to-list 'load-path "~/lib/emacs/js2-mode")
-(require 'js2-mode)
-(add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
 
 (defun dan/scratch-js-in-html ()
   (interactive)
@@ -1628,6 +1643,14 @@ http://xahlee.org/emacs/emacs_html.html
 </html>")
   (previous-line 2)
   (beginning-of-line))
+#+end_src
+
+**** js2-mode
+Seems very slow on coffeescript output of reasonable size; disabling.
+#+begin_src emacs-lisp :tangle no
+(add-to-list 'load-path "~/lib/emacs/js2-mode")
+(require 'js2-mode)
+(add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
 #+end_src
 
 *** Lua
@@ -1783,6 +1806,10 @@ sys.path.append(os.path.expanduser('~'))
       (replace-regexp "[\n \\]+" " ")
       (kill-ring-save (point-min) (point-max)))))
 
+(defun dan/python-kill-ring-save (&optional arg)
+  (interactive "P")
+  (call-interactively
+   (if arg 'dan/python-prep-paste 'kill-ring-save)))
 #+end_src
 
 **** Python.el
@@ -2081,6 +2108,13 @@ http://chrispoole.com/downloads/ac-python.el
             (recenter-top-bottom 0)))
 (add-hook 'shell-mode-hook 'compilation-shell-minor-mode)
 #+end_src
+*** SQL
+#+begin_src emacs-lisp
+(eval-after-load "sql" '(sql-set-product 'postgres))
+
+(add-hook 'sql-mode-hook (lambda () (sql-set-product 'postgres)))
+#+end_src
+
 *** Eshell
 #+begin_src emacs-lisp
 (add-hook 'eshell-mode-hook 'dan/set-exec-path-from-shell)
@@ -2184,7 +2218,7 @@ obj[-grep(re, obj)]
 ;; (dan/require 'zenburn)
 ;; (dan/require 'color-theme-chocolate-rain)
 (load-file "~/lib/emacs/color-theme-railscasts/color-theme-railscasts.el")
-(color-theme-railscasts)
+;; (color-theme-railscasts)
 #+end_src
 
 ** Emacs Chrome
@@ -3748,7 +3782,7 @@ I didn't get this to work.
                ("\C-\M-r" . search-backward-symbol-at-point)
                ("\C-\M-s" . search-forward-symbol-at-point)
                ("\C-\\" . dan/indent-region)
-               ([67108910] . delete-other-windows) ;; C-.
+               ([67108910] . blink-matching-open) ;; C-.
                ("\C-x\C-b" . org-buffers-list)
                ("\C-x\C-f" . dan/find-file)
                ("\C-x\M-f" . find-file-at-point)
@@ -3889,6 +3923,16 @@ I didn't get this to work.
  `("inferior-ess" .
    ,(cdr (assoc "ess" dan/key-bindings))))
 #+end_src
+** Javascript
+#+begin_src emacs-lisp
+(require 'js)
+(dan/register-key-bindings
+ '("js" .
+   (("\C-cd" . dan/coffee-insert-debugger)
+    ([(meta shift right)] . python-indent-shift-right)
+    ([(meta shift left)] . python-indent-shift-left))))
+#+end_src
+
 ** Gnus
 #+begin_src emacs-lisp
 (dan/register-key-bindings
@@ -3998,6 +4042,7 @@ I didn't get this to work.
     ("\C-c\C-c" . python-shell-send-buffer)
     ("\C-xrm" . (lambda () (interactive) (bookmark-set (dan/python-current-defun-name))))
     ("\M-." . dan/rope-goto-definition)
+    ("\M-w" . dan/python-kill-ring-save)
     ("\C-c," . flymake-goto-next-error)
     ("\C-c\M-p" . dan/python-prep-paste)
     ([(meta shift right)] . python-indent-shift-right)
