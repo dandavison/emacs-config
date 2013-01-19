@@ -1810,6 +1810,39 @@ sys.path.append(os.path.expanduser('~'))
   (interactive "P")
   (call-interactively
    (if arg 'dan/python-prep-paste 'kill-ring-save)))
+
+(defun dan/dedent (text)
+  (with-temp-buffer
+    (insert text)
+    (org-do-remove-indentation 999)
+    (buffer-string)))
+
+(defun dan/indent (text column)
+  (with-temp-buffer
+    (insert text)
+    (let ((indent-tabs-mode nil))
+      (indent-region (point-min) (point-max) column))
+    (buffer-string)))
+
+(defun dan/python-wrap-region (format-string)
+  (let* ((beg (region-beginning))
+         (end (region-end))
+         (frag (dan/dedent (buffer-substring beg end)))
+         (indent (python-indent-calculate-indentation))
+         (insertion (dan/indent (format format-string frag) indent)))
+    (delete-region beg end)
+    (insert insertion)))
+
+(defun dan/python-wrap-region-with-debug-info ()
+  (interactive)
+  (dan/python-wrap-region
+   "from django.db import connection
+q0 = len(connection.queries)
+
+%s
+q1 = len(connection.queries)
+print '%%d queries' %% (q1 - q0)
+"))
 #+end_src
 
 **** Python.el
