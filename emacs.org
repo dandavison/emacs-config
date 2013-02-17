@@ -1628,7 +1628,8 @@ http://xahlee.org/emacs/emacs_html.html
 (defun dan/coffee-insert-console-log ()
   (interactive)
   ;; (indent-for-tab-command) coffee indenting is bad
-  (insert "console.log "))
+  (insert "console.log();")
+  (backward-char 2))
 
 (defun dan/coffee-insert-debugger ()
   (interactive)
