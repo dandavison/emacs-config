@@ -2709,6 +2709,7 @@ many roles.  You may also use `message-alternative-emails' instead.
 #+begin_src emacs-lisp
 (add-to-list 'load-path "~/lib/emacs/magit")
 (dan/require 'magit)
+(require 'magit-blame)
 (setq magit-save-some-buffers nil)
 (setq magit-process-popup-time 1)
 (setq magit-revert-item-confirm t)
