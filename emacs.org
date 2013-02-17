@@ -1640,6 +1640,15 @@ http://xahlee.org/emacs/emacs_html.html
 
 #+end_src
 
+*** haskell
+    #+begin_src emacs-lisp
+    (add-to-list 'load-path "~/lib/emacs/haskell-mode")
+    (require 'haskell-mode)
+    (add-to-list 'auto-mode-alist '("\\.hs$" . haskell-mode))
+
+    (custom-set-variables
+     '(haskell-mode-hook '(turn-on-haskell-indentation)))
+    #+end_src
 *** html
 #+begin_src emacs-lisp
 (add-to-list 'load-path "~/lib/emacs/django-mode")
