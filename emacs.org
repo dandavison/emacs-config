@@ -2731,6 +2731,8 @@ many roles.  You may also use `message-alternative-emails' instead.
 (set-face-attribute 'magit-diff-hunk-header nil :background "#01294A") ;; "keyboardFocusIndicatorColor"
 ;; (set-face-attribute 'magit-item-highlight nil :background "secondarySelectedControlColor")
 
+;; magit uses defkey
+(defalias 'defkey 'define-key*)
 #+end_src
 ** Misc
 #+begin_src emacs-lisp
