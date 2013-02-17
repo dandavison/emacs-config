@@ -1607,6 +1607,7 @@ http://xahlee.org/emacs/emacs_html.html
 *** Dot
 #+begin_src emacs-lisp
 (load-file "~/lib/emacs/graphviz-dot-mode.el")
+(setq graphviz-dot-indent-width 4)
 #+end_src
 *** coffee
 #+begin_src emacs-lisp
