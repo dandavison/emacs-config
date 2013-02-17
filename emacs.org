@@ -715,6 +715,13 @@ parenthesis-delimited list of symbols at point"
     (save-excursion
       (end-of-line)
       (dan/current-column-line))))
+
+(defun dan/where-am-i (&optional arg)
+  (interactive "P")
+  (if (or (eq major-mode 'python-mode)
+          (eq major-mode 'django-mode))
+      (dan/python-where-am-i)
+    (dan/eol-column-line arg)))
 #+end_src
 
 ** Find function or library
@@ -3901,7 +3908,7 @@ I didn't get this to work.
                ([escape] . dan/other-non-minibuffer-window))))
 
 (global-set-key (kbd "s-,") 'dan/show-buffer-file-name)
-(global-set-key (kbd "s-i") 'dan/eol-column-line)
+(global-set-key (kbd "s-i") 'dan/where-am-i)
 
 
 (add-hook 'after-change-major-mode-hook
