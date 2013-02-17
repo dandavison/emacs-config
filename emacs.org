@@ -4198,10 +4198,10 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+begin_src emacs-lisp
 ;; (set-frame-parameter (selected-frame) 'alpha '(<active> [<inactive>]))
 
-(setq dan/frame-transparent-alpha '(95 50)) ;; high -> opaque
+(setq dan/frame-transparent-alpha '(100 100)) ;; (95 50) high -> opaque
 
 (when nil
-  (set-frame-parameter (selected-frame) 'alpha dan/frame-transparent-aalpha)
+  (set-frame-parameter (selected-frame) 'alpha dan/frame-transparent-alpha)
   (add-to-list 'default-frame-alist (cons 'alpha dan/frame-transparent-alpha)))
 
 (eval-when-compile (require 'cl))
