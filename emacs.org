@@ -39,6 +39,22 @@
 #+end_src
 
 * My functions
+** indent/dedent
+#+begin_src emacs-lisp
+(defun dan/dedent (text)
+  (with-temp-buffer
+    (insert text)
+    (org-do-remove-indentation 999)
+    (buffer-string)))
+
+(defun dan/indent (text column)
+  (with-temp-buffer
+    (insert text)
+    (let ((indent-tabs-mode nil))
+      (indent-region (point-min) (point-max) column))
+    (buffer-string)))
+#+end_src
+
 ** open
 #+begin_src emacs-lisp
 
@@ -1811,19 +1827,6 @@ sys.path.append(os.path.expanduser('~'))
   (call-interactively
    (if arg 'dan/python-prep-paste 'kill-ring-save)))
 
-(defun dan/dedent (text)
-  (with-temp-buffer
-    (insert text)
-    (org-do-remove-indentation 999)
-    (buffer-string)))
-
-(defun dan/indent (text column)
-  (with-temp-buffer
-    (insert text)
-    (let ((indent-tabs-mode nil))
-      (indent-region (point-min) (point-max) column))
-    (buffer-string)))
-
 (defun dan/python-wrap-region (format-string)
   (let* ((beg (region-beginning))
          (end (region-end))
@@ -1837,12 +1840,28 @@ sys.path.append(os.path.expanduser('~'))
   (interactive)
   (dan/python-wrap-region
    "from django.db import connection
+import datetime
 q0 = len(connection.queries)
+t0 = datetime.datetime.now()
 
 %s
 q1 = len(connection.queries)
-print '%%d queries' %% (q1 - q0)
+t1 = datetime.datetime.now()
+print 'Queries: %%d' %% (q1 - q0)
+print 'Time: ', (t1 - t0)
 "))
+
+
+(defun dan/python-wrap-region-with-try-except ()
+  (interactive)
+  (dan/python-wrap-region
+   "try:
+    %s
+except Exception as ex:
+    print ex
+    import ipdb ; ipdb.set_trace()
+"))
+
 #+end_src
 
 **** Python.el
