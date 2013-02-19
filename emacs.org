@@ -4042,6 +4042,14 @@ I didn't get this to work.
  '("latex" .
    (([C-tab] . TeX-complete-symbol))))
 #+end_src
+** Magit
+#+begin_src emacs-lisp
+(dan/register-key-bindings
+ '("magit-log-edit" .
+   (([(control up)] . log-edit-previous-comment)
+    ([(control down)] . log-edit-next-comment))))
+#+end_src
+
 ** Mml
 #+begin_src emacs-lisp
 (dan/register-key-bindings
