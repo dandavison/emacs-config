@@ -1635,7 +1635,7 @@ http://xahlee.org/emacs/emacs_html.html
 (defun dan/coffee-insert-debugger ()
   (interactive)
   ;; (indent-for-tab-command) coffee indenting is bad
-  (insert "debugger"))
+  (insert "debugger;"))
 
 (add-hook 'after-save-hook
           (lambda () (when (eq major-mode 'coffee-mode) (coffee-compile-file))))
