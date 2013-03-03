@@ -3986,6 +3986,11 @@ I didn't get this to work.
  '("ess" .
    (("\C-c?" . ess-display-help-on-object)
     ("\C-ca" . ess-r-args-show)
+
+    ;; reverse the default bindings of these two
+    ("\C-c\C-c" . ess-eval-function-and-go)
+    ("\C-c\M-f" . ess-eval-function-or-paragraph-and-step)
+
     ("\C-cd" . dan/ess-list-R-function-definitions)
     ("\C-ck" . dan/ess-kill-line-and-indent)
     ("\C-cx" . dan/ess-recover-R-process)
