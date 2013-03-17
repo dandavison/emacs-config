@@ -1,3 +1,4 @@
+(require 'cl)
 
 (defvar dan/operating-system
   (intern (downcase
@@ -2431,7 +2432,7 @@ issued in a language major-mode buffer."
 
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'forward)
-
+(setq uniquify-min-dir-content 1)
 (dan/register-key-bindings
  '(global-map .
               (("\C-b" . backward-sexp)
@@ -2516,9 +2517,6 @@ issued in a language major-mode buffer."
             (local-set-key [delete] 'winner-undo)
             (local-set-key [(super left)] 'winner-undo)
             (local-set-key [(super right)] 'winner-redo)))
-
-(dan/register-key-bindings
- '("c" . nil))
 
 (dan/register-key-bindings
  '(ctl-x-4-map .

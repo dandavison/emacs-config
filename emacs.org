@@ -1044,6 +1044,7 @@ Straight copy of `find-function-at-point` but using
       dan/ignored-extensions)
 
 (add-to-list 'ido-ignore-buffers "\\*") ;; if you want *scratch* or *R* just type it
+(add-to-list 'ido-ignore-buffers " ") ;; hidden buffers
 
 (add-to-list 'load-path "~/lib/emacs/winner-mode")
 (require 'winner)
@@ -1706,6 +1707,7 @@ Seems very slow on coffeescript output of reasonable size; disabling.
 (setq auto-mode-alist (cons '("\\.md$" . markdown-mode) auto-mode-alist))
 (setq markdown-follow-wiki-link-on-enter nil)
 (setq markdown-css-path (expand-file-name "~/lib/gollum/gollum.css"))
+(add-hook 'markdown-mode-hook (lambda () (longlines-mode 1)))
 #+end_src
 
 #+begin_src emacs-lisp :tangle no
@@ -3841,6 +3843,7 @@ I didn't get this to work.
 #+begin_src emacs-lisp
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'forward)
+(setq uniquify-min-dir-content 1)
 #+end_src
 
 * Key bindings

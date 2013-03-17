@@ -1,9 +1,9 @@
 (setq max-mini-window-height nil)
 (add-to-list 'load-path "~/lib/emacs/python.el")
 (require 'python)
-(add-to-list 'load-path "~/lib/emacs/org/lisp")
-(require 'org-install)
-(require 'org)
+;; (add-to-list 'load-path "~/lib/emacs/org/lisp")
+;; (require 'org-install)
+;; (require 'org)
 
 (add-to-list 'load-path "~/clib/counsyl.el")
 (require 'counsyl)
@@ -38,7 +38,8 @@
 
 (setq org-babel-load-languages '((emacs-lisp . t) (R . t)))
 (setq org-confirm-babel-evaluate nil)
-(org-babel-load-file "~/config/emacs/emacs.org")
+;; (org-babel-load-file "~/config/emacs/emacs.org")
+(load-file "~/config/emacs/emacs.el")
 (load-file "~/config/emacs/extra.el")
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
