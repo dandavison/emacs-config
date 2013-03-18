@@ -1767,10 +1767,18 @@ sys.path.append(os.path.expanduser('~'))
       (switch-to-buffer process-buffer))))
 
 (defvar dan/ipython-command "ipython")
+(defvar dan/python-startup-string
+  (mapconcat 'identity
+	     '("from itertools import *"
+	       "from functools import *"
+	       "from collections import *"
+	       "from operator import *")
+	     " ; "))
 
 (defun dan/ipython (&optional arg)
   (interactive "P")
-  (dan/python dan/ipython-command arg))
+  (dan/python dan/ipython-command arg)
+  (python-shell-send-string dan/python-startup-string))
 
 (defun dan/ipython-console (&optional arg)
   (interactive "P")
