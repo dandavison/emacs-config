@@ -1,7 +1,4 @@
 * Requires
-:PROPERTIES:
-:tangle: yes
-:END:
 
 #+begin_src emacs-lisp
 (require 'cl)
@@ -1023,7 +1020,7 @@ Straight copy of `find-function-at-point` but using
 #+end_src
 
 ** Completion
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (setq tab-always-indent 'complete)
 (setq dan/ignored-extensions
       '(".ps" ".bst" ".cls" ".pyc" ".elc"
@@ -1266,7 +1263,7 @@ index e5855ad..29f6429 100644
 -                     (not (member (buffer-name (window-buffer win))
 -                                  winner-boring-buffers)))
 +                     (not (winner-ignore-buffer
-+			   (buffer-name (window-buffer win)))))
++                          (buffer-name (window-buffer win)))))
            (push win xwins)))            ; delete this window
  
        ;; Restore marks
@@ -1280,8 +1277,8 @@ index e5855ad..29f6429 100644
 +   (mapcar
 +    (lambda (boring-spec)
 +      (if (functionp boring-spec)
-+	  (funcall boring-spec buffer-name)
-+	(equal boring-spec buffer-name)))
++         (funcall boring-spec buffer-name)
++       (equal boring-spec buffer-name)))
 +    winner-boring-buffers)))
 #+end_src
 
@@ -1769,13 +1766,13 @@ sys.path.append(os.path.expanduser('~'))
 (defvar dan/ipython-command "ipython")
 (defvar dan/python-startup-string
   (mapconcat 'identity
-	     '("from itertools import *"
-	       "from functools import *"
-	       "from collections import *"
-	       "from operator import *"
+             '("from itertools import *"
+               "from functools import *"
+               "from collections import *"
+               "from operator import *"
                "from django.db.models import Count"
                "import json")
-	     " ; "))
+             " ; "))
 
 (defun dan/ipython (&optional arg)
   (interactive "P")
@@ -1904,7 +1901,7 @@ except Exception as ex:
 Alternative completion approach; haven't investigated this.
 http://chrispoole.com/downloads/ac-python.el
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (add-to-list 'load-path "~/lib/emacs/python.el")
 (require 'python)
 (setq auto-mode-alist (cons '("\\.pyw$" . python-mode) auto-mode-alist))
@@ -2060,11 +2057,11 @@ http://chrispoole.com/downloads/ac-python.el
 **** Ropemacs
      Need to
      1. install pymacs python module
-	download, make, python setup.py install
+        download, make, python setup.py install
      2. pip install rope
      3. pip install ropemode
      4. install ropemacs
-	download, make, python setup.py install
+        download, make, python setup.py install
 
 #+begin_src emacs-lisp :tangle no
 (add-to-list 'load-path "~/lib/emacs/Pymacs")
@@ -2265,12 +2262,9 @@ http://chrispoole.com/downloads/ac-python.el
 #+end_src
 
 **** Add R builtins to font lock
-     :PROPERTIES:
-     :tangle: no
-     :END:
 
 #+name: R-builtins
-#+begin_src R
+#+begin_src R :tangle no
 obj <- unlist(sapply(c("package:base","package:stats","package:utils","package:grDevices"), objects, all.names=TRUE))
 re <- "(^[^.[:alpha:][:digit:]]|<-|__)"  ## to remove "weird" functions
 obj[-grep(re, obj)]
@@ -2353,11 +2347,8 @@ obj[-grep(re, obj)]
 #+end_src
 
 ** Gnus lite
-    :PROPERTIES:
-    :tangle: no
-    :END:
    
-#+begin_src emacs-lisp :tangle gnus-bug.el
+#+begin_src emacs-lisp :tangle gnus-bug.el :tangle no
 (setq gnus-select-method '(nntp "news.gmane.org"))
 
 (setq gnus-summary-line-format
@@ -2397,12 +2388,9 @@ obj[-grep(re, obj)]
 #+end_src
 
 ** Gnus
-    :PROPERTIES:
-    :tangle: no
-    :END:
 
 *** General
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (add-to-list 'load-path "~/lib/emacs/gnus/lisp")
 (require 'gnus-load)
 ;; (require 'nnir) ?necessary?
@@ -2453,7 +2441,7 @@ obj[-grep(re, obj)]
 #+end_src
 
 *** Sending
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (case dan/operating-system
   ('darwin
    (setq message-send-mail-function 'smtpmail-send-it
@@ -2472,7 +2460,7 @@ obj[-grep(re, obj)]
 #+end_src
 
 *** Group buffer
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (defun dan/gnus-group-sort (info1 info2)
   "Sort alphabetically."
   (cond
@@ -2488,7 +2476,7 @@ obj[-grep(re, obj)]
 #+end_src
 
 **** Topics
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 ;; Create three face types.
 (setq gnus-face-1 'bold)
 (setq gnus-face-3 'italic)
@@ -2510,7 +2498,7 @@ obj[-grep(re, obj)]
 #+end_src
 
 *** Summary buffer
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 ;;; Summary Buffer
 ;;;
 (when nil
@@ -2578,7 +2566,7 @@ many roles.  You may also use `message-alternative-emails' instead.
 *Note Message Headers: (message)Message Headers.
 
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (setq gnus-posting-styles
       '(((header "from" "@counsyl\.com")
          (address "davison@counsyl.com"))))
@@ -2650,7 +2638,7 @@ many roles.  You may also use `message-alternative-emails' instead.
 #+end_src
 
 *** Article buffer
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 ;;; Article buffer
 ;;;
 (require 'gnus-art) ; ??
@@ -2666,12 +2654,12 @@ many roles.  You may also use `message-alternative-emails' instead.
 #+end_src
 
 *** Cache
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (setq gnus-use-cache t
       gnus-cacheable-groups "^nntp.*emacs\\.orgmode")
 #+end_src
 *** Personal functions
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (defun dan/gnus-article-goto-next-article ()
   (interactive)
   (with-current-buffer gnus-summary-buffer
@@ -2696,11 +2684,8 @@ many roles.  You may also use `message-alternative-emails' instead.
       (widen))))
 #+end_src
 *** Atom2RSS
-    :PROPERTIES:
-    :tangle: no
-    :END:
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (require 'mm-url)
 
 (defvar dan/atom2rss-file "/usr/local/src/atom2rss.xsl"
@@ -2851,7 +2836,7 @@ many roles.  You may also use `message-alternative-emails' instead.
 #+end_src
 
 ** Yasnippet
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (add-to-list 'load-path "~/lib/emacs/yasnippet")
 (when (dan/require 'yasnippet)
   (setq yas/extra-mode-hooks nil)
@@ -3178,17 +3163,14 @@ by Vitalie S.
 (setq org-hidden-keywords '(title date author))
 #+end_src
 **** Set outline colors
-     :PROPERTIES:
-     :tangle: no
-     :END:
 
 #+function: outline-colours
-#+begin_src R
+#+begin_src R :tangle no
 require("RColorBrewer")
 brewer.pal(n=8, name="Set1")
 #+end_src
 
-#+begin_src emacs-lisp :expand yes :var colours=outline-colours()
+#+begin_src emacs-lisp  :tangle no :expand yes :var colours=outline-colours()
 (dotimes (level 8)
   (set-face-foreground
    (intern (concat "outline-" (number-to-string (1+ level))))
@@ -3460,11 +3442,8 @@ rubber -f -m xelatex somefile.tex
 
 ***** Listings
 ***** Minted
-      :PROPERTIES:
-      :tangle: no
-      :END:
 
-#+begin_src emacs-lisp :exports code
+#+begin_src emacs-lisp :exports code :tangle no
 (require 'org-latex)
 (setq org-export-latex-listings-w-names nil)
 (setq org-export-latex-packages-alist
@@ -3765,9 +3744,6 @@ issued in a language major-mode buffer."
 #+end_src
 
 ** Org-buffers
-   :PROPERTIES:
-   :tangle: yes
-   :END:
 
 #+begin_src emacs-lisp
 (add-to-list 'load-path "~/lib/emacs/org-buffers")
@@ -3808,9 +3784,6 @@ issued in a language major-mode buffer."
 #+end_src
 
 ** Multiple major modes
-   :PROPERTIES:
-   :tangle: no
-   :END:
 
 *** Mumamo
 #+begin_src emacs-lisp :tangle no
@@ -4128,7 +4101,7 @@ I didn't get this to work.
 
 ** Python
 *** inferior python
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (dan/register-key-bindings
  '("inferior-python" .
    (("\C-c\C-z" . dan/ipython)
@@ -4138,7 +4111,7 @@ I didn't get this to work.
     ("\M-." . dan/rope-goto-definition))))
 #+end_src
 *** python
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (dan/register-key-bindings
  '("python" .
    (("\C-c\C-z" . dan/ipython)
@@ -4311,9 +4284,6 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   (insert (apply 'format format-string args)))
 #+end_src
 * Not used
-:PROPERTIES:
-:tangle: no
-:END:
 ** Customize stuff
 #+begin_src emacs-lisp :tangle no
 ;; (custom-set-variables

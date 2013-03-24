@@ -259,6 +259,7 @@ Wait for REST between each attempt."
 
 ;; (local-set-key [(return)] 'dan/occur-mode-goto-occurrence)
 
+
 (defun dan/set-local-variables (alist)
   (dolist (pair alist)
     (set (make-local-variable (car (pair))) (cadr pair))))
@@ -631,6 +632,7 @@ Straight copy of `find-function-at-point` but using
     (when symb
       (find-function symb))))
 
+
 (defun dan/require (feature)
   (unless (featurep feature)
     (if (locate-library (symbol-name feature))
@@ -755,6 +757,8 @@ Straight copy of `find-function-at-point` but using
                            (progn (setq old-fullscreen current-value)
                                   'fullboth)))))
 
+
+
 (set-cursor-color "red")
 (setq-default cursor-in-non-selected-windows nil)
 (nconc default-frame-alist '((cursor-type . bar)))
@@ -826,6 +830,7 @@ Straight copy of `find-function-at-point` but using
       dan/ignored-extensions)
 
 (add-to-list 'ido-ignore-buffers "\\*") ;; if you want *scratch* or *R* just type it
+(add-to-list 'ido-ignore-buffers " ") ;; hidden buffers
 
 (add-to-list 'load-path "~/lib/emacs/winner-mode")
 (require 'winner)
@@ -923,27 +928,6 @@ Straight copy of `find-function-at-point` but using
 ;; remove the -e flag to xargs, use 4 processes
 (setq grep-find-command "find . -type f -print0 | xargs -P4 -0 grep -nH -e")
 (setq grep-find-template "find . <X> -type f <F> -print0 | xargs -P4 -0 grep <C> -nH -e <R>")
-
-(pp (setq safe-local-variable-values
-      '(
-        (org-babel-default-header-args
-         (:tangle . "wtccc2-pca.py")
-         (:exports . "code"))
-        (org-babel-default-header-args
-         (:tangle . "yes"))
-        (org-babel-default-header-args
-         (:results . "replace output")
-         (:session . "*R - jsmr*")
-         (:exports . "none"))
-        (org-babel-default-header-args
-         (:results . "replace output")
-         (:session . "*R: wtccc2*")
-         (:exports . "none"))
-        (noweb-default-code-mode . R-mode)
-        (org-src-preserve-indentation . t)
-        (org-edit-src-content-indentation . 0)
-        (outline-minor-mode)))
-)
 
 ;; This doesn't work with org-src-mode code buffers as their
 ;; buffer-file-name doesn't correspond to a file
@@ -1112,6 +1096,7 @@ Straight copy of `find-function-at-point` but using
 
 (setq flymake-log-level 1)
 
+
 (setq dired-listing-switches "-lAX")
 (setq dired-no-confirm
       '(byte-compile chgrp chmod chown compress copy hardlink load move print shell symlink
@@ -1239,22 +1224,24 @@ Straight copy of `find-function-at-point` but using
 (defun dan/coffee-insert-console-log ()
   (interactive)
   ;; (indent-for-tab-command) coffee indenting is bad
-  (insert "console.log "))
+  (insert "console.log();")
+  (backward-char 2))
 
 (defun dan/coffee-insert-debugger ()
   (interactive)
   ;; (indent-for-tab-command) coffee indenting is bad
-  (insert "debugger"))
+  (insert "debugger;"))
 
 (add-hook 'after-save-hook
           (lambda () (when (eq major-mode 'coffee-mode) (coffee-compile-file))))
 
-(add-to-list 'load-path "~/lib/emacs/haskell-mode")
-(require 'haskell-mode)
-(add-to-list 'auto-mode-alist '("\\.hs$" . haskell-mode))
 
-(custom-set-variables
- '(haskell-mode-hook '(turn-on-haskell-indentation)))
+    (add-to-list 'load-path "~/lib/emacs/haskell-mode")
+    (require 'haskell-mode)
+    (add-to-list 'auto-mode-alist '("\\.hs$" . haskell-mode))
+
+    (custom-set-variables
+     '(haskell-mode-hook '(turn-on-haskell-indentation)))
 
 (add-to-list 'load-path "~/lib/emacs/django-mode")
 (require 'django-html-mode)
@@ -1291,6 +1278,7 @@ Straight copy of `find-function-at-point` but using
 (setq auto-mode-alist (cons '("\\.md$" . markdown-mode) auto-mode-alist))
 (setq markdown-follow-wiki-link-on-enter nil)
 (setq markdown-css-path (expand-file-name "~/lib/gollum/gollum.css"))
+(add-hook 'markdown-mode-hook (lambda () (longlines-mode 1)))
 
 (require 'texinfo)
 
@@ -1329,10 +1317,20 @@ sys.path.append(os.path.expanduser('~'))
       (switch-to-buffer process-buffer))))
 
 (defvar dan/ipython-command "ipython")
+(defvar dan/python-startup-string
+  (mapconcat 'identity
+             '("from itertools import *"
+               "from functools import *"
+               "from collections import *"
+               "from operator import *"
+               "from django.db.models import Count"
+               "import json")
+             " ; "))
 
 (defun dan/ipython (&optional arg)
   (interactive "P")
-  (dan/python dan/ipython-command arg))
+  (dan/python dan/ipython-command arg)
+  (python-shell-send-string dan/python-startup-string))
 
 (defun dan/ipython-console (&optional arg)
   (interactive "P")
@@ -1340,6 +1338,11 @@ sys.path.append(os.path.expanduser('~'))
    '(concat "~/lib/python/ipython/ipython.py console "
             (read-from-minibuffer "Arguments: " "--existing"))
    arg))
+
+(defun dan/python-shell-clear ()
+  (interactive)
+  (delete-region (point-min) (point-max))
+  (comint-send-input))
 
 
 ;; -W ignore:Module:UserWarning %s
@@ -1443,6 +1446,7 @@ except Exception as ex:
     print ex
     import ipdb ; ipdb.set_trace()
 "))
+
 
 (add-to-list 'load-path "~/lib/emacs/python.el")
 (require 'python)
@@ -1580,6 +1584,7 @@ except Exception as ex:
      (format "import os; os.chdir('%s')" directory)
      process)))
 
+
 (defun dan/rope-goto-definition-of-thing-read-from-minibuffer (string)
   (interactive "sGo to definition of: ")
   (save-excursion
@@ -1679,6 +1684,7 @@ except Exception as ex:
     (interactive "sEnter function name: \n")
     (ess-execute
      (concat cmd "(" (buffer-substring (point) (mark)) ")"))))
+
 
 (add-to-list 'load-path "~/lib/emacs/buffer-join")
 ;; (dan/require 'buffer-join)
@@ -2433,6 +2439,7 @@ issued in a language major-mode buffer."
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'forward)
 (setq uniquify-min-dir-content 1)
+
 (dan/register-key-bindings
  '(global-map .
               (("\C-b" . backward-sexp)
@@ -2486,7 +2493,7 @@ issued in a language major-mode buffer."
                ("\M-n" . forward-paragraph)
                ("\M-p" . backward-paragraph)
                ("\M-o" . dan/occur)
-               ("\M-i" . dan/highlight)
+               ("\M-i" . counsyl/highlight)
                ([delete] . winner-undo)
                ([(hyper left)] . winner-undo)
                ([(hyper right)] . winner-redo)
@@ -2499,6 +2506,7 @@ issued in a language major-mode buffer."
                ([(meta up)] . org-metaup)
                ([(super down)] . scroll-up-line)
                ([(super up)] . scroll-down-line)
+               ([f1] . (lambda () (interactive) (call-interactively 'jump-to-register)))
                ([f4] . (lambda () (interactive) (find-file "~/Notes/notes.org")))
                ([f5] . (lambda () (interactive) (switch-to-buffer "*Python*")))
                ([f6] . dan/find-file-emacs-config)
@@ -2517,6 +2525,10 @@ issued in a language major-mode buffer."
             (local-set-key [delete] 'winner-undo)
             (local-set-key [(super left)] 'winner-undo)
             (local-set-key [(super right)] 'winner-redo)))
+
+
+(dan/register-key-bindings
+ '("c" . nil))
 
 (dan/register-key-bindings
  '(ctl-x-4-map .
@@ -2555,6 +2567,11 @@ issued in a language major-mode buffer."
  '("ess" .
    (("\C-c?" . ess-display-help-on-object)
     ("\C-ca" . ess-r-args-show)
+
+    ;; reverse the default bindings of these two
+    ("\C-c\C-c" . ess-eval-function-and-go)
+    ("\C-c\M-f" . ess-eval-function-or-paragraph-and-step)
+
     ("\C-cd" . dan/ess-list-R-function-definitions)
     ("\C-ck" . dan/ess-kill-line-and-indent)
     ("\C-cx" . dan/ess-recover-R-process)
@@ -2602,6 +2619,11 @@ issued in a language major-mode buffer."
    (([C-tab] . TeX-complete-symbol))))
 
 (dan/register-key-bindings
+ '("magit-log-edit" .
+   (([(control up)] . log-edit-previous-comment)
+    ([(control down)] . log-edit-next-comment))))
+
+(dan/register-key-bindings
  '("mml" .
    (("\M-q" . ded/mml-fill-paragraph))))
 
@@ -2644,6 +2666,7 @@ issued in a language major-mode buffer."
    (("\C-c\C-z" . dan/ipython)
     ("\C-c\M-n" . dan/insert-import-numpy)
     ("\C-cd" . dan/python-cd)
+    ("\C-l" . dan/python-shell-clear)
     ("\M-." . dan/rope-goto-definition))))
 
 (dan/register-key-bindings
@@ -2749,3 +2772,4 @@ issued in a language major-mode buffer."
       scroll-step                     0)
 
 (setq x-select-enable-primary t)
+
