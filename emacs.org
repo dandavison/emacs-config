@@ -1772,7 +1772,9 @@ sys.path.append(os.path.expanduser('~'))
 	     '("from itertools import *"
 	       "from functools import *"
 	       "from collections import *"
-	       "from operator import *")
+	       "from operator import *"
+               "from django.db.models import Count"
+               "import json")
 	     " ; "))
 
 (defun dan/ipython (&optional arg)
@@ -1786,6 +1788,11 @@ sys.path.append(os.path.expanduser('~'))
    '(concat "~/lib/python/ipython/ipython.py console "
             (read-from-minibuffer "Arguments: " "--existing"))
    arg))
+
+(defun dan/python-shell-clear ()
+  (interactive)
+  (delete-region (point-min) (point-max))
+  (comint-send-input))
 
 
 ;; -W ignore:Module:UserWarning %s
@@ -3910,7 +3917,7 @@ I didn't get this to work.
                ("\M-n" . forward-paragraph)
                ("\M-p" . backward-paragraph)
                ("\M-o" . dan/occur)
-               ("\M-i" . dan/highlight)
+               ("\M-i" . counsyl/highlight)
                ([delete] . winner-undo)
                ([(hyper left)] . winner-undo)
                ([(hyper right)] . winner-redo)
@@ -3923,6 +3930,7 @@ I didn't get this to work.
                ([(meta up)] . org-metaup)
                ([(super down)] . scroll-up-line)
                ([(super up)] . scroll-down-line)
+               ([f1] . (lambda () (interactive) (call-interactively 'jump-to-register)))
                ([f4] . (lambda () (interactive) (find-file "~/Notes/notes.org")))
                ([f5] . (lambda () (interactive) (switch-to-buffer "*Python*")))
                ([f6] . dan/find-file-emacs-config)
@@ -4126,6 +4134,7 @@ I didn't get this to work.
    (("\C-c\C-z" . dan/ipython)
     ("\C-c\M-n" . dan/insert-import-numpy)
     ("\C-cd" . dan/python-cd)
+    ("\C-l" . dan/python-shell-clear)
     ("\M-." . dan/rope-goto-definition))))
 #+end_src
 *** python

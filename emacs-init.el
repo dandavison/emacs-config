@@ -46,12 +46,14 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(haskell-mode-hook (quote (turn-on-haskell-indentation)))
  '(session-use-package t nil (session)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(comint-highlight-prompt ((t (:foreground "gold"))))
  '(org-block-begin-line ((t (:inherit org-meta-line :foreground "gray93"))) t)
  '(org-block-end-line ((t (:inherit org-meta-line :foreground "gray93"))) t)
  '(org-document-info-keyword ((t (:inherit org-meta-line :foreground "gray93")))))
