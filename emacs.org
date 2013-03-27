@@ -3908,7 +3908,6 @@ I didn't get this to work.
                ([f4] . (lambda () (interactive) (find-file "~/Notes/notes.org")))
                ([f5] . (lambda () (interactive) (switch-to-buffer "*Python*")))
                ([f6] . dan/find-file-emacs-config)
-               ("\C-]" . bury-buffer)
                ([(control return)] . delete-other-windows)
                ([(control escape)] . delete-window)
                ([(meta escape)] . delete-other-windows)
