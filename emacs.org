@@ -278,7 +278,8 @@ Wait for REST between each attempt."
     (if results-buffer
         (progn
           (other-window 1)
-          (let ((buffer-read-only)) (kill-line 1)))
+          (let ((buffer-read-only)) (kill-line 1))
+          (delete-other-windows))
       (message "No matches"))))
 
 
