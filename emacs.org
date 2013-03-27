@@ -4274,6 +4274,13 @@ http://www.emacswiki.org/emacs/TransparentEmacs
       scroll-step                     0)
 
 (setq x-select-enable-primary t)
+
+
+(progn
+  (fset 'unhighlight nil)
+  (fset 'highlight nil)
+  (fset 'next-face nil))
+
 #+end_src
 
 ** Redefine message
