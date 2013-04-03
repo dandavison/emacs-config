@@ -3917,8 +3917,9 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 (progn
   (fset 'unhighlight nil)
   (fset 'highlight nil)
-  (fset 'next-face nil))
-
+  (fset 'next-face nil)
+  (fset 'ap nil)
+  (fset 'e-merge nil))
 #+end_src
 
 ** Redefine message
