@@ -1895,25 +1895,7 @@ except Exception as ex:
     import ipdb ; ipdb.set_trace()
 "))
 
-(defun counsyl/python-fix-up-fill-paragraph-in-docstring ()
-  "Fix up formatting of python docstrings after fill-paragraph.
-
-  Place the first line on its own line, and don't insert a blank
-  line at the end."
-  (interactive)
-  (save-excursion
-    (re-search-backward "\"\"\"" nil t)
-    (forward-char 3)
-    (insert "\n")
-    (insert "    ")
-    (re-search-forward "\"\"\"" nil t)
-    (beginning-of-line)
-    (delete-backward-char 1)))
-
-(defadvice python-fill-paragraph (after fix-up-fill-paragraph-in-docstring)
-  (counsyl/python-fix-up-fill-paragraph-in-docstring))
-
-(ad-deactivate 'python-fill-paragraph)
+(setq python-fill-docstring-style 'django)
 #+end_src
 
 **** Python.el
