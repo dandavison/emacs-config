@@ -1958,10 +1958,13 @@ http://chrispoole.com/downloads/ac-python.el
       (insert (mapconcat #'identity history "\n") "\n")
       (write-file file))))
 
+(defvar dan/python-comint-history-file "~/.ipython/history")
+
 (defun dan/inferior-python-mode-hook-function ()
   (esk/pretty-lambdas)
-  (setq truncate-lines t))
-;; (dan/load-comint-history "~/.ipython/history")
+  (setq truncate-lines t)
+  (dan/load-comint-history dan/python-comint-history-file))
+
 
 (add-hook 'inferior-python-mode-hook
           'dan/inferior-python-mode-hook-function)
@@ -1977,9 +1980,9 @@ http://chrispoole.com/downloads/ac-python.el
 
 (add-hook 'python-mode-hook 'paredit-c-mode)
 
-;; (add-hook 'kill-buffer-hook
-;;           (lambda () (when (eq major-mode 'inferior-python-mode)
-;;                   (dan/dump-comint-history "~/.ipython/history"))))
+(add-hook 'kill-buffer-hook
+          (lambda () (when (eq major-mode 'inferior-python-mode)
+                  (dan/dump-comint-history dan/python-comint-history-file))))
 
 (defun dan/python-shell-send-chunk ()
   "Send the current chunk to inferior Python process."
