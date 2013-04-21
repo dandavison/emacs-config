@@ -1288,10 +1288,18 @@ index e5855ad..29f6429 100644
 #+begin_src emacs-lisp
 (add-to-list 'load-path "~/lib/emacs")
 #+end_src
-** Ack
+** Ag
 #+begin_src emacs-lisp
-(add-to-list 'load-path "~/lib/emacs/full-ack")
-(require 'full-ack)
+(add-to-list 'load-path "~/lib/emacs/ag.el")
+(require 'ag)
+
+(setq ag-arguments (append '("--ignore" "'*#'"
+                             "--ignore" "'*.js'")
+                           ag-arguments))
+
+(add-hook
+ 'ag-mode-hook
+ (lambda () (switch-to-buffer "*ag*") (delete-other-windows)))
 #+end_src
 
 ** Bookmark

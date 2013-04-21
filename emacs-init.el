@@ -16,10 +16,7 @@
     (when import
       (python-shell-send-string-no-output import))))
 
-(defun dan/find ()
-  (interactive)
-  (call-interactively 'counsyl/grep)
-  (other-buffer))
+(defalias 'dan/find 'counsyl/ag)
 
 ;; (counsyl/register-key-bindings
 ;;  '(global-map .
