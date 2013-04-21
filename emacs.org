@@ -1123,12 +1123,15 @@ Straight copy of `find-function-at-point` but using
 ;; (add-hook 'compilation-mode-hook (lambda () (select-window (get-window-with-predicate (lambda (win) (eq (window-buffer win) (current-buffer)))))))
 ;; (remove-hook 'compilation-mode-hook (lambda () (select-window (other-window 1))))
 
-
-(setq indent-tabs-mode nil)
-
 ;; apparently this doesn't work; must be run in a
 ;; save-window-configuration or something
 ;; (add-hook 'compilation-mode-hook 'delete-other-windows)
+
+
+
+
+
+(setq indent-tabs-mode nil)
 
 ;; (visit-tags-table tags-file-name)
 ;; (setq font-lock-always-fontify-immediately t) where did I get that from?
@@ -1152,6 +1155,7 @@ Straight copy of `find-function-at-point` but using
 ;; remove the -e flag to xargs, use 4 processes
 (setq grep-find-command "find . -type f -print0 | xargs -P4 -0 grep -nH -e")
 (setq grep-find-template "find . <X> -type f <F> -print0 | xargs -P4 -0 grep <C> -nH -e <R>")
+
 #+end_src
 *** Safe local variables
 #+begin_src emacs-lisp :results pp
@@ -1517,13 +1521,14 @@ index e5855ad..29f6429 100644
   ;; (font-lock-add-keywords
   ;; ? ?nil `(("\\([[:alpha:]_][[:alnum:]_]*\\)(" ?1 font-lock-function-name-face)))
   (setq c-basic-offset 4)
-  (setq line-number-mode t))
+  (setq line-number-mode t)
+  (paredit-c-mode))
 
 ;; (add-hook 'c-mode-hook 'c++-mode) ;; I want C++ comments, but that seems a bit heavy-handed?
 (add-hook 'c-mode-hook 'dan/c-c++-mode-hook)
 (add-hook 'c++-mode-hook 'dan/c-c++-mode-hook)
-
 (setq compilation-read-command nil)
+
 #+end_src
 
 *** Lisp
@@ -1670,7 +1675,11 @@ http://xahlee.org/emacs/emacs_html.html
 #+begin_src emacs-lisp
 (add-to-list 'auto-mode-alist '("\\.json$" . js-mode))
 
-(add-hook 'js-mode-hook 'dan/coffee-mode-hook-fun)
+(defun dan/js-mode-hook-fun ()
+  (dan/coffee-mode-hook-fun)
+  (setq js-indent-level 2))
+
+(add-hook 'js-mode-hook 'dan/js-mode-hook-fun)
 
 
 (defun dan/scratch-js-in-html ()
@@ -1891,7 +1900,6 @@ t1 = datetime.datetime.now()
 print 'Queries: %%d' %% (q1 - q0)
 print 'Time: ', (t1 - t0)
 "))
-
 
 (defun dan/python-wrap-region-with-try-except ()
   (interactive)
@@ -3532,7 +3540,6 @@ I didn't get this to work.
                ("\C-c\M-r" . rgrep)
                ("\C-\M-g" . lgrep)
                ("\C-x1" . (lambda () (interactive) (message "M-return")))
-               ("\C-x\C-f" . dan/find-file)
                ("\C-x\C-c" . kill-emacs)  ;; If it's not saved already that's your fault
                ("\C-x\C-q" . dan/toggle-read-only)
                ([(control next)] . end-of-buffer)
@@ -3577,6 +3584,7 @@ I didn't get this to work.
 #+end_src
 ** C
 #+begin_src emacs-lisp
+(require 'cc-mode)
 (dan/register-key-bindings
  '("c" . nil))
 #+end_src
@@ -3935,6 +3943,7 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 #+end_src
 
 * http://whattheemacsd.com/
+** magit window management
 #+begin_src emacs-lisp
 (defadvice magit-status (around magit-fullscreen activate)
   (window-configuration-to-register :magit-fullscreen)
@@ -3948,6 +3957,20 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   (jump-to-register :magit-fullscreen))
 
 (define-key magit-status-mode-map (kbd "q") 'magit-quit-session)
+#+end_src
+
+** ido home
+#+begin_src emacs-lisp
+(add-hook 'ido-setup-hook
+ (lambda ()
+   ;; Go straight home
+   (define-key ido-file-completion-map
+     (kbd "~")
+     (lambda ()
+       (interactive)
+       (if (looking-back "/")
+           (insert "~/")
+         (call-interactively 'self-insert-command))))))
 #+end_src
 
 
