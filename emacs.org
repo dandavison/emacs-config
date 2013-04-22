@@ -778,7 +778,7 @@ Straight copy of `find-function-at-point` but using
    (cond
      ((not arg) 'dan/recentf-ido-find-file)
      ((equal arg '(4)) 'ido-find-file)
-     ((equal arg '(16)) 'fuzzy-find-in-project))))
+     ((equal arg '(16)) 'ido-find-file))))
 #+end_src
 
 ** Show all in all buffers
