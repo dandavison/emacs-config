@@ -1116,6 +1116,7 @@ Straight copy of `find-function-at-point` but using
 (setq backup-inhibited t)
 (setq font-lock-verbose nil)
 (setq truncate-lines t)
+(setq tab-width 4)
 (add-hook 'occur-mode-hook (lambda () (setq truncate-lines t)))
 (add-hook 'compilation-mode-hook (lambda () (setq truncate-lines t)))
 
