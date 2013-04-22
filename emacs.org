@@ -1217,6 +1217,12 @@ Straight copy of `find-function-at-point` but using
   (show-all))
 
 (ad-activate 'goto-line)
+
+(defadvice compile-goto-error (after compile-goto-error-delete-other-windows)
+  "Ensure target location is not hidden"
+  (delete-other-windows))
+
+(ad-activate 'compile-goto-error)
 #+end_src
 
 ** Info
