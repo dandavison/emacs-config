@@ -2340,11 +2340,10 @@ obj[-grep(re, obj)]
 
 ** Elpa
 #+begin_src emacs-lisp
-(let ((elpa-file
-       (expand-file-name "~/.emacs.d/elpa/package.el")))
-  (if (and (file-exists-p elpa-file)
-           (load elpa-file))
-      (package-initialize)))
+(package-initialize)
+(add-to-list
+ 'package-archives
+ '("marmalade" . "http://marmalade-repo.org/packages/"))
 #+end_src
 ** Erc
 #+begin_src emacs-lisp
