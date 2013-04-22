@@ -335,7 +335,8 @@ Wait for REST between each attempt."
   (with-temp-buffer
     (let ((string (format "%s" sexp)))
       (insert string)
-      (kill-ring-save (point-min) (point-max)))))
+      (kill-ring-save (point-min) (point-max))
+      string)))
 
 (defun dan/save-buffer-file-name-to-kill-ring ()
   (interactive)
@@ -2034,9 +2035,10 @@ http://chrispoole.com/downloads/ac-python.el
 (defun dan/python-where-am-i ()
   (interactive)
   (message
-   "%s %s"
-   (dan/python-current-defun-name)
-   (dan/eol-column-line)))
+   (dan/save-value-to-kill-ring
+    (format "%s %s"
+            (dan/python-current-defun-name)
+            (dan/eol-column-line)))))
 
 (defun dan/strip-quotes (string)
   (if (string-match "[\"']+\\(.+\\)[\"']+" string)
