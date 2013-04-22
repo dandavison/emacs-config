@@ -1679,14 +1679,6 @@ http://xahlee.org/emacs/emacs_html.html
     (custom-set-variables
      '(haskell-mode-hook '(turn-on-haskell-indentation)))
     #+end_src
-*** html
-#+begin_src emacs-lisp
-(add-to-list 'load-path "~/lib/emacs/django-mode")
-(require 'django-html-mode)
-(require 'django-mode)
-(add-to-list 'auto-mode-alist '("\\.html$" . django-html-mode))
-#+end_src
-
 *** Javascript
 #+begin_src emacs-lisp
 (add-to-list 'auto-mode-alist '("\\.json$" . js-mode))
