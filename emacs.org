@@ -1629,6 +1629,11 @@ http://xahlee.org/emacs/emacs_html.html
 (load-file "~/lib/emacs/graphviz-dot-mode.el")
 (setq graphviz-dot-indent-width 4)
 #+end_src
+*** clojure
+#+begin_src emacs-lisp
+(add-to-list 'auto-mode-alist '("\\.cljs$" . clojure-mode))
+#+end_src
+
 *** coffee
 #+begin_src emacs-lisp
 (add-to-list 'load-path "~/lib/emacs/coffee-mode")
@@ -1670,9 +1675,9 @@ http://xahlee.org/emacs/emacs_html.html
 ;; (require 'go-flymake)
 
 (defun dan/go-hook-function ()
+  (set (make-local-variable 'before-save-hook) '(gofmt))
   (setq tab-width 4)
-  ;;(paredit-c-mode)
-  )
+  (paredit-c-mode))
 
 (add-hook 'go-mode-hook 'dan/go-hook-function)
 
@@ -1738,7 +1743,10 @@ Seems very slow on coffeescript output of reasonable size; disabling.
 (setq auto-mode-alist (cons '("\\.md$" . markdown-mode) auto-mode-alist))
 (setq markdown-follow-wiki-link-on-enter nil)
 (setq markdown-css-path (expand-file-name "~/lib/gollum/gollum.css"))
-(add-hook 'markdown-mode-hook (lambda () (longlines-mode 1)))
+(add-hook 'markdown-mode-hook
+          (lambda ()
+            (longlines-mode 1)
+            (setq longlines-wrap-follows-window-size t)))
 #+end_src
 
 #+begin_src emacs-lisp :tangle no
@@ -3438,7 +3446,6 @@ issued in a language major-mode buffer."
 #+begin_src emacs-lisp
 (add-to-list 'load-path "~/src/emacs/org-csv")
 (require 'org-csv)
-(add-to-list 'auto-mode-alist '("\\.[ct]sv$" . org-csv))
 #+end_src
 
 ** Session
@@ -3582,6 +3589,7 @@ I didn't get this to work.
                ([f4] . (lambda () (interactive) (find-file "~/Notes/notes.org")))
                ([f5] . (lambda () (interactive) (switch-to-buffer "*Python*")))
                ([f6] . dan/find-file-emacs-config)
+               ([f12] . magit-status)
                ([(control return)] . delete-other-windows)
                ([(control escape)] . delete-window)
                ([(meta escape)] . delete-other-windows)
