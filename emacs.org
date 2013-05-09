@@ -672,6 +672,24 @@ parenthesis-delimited list of symbols at point"
 
 ** Switch windows
 #+begin_src emacs-lisp
+(setq dan--previous-window nil)
+
+(defun dan--set-previous-window ()
+  (setq dan--previous-window (selected-window)))
+
+(defadvice other-window (before set-previous)
+  "Set previous window before switching"
+  (dan--set-previous-window))
+
+(ad-activate 'other-window)
+
+(defun dan/previous-window ()
+  (interactive)
+  (when dan--previous-window
+    (let ((previous (selected-window)))
+      (select-window dan--previous-window)
+      (setq dan--previous-window previous))))
+
 (defun dan/switch-windows ()
   "Switch the buffers between windows"
   (interactive)
@@ -3542,6 +3560,7 @@ I didn't get this to work.
                ("\C-x\C-f" . dan/find-file)
                ("\C-x\M-f" . find-file-at-point)
                ("\C-xd" . dan/dired-no-ask)
+               ("\C-xp" . dan/previous-window)
                ("\C-ca" . org-agenda)
                ("\C-cb" . org-iswitchb)
                ("\C-cy" . yas/expand)
