@@ -1209,7 +1209,8 @@ Straight copy of `find-function-at-point` but using
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
 
 (defvar dan/delete-trailing-whitespace-major-modes
-  '(python-mode ess-mode coffee-mode javascript-mode go-mode))
+  '(python-mode ess-mode coffee-mode javascript-mode
+                go-mode haskell-mode clojure-mode))
 
 (defun dan/query-delete-trailing-whitespace ()
   "If there's trailing whitespace ask to delete it"
@@ -1228,6 +1229,7 @@ Straight copy of `find-function-at-point` but using
 ;; Make sure code is visible when jumping into it from compilation buffer
 (add-hook 'next-error-hook #'show-all)
 (add-hook 'find-function-after-hook #'show-all)
+
 #+end_src
 *** advice
 #+begin_src emacs-lisp
@@ -1324,12 +1326,19 @@ index e5855ad..29f6429 100644
 (require 'ag)
 
 (setq ag-arguments (append '("--ignore" "'*#'"
-                             "--ignore" "'*.js'")
+                             "--ignore" "'*.js'"
+                             "--ignore" "'*.xml'"
+                             "--ignore" "'*.log'"
+                             "--ignore" "'*.sql'"
+                             "--ignore" "'*.txt'"
+                             "--ignore" "'*.json'"
+                             "--ignore" "'*.yaml'")
                            ag-arguments))
 
 (add-hook
  'ag-mode-hook
  (lambda () (switch-to-buffer "*ag*") (delete-other-windows)))
+
 #+end_src
 
 ** Bookmark
@@ -1706,16 +1715,24 @@ http://xahlee.org/emacs/emacs_html.html
     (add-to-list 'load-path "~/lib/emacs/haskell-mode")
     (require 'haskell-mode)
     (add-to-list 'auto-mode-alist '("\\.hs$" . haskell-mode))
-
-    (custom-set-variables
-     '(haskell-mode-hook '(turn-on-haskell-indentation)))
+    
+    
+    (defun dan/haskell-hook-function ()
+      (turn-on-haskell-indentation)
+      (paredit-c-mode)
+      (local-set-key "'" 'self-insert-command))
+    
+    (add-hook 'haskell-mode-hook 'dan/haskell-hook-function)
     #+end_src
 *** html
 #+begin_src emacs-lisp
-(add-to-list 'load-path "~/lib/emacs/django-mode")
-(require 'django-html-mode)
-(require 'django-mode)
-(add-to-list 'auto-mode-alist '("\\.html$" . django-html-mode))
+;; (add-to-list 'load-path "~/lib/emacs/django-mode")
+;; (require 'django-html-mode)
+;; (require 'django-mode)
+;; (add-to-list 'auto-mode-alist '("\\.html$" . django-html-mode))
+
+(add-to-list 'load-path "~/lib/emacs/pony-mode/src")
+(require 'pony-mode)
 #+end_src
 
 *** Javascript
@@ -1769,10 +1786,10 @@ Seems very slow on coffeescript output of reasonable size; disabling.
 (setq auto-mode-alist (cons '("\\.md$" . markdown-mode) auto-mode-alist))
 (setq markdown-follow-wiki-link-on-enter nil)
 (setq markdown-css-path (expand-file-name "~/lib/gollum/gollum.css"))
-(add-hook 'markdown-mode-hook
-          (lambda ()
-            (longlines-mode 1)
-            (setq longlines-wrap-follows-window-size t)))
+;; (add-hook 'markdown-mode-hook
+;;           (lambda ()
+;;             (longlines-mode 1)
+;;             (setq longlines-wrap-follows-window-size t)))
 #+end_src
 
 #+begin_src emacs-lisp :tangle no
@@ -1799,11 +1816,11 @@ Seems very slow on coffeescript output of reasonable size; disabling.
 *** Python
 **** general
 #+begin_src emacs-lisp
-(defvar dan/python-exec-lines
-  "import sys
-import os
-sys.path.append(os.path.expanduser('~'))
-")
+;; (defvar dan/python-exec-lines
+;;   "import sys
+;; import os
+;; sys.path.append(os.path.expanduser('~'))
+;; ")
 
 ;; %load_ext autoreload
 ;; %autoreload 2
@@ -1822,7 +1839,8 @@ sys.path.append(os.path.expanduser('~'))
     (when (and restart process-buffer) (kill-buffer buf-name))
     (unless (and process-buffer (get-buffer-process process-buffer))
       (run-python (eval cmd))
-      (dan/python-eval-exec-lines)
+      (python-shell-send-string dan/python-startup-string)
+      ;; (dan/python-eval-exec-lines)
       ;; Start up clean
       ;; (sleep-for 5)
       ;; (delete-region (point-min) (point-max))
@@ -1844,8 +1862,7 @@ sys.path.append(os.path.expanduser('~'))
 
 (defun dan/ipython (&optional arg)
   (interactive "P")
-  (dan/python dan/ipython-command arg)
-  (python-shell-send-string dan/python-startup-string))
+  (dan/python dan/ipython-command arg))
 
 (defun dan/ipython-console (&optional arg)
   (interactive "P")
@@ -1962,6 +1979,7 @@ except Exception as ex:
 "))
 
 (setq python-fill-docstring-style 'django)
+
 #+end_src
 
 **** Python.el
@@ -2029,7 +2047,8 @@ http://chrispoole.com/downloads/ac-python.el
 (defun dan/inferior-python-mode-hook-function ()
   (esk/pretty-lambdas)
   (setq truncate-lines t)
-  (dan/load-comint-history dan/python-comint-history-file))
+  ;; (dan/load-comint-history dan/python-comint-history-file)
+)
 
 
 (add-hook 'inferior-python-mode-hook
@@ -2046,9 +2065,9 @@ http://chrispoole.com/downloads/ac-python.el
 
 (add-hook 'python-mode-hook 'paredit-c-mode)
 
-(add-hook 'kill-buffer-hook
-          (lambda () (when (eq major-mode 'inferior-python-mode)
-                  (dan/dump-comint-history dan/python-comint-history-file))))
+;; (add-hook 'kill-buffer-hook
+;;           (lambda () (when (eq major-mode 'inferior-python-mode)
+;;                   (dan/dump-comint-history dan/python-comint-history-file))))
 
 (defun dan/python-shell-send-chunk ()
   "Send the current chunk to inferior Python process."
@@ -3543,6 +3562,14 @@ I didn't get this to work.
 (setq uniquify-min-dir-content 1)
 #+end_src
 
+**** python-django
+
+#+begin_src emacs-lisp
+(add-to-list 'load-path "~/lib/emacs/python-django.el")
+(require 'python-django)
+#+end_src
+
+
 * Key bindings
 ** global
 #+begin_src emacs-lisp
@@ -3703,6 +3730,13 @@ I didn't get this to work.
  `("inferior-ess" .
    ,(cdr (assoc "ess" dan/key-bindings))))
 #+end_src
+** Haskell
+#+begin_src emacs-lisp
+(dan/register-key-bindings
+ '("haskell" .
+   (("\C-c\C-c" . compile))))
+#+end_src
+
 ** Javascript
 #+begin_src emacs-lisp
 (require 'js)
