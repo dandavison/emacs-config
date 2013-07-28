@@ -1,0 +1,4 @@
+#name : green
+# --
+from clint.textui.colored import green as col
+print col($0)
