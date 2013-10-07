@@ -1217,7 +1217,7 @@ Straight copy of `find-function-at-point` but using
 (add-hook 'c-mode-hook 'dan/c-c++-mode-hook)
 (add-hook 'c++-mode-hook 'dan/c-c++-mode-hook)
 (setq compilation-read-command nil)
-
+(add-to-list 'auto-mode-alist '("\\.ino$" . c-mode))
 
 (setq inferior-lisp-program "/usr/local/bin/clisp")
 (add-to-list 'load-path "~/lib/emacs/slime/")

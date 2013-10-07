@@ -1563,7 +1563,7 @@ index e5855ad..29f6429 100644
 (add-hook 'c-mode-hook 'dan/c-c++-mode-hook)
 (add-hook 'c++-mode-hook 'dan/c-c++-mode-hook)
 (setq compilation-read-command nil)
-
+(add-to-list 'auto-mode-alist '("\\.ino$" . c-mode))
 #+end_src
 
 *** Lisp
