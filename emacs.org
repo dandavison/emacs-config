@@ -1506,7 +1506,7 @@ index e5855ad..29f6429 100644
       (forward-line)
       (when (looking-at "^ *total used in directory")
         (if bro (setq buffer-read-only nil))
-        (kill-line)
+        (delete-region (line-beginning-position) (line-end-position))
         (setq buffer-read-only bro)))))
 
 (add-hook 'dired-after-readin-hook 'dan/dired-delete-total-line)

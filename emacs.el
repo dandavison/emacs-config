@@ -1170,7 +1170,7 @@ Straight copy of `find-function-at-point` but using
       (forward-line)
       (when (looking-at "^ *total used in directory")
         (if bro (setq buffer-read-only nil))
-        (kill-line)
+        (delete-region (line-beginning-position) (line-end-position))
         (setq buffer-read-only bro)))))
 
 (add-hook 'dired-after-readin-hook 'dan/dired-delete-total-line)
