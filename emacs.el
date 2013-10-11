@@ -1434,8 +1434,8 @@ Straight copy of `find-function-at-point` but using
   (interactive "P")
   ;; (indent-for-tab-command)
   (if traceback
-      (insert "import traceback ; import ipdb ; print traceback.format_exc() ; ipdb.set_trace()")
-  (insert "import ipdb ; ipdb.set_trace()")))
+      (insert "import traceback ; import pdb ; print traceback.format_exc() ; pdb.set_trace()")
+  (insert "import pdb ; pdb.set_trace()")))
 
 (defun dan/insert-import-numpy ()
   (interactive)
@@ -1513,16 +1513,6 @@ q1 = len(connection.queries)
 t1 = datetime.datetime.now()
 print 'Queries: %%d' %% (q1 - q0)
 print 'Time: ', (t1 - t0)
-"))
-
-(defun dan/python-wrap-region-with-try-except ()
-  (interactive)
-  (dan/python-wrap-region
-   "try:
-    %s
-except Exception as ex:
-    print ex
-    import ipdb ; ipdb.set_trace()
 "))
 
 (setq python-fill-docstring-style 'django)

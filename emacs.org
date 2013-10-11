@@ -1968,16 +1968,6 @@ print 'Queries: %%d' %% (q1 - q0)
 print 'Time: ', (t1 - t0)
 "))
 
-(defun dan/python-wrap-region-with-try-except ()
-  (interactive)
-  (dan/python-wrap-region
-   "try:
-    %s
-except Exception as ex:
-    print ex
-    import ipdb ; ipdb.set_trace()
-"))
-
 (setq python-fill-docstring-style 'django)
 
 #+end_src
