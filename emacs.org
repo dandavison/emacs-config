@@ -36,6 +36,14 @@
 #+end_src
 
 * My functions
+** tangle
+#+begin_src emacs-lisp
+(defun dan/tangle-emacs-dot-org ()
+  (interactive)
+  (shell-command
+   "python ~/config/emacs/tangle.py < ~/config/emacs/emacs.org > ~/config/emacs/emacs.el"))
+#+end_src
+
 ** indent/dedent
 #+begin_src emacs-lisp
 (defun dan/dedent (text)
