@@ -1434,6 +1434,20 @@ index e5855ad..29f6429 100644
   (let ((mode-line-format " "))
     (vc-resolve-conflicts)))
 #+end_src
+** Emmet
+#+begin_src emacs-lisp
+(add-hook 'sgml-mode-hook 'emmet-mode) ;; Auto-start on any markup modes
+(add-hook 'css-mode-hook  'emmet-mode) ;; enable Emmet's css abbreviation.
+
+(add-hook 'emmet-mode-hook
+          (lambda ()
+            (setq emmet-indentation 2)
+            (local-set-key [(control return)] 'delete-other-windows)))
+
+;; (setq emmet-move-cursor-between-quotes t) ;; default nil
+;; (setq emmet-move-cursor-after-expanding nil) ;; default t
+#+end_src
+
 ** Recentf
 #+begin_src emacs-lisp
 (recentf-mode t)

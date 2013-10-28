@@ -1104,6 +1104,17 @@ Straight copy of `find-function-at-point` but using
   (let ((mode-line-format " "))
     (vc-resolve-conflicts)))
 
+(add-hook 'sgml-mode-hook 'emmet-mode) ;; Auto-start on any markup modes
+(add-hook 'css-mode-hook  'emmet-mode) ;; enable Emmet's css abbreviation.
+
+(add-hook 'emmet-mode-hook
+          (lambda ()
+            (setq emmet-indentation 2)
+            (local-set-key [(control return)] 'delete-other-windows)))
+
+;; (setq emmet-move-cursor-between-quotes t) ;; default nil
+;; (setq emmet-move-cursor-after-expanding nil) ;; default t
+
 (recentf-mode t)
 ;; recentf-exclude
 (setq recentf-max-saved-items nil)
