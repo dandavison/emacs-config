@@ -124,6 +124,11 @@
         (find-file (format "~/%s/%s" repo path))))
     (message (buffer-string))))
 
+(defun dan/delete-matching-lines (&optional arg)
+  (interactive "P")
+  (call-interactively
+   (if arg 'delete-non-matching-lines 'delete-matching-lines)))
+
 (defun dan/toggle-read-only (&optional arg)
   (interactive "P")
   (unless arg (toggle-read-only))
@@ -2544,6 +2549,7 @@ issued in a language major-mode buffer."
                ("\C-xp" . dan/previous-window)
                ("\C-ca" . org-agenda)
                ("\C-cb" . org-iswitchb)
+               ("\C-cd" . dan/delete-matching-lines)
                ("\C-cy" . yas/expand)
                ("\C-n" . dan/next-line-and-indent)
                ("\C-p" . dan/previous-line-and-indent)
