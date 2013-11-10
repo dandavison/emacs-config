@@ -914,10 +914,17 @@ Straight copy of `find-function-at-point` but using
 
 (defun dan/window-configuration (register &arg)
   (interactive "P")
-  (if arg (progn (window-configuration-to-register register)
-                 (message (char-to-string register)))
-    (progn (jump-to-register register)
-           (message buffer-file-name))))
+  (cond
+   ((not arg)
+    (jump-to-register register)
+    (message buffer-file-name))
+
+   ((equal arg '(4))
+    (window-configuration-to-register register)
+    (message (char-to-string register)))
+
+   ((equal arg '(16))
+    (dan/list-window-configurations))))
 
 (defun dan/list-window-configurations ()
   ;; copied from list-registers
