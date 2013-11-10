@@ -25,6 +25,10 @@
                                     ,(make-char 'greek-iso8859-7 107))
                     nil))))))
 
+(defun dan/filter (condp lst)
+    (delq nil
+          (mapcar (lambda (x) (and (funcall condp x) x)) lst)))
+
 (defun dan/dedent (text)
   (with-temp-buffer
     (insert text)
@@ -782,6 +786,30 @@ Straight copy of `find-function-at-point` but using
                            (progn (setq old-fullscreen current-value)
                                   'fullboth)))))
 
+(defun dan/window-configuration (register &arg)
+  (interactive "P")
+  (if arg (progn (window-configuration-to-register register)
+                 (message (char-to-string register)))
+    (progn (jump-to-register register)
+           (message buffer-file-name))))
+
+(defun dan/list-window-configurations ()
+  ;; copied from list-registers
+  (interactive) 
+  (let ((list (copy-sequence register-alist)))
+    (setq list
+          (dan/filter (lambda (elt) (and (window-configuration-p (second elt))
+                                    (number-or-marker-p (first elt))))  ;; magit uses :magit-screen
+                      list))
+    (setq list (sort list (lambda (a b) (< (car a) (car b)))))
+    (with-output-to-temp-buffer "*Output*"
+      (dolist (elt list)
+        (when (get-register (car elt))
+          (princ
+           (format "%s %s"
+                   (single-key-description (first elt))
+                   (buffer-file-name (marker-buffer (third elt)))))
+          (terpri))))))
 
 
 (set-cursor-color "red")
@@ -2561,6 +2589,7 @@ issued in a language major-mode buffer."
                ("\C-c\C-xf" . font-lock-fontify-buffer)
                ("\C-cg" . dan/magit-status)
                ("\C-ck" . bury-buffer)
+               ("\C-cl" . dan/list-window-configurations)
                ("\C-ci" . dan/eol-column-line)
                ("\C-c\M-l" . bookmark-bmenu-list)
                ("\C-cm" . bookmark-set)
@@ -2600,9 +2629,11 @@ issued in a language major-mode buffer."
                ([(meta up)] . org-metaup)
                ([(super down)] . scroll-up-line)
                ([(super up)] . scroll-down-line)
-               ([f1] . (lambda () (interactive) (call-interactively 'jump-to-register)))
-               ([f4] . (lambda () (interactive) (find-file "~/Notes/notes.org")))
-               ([f5] . (lambda () (interactive) (switch-to-buffer "*Python*")))
+               ([f1] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?1 arg)))
+               ([f2] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?2 arg)))
+               ([f3] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?3 arg)))
+               ([f4] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?4 arg)))
+               ([f5] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?5 arg)))
                ([f6] . dan/find-file-emacs-config)
                ([f12] . magit-status)
                ([(control return)] . delete-other-windows)

@@ -36,12 +36,11 @@
 #+end_src
 
 * My functions
-** tangle
+** filter
 #+begin_src emacs-lisp
-(defun dan/tangle-emacs-dot-org ()
-  (interactive)
-  (shell-command
-   "python ~/config/emacs/tangle.py < ~/config/emacs/emacs.org > ~/config/emacs/emacs.el"))
+(defun dan/filter (condp lst)
+    (delq nil
+          (mapcar (lambda (x) (and (funcall condp x) x)) lst)))
 #+end_src
 
 ** indent/dedent
@@ -913,6 +912,30 @@ Straight copy of `find-function-at-point` but using
                            (progn (setq old-fullscreen current-value)
                                   'fullboth)))))
 
+(defun dan/window-configuration (register &arg)
+  (interactive "P")
+  (if arg (progn (window-configuration-to-register register)
+                 (message (char-to-string register)))
+    (progn (jump-to-register register)
+           (message buffer-file-name))))
+
+(defun dan/list-window-configurations ()
+  ;; copied from list-registers
+  (interactive) 
+  (let ((list (copy-sequence register-alist)))
+    (setq list
+          (dan/filter (lambda (elt) (and (window-configuration-p (second elt))
+                                    (number-or-marker-p (first elt))))  ;; magit uses :magit-screen
+                      list))
+    (setq list (sort list (lambda (a b) (< (car a) (car b)))))
+    (with-output-to-temp-buffer "*Output*"
+      (dolist (elt list)
+        (when (get-register (car elt))
+          (princ
+           (format "%s %s"
+                   (single-key-description (first elt))
+                   (buffer-file-name (marker-buffer (third elt)))))
+          (terpri))))))
 
 #+end_src
 
@@ -3657,9 +3680,11 @@ I didn't get this to work.
                ([(meta up)] . org-metaup)
                ([(super down)] . scroll-up-line)
                ([(super up)] . scroll-down-line)
-               ([f1] . (lambda () (interactive) (call-interactively 'jump-to-register)))
-               ([f4] . (lambda () (interactive) (find-file "~/Notes/notes.org")))
-               ([f5] . (lambda () (interactive) (switch-to-buffer "*Python*")))
+               ([f1] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?1 arg)))
+               ([f2] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?2 arg)))
+               ([f3] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?3 arg)))
+               ([f4] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?4 arg)))
+               ([f5] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?5 arg)))
                ([f6] . dan/find-file-emacs-config)
                ([f12] . magit-status)
                ([(control return)] . delete-other-windows)
