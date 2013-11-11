@@ -788,28 +788,45 @@ Straight copy of `find-function-at-point` but using
 
 (defun dan/window-configuration (register &arg)
   (interactive "P")
-  (if arg (progn (window-configuration-to-register register)
-                 (message (char-to-string register)))
-    (progn (jump-to-register register)
-           (message buffer-file-name))))
+  (cond
+   ((not arg)
+    (jump-to-register register)
+    (message buffer-file-name))
+
+   ((equal arg '(4))
+    (window-configuration-to-register register)
+    (message (char-to-string register)))
+
+   ((equal arg '(16))
+    (dan/list-window-configurations))))
 
 (defun dan/list-window-configurations ()
   ;; copied from list-registers
-  (interactive) 
-  (let ((list (copy-sequence register-alist)))
+  (interactive)
+  (let ((list (copy-sequence register-alist))
+        (temp-buffer-name "*window-configurations*")
+        (temp-buffer-show-hook '(compilation-mode)))
     (setq list
           (dan/filter (lambda (elt) (and (window-configuration-p (second elt))
                                     (number-or-marker-p (first elt))))  ;; magit uses :magit-screen
                       list))
     (setq list (sort list (lambda (a b) (< (car a) (car b)))))
-    (with-output-to-temp-buffer "*Output*"
+    (with-output-to-temp-buffer temp-buffer-name
       (dolist (elt list)
         (when (get-register (car elt))
-          (princ
-           (format "%s %s"
-                   (single-key-description (first elt))
-                   (buffer-file-name (marker-buffer (third elt)))))
-          (terpri))))))
+          (let* ((label (single-key-description (first elt)))
+                 (marker (third elt))
+                 (buffer (marker-buffer marker))
+                 (file-name (buffer-file-name buffer))
+                 line column)
+            (save-window-excursion
+              (goto-char marker)
+              (setq line (line-number-at-pos (point)))
+              (setq column (current-column)))
+              (princ
+               (format "%s:%d:%d: %s" file-name line column label)))
+          (terpri))))
+    (select-window (get-buffer-window temp-buffer-name))))
 
 
 (set-cursor-color "red")
