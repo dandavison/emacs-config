@@ -1684,12 +1684,23 @@ print 'Time: ', (t1 - t0)
       (message (mapconcat #'identity names ".")))))
 
 (defun dan/python-where-am-i ()
-  (interactive)
+  (interactive "P")
   (message
    (dan/save-value-to-kill-ring
-    (format "%s %s"
-            (dan/python-current-defun-name)
-            (dan/eol-column-line)))))
+    (if arg
+        (format
+         "%s:%s"
+         (replace-regexp-in-string
+          ".__init__.py" ""
+          (replace-regexp-in-string
+           "/" "."
+           (replace-regexp-in-string
+            (concat "^" (counsyl--git-dir) "/") ""
+            (buffer-file-name))))
+         (dan/python-current-defun-name))
+      (format "%s %s"
+              (dan/python-current-defun-name)
+              (dan/eol-column-line))))))
 
 (defun dan/strip-quotes (string)
   (if (string-match "[\"']+\\(.+\\)[\"']+" string)
