@@ -1922,13 +1922,17 @@ print 'Time: ', (t1 - t0)
 
 (defun -dan/markdown-to-org ()
   (-dan/do-substitutions
-   '(("^```python" . "#+begin_src python")
-     ("^```" . "#+end_src"))))
+   '(("#" . "*")
+     ("^```python" . "#+begin_src python")
+     ("^```" . "#+end_src")))
+  (org-mode))
 
 (defun -dan/org-to-markdown ()
   (-dan/do-substitutions
-   '(("^#\\+begin_src python" . "```python")
-     ("^#\\+end_src.*" . "```"))))
+   '(("\*" . "#")
+     ("^#\\+begin_src python" . "```python")
+     ("^#\\+end_src.*" . "```")))
+  (markdown-mode))
 
 (dan/require 'regex-tool)
 (dan/require 'unbound)
