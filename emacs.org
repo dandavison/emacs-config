@@ -36,6 +36,22 @@
 #+end_src
 
 * My functions
+** sort lines
+#+begin_src emacs-lisp
+(defun counsyl/sort-paragraph-at-point ()
+  "Sort lines in current paragraph.
+
+A paragraph is delimited by one or more blank lines"
+  (interactive)
+  (shell-command-on-region
+   (save-excursion (re-search-backward "^[ \t]*$" nil t) (point))
+   (save-excursion (re-search-forward "^[ \t]*$" nil t) (point))
+   "sort"
+   nil t))
+
+(define-key python-mode-map "\C-c\M-s" 'counsyl/sort-paragraph-at-point)
+#+end_src
+
 ** filter
 #+begin_src emacs-lisp
 (defun dan/filter (condp lst)
