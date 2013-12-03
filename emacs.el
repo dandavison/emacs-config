@@ -1907,25 +1907,28 @@ print 'Time: ', (t1 - t0)
 ;; magit uses defkey
 (defalias 'defkey 'define-key*)
 
-(defun dan/org-src-to-markdown (&optional arg)
+(defun dan/markdown-to-org (&optional arg)
   (interactive "P")
   (save-excursion
-    (if arg
-        (progn
-          (goto-char (point-min))
-          (while (re-search-forward "^```python" nil t)
-            (replace-match "#+begin_src python"))
+    (if arg (-dan/org-to-markdown)
+      (-dan/markdown-to-org))))
 
+(defun -dan/do-substitutions (substitutions)
+  (mapc (lambda (substitution)
           (goto-char (point-min))
-          (while (re-search-forward "^```" nil t)
-            (replace-match "#+end_src")))
+          (while (re-search-forward (car substitution) nil t)
+            (replace-match (cdr substitution))))
+        substitutions))
 
-      (goto-char (point-min))
-      (while (re-search-forward "^#\\+begin_src python" nil t)
-        (replace-match "```python"))
-      (goto-char (point-min))
-      (while (re-search-forward "^#\\+end_src.*" nil t)
-        (replace-match "```")))))
+(defun -dan/markdown-to-org ()
+  (-dan/do-substitutions
+   '(("^```python" . "#+begin_src python")
+     ("^```" . "#+end_src"))))
+
+(defun -dan/org-to-markdown ()
+  (-dan/do-substitutions
+   '(("^#\\+begin_src python" . "```python")
+     ("^#\\+end_src.*" . "```"))))
 
 (dan/require 'regex-tool)
 (dan/require 'unbound)
