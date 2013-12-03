@@ -36,6 +36,12 @@
 (setq org-babel-load-languages '((emacs-lisp . t) (R . t)))
 (setq org-confirm-babel-evaluate nil)
 ;; (org-babel-load-file "~/config/emacs/emacs.org")
+
+(defun dan/tangle-emacs-dot-org ()
+  (interactive)
+  (shell-command
+   "python ~/config/emacs/tangle.py < ~/config/emacs/emacs.org > ~/config/emacs/emacs.el"))
+
 (dan/tangle-emacs-dot-org)
 (load-file "~/config/emacs/emacs.el")
 (load-file "~/config/emacs/extra.el")

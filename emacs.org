@@ -216,6 +216,8 @@
         (dan/toggle-read-only))))
 
 (add-hook 'find-file-hook 'dan/set-read-only-maybe)
+(add-hook 'find-file-hook 
+          (lambda () (set (make-local-variable 'indent-tabs-mode) nil)))
 #+end_src
 
 ** indent or complete
@@ -1190,6 +1192,7 @@ Straight copy of `find-function-at-point` but using
 (setq tab-width 4)
 (add-hook 'occur-mode-hook (lambda () (setq truncate-lines t)))
 (add-hook 'compilation-mode-hook (lambda () (setq truncate-lines t)))
+(add-to-list 'auto-mode-alist '("\\.compilation$" . compilation-mode))
 
 ;; DNW
 ;; Wrong type argument: window-live-p, nil
@@ -1263,7 +1266,7 @@ Straight copy of `find-function-at-point` but using
 
 (defvar dan/delete-trailing-whitespace-major-modes
   '(python-mode ess-mode coffee-mode javascript-mode
-                go-mode haskell-mode clojure-mode))
+                go-mode haskell-mode clojure-mode html-mode))
 
 (defun dan/query-delete-trailing-whitespace ()
   "If there's trailing whitespace ask to delete it"
@@ -1876,6 +1879,11 @@ Seems very slow on coffeescript output of reasonable size; disabling.
 (require 'texinfo)
 #+end_src
 
+*** Tweet
+#+begin_src emacs-lisp
+(add-to-list 'auto-mode-alist '("\\.tweet$" . tweet-mode))
+#+end_src
+
 *** Plantuml
 #+begin_src emacs-lisp
 (dan/require 'plantuml-mode)
@@ -1992,8 +2000,8 @@ Seems very slow on coffeescript output of reasonable size; disabling.
 (defun dan/python-kwargs-to-dict-literal ()
   (interactive)
   (replace-regexp
-   " \\([^ =]+\\)=\\([^,]+\\),"
-   " '\\1': \\2,"
+   " \\([^ =]+\\) *= *\\([^,\n]+\\),?\n"
+   " '\\1': \\2,\n"
    nil (region-beginning) (region-end)))
 
 (defun dan/python-prep-paste ()
@@ -2341,6 +2349,12 @@ http://chrispoole.com/downloads/ac-python.el
   (let ((py-which-args '("./manage.py"  "shell")))
     (py-shell)))
 #+end_src
+** Sass
+#+begin_src emacs-lisp
+(add-to-list 'load-path "~/lib/emacs/scss-mode")
+(add-to-list 'auto-mode-alist '("\\.scss$" . scss-mode))
+#+end_src
+
 *** Shell
 #+begin_src emacs-lisp
 (autoload 'ansi-color-for-comint-mode-on "ansi-color" nil t)
@@ -2545,6 +2559,29 @@ obj[-grep(re, obj)]
 ;; magit uses defkey
 (defalias 'defkey 'define-key*)
 #+end_src
+** Markdown
+#+begin_src emacs-lisp
+(defun dan/org-src-to-markdown (&optional arg)
+  (interactive "P")
+  (save-excursion
+    (if arg
+        (progn
+          (goto-char (point-min))
+          (while (re-search-forward "^```python" nil t)
+            (replace-match "#+begin_src python"))
+
+          (goto-char (point-min))
+          (while (re-search-forward "^```" nil t)
+            (replace-match "#+end_src")))
+
+      (goto-char (point-min))
+      (while (re-search-forward "^#\\+begin_src python" nil t)
+        (replace-match "```python"))
+      (goto-char (point-min))
+      (while (re-search-forward "^#\\+end_src.*" nil t)
+        (replace-match "```")))))
+#+end_src
+
 ** Misc
 #+begin_src emacs-lisp
 (dan/require 'regex-tool)
@@ -3637,10 +3674,11 @@ I didn't get this to work.
 (require 'python-django)
 #+end_src
 
-
 * Key bindings
 ** global
 #+begin_src emacs-lisp
+(define-key global-map [(f2)] 'identity)
+
 (dan/register-key-bindings
  '(global-map .
               (("\C-b" . backward-sexp)
@@ -3665,9 +3703,8 @@ I didn't get this to work.
                ("\C-ca" . org-agenda)
                ("\C-c\C-a" . show-all)
                ("\C-ce" . show-all)
-               ("\C-cf" . dan/find-function-or-library)
+               ("\C-cf" . dan/find)
                ("\C-c\M-f" . dan/find)
-               ("\C-c\C-xf" . font-lock-fontify-buffer)
                ("\C-cg" . dan/magit-status)
                ("\C-ck" . bury-buffer)
                ("\C-ci" . dan/eol-column-line)
@@ -3708,12 +3745,13 @@ I didn't get this to work.
                ([(meta up)] . org-metaup)
                ([(super down)] . scroll-up-line)
                ([(super up)] . scroll-down-line)
-               ([f1] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?1 arg)))
+               ([f1] . dan/list-window-configurations)
                ([f2] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?2 arg)))
                ([f3] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?3 arg)))
                ([f4] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?4 arg)))
                ([f5] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?5 arg)))
                ([f6] . dan/find-file-emacs-config)
+               ([f11] . dan/find)
                ([f12] . magit-status)
                ([(control return)] . delete-other-windows)
                ([(control escape)] . delete-window)
@@ -3861,6 +3899,13 @@ I didn't get this to work.
    (([(control up)] . log-edit-previous-comment)
     ([(control down)] . log-edit-next-comment))))
 #+end_src
+** markdown
+#+begin_src emacs-lisp
+(dan/register-key-bindings
+ '("markdown" .
+   (([(meta left)] . left-word)
+    ([(meta right)] . right-word))))
+#+end_src
 
 ** Mml
 #+begin_src emacs-lisp
@@ -3884,7 +3929,9 @@ I didn't get this to work.
     ("\M-;" . org-src-native/comment-dwim)
     ("\C-\\" . org-src-native/indent-region)
     ([(control \')] . dan/org-hide-block-and-switch-to-code-buffer)
-    ([(control return)] . delete-other-windows))))
+    ([(control return)] . delete-other-windows)
+    ([(meta left)] . left-word)
+    ([(meta right)] . right-word))))
 #+end_src
 
 *** Eric's outline navigation bindings
@@ -3938,6 +3985,7 @@ I didn't get this to work.
     ("\M-." . dan/rope-goto-definition)
     ("\M-w" . dan/python-kill-ring-save)
     ("\C-c," . flymake-goto-next-error)
+    ("\C-ca" . (lambda () (interactive) (insert "# ACCOUNTS2.0: TODO:")))
     ("\C-c\M-p" . dan/python-prep-paste)
     ([(meta shift right)] . python-indent-shift-right)
     ([(meta shift left)] . python-indent-shift-left)

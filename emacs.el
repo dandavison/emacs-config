@@ -173,6 +173,8 @@
         (dan/toggle-read-only))))
 
 (add-hook 'find-file-hook 'dan/set-read-only-maybe)
+(add-hook 'find-file-hook 
+          (lambda () (set (make-local-variable 'indent-tabs-mode) nil)))
 
 (defun dan/indent-or-complete ()
   (interactive)
@@ -964,6 +966,7 @@ Straight copy of `find-function-at-point` but using
 (setq tab-width 4)
 (add-hook 'occur-mode-hook (lambda () (setq truncate-lines t)))
 (add-hook 'compilation-mode-hook (lambda () (setq truncate-lines t)))
+(add-to-list 'auto-mode-alist '("\\.compilation$" . compilation-mode))
 
 ;; DNW
 ;; Wrong type argument: window-live-p, nil
@@ -1010,7 +1013,7 @@ Straight copy of `find-function-at-point` but using
 
 (defvar dan/delete-trailing-whitespace-major-modes
   '(python-mode ess-mode coffee-mode javascript-mode
-                go-mode haskell-mode clojure-mode))
+                go-mode haskell-mode clojure-mode html-mode))
 
 (defun dan/query-delete-trailing-whitespace ()
   "If there's trailing whitespace ask to delete it"
@@ -1422,6 +1425,8 @@ Straight copy of `find-function-at-point` but using
 
 (require 'texinfo)
 
+(add-to-list 'auto-mode-alist '("\\.tweet$" . tweet-mode))
+
 (dan/require 'plantuml-mode)
 
 ;; (defvar dan/python-exec-lines
@@ -1447,7 +1452,7 @@ Straight copy of `find-function-at-point` but using
     (when (and restart process-buffer) (kill-buffer buf-name))
     (unless (and process-buffer (get-buffer-process process-buffer))
       (run-python (eval cmd))
-      ;; (python-shell-send-string dan/python-startup-string)
+      (python-shell-send-string dan/python-startup-string)
       ;; (dan/python-eval-exec-lines)
       ;; Start up clean
       ;; (sleep-for 5)
@@ -1495,8 +1500,8 @@ Straight copy of `find-function-at-point` but using
   (interactive "P")
   ;; (indent-for-tab-command)
   (if traceback
-      (insert "import traceback ; import pdb ; print traceback.format_exc() ; pdb.set_trace()")
-  (insert "import pdb ; pdb.set_trace()")))
+      (insert "import traceback ; import ipdb ; print traceback.format_exc() ; ipdb.set_trace()")
+  (insert "import ipdb ; ipdb.set_trace()")))
 
 (defun dan/insert-import-numpy ()
   (interactive)
@@ -1533,8 +1538,8 @@ Straight copy of `find-function-at-point` but using
 (defun dan/python-kwargs-to-dict-literal ()
   (interactive)
   (replace-regexp
-   " \\([^ =]+\\)=\\([^,]+\\),"
-   " '\\1': \\2,"
+   " \\([^ =]+\\) *= *\\([^,\n]+\\),?\n"
+   " '\\1': \\2,\n"
    nil (region-beginning) (region-end)))
 
 (defun dan/python-prep-paste ()
@@ -1765,6 +1770,9 @@ print 'Time: ', (t1 - t0)
 (put 'python-import 'bounds-of-thing-at-point
      'python-import-bounds-of-python-import-at-point)
 
+(add-to-list 'load-path "~/lib/emacs/scss-mode")
+(add-to-list 'auto-mode-alist '("\\.scss$" . scss-mode))
+
 (autoload 'ansi-color-for-comint-mode-on "ansi-color" nil t)
 (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
 (add-hook 'shell-mode-hook
@@ -1899,6 +1907,26 @@ print 'Time: ', (t1 - t0)
 ;; magit uses defkey
 (defalias 'defkey 'define-key*)
 
+(defun dan/org-src-to-markdown (&optional arg)
+  (interactive "P")
+  (save-excursion
+    (if arg
+        (progn
+          (goto-char (point-min))
+          (while (re-search-forward "^```python" nil t)
+            (replace-match "#+begin_src python"))
+
+          (goto-char (point-min))
+          (while (re-search-forward "^```" nil t)
+            (replace-match "#+end_src")))
+
+      (goto-char (point-min))
+      (while (re-search-forward "^#\\+begin_src python" nil t)
+        (replace-match "```python"))
+      (goto-char (point-min))
+      (while (re-search-forward "^#\\+end_src.*" nil t)
+        (replace-match "```")))))
+
 (dan/require 'regex-tool)
 (dan/require 'unbound)
 (dan/require 'windresize)
@@ -1992,7 +2020,7 @@ print 'Time: ', (t1 - t0)
 ;;    (setq yas/trigger-key [tab])
     (define-key yas/keymap [tab] 'yas/next-field-group)))
 
-;; (yas/load-directory "~/lib/emacs/django-mode/snippets")
+(yas/load-directory "~/lib/emacs/django-mode/snippets")
 
 (defun dan/org-table-import ()
   (interactive)
@@ -2588,6 +2616,8 @@ issued in a language major-mode buffer."
 (add-to-list 'load-path "~/lib/emacs/python-django.el")
 (require 'python-django)
 
+(define-key global-map [(f2)] 'identity)
+
 (dan/register-key-bindings
  '(global-map .
               (("\C-b" . backward-sexp)
@@ -2612,12 +2642,10 @@ issued in a language major-mode buffer."
                ("\C-ca" . org-agenda)
                ("\C-c\C-a" . show-all)
                ("\C-ce" . show-all)
-               ("\C-cf" . dan/find-function-or-library)
+               ("\C-cf" . dan/find)
                ("\C-c\M-f" . dan/find)
-               ("\C-c\C-xf" . font-lock-fontify-buffer)
                ("\C-cg" . dan/magit-status)
                ("\C-ck" . bury-buffer)
-               ("\C-cl" . dan/list-window-configurations)
                ("\C-ci" . dan/eol-column-line)
                ("\C-c\M-l" . bookmark-bmenu-list)
                ("\C-cm" . bookmark-set)
@@ -2645,7 +2673,6 @@ issued in a language major-mode buffer."
                ("\M-o" . dan/occur)
                ("\M-i" . counsyl/highlight)
                ([delete] . winner-undo)
-               ([backspace] . delete-backward-char)
                ([(hyper left)] . winner-undo)
                ([(hyper right)] . winner-redo)
                ([(control left)] . winner-undo)
@@ -2657,21 +2684,18 @@ issued in a language major-mode buffer."
                ([(meta up)] . org-metaup)
                ([(super down)] . scroll-up-line)
                ([(super up)] . scroll-down-line)
-               ([f1] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?1 arg)))
+               ([f1] . dan/list-window-configurations)
                ([f2] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?2 arg)))
                ([f3] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?3 arg)))
                ([f4] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?4 arg)))
                ([f5] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?5 arg)))
                ([f6] . dan/find-file-emacs-config)
+               ([f11] . dan/find)
                ([f12] . magit-status)
                ([(control return)] . delete-other-windows)
                ([(control escape)] . delete-window)
                ([(meta escape)] . delete-other-windows)
-               ([escape] . dan/other-non-minibuffer-window)
-;;               ([(meta left)] . left-word)
-;;               ([(meta right)] . right-word)
-               ))
- )
+               ([escape] . dan/other-non-minibuffer-window))))
 
 (global-set-key (kbd "s-,") 'dan/show-buffer-file-name)
 (global-set-key (kbd "s-i") 'dan/where-am-i)
@@ -2786,6 +2810,11 @@ issued in a language major-mode buffer."
     ([(control down)] . log-edit-next-comment))))
 
 (dan/register-key-bindings
+ '("markdown" .
+   (([(meta left)] . left-word)
+    ([(meta right)] . right-word))))
+
+(dan/register-key-bindings
  '("mml" .
    (("\M-q" . ded/mml-fill-paragraph))))
 
@@ -2803,7 +2832,9 @@ issued in a language major-mode buffer."
     ("\M-;" . org-src-native/comment-dwim)
     ("\C-\\" . org-src-native/indent-region)
     ([(control \')] . dan/org-hide-block-and-switch-to-code-buffer)
-    ([(control return)] . delete-other-windows))))
+    ([(control return)] . delete-other-windows)
+    ([(meta left)] . left-word)
+    ([(meta right)] . right-word))))
 
 (add-hook 'org-mode-hook
           (lambda ()
@@ -2842,6 +2873,7 @@ issued in a language major-mode buffer."
     ("\M-." . dan/rope-goto-definition)
     ("\M-w" . dan/python-kill-ring-save)
     ("\C-c," . flymake-goto-next-error)
+    ("\C-ca" . (lambda () (interactive) (insert "# ACCOUNTS2.0: TODO:")))
     ("\C-c\M-p" . dan/python-prep-paste)
     ([(meta shift right)] . python-indent-shift-right)
     ([(meta shift left)] . python-indent-shift-left)
