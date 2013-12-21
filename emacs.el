@@ -327,6 +327,7 @@ Wait for REST between each attempt."
       (setq exec-path (split-string path-from-shell path-separator)))))
 (dan/set-exec-path-from-shell)
 (dan/set-exec-path-from-shell "PYTHONPATH")
+(setenv "GEM_HOME" (org-babel-chomp (shell-command-to-string "brew --prefix")))
 
 (defun dan/sudo-read-from-file (file)
   (interactive "FFile: ")
@@ -694,7 +695,7 @@ Straight copy of `find-function-at-point` but using
   (call-interactively
    (cond
      ((not arg) 'dan/recentf-ido-find-file)
-     ((equal arg '(4)) 'ido-find-file)
+     ((equal arg '(4)) 'fuzzy-find-in-project)
      ((equal arg '(16)) 'ido-find-file))))
 
 (defun dan/show-all-all-buffers ()
@@ -755,6 +756,8 @@ Straight copy of `find-function-at-point` but using
       split-width-threshold nil
       split-height-threshold nil)
 
+(setq ns-use-native-fullscreen nil)
+
 (if nil
     (defun dan/display-buffer-whole-frame (buffer &rest ignored)
       ;; (switch-to-buffer buffer)
@@ -765,28 +768,6 @@ Straight copy of `find-function-at-point` but using
   ;; (setq special-display-function (lambda (buffer &rest ignored) (switch-to-buffer buffer) (delete-other-windows))))
   (setq special-display-function (lambda (buffer &rest ignored) (delete-other-windows)))
   )
-
-(defun dan/toggle-fullscreen (&optional arg)
-  (interactive "P")
-  (if arg (progn
-            (ns-toggle-fullscreen)
-            ;; hack to avoid white square in bottom right
-            ;; (color-theme-charcoal-black)
-            ;; (color-theme-railscasts)
-            ;; (dan/sanitise-faces)
-            )
-    (message "ns-toggle-fullscreen binding is disabled")))
-
-;; http://www.emacswiki.org/emacs/FullScreen
-;; not working on OSX yet
-(defun dan/toggle-fullscreen-old (&optional f)
-  (interactive)
-  (let ((current-value (frame-parameter nil 'fullscreen)))
-    (set-frame-parameter nil 'fullscreen
-                         (if (equal 'fullboth current-value)
-                             (if (boundp 'old-fullscreen) old-fullscreen nil)
-                           (progn (setq old-fullscreen current-value)
-                                  'fullboth)))))
 
 (defun dan/window-configuration (register &arg)
   (interactive "P")
@@ -967,6 +948,7 @@ Straight copy of `find-function-at-point` but using
 (add-hook 'occur-mode-hook (lambda () (setq truncate-lines t)))
 (add-hook 'compilation-mode-hook (lambda () (setq truncate-lines t)))
 (add-to-list 'auto-mode-alist '("\\.compilation$" . compilation-mode))
+(add-to-list 'auto-mode-alist '("\\.gitconfig$" . conf-mode))
 
 ;; DNW
 ;; Wrong type argument: window-live-p, nil
@@ -1005,7 +987,6 @@ Straight copy of `find-function-at-point` but using
 ;; remove the -e flag to xargs, use 4 processes
 (setq grep-find-command "find . -type f -print0 | xargs -P4 -0 grep -nH -e")
 (setq grep-find-template "find . <X> -type f <F> -print0 | xargs -P4 -0 grep <C> -nH -e <R>")
-
 
 ;; This doesn't work with org-src-mode code buffers as their
 ;; buffer-file-name doesn't correspond to a file
@@ -1189,7 +1170,7 @@ Straight copy of `find-function-at-point` but using
            (local-file (file-relative-name
                         temp-file
                         (file-name-directory buffer-file-name))))
-      (list "codequality" (list local-file))))
+      (list "/Users/dan/venvs/website/bin/codequality" (list local-file))))
 
 (add-to-list 'flymake-allowed-file-name-masks
              '("\\.py\\'" dan/flymake-init))
@@ -1584,7 +1565,6 @@ print 'Time: ', (t1 - t0)
 (setq python-fill-docstring-style 'django)
 
 
-(add-to-list 'load-path "~/lib/emacs/python.el")
 (require 'python)
 (setq auto-mode-alist (cons '("\\.pyw$" . python-mode) auto-mode-alist))
 (setq auto-mode-alist (cons '("\\.pyx$" . python-mode) auto-mode-alist))
@@ -1701,7 +1681,8 @@ print 'Time: ', (t1 - t0)
            "/" "."
            (replace-regexp-in-string
             (concat "^" (counsyl--git-dir) "/") ""
-            (buffer-file-name))))
+            (replace-regexp-in-string
+             "\.py$" "" (buffer-file-name)))))
          (dan/python-current-defun-name))
       (format "%s %s"
               (dan/python-current-defun-name)
@@ -2256,6 +2237,12 @@ Should start by setting restriction?
                 (outline-previous-visible-heading 1)
                 (org-show-subtree)))))
 
+;; (add-hook 'before-save-hook
+;;           (lambda ()
+;;             (when (eq major-mode 'org-mode)
+;;               (save-excursion
+;;               (replace-regexp "-\\+-" "-|-")))))
+
 (setq org-hide-leading-stars t)
 (setq org-hidden-keywords '(title date author))
 
@@ -2687,7 +2674,7 @@ issued in a language major-mode buffer."
                ([(super o)] . dan/open-github-path-from-clipboard)
                ([(super left)] . winner-undo)
                ([(super right)] . winner-redo)
-               ([(super return)] . dan/toggle-fullscreen)
+               ([(super return)] . fullscreen-mode-fullscreen-toggle)
                ([(meta up)] . org-metaup)
                ([(super down)] . scroll-up-line)
                ([(super up)] . scroll-down-line)
@@ -2880,7 +2867,8 @@ issued in a language major-mode buffer."
     ("\M-." . dan/rope-goto-definition)
     ("\M-w" . dan/python-kill-ring-save)
     ("\C-c," . flymake-goto-next-error)
-    ("\C-ca" . (lambda () (interactive) (insert "# ACCOUNTS2.0: TODO:")))
+    ("\C-ca" . (lambda () (interactive) (insert "# TODO-MOPA: accounts will have multiple customerprofiles")))
+    ("\C-cs" . counsyl/sort-paragraph-at-point)
     ("\C-c\M-p" . dan/python-prep-paste)
     ([(meta shift right)] . python-indent-shift-right)
     ([(meta shift left)] . python-indent-shift-left)
@@ -2913,9 +2901,6 @@ issued in a language major-mode buffer."
 (setq inhibit-startup-message t)
 
 (color-theme-initialize)
-;; (color-theme-charcoal-black)
-;; (color-theme-emacs-21) ;; hack to avoid square in bottom right on fullscreen
-;; (color-theme-charcoal-black)
 (case dan/operating-system
   ('linux
    (set-face-attribute 'default nil :height 110 :family "DejaVu Sans Mono"))
@@ -2964,9 +2949,6 @@ issued in a language major-mode buffer."
 (ido-mode +1)
 (setq ido-separator " ")
 (eshell)
-;; (when
-;;            (fboundp 'ns-toggle-fullscreen))
-;;   (ns-toggle-fullscreen))
 
 (setq scroll-preserve-screen-position :always
       scroll-conservatively           most-positive-fixnum

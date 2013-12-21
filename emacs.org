@@ -400,6 +400,7 @@ Wait for REST between each attempt."
       (setq exec-path (split-string path-from-shell path-separator)))))
 (dan/set-exec-path-from-shell)
 (dan/set-exec-path-from-shell "PYTHONPATH")
+(setenv "GEM_HOME" (org-babel-chomp (shell-command-to-string "brew --prefix")))
 #+end_src
 
 ** Sudo read file
@@ -809,7 +810,7 @@ Straight copy of `find-function-at-point` but using
   (call-interactively
    (cond
      ((not arg) 'dan/recentf-ido-find-file)
-     ((equal arg '(4)) 'ido-find-file)
+     ((equal arg '(4)) 'fuzzy-find-in-project)
      ((equal arg '(16)) 'ido-find-file))))
 #+end_src
 
@@ -1173,6 +1174,7 @@ Straight copy of `find-function-at-point` but using
 (add-hook 'occur-mode-hook (lambda () (setq truncate-lines t)))
 (add-hook 'compilation-mode-hook (lambda () (setq truncate-lines t)))
 (add-to-list 'auto-mode-alist '("\\.compilation$" . compilation-mode))
+(add-to-list 'auto-mode-alist '("\\.gitconfig$" . conf-mode))
 
 ;; DNW
 ;; Wrong type argument: window-live-p, nil
@@ -1508,7 +1510,7 @@ index e5855ad..29f6429 100644
            (local-file (file-relative-name
                         temp-file
                         (file-name-directory buffer-file-name))))
-      (list "codequality" (list local-file))))
+      (list "/Users/dan/venvs/website/bin/codequality" (list local-file))))
 
 (add-to-list 'flymake-allowed-file-name-masks
              '("\\.py\\'" dan/flymake-init))
@@ -2033,7 +2035,6 @@ Alternative completion approach; haven't investigated this.
 http://chrispoole.com/downloads/ac-python.el
 
 #+begin_src emacs-lisp
-(add-to-list 'load-path "~/lib/emacs/python.el")
 (require 'python)
 (setq auto-mode-alist (cons '("\\.pyw$" . python-mode) auto-mode-alist))
 (setq auto-mode-alist (cons '("\\.pyx$" . python-mode) auto-mode-alist))
@@ -2150,7 +2151,8 @@ http://chrispoole.com/downloads/ac-python.el
            "/" "."
            (replace-regexp-in-string
             (concat "^" (counsyl--git-dir) "/") ""
-            (buffer-file-name))))
+            (replace-regexp-in-string
+             "\.py$" "" (buffer-file-name)))))
          (dan/python-current-defun-name))
       (format "%s %s"
               (dan/python-current-defun-name)
@@ -2419,7 +2421,7 @@ http://chrispoole.com/downloads/ac-python.el
 #+name: R-builtins
 #+begin_src R :tangle no
 obj <- unlist(sapply(c("package:base","package:stats","package:utils","package:grDevices"), objects, all.names=TRUE))
-re <- "(^[^.[:alpha:][:digit:]]|<-|__)"  ## to remove "weird" functions
+re <- "(^[^.[:alpha:][:digit:]]+<-+__)"  ## to remove "weird" functions
 obj[-grep(re, obj)]
 #+end_src
 
@@ -2976,6 +2978,12 @@ by Vitalie S.
               (save-excursion
                 (outline-previous-visible-heading 1)
                 (org-show-subtree)))))
+
+;; (add-hook 'before-save-hook
+;;           (lambda ()
+;;             (when (eq major-mode 'org-mode)
+;;               (save-excursion
+;;               (replace-regexp "-\\+-" "-|-")))))
 #+end_src
 
 *** Appearance
@@ -3972,7 +3980,8 @@ I didn't get this to work.
     ("\M-." . dan/rope-goto-definition)
     ("\M-w" . dan/python-kill-ring-save)
     ("\C-c," . flymake-goto-next-error)
-    ("\C-ca" . (lambda () (interactive) (insert "# ACCOUNTS2.0: TODO:")))
+    ("\C-ca" . (lambda () (interactive) (insert "# TODO-MOPA: accounts will have multiple customerprofiles")))
+    ("\C-cs" . counsyl/sort-paragraph-at-point)
     ("\C-c\M-p" . dan/python-prep-paste)
     ([(meta shift right)] . python-indent-shift-right)
     ([(meta shift left)] . python-indent-shift-left)
