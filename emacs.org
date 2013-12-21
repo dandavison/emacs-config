@@ -881,6 +881,8 @@ Straight copy of `find-function-at-point` but using
       split-width-threshold nil
       split-height-threshold nil)
 
+(setq ns-use-native-fullscreen nil)
+
 (if nil
     (defun dan/display-buffer-whole-frame (buffer &rest ignored)
       ;; (switch-to-buffer buffer)
@@ -891,28 +893,6 @@ Straight copy of `find-function-at-point` but using
   ;; (setq special-display-function (lambda (buffer &rest ignored) (switch-to-buffer buffer) (delete-other-windows))))
   (setq special-display-function (lambda (buffer &rest ignored) (delete-other-windows)))
   )
-
-(defun dan/toggle-fullscreen (&optional arg)
-  (interactive "P")
-  (if arg (progn
-            (ns-toggle-fullscreen)
-            ;; hack to avoid white square in bottom right
-            ;; (color-theme-charcoal-black)
-            ;; (color-theme-railscasts)
-            ;; (dan/sanitise-faces)
-            )
-    (message "ns-toggle-fullscreen binding is disabled")))
-
-;; http://www.emacswiki.org/emacs/FullScreen
-;; not working on OSX yet
-(defun dan/toggle-fullscreen-old (&optional f)
-  (interactive)
-  (let ((current-value (frame-parameter nil 'fullscreen)))
-    (set-frame-parameter nil 'fullscreen
-                         (if (equal 'fullboth current-value)
-                             (if (boundp 'old-fullscreen) old-fullscreen nil)
-                           (progn (setq old-fullscreen current-value)
-                                  'fullboth)))))
 
 (defun dan/window-configuration (register &arg)
   (interactive "P")
@@ -3748,7 +3728,7 @@ I didn't get this to work.
                ([(super o)] . dan/open-github-path-from-clipboard)
                ([(super left)] . winner-undo)
                ([(super right)] . winner-redo)
-               ([(super return)] . dan/toggle-fullscreen)
+               ([(super return)] . fullscreen-mode-fullscreen-toggle)
                ([(meta up)] . org-metaup)
                ([(super down)] . scroll-up-line)
                ([(super up)] . scroll-down-line)
@@ -4067,9 +4047,6 @@ I didn't get this to work.
 ** Start-up
 #+begin_src emacs-lisp
 (color-theme-initialize)
-;; (color-theme-charcoal-black)
-;; (color-theme-emacs-21) ;; hack to avoid square in bottom right on fullscreen
-;; (color-theme-charcoal-black)
 (case dan/operating-system
   ('linux
    (set-face-attribute 'default nil :height 110 :family "DejaVu Sans Mono"))
@@ -4131,9 +4108,6 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 (ido-mode +1)
 (setq ido-separator " ")
 (eshell)
-;; (when
-;;            (fboundp 'ns-toggle-fullscreen))
-;;   (ns-toggle-fullscreen))
 #+end_src
 
 * Experimental
