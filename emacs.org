@@ -2514,22 +2514,44 @@ obj[-grep(re, obj)]
 ** Magit
 #+begin_src emacs-lisp
 (add-to-list 'load-path "~/lib/emacs/magit")
+(add-to-list 'load-path "~/lib/emacs/git-modes")
 (dan/require 'magit)
 (require 'magit-blame)
 (setq magit-save-some-buffers nil)
 (setq magit-process-popup-time 1)
 (setq magit-revert-item-confirm t)
-(defun dan/magit-status (&optional arg)
-  (interactive "P")
-  (call-interactively 'magit-status)
-  (unless arg (delete-other-windows)))
+
+(setq magit-status-sections-hook
+  '(
+    ;; magit-insert-status-local-line
+    ;; magit-insert-status-remote-line
+    ;; magit-insert-status-head-line
+    ;; magit-insert-status-tags-line
+    ;; magit-insert-status-merge-line
+    ;; magit-insert-status-rebase-lines
+    ;; magit-insert-empty-line
+    ;; magit-insert-rebase-sequence
+    ;; magit-insert-bisect-output
+    ;; magit-insert-bisect-rest
+    ;; magit-insert-bisect-log
+    ;; magit-insert-stashes
+    ;; magit-insert-untracked-files
+    ;; magit-insert-pending-changes
+    ;; magit-insert-pending-commits
+    magit-insert-unstaged-changes
+    magit-insert-staged-changes
+    ;; magit-insert-unpulled-commits
+    ;; magit-insert-unpushed-commits
+    ))
 
 (add-hook 'magit-mode-hook (lambda () (setq truncate-lines t)))
+;; (add-hook 'magit-diff-mode-hook 'dan/magit-hide-all-sections)
 
-(defun dan/magit-kill-git-process ()
-  (interactive)
-  ;; (kill-process magit-process) ? doesn't do what I want.
-  (kill-buffer magit-process-buffer-name))
+(defadvice magit-refresh-diff-buffer (after hide-sections-and-delete-other-windows)
+  (dan/magit-hide-all-sections)
+  (delete-other-windows))
+
+(ad-activate 'magit-refresh-diff-buffer)
 
 (set-face-attribute 'magit-diff-add nil :foreground "green") ;; darkgreen
 (set-face-attribute 'magit-diff-del nil :foreground "red")
@@ -2537,6 +2559,50 @@ obj[-grep(re, obj)]
 ;; (set-face-attribute 'magit-item-highlight nil :background "default") ;; "#01294A" "#01395C"
 (set-face-attribute 'magit-diff-hunk-header nil :background "#01294A") ;; "keyboardFocusIndicatorColor"
 ;; (set-face-attribute 'magit-item-highlight nil :background "secondarySelectedControlColor")
+
+
+
+;; * http://whattheemacsd.com/
+;; ** magit window management
+
+(defadvice magit-status (around magit-fullscreen activate)
+  (window-configuration-to-register :magit-fullscreen)
+  ad-do-it
+  (delete-other-windows))
+
+(defun magit-quit-session ()
+  "Restores the previous window configuration and kills the magit buffer"
+  (interactive)
+  (kill-buffer)
+  (jump-to-register :magit-fullscreen))
+
+(define-key magit-status-mode-map (kbd "q") 'magit-quit-session)
+
+
+
+
+
+(defun dan/magit-hide-all-sections ()
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (let ((next))
+      (while (setq next (magit-find-section-after (point)))
+        (magit-goto-section next)
+        (magit-hide-section)))))
+
+
+(defun dan/magit-status (&optional arg)
+  (interactive "P")
+  (call-interactively 'magit-status)
+  (unless arg (delete-other-windows)))
+
+
+(defun dan/magit-kill-git-process ()
+  (interactive)
+  ;; (kill-process magit-process) ? doesn't do what I want.
+  (kill-buffer magit-process-buffer-name))
+
 
 ;; magit uses defkey
 (defalias 'defkey 'define-key*)
