@@ -87,13 +87,6 @@
   (interactive)
   (message "Don't fucking do that."))
 
-;; Didn't get regexp-history to work with read-from-minibuffer
-;; (and tap (push tap regexp-history))
-(defun dan/fuzzy-find-change-root-dir (directory)
-  "Change current directory in emacs and in the python process"
-  (interactive "Dfuzzy-find root directory: ")
-  (setq fuzzy-find-project-root directory))
-
 (defun dan/paint-buffer-by-predicate (predicate)
   "Set background color at position x according to value of predicate."
   (interactive)
@@ -717,7 +710,8 @@ Straight copy of `find-function-at-point` but using
   "Scratch buffers for various major modes"
   (interactive "P")
   (let* ((modes
-          `(("org-mode" . "org")
+          `(("text-mode" . "txt")
+            ("org-mode" . "org")
             ("python-mode" . "py")
             ("coffee-mode" . "coffee")
             ("emacs-lisp-mode" . "el")
@@ -988,13 +982,14 @@ Straight copy of `find-function-at-point` but using
 (setq grep-find-command "find . -type f -print0 | xargs -P4 -0 grep -nH -e")
 (setq grep-find-template "find . <X> -type f <F> -print0 | xargs -P4 -0 grep <C> -nH -e <R>")
 
+
 ;; This doesn't work with org-src-mode code buffers as their
 ;; buffer-file-name doesn't correspond to a file
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
 
 (defvar dan/delete-trailing-whitespace-major-modes
   '(python-mode ess-mode coffee-mode javascript-mode
-                go-mode haskell-mode clojure-mode html-mode))
+                go-mode haskell-mode clojure-mode html-mode graphviz-dot-mode))
 
 (defun dan/query-delete-trailing-whitespace ()
   "If there's trailing whitespace ask to delete it"
@@ -1054,8 +1049,16 @@ Straight copy of `find-function-at-point` but using
                              "--ignore" "'*.xml'"
                              "--ignore" "'*.log'"
                              "--ignore" "'*.sql'"
-                             "--ignore" "'*.txt'"
+                             ;; "--ignore" "'*.txt'"
+                             ;; "--ignore" "'*.md'"
+                             "--ignore" "'*.wsdl'"
+                             "--ignore" "'*.min.css'"
+                             ;; "--ignore" "'*.html'"
+                             ;; "--ignore" "'*.scss'"
+                             ;; "--ignore" "'*.css'"
                              "--ignore" "'*.json'"
+                             "--ignore" "'*.pdf'"
+                             "--ignore" "'*.tsv'"
                              "--ignore" "'*.yaml'")
                            ag-arguments))
 
@@ -1674,7 +1677,7 @@ print 'Time: ', (t1 - t0)
    (dan/save-value-to-kill-ring
     (if arg
         (format
-         "%s:%s"
+         "website_test %s:%s"
          (replace-regexp-in-string
           ".__init__.py" ""
           (replace-regexp-in-string
@@ -1912,6 +1915,8 @@ print 'Time: ', (t1 - t0)
 ;; * http://whattheemacsd.com/
 ;; ** magit window management
 
+;; (setq magit-status-buffer-name "magit-status: %t")
+
 (defadvice magit-status (around magit-fullscreen activate)
   (window-configuration-to-register :magit-fullscreen)
   ad-do-it
@@ -1927,8 +1932,6 @@ print 'Time: ', (t1 - t0)
 
 
 
-
-
 (defun dan/magit-hide-all-sections ()
   (interactive)
   (save-excursion
@@ -1941,7 +1944,8 @@ print 'Time: ', (t1 - t0)
 
 (defun dan/magit-status (&optional arg)
   (interactive "P")
-  (call-interactively 'magit-status)
+  ;; (call-interactively 'magit-status)
+  (switch-to-buffer "*magit-status: website*")
   (unless arg (delete-other-windows)))
 
 
@@ -2303,11 +2307,17 @@ Should start by setting restriction?
                 (outline-previous-visible-heading 1)
                 (org-show-subtree)))))
 
-;; (add-hook 'before-save-hook
-;;           (lambda ()
-;;             (when (eq major-mode 'org-mode)
-;;               (save-excursion
-;;               (replace-regexp "-\\+-" "-|-")))))
+(defun dan/org-tables-to-markdown-tables ()
+  (interactive)
+  (when (eq major-mode 'org-mode)
+    (save-excursion
+      (goto-char (point-min))
+      (replace-regexp "-\\+-" "-|-"))))
+
+(defun dan/org-tables-to-markdown-tables-set-hook ()
+  (interactive)
+  (add-hook 'before-save-hook 'dan/org-tables-to-markdown-tables))
+
 
 (setq org-hide-leading-stars t)
 (setq org-hidden-keywords '(title date author))
@@ -2708,6 +2718,7 @@ issued in a language major-mode buffer."
                ("\C-ck" . bury-buffer)
                ("\C-ci" . dan/eol-column-line)
                ("\C-c\M-l" . bookmark-bmenu-list)
+               ("\C-cl" . bookmark-bmenu-list)
                ("\C-cm" . bookmark-set)
                ("\C-cn" . dan/show-buffer-file-name)
                ("\C-co" . dan/scratch-buffer)
@@ -2726,6 +2737,7 @@ issued in a language major-mode buffer."
                ("\C-x\C-q" . dan/toggle-read-only)
                ([(control next)] . end-of-buffer)
                ([(control prior)] . beginning-of-buffer)
+               ([(control tab)] . ido-switch-buffer)
                ([(meta tab)] . pcomplete)
                ("\M-(" . dan/enclose-rest-of-line-in-parentheses)
                ("\M-n" . forward-paragraph)
@@ -2865,11 +2877,6 @@ issued in a language major-mode buffer."
    (([C-tab] . TeX-complete-symbol))))
 
 (dan/register-key-bindings
- '("magit-log-edit" .
-   (([(control up)] . log-edit-previous-comment)
-    ([(control down)] . log-edit-next-comment))))
-
-(dan/register-key-bindings
  '("markdown" .
    (([(meta left)] . left-word)
     ([(meta right)] . right-word))))
@@ -2893,8 +2900,8 @@ issued in a language major-mode buffer."
     ("\C-\\" . org-src-native/indent-region)
     ([(control \')] . dan/org-hide-block-and-switch-to-code-buffer)
     ([(control return)] . delete-other-windows)
-    ([(meta left)] . left-word)
-    ([(meta right)] . right-word))))
+    ([(meta left)] . org-metaleft)
+    ([(meta right)] . org-metaright))))
 
 (add-hook 'org-mode-hook
           (lambda ()
@@ -2930,6 +2937,7 @@ issued in a language major-mode buffer."
     ("\C-c\M-n" . dan/insert-import-numpy)
     ("\C-c\C-c" . python-shell-send-buffer)
     ("\C-xrm" . (lambda () (interactive) (bookmark-set (dan/python-current-defun-name))))
+    ("\C-cm" . (lambda () (interactive) (bookmark-set (dan/python-current-defun-name))))
     ("\M-." . dan/rope-goto-definition)
     ("\M-w" . dan/python-kill-ring-save)
     ("\C-c," . flymake-goto-next-error)
@@ -3029,19 +3037,6 @@ issued in a language major-mode buffer."
   (fset 'next-face nil)
   (fset 'ap nil)
   (fset 'e-merge nil))
-
-(defadvice magit-status (around magit-fullscreen activate)
-  (window-configuration-to-register :magit-fullscreen)
-  ad-do-it
-  (delete-other-windows))
-
-(defun magit-quit-session ()
-  "Restores the previous window configuration and kills the magit buffer"
-  (interactive)
-  (kill-buffer)
-  (jump-to-register :magit-fullscreen))
-
-(define-key magit-status-mode-map (kbd "q") 'magit-quit-session)
 
 (add-hook 'ido-setup-hook
  (lambda ()

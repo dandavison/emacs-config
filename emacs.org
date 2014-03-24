@@ -119,16 +119,6 @@
   (message "Don't fucking do that."))
 #+end_src
    
-** find
-#+begin_src emacs-lisp
-;; Didn't get regexp-history to work with read-from-minibuffer
-;; (and tap (push tap regexp-history))
-(defun dan/fuzzy-find-change-root-dir (directory)
-  "Change current directory in emacs and in the python process"
-  (interactive "Dfuzzy-find root directory: ")
-  (setq fuzzy-find-project-root directory))
-#+end_src
-
 ** paint buffer according to predicate function
 #+begin_src emacs-lisp
 (defun dan/paint-buffer-by-predicate (predicate)
@@ -840,7 +830,8 @@ Straight copy of `find-function-at-point` but using
   "Scratch buffers for various major modes"
   (interactive "P")
   (let* ((modes
-          `(("org-mode" . "org")
+          `(("text-mode" . "txt")
+            ("org-mode" . "org")
             ("python-mode" . "py")
             ("coffee-mode" . "coffee")
             ("emacs-lisp-mode" . "el")
@@ -1248,7 +1239,7 @@ Straight copy of `find-function-at-point` but using
 
 (defvar dan/delete-trailing-whitespace-major-modes
   '(python-mode ess-mode coffee-mode javascript-mode
-                go-mode haskell-mode clojure-mode html-mode))
+                go-mode haskell-mode clojure-mode html-mode graphviz-dot-mode))
 
 (defun dan/query-delete-trailing-whitespace ()
   "If there's trailing whitespace ask to delete it"
@@ -1368,8 +1359,16 @@ index e5855ad..29f6429 100644
                              "--ignore" "'*.xml'"
                              "--ignore" "'*.log'"
                              "--ignore" "'*.sql'"
-                             "--ignore" "'*.txt'"
+                             ;; "--ignore" "'*.txt'"
+                             ;; "--ignore" "'*.md'"
+                             "--ignore" "'*.wsdl'"
+                             "--ignore" "'*.min.css'"
+                             ;; "--ignore" "'*.html'"
+                             ;; "--ignore" "'*.scss'"
+                             ;; "--ignore" "'*.css'"
                              "--ignore" "'*.json'"
+                             "--ignore" "'*.pdf'"
+                             "--ignore" "'*.tsv'"
                              "--ignore" "'*.yaml'")
                            ag-arguments))
 
@@ -1707,6 +1706,18 @@ http://xahlee.org/emacs/emacs_html.html
 #+begin_src emacs-lisp
 (load-file "~/lib/emacs/graphviz-dot-mode.el")
 (setq graphviz-dot-indent-width 4)
+
+(defun dan/set-after-save-command-compile-dot (&optional arg)
+  (interactive)
+  (let ((output-format (if arg "svg" "png"))
+        (file-name ((buffer-file-name))))
+    (dan/set-after-save-command
+     (format
+      "dot -T %s -o %s.%s %s"
+      output-format
+      (file-name-sans-extension file-name)
+      output-format
+      file-name))))
 #+end_src
 *** clojure
 #+begin_src emacs-lisp
@@ -1719,7 +1730,7 @@ http://xahlee.org/emacs/emacs_html.html
 (require 'coffee-mode)
 (add-to-list 'auto-mode-alist '("\\.coffee$" . coffee-mode))
 (add-to-list 'auto-mode-alist '("Cakefile" . coffee-mode))
-(setq coffee-tab-width 4)
+(setq coffee-tab-width 2)
 (setq coffee-js-mode 'js-mode)
 (defun dan/coffee-mode-hook-fun ()
   (set (make-local-variable 'tab-width) coffee-tab-width)
@@ -2093,8 +2104,7 @@ http://chrispoole.com/downloads/ac-python.el
 (defun dan/inferior-python-mode-hook-function ()
   (esk/pretty-lambdas)
   (setq truncate-lines t)
-  ;; (dan/load-comint-history dan/python-comint-history-file)
-)
+  (dan/load-comint-history dan/python-comint-history-file))
 
 
 (add-hook 'inferior-python-mode-hook
@@ -2111,9 +2121,9 @@ http://chrispoole.com/downloads/ac-python.el
 
 (add-hook 'python-mode-hook 'paredit-c-mode)
 
-;; (add-hook 'kill-buffer-hook
-;;           (lambda () (when (eq major-mode 'inferior-python-mode)
-;;                   (dan/dump-comint-history dan/python-comint-history-file))))
+(add-hook 'kill-buffer-hook
+          (lambda () (when (eq major-mode 'inferior-python-mode)
+                  (dan/dump-comint-history dan/python-comint-history-file))))
 
 (defun dan/python-shell-send-chunk ()
   "Send the current chunk to inferior Python process."
@@ -2144,7 +2154,7 @@ http://chrispoole.com/downloads/ac-python.el
    (dan/save-value-to-kill-ring
     (if arg
         (format
-         "%s:%s"
+         "website_test %s:%s"
          (replace-regexp-in-string
           ".__init__.py" ""
           (replace-regexp-in-string
@@ -2565,6 +2575,8 @@ obj[-grep(re, obj)]
 ;; * http://whattheemacsd.com/
 ;; ** magit window management
 
+;; (setq magit-status-buffer-name "magit-status: %t")
+
 (defadvice magit-status (around magit-fullscreen activate)
   (window-configuration-to-register :magit-fullscreen)
   ad-do-it
@@ -2577,8 +2589,6 @@ obj[-grep(re, obj)]
   (jump-to-register :magit-fullscreen))
 
 (define-key magit-status-mode-map (kbd "q") 'magit-quit-session)
-
-
 
 
 
@@ -2595,6 +2605,7 @@ obj[-grep(re, obj)]
 (defun dan/magit-status (&optional arg)
   (interactive "P")
   (call-interactively 'magit-status)
+  ;; (switch-to-buffer "*magit-status: website*")
   (unless arg (delete-other-windows)))
 
 
@@ -3045,11 +3056,17 @@ by Vitalie S.
                 (outline-previous-visible-heading 1)
                 (org-show-subtree)))))
 
-;; (add-hook 'before-save-hook
-;;           (lambda ()
-;;             (when (eq major-mode 'org-mode)
-;;               (save-excursion
-;;               (replace-regexp "-\\+-" "-|-")))))
+(defun dan/org-tables-to-markdown-tables ()
+  (interactive)
+  (when (eq major-mode 'org-mode)
+    (save-excursion
+      (goto-char (point-min))
+      (replace-regexp "-\\+-" "-|-"))))
+
+(defun dan/org-tables-to-markdown-tables-set-hook ()
+  (interactive)
+  (add-hook 'before-save-hook 'dan/org-tables-to-markdown-tables))
+
 #+end_src
 
 *** Appearance
@@ -3770,6 +3787,7 @@ I didn't get this to work.
                ("\C-ck" . bury-buffer)
                ("\C-ci" . dan/eol-column-line)
                ("\C-c\M-l" . bookmark-bmenu-list)
+               ("\C-cl" . bookmark-bmenu-list)
                ("\C-cm" . bookmark-set)
                ("\C-cn" . dan/show-buffer-file-name)
                ("\C-co" . dan/scratch-buffer)
@@ -3788,6 +3806,7 @@ I didn't get this to work.
                ("\C-x\C-q" . dan/toggle-read-only)
                ([(control next)] . end-of-buffer)
                ([(control prior)] . beginning-of-buffer)
+               ([(control tab)] . ido-switch-buffer)
                ([(meta tab)] . pcomplete)
                ("\M-(" . dan/enclose-rest-of-line-in-parentheses)
                ("\M-n" . forward-paragraph)
@@ -3954,7 +3973,7 @@ I didn't get this to work.
    (([C-tab] . TeX-complete-symbol))))
 #+end_src
 ** Magit
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (dan/register-key-bindings
  '("magit-log-edit" .
    (([(control up)] . log-edit-previous-comment)
@@ -3991,8 +4010,8 @@ I didn't get this to work.
     ("\C-\\" . org-src-native/indent-region)
     ([(control \')] . dan/org-hide-block-and-switch-to-code-buffer)
     ([(control return)] . delete-other-windows)
-    ([(meta left)] . left-word)
-    ([(meta right)] . right-word))))
+    ([(meta left)] . org-metaleft)
+    ([(meta right)] . org-metaright))))
 #+end_src
 
 *** Eric's outline navigation bindings
@@ -4043,6 +4062,7 @@ I didn't get this to work.
     ("\C-c\M-n" . dan/insert-import-numpy)
     ("\C-c\C-c" . python-shell-send-buffer)
     ("\C-xrm" . (lambda () (interactive) (bookmark-set (dan/python-current-defun-name))))
+    ("\C-cm" . (lambda () (interactive) (bookmark-set (dan/python-current-defun-name))))
     ("\M-." . dan/rope-goto-definition)
     ("\M-w" . dan/python-kill-ring-save)
     ("\C-c," . flymake-goto-next-error)
@@ -4202,22 +4222,6 @@ http://www.emacswiki.org/emacs/TransparentEmacs
   (fset 'e-merge nil))
 #+end_src
 
-* http://whattheemacsd.com/
-** magit window management
-#+begin_src emacs-lisp
-(defadvice magit-status (around magit-fullscreen activate)
-  (window-configuration-to-register :magit-fullscreen)
-  ad-do-it
-  (delete-other-windows))
-
-(defun magit-quit-session ()
-  "Restores the previous window configuration and kills the magit buffer"
-  (interactive)
-  (kill-buffer)
-  (jump-to-register :magit-fullscreen))
-
-(define-key magit-status-mode-map (kbd "q") 'magit-quit-session)
-#+end_src
 
 ** ido home
 #+begin_src emacs-lisp
