@@ -2070,12 +2070,21 @@ http://chrispoole.com/downloads/ac-python.el
 
 (setq python-shell-enable-syntax-highlighting nil)
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; python comint history
+
+(defvar dan/python-comint-history-file "~/.ipython/history")
+(defvar dan/python-comint-history-max 1000)
+
 (defun dan/load-comint-history (&optional file)
   (interactive "fHistory file: ")
   (if (null comint-input-ring)
       (error "This buffer has no comint history"))
-  (mapc (lambda (item) (ring-insert+extend comint-input-ring item 'grow))
-        (dan/read-comint-history file)))
+  (message "Loading python comint history...")
+  (setq comint-input-ring
+        (ring-convert-sequence-to-ring (dan/read-comint-history file))))
 
 (defun dan/read-comint-history (file)
   (split-string (with-temp-buffer
@@ -2086,20 +2095,20 @@ http://chrispoole.com/downloads/ac-python.el
   (interactive "fHistory file: ")
   (if (null comint-input-ring)
       (error "This buffer has no comint history"))
-  (let ((history
-         ;; We uniquify on the reversed list in order to maintain the
-         ;; most recent occurrence of a command in its position, while
-         ;; deleting preceding ones.
-         (nreverse
-          (org-uniquify
-           (nreverse
-            (append (dan/read-comint-history file)
-                    (ring-elements comint-input-ring)))))))
+  ;; Most recent is first in comint-input-ring. Write file in
+  ;; same order seeing as we are overwriting, not appending.
+  (let ((history (org-uniquify (ring-elements comint-input-ring))))
+    (setq history (subseq history 0 (min (length history)
+                                         dan/python-comint-history-max)))
     (with-temp-buffer
       (insert (mapconcat #'identity history "\n") "\n")
       (write-file file))))
 
-(defvar dan/python-comint-history-file "~/.ipython/history")
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(add-hook 'kill-buffer-hook
+          (lambda () (when (eq major-mode 'inferior-python-mode)
+                  (dan/dump-comint-history dan/python-comint-history-file))))
 
 (defun dan/inferior-python-mode-hook-function ()
   (esk/pretty-lambdas)
@@ -2121,9 +2130,6 @@ http://chrispoole.com/downloads/ac-python.el
 
 (add-hook 'python-mode-hook 'paredit-c-mode)
 
-(add-hook 'kill-buffer-hook
-          (lambda () (when (eq major-mode 'inferior-python-mode)
-                  (dan/dump-comint-history dan/python-comint-history-file))))
 
 (defun dan/python-shell-send-chunk ()
   "Send the current chunk to inferior Python process."

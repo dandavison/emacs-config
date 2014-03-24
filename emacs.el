@@ -1303,13 +1303,25 @@ Straight copy of `find-function-at-point` but using
 (load-file "~/lib/emacs/graphviz-dot-mode.el")
 (setq graphviz-dot-indent-width 4)
 
+(defun dan/set-after-save-command-compile-dot (&optional arg)
+  (interactive)
+  (let ((output-format (if arg "svg" "png"))
+        (file-name ((buffer-file-name))))
+    (dan/set-after-save-command
+     (format
+      "dot -T %s -o %s.%s %s"
+      output-format
+      (file-name-sans-extension file-name)
+      output-format
+      file-name))))
+
 (add-to-list 'auto-mode-alist '("\\.cljs$" . clojure-mode))
 
 (add-to-list 'load-path "~/lib/emacs/coffee-mode")
 (require 'coffee-mode)
 (add-to-list 'auto-mode-alist '("\\.coffee$" . coffee-mode))
 (add-to-list 'auto-mode-alist '("Cakefile" . coffee-mode))
-(setq coffee-tab-width 4)
+(setq coffee-tab-width 2)
 (setq coffee-js-mode 'js-mode)
 (defun dan/coffee-mode-hook-fun ()
   (set (make-local-variable 'tab-width) coffee-tab-width)
@@ -1592,12 +1604,21 @@ print 'Time: ', (t1 - t0)
 
 (setq python-shell-enable-syntax-highlighting nil)
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; python comint history
+
+(defvar dan/python-comint-history-file "~/.ipython/history")
+(defvar dan/python-comint-history-max 1000)
+
 (defun dan/load-comint-history (&optional file)
   (interactive "fHistory file: ")
   (if (null comint-input-ring)
       (error "This buffer has no comint history"))
-  (mapc (lambda (item) (ring-insert+extend comint-input-ring item 'grow))
-        (dan/read-comint-history file)))
+  (message "Loading python comint history...")
+  (setq comint-input-ring
+        (ring-convert-sequence-to-ring (dan/read-comint-history file))))
 
 (defun dan/read-comint-history (file)
   (split-string (with-temp-buffer
@@ -1608,26 +1629,25 @@ print 'Time: ', (t1 - t0)
   (interactive "fHistory file: ")
   (if (null comint-input-ring)
       (error "This buffer has no comint history"))
-  (let ((history
-         ;; We uniquify on the reversed list in order to maintain the
-         ;; most recent occurrence of a command in its position, while
-         ;; deleting preceding ones.
-         (nreverse
-          (org-uniquify
-           (nreverse
-            (append (dan/read-comint-history file)
-                    (ring-elements comint-input-ring)))))))
+  ;; Most recent is first in comint-input-ring. Write file in
+  ;; same order seeing as we are overwriting, not appending.
+  (let ((history (org-uniquify (ring-elements comint-input-ring))))
+    (setq history (subseq history 0 (min (length history)
+                                         dan/python-comint-history-max)))
     (with-temp-buffer
       (insert (mapconcat #'identity history "\n") "\n")
       (write-file file))))
 
-(defvar dan/python-comint-history-file "~/.ipython/history")
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(add-hook 'kill-buffer-hook
+          (lambda () (when (eq major-mode 'inferior-python-mode)
+                  (dan/dump-comint-history dan/python-comint-history-file))))
 
 (defun dan/inferior-python-mode-hook-function ()
   (esk/pretty-lambdas)
   (setq truncate-lines t)
-  ;; (dan/load-comint-history dan/python-comint-history-file)
-)
+  (dan/load-comint-history dan/python-comint-history-file))
 
 
 (add-hook 'inferior-python-mode-hook
@@ -1644,9 +1664,6 @@ print 'Time: ', (t1 - t0)
 
 (add-hook 'python-mode-hook 'paredit-c-mode)
 
-;; (add-hook 'kill-buffer-hook
-;;           (lambda () (when (eq major-mode 'inferior-python-mode)
-;;                   (dan/dump-comint-history dan/python-comint-history-file))))
 
 (defun dan/python-shell-send-chunk ()
   "Send the current chunk to inferior Python process."
@@ -1944,8 +1961,8 @@ print 'Time: ', (t1 - t0)
 
 (defun dan/magit-status (&optional arg)
   (interactive "P")
-  ;; (call-interactively 'magit-status)
-  (switch-to-buffer "*magit-status: website*")
+  (call-interactively 'magit-status)
+  ;; (switch-to-buffer "*magit-status: website*")
   (unless arg (delete-other-windows)))
 
 
