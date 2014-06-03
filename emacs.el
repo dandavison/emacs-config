@@ -739,7 +739,7 @@ Straight copy of `find-function-at-point` but using
                (prog1 (buffer-substring (region-beginning)
                                         (region-end))
                  (if arg (kill-region (region-beginning) (region-end)))))))
-    (find-file (concat "/tmp/scratch." (cdr (assoc mode modes))))
+    (find-file (concat "/Users/dan/misc/scratch." (cdr (assoc mode modes))))
     (unless (eq major-mode mode-fun) (funcall mode-fun))
     (when contents
       (delete-region (point-min) (point-max))
@@ -1022,6 +1022,8 @@ Straight copy of `find-function-at-point` but using
 
 (ad-activate 'compile-goto-error)
 
+
+
 (setq message-send-mail-partially nil)
 
 ;; http://flash.metawaredesign.co.uk/2/.emacs
@@ -1045,7 +1047,7 @@ Straight copy of `find-function-at-point` but using
 (require 'ag)
 
 (setq ag-arguments (append '("--ignore" "'*#'"
-                             "--ignore" "'*.js'"
+                             ;; "--ignore" "'*.js'"
                              "--ignore" "'*.xml'"
                              "--ignore" "'*.log'"
                              "--ignore" "'*.sql'"
@@ -1059,7 +1061,9 @@ Straight copy of `find-function-at-point` but using
                              "--ignore" "'*.json'"
                              "--ignore" "'*.pdf'"
                              "--ignore" "'*.tsv'"
-                             "--ignore" "'*.yaml'")
+                             "--ignore" "'*.csv'"
+                             "--ignore" "'*.yaml'"
+                             )
                            ag-arguments))
 
 (add-hook
@@ -1180,6 +1184,9 @@ Straight copy of `find-function-at-point` but using
 
 (add-to-list 'flymake-allowed-file-name-masks
              '("\\.js\\'" dan/flymake-init))
+
+(add-to-list 'flymake-allowed-file-name-masks
+             '("\\.coffee\\'" dan/flymake-init))
 
 (defun dan/flymake ()
   (interactive)
@@ -1326,6 +1333,8 @@ Straight copy of `find-function-at-point` but using
 (defun dan/coffee-mode-hook-fun ()
   (set (make-local-variable 'tab-width) coffee-tab-width)
   (set (make-local-variable 'indent-tabs-mode) nil)
+  ;; I use python-indent-shift-* in coffee-script mode
+  (set (make-local-variable 'python-indent-offset) coffee-tab-width)
   (paredit-c-mode))
 
 (add-hook 'coffee-mode-hook 'dan/coffee-mode-hook-fun)
@@ -1343,9 +1352,8 @@ Straight copy of `find-function-at-point` but using
   ;; (indent-for-tab-command) coffee indenting is bad
   (insert "debugger;"))
 
-(add-hook 'after-save-hook
-          (lambda () (when (eq major-mode 'coffee-mode) (coffee-compile-file))))
-
+;; (add-hook 'after-save-hook
+;;           (lambda () (when (eq major-mode 'coffee-mode) (coffee-compile-file))))
 
 (add-to-list 'load-path "~/lib/emacs/go-mode.el")
 (require 'go-mode)
@@ -1580,6 +1588,13 @@ print 'Time: ', (t1 - t0)
 (setq python-fill-docstring-style 'django)
 
 
+(defun dan/python-cleanup-ipython-transcript ()
+  (interactive)
+  (-dan/do-substitutions
+   '(("^In \[[0-9]+\]: " . ">>> ")
+     ("^Out\[[0-9]+\]: " . "   "))))
+
+
 (require 'python)
 (setq auto-mode-alist (cons '("\\.pyw$" . python-mode) auto-mode-alist))
 (setq auto-mode-alist (cons '("\\.pyx$" . python-mode) auto-mode-alist))
@@ -1617,8 +1632,8 @@ print 'Time: ', (t1 - t0)
   (if (null comint-input-ring)
       (error "This buffer has no comint history"))
   (message "Loading python comint history...")
-  (setq comint-input-ring
-        (ring-convert-sequence-to-ring (dan/read-comint-history file))))
+  (mapc (lambda (item) (ring-insert+extend comint-input-ring item 'grow))
+        (dan/read-comint-history file)))
 
 (defun dan/read-comint-history (file)
   (split-string (with-temp-buffer
@@ -1772,7 +1787,18 @@ print 'Time: ', (t1 - t0)
      'python-import-bounds-of-python-import-at-point)
 
 (add-to-list 'load-path "~/lib/emacs/scss-mode")
+(require 'scss-mode)
 (add-to-list 'auto-mode-alist '("\\.scss$" . scss-mode))
+
+(defun dan/coffee-mode-hook-fun ()
+  
+  (set (make-local-variable 'indent-tabs-mode) nil)
+  (paredit-c-mode))
+
+(add-hook
+ 'scss-mode-hook
+ (lambda ()
+   (set (make-local-variable 'tab-width) 2)))
 
 (autoload 'ansi-color-for-comint-mode-on "ansi-color" nil t)
 (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
@@ -1992,15 +2018,19 @@ print 'Time: ', (t1 - t0)
   (-dan/do-substitutions
    '(("#" . "*")
      ("^```python" . "#+begin_src python")
-     ("^```" . "#+end_src")))
-  (org-mode))
+     ("^```" . "#+end_src")
+     ("-|-" . "-+-")))
+  (if (not (equal major-mode 'org-mode))
+      (org-mode)))
 
 (defun -dan/org-to-markdown ()
   (-dan/do-substitutions
    '(("\*" . "#")
      ("^#\\+begin_src python" . "```python")
-     ("^#\\+end_src.*" . "```")))
-  (markdown-mode))
+     ("^#\\+end_src.*" . "```")
+     ("-\\+-" . "-|-")))
+  (if (not (equal major-mode 'markdown-mode))
+      (markdown-mode)))
 
 (dan/require 'regex-tool)
 (dan/require 'unbound)

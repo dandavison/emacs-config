@@ -859,7 +859,7 @@ Straight copy of `find-function-at-point` but using
                (prog1 (buffer-substring (region-beginning)
                                         (region-end))
                  (if arg (kill-region (region-beginning) (region-end)))))))
-    (find-file (concat "/tmp/scratch." (cdr (assoc mode modes))))
+    (find-file (concat "/Users/dan/misc/scratch." (cdr (assoc mode modes))))
     (unless (eq major-mode mode-fun) (funcall mode-fun))
     (when contents
       (delete-region (point-min) (point-max))
@@ -1273,6 +1273,8 @@ Straight copy of `find-function-at-point` but using
   (delete-other-windows))
 
 (ad-activate 'compile-goto-error)
+
+
 #+end_src
 
 ** Info
@@ -1355,7 +1357,7 @@ index e5855ad..29f6429 100644
 (require 'ag)
 
 (setq ag-arguments (append '("--ignore" "'*#'"
-                             "--ignore" "'*.js'"
+                             ;; "--ignore" "'*.js'"
                              "--ignore" "'*.xml'"
                              "--ignore" "'*.log'"
                              "--ignore" "'*.sql'"
@@ -1369,7 +1371,9 @@ index e5855ad..29f6429 100644
                              "--ignore" "'*.json'"
                              "--ignore" "'*.pdf'"
                              "--ignore" "'*.tsv'"
-                             "--ignore" "'*.yaml'")
+                             "--ignore" "'*.csv'"
+                             "--ignore" "'*.yaml'"
+                             )
                            ag-arguments))
 
 (add-hook
@@ -1516,6 +1520,9 @@ index e5855ad..29f6429 100644
 
 (add-to-list 'flymake-allowed-file-name-masks
              '("\\.js\\'" dan/flymake-init))
+
+(add-to-list 'flymake-allowed-file-name-masks
+             '("\\.coffee\\'" dan/flymake-init))
 
 (defun dan/flymake ()
   (interactive)
@@ -1735,6 +1742,8 @@ http://xahlee.org/emacs/emacs_html.html
 (defun dan/coffee-mode-hook-fun ()
   (set (make-local-variable 'tab-width) coffee-tab-width)
   (set (make-local-variable 'indent-tabs-mode) nil)
+  ;; I use python-indent-shift-* in coffee-script mode
+  (set (make-local-variable 'python-indent-offset) coffee-tab-width)
   (paredit-c-mode))
 
 (add-hook 'coffee-mode-hook 'dan/coffee-mode-hook-fun)
@@ -1752,9 +1761,8 @@ http://xahlee.org/emacs/emacs_html.html
   ;; (indent-for-tab-command) coffee indenting is bad
   (insert "debugger;"))
 
-(add-hook 'after-save-hook
-          (lambda () (when (eq major-mode 'coffee-mode) (coffee-compile-file))))
-
+;; (add-hook 'after-save-hook
+;;           (lambda () (when (eq major-mode 'coffee-mode) (coffee-compile-file))))
 #+end_src
 
 *** go
@@ -1882,7 +1890,7 @@ Seems very slow on coffeescript output of reasonable size; disabling.
 (dan/require 'plantuml-mode)
 #+end_src
 *** Python
-**** general
+**** COMMENT general
 #+begin_src emacs-lisp
 ;; (defvar dan/python-exec-lines
 ;;   "import sys
@@ -2038,6 +2046,13 @@ print 'Time: ', (t1 - t0)
 
 (setq python-fill-docstring-style 'django)
 
+
+(defun dan/python-cleanup-ipython-transcript ()
+  (interactive)
+  (-dan/do-substitutions
+   '(("^In \[[0-9]+\]: " . ">>> ")
+     ("^Out\[[0-9]+\]: " . "   "))))
+
 #+end_src
 
 **** Python.el
@@ -2083,8 +2098,8 @@ http://chrispoole.com/downloads/ac-python.el
   (if (null comint-input-ring)
       (error "This buffer has no comint history"))
   (message "Loading python comint history...")
-  (setq comint-input-ring
-        (ring-convert-sequence-to-ring (dan/read-comint-history file))))
+  (mapc (lambda (item) (ring-insert+extend comint-input-ring item 'grow))
+        (dan/read-comint-history file)))
 
 (defun dan/read-comint-history (file)
   (split-string (with-temp-buffer
@@ -2350,7 +2365,18 @@ http://chrispoole.com/downloads/ac-python.el
 ** Sass
 #+begin_src emacs-lisp
 (add-to-list 'load-path "~/lib/emacs/scss-mode")
+(require 'scss-mode)
 (add-to-list 'auto-mode-alist '("\\.scss$" . scss-mode))
+
+(defun dan/coffee-mode-hook-fun ()
+  
+  (set (make-local-variable 'indent-tabs-mode) nil)
+  (paredit-c-mode))
+
+(add-hook
+ 'scss-mode-hook
+ (lambda ()
+   (set (make-local-variable 'tab-width) 2)))
 #+end_src
 
 *** Shell
@@ -2643,15 +2669,19 @@ obj[-grep(re, obj)]
   (-dan/do-substitutions
    '(("#" . "*")
      ("^```python" . "#+begin_src python")
-     ("^```" . "#+end_src")))
-  (org-mode))
+     ("^```" . "#+end_src")
+     ("-|-" . "-+-")))
+  (if (not (equal major-mode 'org-mode))
+      (org-mode)))
 
 (defun -dan/org-to-markdown ()
   (-dan/do-substitutions
    '(("\*" . "#")
      ("^#\\+begin_src python" . "```python")
-     ("^#\\+end_src.*" . "```")))
-  (markdown-mode))
+     ("^#\\+end_src.*" . "```")
+     ("-\\+-" . "-|-")))
+  (if (not (equal major-mode 'markdown-mode))
+      (markdown-mode)))
 #+end_src
 
 ** Misc
@@ -3758,7 +3788,7 @@ I didn't get this to work.
 (require 'python-django)
 #+end_src
 
-* Key bindings
+* Key binding
 ** global
 #+begin_src emacs-lisp
 (define-key global-map [(f2)] 'identity)
