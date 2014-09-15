@@ -42,6 +42,7 @@
 (dan/tangle-emacs-dot-org)
 (load-file "~/config/emacs/emacs.el")
 (load-file "~/config/emacs/extra.el")
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -54,7 +55,8 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(comint-highlight-prompt ((t (:foreground "gold")))) ;; darkblue
- '(org-block-begin-line ((t (:inherit org-meta-line :foreground "black"))) t) ;; "gray93"
- '(org-block-end-line ((t (:inherit org-meta-line :foreground "black"))) t) ;; "gray93"
+ '(comint-highlight-prompt ((t (:foreground "gold"))))
+ '(flymake-errline ((t (:background "dark blue" :foreground "black"))))
+ '(org-block-begin-line ((t (:inherit org-meta-line :foreground "black"))) t)
+ '(org-block-end-line ((t (:inherit org-meta-line :foreground "black"))) t)
  '(org-document-info-keyword ((t (:inherit org-meta-line :foreground "gray93")))))

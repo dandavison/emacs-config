@@ -323,6 +323,12 @@ Wait for REST between each attempt."
 
 ;; (local-set-key [(return)] 'dan/occur-mode-goto-occurrence)
 
+;; http://www.emacswiki.org/emacs/FindingNonAsciiCharacters
+(defun dan/occur-non-ascii ()
+  "Find any non-ascii characters in the current buffer."
+  (interactive)
+  (occur "[^[:ascii:]]"))
+
 #+end_src
 
 ** Set local variables
@@ -384,10 +390,11 @@ Wait for REST between each attempt."
           (replace-regexp-in-string
            "[[:space:]\n]*$" ""
            (shell-command-to-string
-            (format "zsh -c '. ~/.zshrc 2>&/dev/null && echo $%s'" pathvar)))))
+            (format "zsh -c '. ~/.zshrc 2>&/dev/null && . ~/venvs/website/bin/activate && echo $%s'" pathvar)))))
     (setenv pathvar path-from-shell)
     (when (string-equal pathvar "PATH")
       (setq exec-path (split-string path-from-shell path-separator)))))
+
 (dan/set-exec-path-from-shell)
 (dan/set-exec-path-from-shell "PYTHONPATH")
 (setenv "GEM_HOME" (org-babel-chomp (shell-command-to-string "brew --prefix")))
@@ -1238,8 +1245,16 @@ Straight copy of `find-function-at-point` but using
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
 
 (defvar dan/delete-trailing-whitespace-major-modes
-  '(python-mode ess-mode coffee-mode javascript-mode
-                go-mode haskell-mode clojure-mode html-mode graphviz-dot-mode))
+  '(clojure-mode
+    coffee-mode
+    ess-mode
+    go-mode
+    graphviz-dot-mode
+    haskell-mode
+    html-mode
+    javascript-mode
+    puppet-mode
+    python-mode))
 
 (defun dan/query-delete-trailing-whitespace ()
   "If there's trailing whitespace ask to delete it"
@@ -1358,6 +1373,7 @@ index e5855ad..29f6429 100644
 
 (setq ag-arguments (append '("--ignore" "'*#'"
                              ;; "--ignore" "'*.js'"
+                             "--ignore" "'*.min.js'"
                              "--ignore" "'*.xml'"
                              "--ignore" "'*.log'"
                              "--ignore" "'*.sql'"
@@ -1373,6 +1389,7 @@ index e5855ad..29f6429 100644
                              "--ignore" "'*.tsv'"
                              "--ignore" "'*.csv'"
                              "--ignore" "'*.yaml'"
+                             "--ignore" "'*.bml'"
                              )
                            ag-arguments))
 
@@ -1384,7 +1401,9 @@ index e5855ad..29f6429 100644
 
 ** Bookmark
 #+begin_src emacs-lisp
+(require 'bookmark)
 (setq bookmark-sort-flag nil)
+(bookmark-bmenu-toggle-filenames nil)
 #+end_src
 
 ** Buffer lists
@@ -1794,6 +1813,7 @@ http://xahlee.org/emacs/emacs_html.html
       (local-set-key "'" 'self-insert-command))
     
     (add-hook 'haskell-mode-hook 'dan/haskell-hook-function)
+    (add-hook 'haskell-mode-hook 'paredit-c-mode)
     #+end_src
 *** html
 #+begin_src emacs-lisp
@@ -1875,6 +1895,16 @@ Seems very slow on coffeescript output of reasonable size; disabling.
             (buffer-file-name)))))))
 #+end_src
 
+*** ruby
+#+begin_src emacs-lisp
+(add-to-list 'auto-mode-alist '("\\Vagrantfile$" . ruby-mode))
+#+end_src
+
+*** Shell
+#+begin_src emacs-lisp
+(add-hook 'sh-mode-hook 'paredit-c-mode)
+#+end_src
+
 *** TeXinfo
 #+begin_src emacs-lisp
 (require 'texinfo)
@@ -1889,6 +1919,14 @@ Seems very slow on coffeescript output of reasonable size; disabling.
 #+begin_src emacs-lisp
 (dan/require 'plantuml-mode)
 #+end_src
+*** Puppet
+#+begin_src emacs-lisp :tangle no
+(add-to-list 'load-path "~/lib/emacs/puppet-syntax-emacs")
+(require 'puppet-mode)
+(add-to-list 'auto-mode-alist '("\\.pp$" . puppet-mode))
+(add-hook 'puppet-mode-hook 'paredit-c-mode)
+#+end_src
+
 *** Python
 **** COMMENT general
 #+begin_src emacs-lisp
@@ -1962,9 +2000,13 @@ Seems very slow on coffeescript output of reasonable size; disabling.
 (defun dan/insert-ipdb-set-trace (&optional traceback)
   (interactive "P")
   ;; (indent-for-tab-command)
-  (if traceback
-      (insert "import traceback ; import ipdb ; print traceback.format_exc() ; ipdb.set_trace()")
-  (insert "import ipdb ; ipdb.set_trace()")))
+  (let ((debugger "ipdb")) ;; pudb
+    (insert
+     (format
+      (if traceback
+          "import traceback ; import %s ; print traceback.format_exc() ; %s.set_trace()"
+        "import %s ; %s.set_trace()")
+      debugger debugger))))
 
 (defun dan/insert-import-numpy ()
   (interactive)
@@ -2086,6 +2128,9 @@ http://chrispoole.com/downloads/ac-python.el
 (setq python-shell-enable-syntax-highlighting nil)
 
 
+;; (setq python-shell-virtualenv-path "~/venvs/logstash_client/")
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; python comint history
@@ -2129,6 +2174,14 @@ http://chrispoole.com/downloads/ac-python.el
   (esk/pretty-lambdas)
   (setq truncate-lines t)
   (dan/load-comint-history dan/python-comint-history-file))
+
+
+(defun dan/inferior-python-cpaste ()
+  (interactive)
+  (insert "%cpaste\n")
+  (yank)
+  (insert "--\n")
+  (comint-send-input))
 
 
 (add-hook 'inferior-python-mode-hook
@@ -2285,6 +2338,12 @@ http://chrispoole.com/downloads/ac-python.el
 #+begin_src python :tangle no
 (add-to-list 'load-path "~/lib/python/pysmell")
 (require 'pysmell)
+#+end_src
+**** py-isort
+#+begin_src python :tangle no
+(add-to-list 'load-path "~/lib/emacs/py-isort.el")
+(require 'py-isort)
+(setq py-isort-options '("--lines=9999999" "--force_single_line_imports"))
 #+end_src
 
 **** autocomplete
@@ -2736,6 +2795,13 @@ obj[-grep(re, obj)]
         (paredit-mode)
       (paredit-c-mode))
     (when force (insert contents) (goto-char point))))
+
+(defun dan/kill-paredit-bindings ()
+  (interactive)
+  (local-set-key [backspace]  'backward-delete-char)
+  (local-set-key "{"  'self-insert-command)
+  (local-set-key "}"  'self-insert-command)
+  (local-set-key [(meta backspace)] 'backward-kill-word))
 
 
 ;; (add-hook 'ess-mode-hook 'paredit-c-mode)
@@ -4046,8 +4112,8 @@ I didn't get this to work.
     ("\C-\\" . org-src-native/indent-region)
     ([(control \')] . dan/org-hide-block-and-switch-to-code-buffer)
     ([(control return)] . delete-other-windows)
-    ([(meta left)] . org-metaleft)
-    ([(meta right)] . org-metaright))))
+    ([(meta left)] . backward-word)
+    ([(meta right)] . forward-word))))
 #+end_src
 
 *** Eric's outline navigation bindings
@@ -4084,6 +4150,7 @@ I didn't get this to work.
  '("inferior-python" .
    (("\C-c\C-z" . dan/ipython)
     ("\C-c\M-n" . dan/insert-import-numpy)
+    ("\C-c\M-y" . dan/inferior-python-cpaste)
     ("\C-cd" . dan/python-cd)
     ("\C-l" . dan/python-shell-clear)
     ("\M-." . dan/rope-goto-definition))))
@@ -4102,7 +4169,6 @@ I didn't get this to work.
     ("\M-." . dan/rope-goto-definition)
     ("\M-w" . dan/python-kill-ring-save)
     ("\C-c," . flymake-goto-next-error)
-    ("\C-ca" . (lambda () (interactive) (insert "# TODO-MOPA: accounts will have multiple customerprofiles")))
     ("\C-cs" . counsyl/sort-paragraph-at-point)
     ("\C-c\M-p" . dan/python-prep-paste)
     ([(meta shift right)] . python-indent-shift-right)
@@ -4243,6 +4309,8 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 
 * Experimental
 #+begin_src emacs-lisp
+(copy-face 'button 'flymake-errline)
+
 (setq scroll-preserve-screen-position :always
       scroll-conservatively           most-positive-fixnum
       scroll-step                     0)

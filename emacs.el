@@ -264,6 +264,12 @@ Wait for REST between each attempt."
 
 ;; (local-set-key [(return)] 'dan/occur-mode-goto-occurrence)
 
+;; http://www.emacswiki.org/emacs/FindingNonAsciiCharacters
+(defun dan/occur-non-ascii ()
+  "Find any non-ascii characters in the current buffer."
+  (interactive)
+  (occur "[^[:ascii:]]"))
+
 
 (defun dan/set-local-variables (alist)
   (dolist (pair alist)
@@ -314,10 +320,11 @@ Wait for REST between each attempt."
           (replace-regexp-in-string
            "[[:space:]\n]*$" ""
            (shell-command-to-string
-            (format "zsh -c '. ~/.zshrc 2>&/dev/null && echo $%s'" pathvar)))))
+            (format "zsh -c '. ~/.zshrc 2>&/dev/null && . ~/venvs/website/bin/activate && echo $%s'" pathvar)))))
     (setenv pathvar path-from-shell)
     (when (string-equal pathvar "PATH")
       (setq exec-path (split-string path-from-shell path-separator)))))
+
 (dan/set-exec-path-from-shell)
 (dan/set-exec-path-from-shell "PYTHONPATH")
 (setenv "GEM_HOME" (org-babel-chomp (shell-command-to-string "brew --prefix")))
@@ -1048,6 +1055,7 @@ Straight copy of `find-function-at-point` but using
 
 (setq ag-arguments (append '("--ignore" "'*#'"
                              ;; "--ignore" "'*.js'"
+                             "--ignore" "'*.min.js'"
                              "--ignore" "'*.xml'"
                              "--ignore" "'*.log'"
                              "--ignore" "'*.sql'"
@@ -1063,6 +1071,7 @@ Straight copy of `find-function-at-point` but using
                              "--ignore" "'*.tsv'"
                              "--ignore" "'*.csv'"
                              "--ignore" "'*.yaml'"
+                             "--ignore" "'*.bml'"
                              )
                            ag-arguments))
 
@@ -1071,7 +1080,9 @@ Straight copy of `find-function-at-point` but using
  (lambda () (switch-to-buffer "*ag*") (delete-other-windows)))
 
 
+(require 'bookmark)
 (setq bookmark-sort-flag nil)
+(bookmark-bmenu-toggle-filenames nil)
 
 (setq ibuffer-show-empty-filter-groups nil)
 
@@ -1379,6 +1390,7 @@ Straight copy of `find-function-at-point` but using
       (local-set-key "'" 'self-insert-command))
     
     (add-hook 'haskell-mode-hook 'dan/haskell-hook-function)
+    (add-hook 'haskell-mode-hook 'paredit-c-mode)
 
 ;; (add-to-list 'load-path "~/lib/emacs/django-mode")
 ;; (require 'django-html-mode)
@@ -1426,6 +1438,8 @@ Straight copy of `find-function-at-point` but using
 ;;           (lambda ()
 ;;             (longlines-mode 1)
 ;;             (setq longlines-wrap-follows-window-size t)))
+
+(add-hook 'sh-mode-hook 'paredit-c-mode)
 
 (require 'texinfo)
 
@@ -1503,9 +1517,13 @@ Straight copy of `find-function-at-point` but using
 (defun dan/insert-ipdb-set-trace (&optional traceback)
   (interactive "P")
   ;; (indent-for-tab-command)
-  (if traceback
-      (insert "import traceback ; import ipdb ; print traceback.format_exc() ; ipdb.set_trace()")
-  (insert "import ipdb ; ipdb.set_trace()")))
+  (let ((debugger "ipdb")) ;; pudb
+    (insert
+     (format
+      (if traceback
+          "import traceback ; import %s ; print traceback.format_exc() ; %s.set_trace()"
+        "import %s ; %s.set_trace()")
+      debugger debugger))))
 
 (defun dan/insert-import-numpy ()
   (interactive)
@@ -1620,6 +1638,9 @@ print 'Time: ', (t1 - t0)
 (setq python-shell-enable-syntax-highlighting nil)
 
 
+;; (setq python-shell-virtualenv-path "~/venvs/logstash_client/")
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; python comint history
@@ -1663,6 +1684,14 @@ print 'Time: ', (t1 - t0)
   (esk/pretty-lambdas)
   (setq truncate-lines t)
   (dan/load-comint-history dan/python-comint-history-file))
+
+
+(defun dan/inferior-python-cpaste ()
+  (interactive)
+  (insert "%cpaste\n")
+  (yank)
+  (insert "--\n")
+  (comint-send-input))
 
 
 (add-hook 'inferior-python-mode-hook
@@ -2076,6 +2105,13 @@ print 'Time: ', (t1 - t0)
         (paredit-mode)
       (paredit-c-mode))
     (when force (insert contents) (goto-char point))))
+
+(defun dan/kill-paredit-bindings ()
+  (interactive)
+  (local-set-key [backspace]  'backward-delete-char)
+  (local-set-key "{"  'self-insert-command)
+  (local-set-key "}"  'self-insert-command)
+  (local-set-key [(meta backspace)] 'backward-kill-word))
 
 
 ;; (add-hook 'ess-mode-hook 'paredit-c-mode)
@@ -2947,8 +2983,8 @@ issued in a language major-mode buffer."
     ("\C-\\" . org-src-native/indent-region)
     ([(control \')] . dan/org-hide-block-and-switch-to-code-buffer)
     ([(control return)] . delete-other-windows)
-    ([(meta left)] . org-metaleft)
-    ([(meta right)] . org-metaright))))
+    ([(meta left)] . backward-word)
+    ([(meta right)] . forward-word))))
 
 (add-hook 'org-mode-hook
           (lambda ()
@@ -2972,6 +3008,7 @@ issued in a language major-mode buffer."
  '("inferior-python" .
    (("\C-c\C-z" . dan/ipython)
     ("\C-c\M-n" . dan/insert-import-numpy)
+    ("\C-c\M-y" . dan/inferior-python-cpaste)
     ("\C-cd" . dan/python-cd)
     ("\C-l" . dan/python-shell-clear)
     ("\M-." . dan/rope-goto-definition))))
@@ -2988,7 +3025,6 @@ issued in a language major-mode buffer."
     ("\M-." . dan/rope-goto-definition)
     ("\M-w" . dan/python-kill-ring-save)
     ("\C-c," . flymake-goto-next-error)
-    ("\C-ca" . (lambda () (interactive) (insert "# TODO-MOPA: accounts will have multiple customerprofiles")))
     ("\C-cs" . counsyl/sort-paragraph-at-point)
     ("\C-c\M-p" . dan/python-prep-paste)
     ([(meta shift right)] . python-indent-shift-right)
@@ -3070,6 +3106,8 @@ issued in a language major-mode buffer."
 (ido-mode +1)
 (setq ido-separator " ")
 (eshell)
+
+(copy-face 'button 'flymake-errline)
 
 (setq scroll-preserve-screen-position :always
       scroll-conservatively           most-positive-fixnum
