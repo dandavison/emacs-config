@@ -1526,22 +1526,24 @@ index e5855ad..29f6429 100644
 ** Flymake
 #+begin_src emacs-lisp
 (require 'flymake)
-(defun dan/flymake-init ()
+
+(defun dan/flymake-init (executable)
   (let* ((temp-file (flymake-init-create-temp-buffer-copy
                      'flymake-create-temp-inplace))
            (local-file (file-relative-name
                         temp-file
                         (file-name-directory buffer-file-name))))
-      (list "/Users/dan/venvs/website/bin/codequality" (list local-file))))
+    (list executable (list local-file))))
+
 
 (add-to-list 'flymake-allowed-file-name-masks
-             '("\\.py\\'" dan/flymake-init))
+             '("\\.py\\'" (lambda () (dan/flymake-init "/Users/dan/venvs/website/bin/flake8"))))
 
 (add-to-list 'flymake-allowed-file-name-masks
-             '("\\.js\\'" dan/flymake-init))
+             '("\\.js\\'" (lambda () (dan/flymake-init "/Users/dan/venvs/website/bin/codequality"))))
 
 (add-to-list 'flymake-allowed-file-name-masks
-             '("\\.coffee\\'" dan/flymake-init))
+             '("\\.coffee\\'" (lambda () (dan/flymake-init "/Users/dan/venvs/website/bin/codequality"))))
 
 (defun dan/flymake ()
   (interactive)
