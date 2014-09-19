@@ -995,8 +995,16 @@ Straight copy of `find-function-at-point` but using
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
 
 (defvar dan/delete-trailing-whitespace-major-modes
-  '(python-mode ess-mode coffee-mode javascript-mode
-                go-mode haskell-mode clojure-mode html-mode graphviz-dot-mode))
+  '(clojure-mode
+    coffee-mode
+    ess-mode
+    go-mode
+    graphviz-dot-mode
+    haskell-mode
+    html-mode
+    javascript-mode
+    puppet-mode
+    python-mode))
 
 (defun dan/query-delete-trailing-whitespace ()
   "If there's trailing whitespace ask to delete it"
@@ -1182,22 +1190,24 @@ Straight copy of `find-function-at-point` but using
 (setq flyspell-issue-message-flag nil)
 
 (require 'flymake)
-(defun dan/flymake-init ()
+
+(defun dan/flymake-init (executable)
   (let* ((temp-file (flymake-init-create-temp-buffer-copy
                      'flymake-create-temp-inplace))
            (local-file (file-relative-name
                         temp-file
                         (file-name-directory buffer-file-name))))
-      (list "/Users/dan/venvs/website/bin/codequality" (list local-file))))
+    (list executable (list local-file))))
+
 
 (add-to-list 'flymake-allowed-file-name-masks
-             '("\\.py\\'" dan/flymake-init))
+             '("\\.py\\'" (lambda () (dan/flymake-init "/Users/dan/venvs/website/bin/flake8"))))
 
 (add-to-list 'flymake-allowed-file-name-masks
-             '("\\.js\\'" dan/flymake-init))
+             '("\\.js\\'" (lambda () (dan/flymake-init "/Users/dan/venvs/website/bin/codequality"))))
 
 (add-to-list 'flymake-allowed-file-name-masks
-             '("\\.coffee\\'" dan/flymake-init))
+             '("\\.coffee\\'" (lambda () (dan/flymake-init "/Users/dan/venvs/website/bin/codequality"))))
 
 (defun dan/flymake ()
   (interactive)
@@ -1438,6 +1448,8 @@ Straight copy of `find-function-at-point` but using
 ;;           (lambda ()
 ;;             (longlines-mode 1)
 ;;             (setq longlines-wrap-follows-window-size t)))
+
+(add-to-list 'auto-mode-alist '("\\Vagrantfile$" . ruby-mode))
 
 (add-hook 'sh-mode-hook 'paredit-c-mode)
 
