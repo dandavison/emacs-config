@@ -2342,7 +2342,7 @@ http://chrispoole.com/downloads/ac-python.el
 (require 'pysmell)
 #+end_src
 **** py-isort
-#+begin_src python :tangle no
+#+begin_src python
 (add-to-list 'load-path "~/lib/emacs/py-isort.el")
 (require 'py-isort)
 (setq py-isort-options '("--lines=9999999" "--force_single_line_imports"))
