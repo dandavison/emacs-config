@@ -41,7 +41,7 @@
 
 (dan/tangle-emacs-dot-org)
 (load-file "~/config/emacs/emacs.el")
-(load-file "~/config/emacs/extra.el")
+((lambda (file) (if (file-exists-p file) (load-file file))) "~/config/emacs/extra.el")
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
