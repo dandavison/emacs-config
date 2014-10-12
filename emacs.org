@@ -1537,7 +1537,7 @@ index e5855ad..29f6429 100644
 
 
 (add-to-list 'flymake-allowed-file-name-masks
-             '("\\.py\\'" (lambda () (dan/flymake-init "/Users/dan/venvs/website/bin/flake8"))))
+             '("\\.py\\'" (lambda () (dan/flymake-init "/Users/dan/venvs/website/bin/codequality"))))
 
 (add-to-list 'flymake-allowed-file-name-masks
              '("\\.js\\'" (lambda () (dan/flymake-init "/Users/dan/venvs/website/bin/codequality"))))
@@ -1927,183 +1927,13 @@ Seems very slow on coffeescript output of reasonable size; disabling.
 (require 'puppet-mode)
 (add-to-list 'auto-mode-alist '("\\.pp$" . puppet-mode))
 (add-hook 'puppet-mode-hook 'paredit-c-mode)
+
+(add-to-list 'load-path "~/lib/emacs/puppet-flymake")
+(require 'flymake-puppet)
+(add-hook 'puppet-mode-hook (lambda () (flymake-puppet-load)))
 #+end_src
 
 *** Python
-**** COMMENT general
-#+begin_src emacs-lisp
-;; (defvar dan/python-exec-lines
-;;   "import sys
-;; import os
-;; sys.path.append(os.path.expanduser('~'))
-;; ")
-
-;; %load_ext autoreload
-;; %autoreload 2
-
-(defun dan/python-eval-exec-lines ()
-  "Hack until shellplus honors `exec_lines`"
-  (interactive)
-  (with-current-buffer "*Python*"
-    (python-shell-send-string-no-output
-     dan/python-exec-lines
-     (get-buffer-process (current-buffer)))))
-
-(defun dan/python (cmd split &optional restart)
-  (let* ((buf-name "*Python*")
-         (process-buffer (get-buffer buf-name)))
-    (when (and restart process-buffer) (kill-buffer buf-name))
-    (unless (and process-buffer (get-buffer-process process-buffer))
-      (run-python (eval cmd))
-      (python-shell-send-string dan/python-startup-string)
-      ;; (dan/python-eval-exec-lines)
-      ;; Start up clean
-      ;; (sleep-for 5)
-      ;; (delete-region (point-min) (point-max))
-      (setq process-buffer (get-buffer buf-name)))
-    (if split
-        (set-window-buffer (split-window-below) process-buffer)
-      (switch-to-buffer process-buffer))))
-
-(defvar dan/ipython-command "ipython")
-(defvar dan/python-startup-string
-  (mapconcat 'identity
-             '("from itertools import *"
-               "from functools import *"
-               "from collections import *"
-               "from operator import *"
-               "from django.db.models import Count"
-               "import json")
-             " ; "))
-
-(defun dan/ipython (&optional arg)
-  (interactive "P")
-  (dan/python dan/ipython-command arg))
-
-(defun dan/ipython-console (&optional arg)
-  (interactive "P")
-  (dan/python
-   '(concat "~/lib/python/ipython/ipython.py console "
-            (read-from-minibuffer "Arguments: " "--existing"))
-   arg))
-
-(defun dan/python-shell-clear ()
-  (interactive)
-  (delete-region (point-min) (point-max))
-  (comint-send-input))
-
-
-;; -W ignore:Module:UserWarning %s
-
-(add-hook 'python-mode-hook
-          (lambda () (local-set-key "\C-c\C-z" #'dan/ipython)))
-(global-set-key "\C-c\C-z" #'dan/ipython)
-
-(defun dan/insert-ipdb-set-trace (&optional traceback)
-  (interactive "P")
-  ;; (indent-for-tab-command)
-  (let ((debugger "ipdb")) ;; pudb
-    (insert
-     (format
-      (if traceback
-          "import traceback ; import %s ; print traceback.format_exc() ; %s.set_trace()"
-        "import %s ; %s.set_trace()")
-      debugger debugger))))
-
-(defun dan/insert-import-numpy ()
-  (interactive)
-  (indent-for-tab-command)
-  (insert "import numpy as np"))
-
-(fset 'dict-literal-to-kwargs
-   (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote ([3 114 up up return up up return] 0 "%d")) arg)))
-
-;; (defun dan/python-dict-literal-to-kwargs ()
-;;   (interactive)
-;;   (save-excursion
-;;     (goto-char (region-beginning))
-;;     (while (re-search-forward "'\\([^']+\\)': *\\([^,]+\\)," (region-end) t)
-;;       (replace-match
-;;        (format "%s=%s," (match-string 1) (match-string 2))))))
-
-;; (defun dan/python-kwargs-to-dict-literal ()
-;;   (interactive)
-;;   (save-excursion
-;;     (goto-char (region-beginning))
-;;     (while (re-search-forward "\\([^ =]+\\)" (region-end) t) ;; "\\([^ =]+\\)=\\([^ ]+\\),"
-;;       (replace-match
-;;        (format "'%s': %s," (match-string 1) (match-string 2))))))
-
-
-(defun dan/python-dict-literal-to-kwargs ()
-  (interactive)
-  (replace-regexp
-   "[\"']\\([^\"']+\\)[\"']: \\([^,]+\\),"
-   "\\1=\\2,"
-   nil (region-beginning) (region-end)))
-
-(defun dan/python-kwargs-to-dict-literal ()
-  (interactive)
-  (replace-regexp
-   " \\([^ =]+\\) *= *\\([^,\n]+\\),?\n"
-   " '\\1': \\2,\n"
-   nil (region-beginning) (region-end)))
-
-(defun dan/python-prep-paste ()
-  (interactive)
-  (let ((frag (buffer-substring (region-beginning) (region-end))))
-    (with-temp-buffer
-      (insert frag)
-      (org-do-remove-indentation 999)
-      (goto-char (point-min))
-      (replace-regexp "[\n \\]+" " ")
-      (kill-ring-save (point-min) (point-max)))))
-
-(defun dan/python-kill-ring-save (&optional arg)
-  (interactive "P")
-  (call-interactively
-   (if arg 'dan/python-prep-paste 'kill-ring-save)))
-
-(defun dan/python-wrap-region (format-string)
-  (let* ((beg (region-beginning))
-         (end (region-end))
-         (frag (dan/dedent (buffer-substring beg end)))
-         (indent (python-indent-calculate-indentation))
-         (insertion (dan/indent (format format-string frag) indent)))
-    (delete-region beg end)
-    (insert insertion)))
-
-(defun dan/python-wrap-region-with-debug-info ()
-  (interactive)
-  (dan/python-wrap-region
-   "from django.db import connection
-import datetime
-q0 = len(connection.queries)
-t0 = datetime.datetime.now()
-
-%s
-q1 = len(connection.queries)
-t1 = datetime.datetime.now()
-print 'Queries: %%d' %% (q1 - q0)
-print 'Time: ', (t1 - t0)
-"))
-
-(setq python-fill-docstring-style 'django)
-
-
-(defun dan/python-cleanup-ipython-transcript ()
-  (interactive)
-  (-dan/do-substitutions
-   '(("^In \[[0-9]+\]: " . ">>> ")
-     ("^Out\[[0-9]+\]: " . "   "))))
-
-#+end_src
-
-**** Python.el
-
-Alternative completion approach; haven't investigated this.
-http://chrispoole.com/downloads/ac-python.el
-
 #+begin_src emacs-lisp
 (require 'python)
 (setq auto-mode-alist (cons '("\\.pyw$" . python-mode) auto-mode-alist))
@@ -2129,10 +1959,56 @@ http://chrispoole.com/downloads/ac-python.el
 
 (setq python-shell-enable-syntax-highlighting nil)
 
+(add-hook 'kill-buffer-hook
+          (lambda () (when (eq major-mode 'inferior-python-mode)
+                  (dan/dump-comint-history dan/python-comint-history-file))))
+
+(defun dan/inferior-python-mode-hook-function ()
+  (esk/pretty-lambdas)
+  (setq truncate-lines t)
+  (dan/load-comint-history dan/python-comint-history-file))
+
+
+(add-hook 'inferior-python-mode-hook
+          'dan/inferior-python-mode-hook-function)
+
+(defun dan/python-mode-hook-function ()
+  (esk/pretty-lambdas)
+  ;; (highlight-lines-matching-regexp ".\\{80\\}" 'button)
+  (setq forward-sexp-function nil) ; for use with paredit
+  (add-to-list (make-local-variable 'comint-dynamic-complete-functions)
+               'python-completion-complete-at-point))
+
+(add-hook 'python-mode-hook
+          'dan/python-mode-hook-function)
+
+(add-hook 'python-mode-hook 'paredit-c-mode)
+
+(add-hook 'python-mode-hook
+          (lambda () (local-set-key "\C-c\C-z" #'dan/ipython)))
+(global-set-key "\C-c\C-z" #'dan/ipython)
+
+(setq python-fill-docstring-style 'django)
+#+end_src
 
 ;; (setq python-shell-virtualenv-path "~/venvs/logstash_client/")
 
+;; %load_ext autoreload
+;; %autoreload 2
 
+;; -W ignore:Module:UserWarning %s
+
+;; Alternative completion approach; haven't investigated this.
+;; http://chrispoole.com/downloads/ac-python.el
+
+;; (defun pcomplete-inferior-python-setup ()
+;;   "Setup `inferior-python-mode' to use pcomplete."
+;;   (pcomplete-comint-setup 'comint-dynamic-complete-functions))
+
+;; (add-hook 'inferior-python-mode-hook 'pcomplete-inferior-python-setup)
+
+**** Functions
+#+begin_src elisp
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; python comint history
@@ -2168,14 +2044,6 @@ http://chrispoole.com/downloads/ac-python.el
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(add-hook 'kill-buffer-hook
-          (lambda () (when (eq major-mode 'inferior-python-mode)
-                  (dan/dump-comint-history dan/python-comint-history-file))))
-
-(defun dan/inferior-python-mode-hook-function ()
-  (esk/pretty-lambdas)
-  (setq truncate-lines t)
-  (dan/load-comint-history dan/python-comint-history-file))
 
 
 (defun dan/inferior-python-cpaste ()
@@ -2185,22 +2053,6 @@ http://chrispoole.com/downloads/ac-python.el
   (insert "--\n")
   (comint-send-input))
 
-
-(add-hook 'inferior-python-mode-hook
-          'dan/inferior-python-mode-hook-function)
-
-(defun dan/python-mode-hook-function ()
-  (esk/pretty-lambdas)
-  (setq forward-sexp-function nil) ; for use with paredit
-  (add-to-list (make-local-variable 'comint-dynamic-complete-functions)
-               'python-completion-complete-at-point))
-
-(add-hook 'python-mode-hook
-          'dan/python-mode-hook-function)
-
-(add-hook 'python-mode-hook 'paredit-c-mode)
-
-
 (defun dan/python-shell-send-chunk ()
   "Send the current chunk to inferior Python process."
   (interactive)
@@ -2208,6 +2060,11 @@ http://chrispoole.com/downloads/ac-python.el
   (python-shell-send-region
      (progn (backward-paragraph) (point))
      (progn (forward-paragraph) (point))))
+
+(defun dan/python-shell-send-buffer ()
+  (interactive)
+  (python-shell-send-buffer)
+  (dan/ipython))
 
 (defun dan/python-current-defun-name ()
   (interactive)
@@ -2273,22 +2130,137 @@ http://chrispoole.com/downloads/ac-python.el
      (format "import os; os.chdir('%s')" directory)
      process)))
 
+(defun dan/python-eval-exec-lines ()
+  "Hack until shellplus honors `exec_lines`"
+  (interactive)
+  (with-current-buffer "*Python*"
+    (python-shell-send-string-no-output
+     dan/python-exec-lines
+     (get-buffer-process (current-buffer)))))
+
+(defun dan/python (cmd split &optional restart)
+  (let* ((buf-name "*Python*")
+         (process-buffer (get-buffer buf-name)))
+    (when (and restart process-buffer) (kill-buffer buf-name))
+    (unless (and process-buffer (get-buffer-process process-buffer))
+      (run-python (eval cmd))
+      (python-shell-send-string dan/python-startup-string)
+      ;; (dan/python-eval-exec-lines)
+      ;; Start up clean
+      ;; (sleep-for 5)
+      ;; (delete-region (point-min) (point-max))
+      (setq process-buffer (get-buffer buf-name)))
+    (if split
+        (set-window-buffer (split-window-below) process-buffer)
+      (switch-to-buffer process-buffer))))
+
+(defvar dan/ipython-command "ipython")
+(defvar dan/python-startup-string
+  (mapconcat 'identity
+             '("from itertools import *"
+               "from functools import *"
+               "from collections import *"
+               "from operator import *"
+               "from django.db.models import Count"
+               "import json")
+             " ; "))
+
+(defun dan/ipython (&optional arg)
+  (interactive "P")
+  (dan/python dan/ipython-command arg))
+
+(defun dan/ipython-console (&optional arg)
+  (interactive "P")
+  (dan/python
+   '(concat "~/lib/python/ipython/ipython.py console "
+            (read-from-minibuffer "Arguments: " "--existing"))
+   arg))
+
+(defun dan/python-shell-clear ()
+  (interactive)
+  (delete-region (point-min) (point-max))
+  (comint-send-input))
+
+
+(defun dan/insert-ipdb-set-trace (&optional traceback)
+  (interactive "P")
+  ;; (indent-for-tab-command)
+  (let ((debugger "ipdb")) ;; pudb
+    (insert
+     (format
+      (if traceback
+          "import traceback ; import %s ; print traceback.format_exc() ; %s.set_trace()"
+        "import %s ; %s.set_trace()")
+      debugger debugger))))
+
+(defun dan/insert-import-numpy ()
+  (interactive)
+  (indent-for-tab-command)
+  (insert "import numpy as np"))
+
+(fset 'dict-literal-to-kwargs
+   (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote ([3 114 up up return up up return] 0 "%d")) arg)))
+
+(defun dan/python-dict-literal-to-kwargs ()
+  (interactive)
+  (replace-regexp
+   "[\"']\\([^\"']+\\)[\"']: \\([^,]+\\),"
+   "\\1=\\2,"
+   nil (region-beginning) (region-end)))
+
+(defun dan/python-kwargs-to-dict-literal ()
+  (interactive)
+  (replace-regexp
+   " \\([^ =]+\\) *= *\\([^,\n]+\\),?\n"
+   " '\\1': \\2,\n"
+   nil (region-beginning) (region-end)))
+
+(defun dan/python-prep-paste ()
+  (interactive)
+  (let ((frag (buffer-substring (region-beginning) (region-end))))
+    (with-temp-buffer
+      (insert frag)
+      (org-do-remove-indentation 999)
+      (goto-char (point-min))
+      (replace-regexp "[\n \\]+" " ")
+      (kill-ring-save (point-min) (point-max)))))
+
+(defun dan/python-kill-ring-save (&optional arg)
+  (interactive "P")
+  (call-interactively
+   (if arg 'dan/python-prep-paste 'kill-ring-save)))
+
+(defun dan/python-wrap-region (format-string)
+  (let* ((beg (region-beginning))
+         (end (region-end))
+         (frag (dan/dedent (buffer-substring beg end)))
+         (indent (python-indent-calculate-indentation))
+         (insertion (dan/indent (format format-string frag) indent)))
+    (delete-region beg end)
+    (insert insertion)))
+
+(defun dan/python-wrap-region-with-debug-info ()
+  (interactive)
+  (dan/python-wrap-region
+   "from django.db import connection
+import datetime
+q0 = len(connection.queries)
+t0 = datetime.datetime.now()
+
+%s
+q1 = len(connection.queries)
+t1 = datetime.datetime.now()
+print 'Queries: %%d' %% (q1 - q0)
+print 'Time: ', (t1 - t0)
+"))
+
+(defun dan/python-cleanup-ipython-transcript ()
+  (interactive)
+  (-dan/do-substitutions
+   '(("^In \[[0-9]+\]: " . ">>> ")
+     ("^Out\[[0-9]+\]: " . "   "))))
 #+end_src
-
-
-;; (defun pcomplete-inferior-python-setup ()
-;;   "Setup `inferior-python-mode' to use pcomplete."
-;;   (pcomplete-comint-setup 'comint-dynamic-complete-functions))
-
-;; (add-hook 'inferior-python-mode-hook 'pcomplete-inferior-python-setup)
-
-**** Ein
-#+begin_src emacs-lisp :tangle no
-(add-to-list 'load-path "~/lib/emacs/emacs-websocket")
-(add-to-list 'load-path "~/lib/emacs/emacs-ipython-notebook")
-(require 'ein)
-#+end_src
-
+ 
 **** Ropemacs
      Need to
      1. install pymacs python module
@@ -2373,56 +2345,6 @@ http://chrispoole.com/downloads/ac-python.el
      'python-import-bounds-of-python-import-at-point)
 #+end_src
 
-**** Unused
-***** Python-mode.el
-#+begin_src emacs-lisp :noweb yes :tangle no
-(add-to-list 'load-path "~/lib/emacs/python-mode")
-(require 'python-mode)
-(setq py-python-command-args '("-i" "-colors" "Linux"))
-;; (setq py-python-command-args '("--colors" "Linux"))
-(setq auto-mode-alist (cons '("\\.pyw$" . python-mode) auto-mode-alist))
-<<python-mode-bindings>>
-
-(setq py-shell-switch-buffers-on-execute nil)
-
-(add-to-list 'load-path "~/lib/emacs/ipython")
-(require 'ipython)
-(setq ipython-command "ipython -colors Linux -classic -nobanner")
-;; (setq ipython-completion-command-string
-;;       "print(';'.join(__IP.Completer.all_completions('%s')))\n")
-
-(setq org-babel-python-mode 'python-mode)
-
-(defun dan/py-execute-region ()
-  (interactive)
-  (let ((cwf (current-window-configuration)))
-    ;; Why doesn't s-w-e prevent window disruption?
-    (save-window-excursion
-      (condition-case nil
-          (call-interactively 'py-execute-region)
-        (error nil)))
-    (set-window-configuration cwf)))
-
-(defun dan/py-eval-line ()
-  (interactive)
-  (save-excursion
-    (save-window-excursion
-      (ignore-errors
-        (py-execute-region (point-at-bol) (point-at-eol)))))
-  (forward-line 1))
-
-(defun dan/turn-on-python-mode-syntax-highlighting ()
-  (interactive)
-  (set (make-local-variable 'font-lock-defaults)
-       '(python-font-lock-keywords nil nil nil nil
-                                   (font-lock-syntactic-keywords
-                                    . python-font-lock-syntactic-keywords))))
-
-(defun dan/django-shell ()
-  (interactive)
-  (let ((py-which-args '("./manage.py"  "shell")))
-    (py-shell)))
-#+end_src
 ** Sass
 #+begin_src emacs-lisp
 (add-to-list 'load-path "~/lib/emacs/scss-mode")
@@ -2577,6 +2499,12 @@ obj[-grep(re, obj)]
 ** Erc
 #+begin_src emacs-lisp
 
+#+end_src
+
+** Fill-column indicator
+#+begin_src emacs-lisp
+(setq fci-rule-column 80)
+(setq fci-rule-color "#A5BAF1")
 #+end_src
 
 ** Google Search
@@ -2987,7 +2915,7 @@ obj[-grep(re, obj)]
 
 **** Search in org files
      [[gnus:nntp%2Bnews.gmane.org:gmane.emacs.orgmode#87eicxzkdw.fsf@archdesk.localdomain][Email from Matt Lundin: Re: Search files in a folder]]
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (defun ml/org-grep (search &optional context)
   "Search for word in org files.
 
@@ -2999,8 +2927,6 @@ Prefix argument determines number of lines."
                                  (concat "-C" (number-to-string context)))
                                " -e <R> <F>")))
     (lgrep search "*org*" "/home/dan/org/")))
-
-(global-set-key (kbd "<f7>") 'ml/org-grep)
 #+end_src
 
 **** dan/org-edit-special
@@ -3922,6 +3848,7 @@ I didn't get this to work.
                ([(hyper right)] . winner-redo)
                ([(control left)] . winner-undo)
                ([(control right)] . winner-redo)
+               ([(super i)] . dan/where-am-i)
                ([(super o)] . dan/open-github-path-from-clipboard)
                ([(super left)] . winner-undo)
                ([(super right)] . winner-redo)
@@ -3935,6 +3862,7 @@ I didn't get this to work.
                ([f4] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?4 arg)))
                ([f5] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?5 arg)))
                ([f6] . dan/find-file-emacs-config)
+               ([f7] . fci-mode)
                ([f11] . dan/find)
                ([f12] . magit-status)
                ([(control return)] . delete-other-windows)
@@ -3943,7 +3871,6 @@ I didn't get this to work.
                ([escape] . dan/other-non-minibuffer-window))))
 
 (global-set-key (kbd "s-,") 'dan/show-buffer-file-name)
-(global-set-key (kbd "s-i") 'dan/where-am-i)
 
 
 (add-hook 'after-change-major-mode-hook
@@ -4146,17 +4073,6 @@ I didn't get this to work.
 #+end_src
 
 ** Python
-*** inferior python
-#+begin_src emacs-lisp
-(dan/register-key-bindings
- '("inferior-python" .
-   (("\C-c\C-z" . dan/ipython)
-    ("\C-c\M-n" . dan/insert-import-numpy)
-    ("\C-c\M-y" . dan/inferior-python-cpaste)
-    ("\C-cd" . dan/python-cd)
-    ("\C-l" . dan/python-shell-clear)
-    ("\M-." . dan/rope-goto-definition))))
-#+end_src
 *** python
 #+begin_src emacs-lisp
 (dan/register-key-bindings
@@ -4171,12 +4087,24 @@ I didn't get this to work.
     ("\M-." . dan/rope-goto-definition)
     ("\M-w" . dan/python-kill-ring-save)
     ("\C-c," . flymake-goto-next-error)
-    ("\C-cs" . counsyl/sort-paragraph-at-point)
+    ("\C-cs" . py-isort)
     ("\C-c\M-p" . dan/python-prep-paste)
+    ("\C-c!" . dan/flymake)
     ([(meta shift right)] . python-indent-shift-right)
     ([(meta shift left)] . python-indent-shift-left)
     ([(meta up)] . org-metaup)
     ([tab] . dan/indent-or-complete))))
+#+end_src
+*** inferior python
+#+begin_src emacs-lisp
+(dan/register-key-bindings
+ '("inferior-python" .
+   (("\C-c\C-z" . dan/ipython)
+    ("\C-c\M-n" . dan/insert-import-numpy)
+    ("\C-c\M-y" . dan/inferior-python-cpaste)
+    ("\C-cd" . dan/python-cd)
+    ("\C-l" . dan/python-shell-clear)
+    ("\M-." . dan/rope-goto-definition))))
 #+end_src
 
 *** python-mode.el
@@ -4280,12 +4208,6 @@ http://www.emacswiki.org/emacs/TransparentEmacs
     (set-frame-parameter nil 'alpha dan/frame-transparent-alpha)))
 #+end_src
 
-** Face hacks
-#+begin_src emacs-lisp :tangle no
-(set-face-attribute 'default-bold nil :weight "normal")
-(copy-face 'magit-diff-del 'flymake-errline)
-#+end_src
-
 * Start-up
 #+begin_src emacs-lisp
 ;;(when (string-match "^23\.*" emacs-version)
@@ -4311,7 +4233,12 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 
 * Experimental
 #+begin_src emacs-lisp
+(set-face-attribute 'default-bold nil :weight "normal")
+
+;; (copy-face 'magit-diff-del 'flymake-errline)
 (copy-face 'button 'flymake-errline)
+
+
 
 (setq scroll-preserve-screen-position :always
       scroll-conservatively           most-positive-fixnum
