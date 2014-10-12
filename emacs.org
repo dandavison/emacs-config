@@ -749,7 +749,7 @@ parenthesis-delimited list of symbols at point"
   (interactive "P")
   (if (or (eq major-mode 'python-mode)
           (eq major-mode 'django-mode))
-      (dan/python-where-am-i)
+      (dan/python-where-am-i arg)
     (dan/eol-column-line arg)))
 #+end_src
 
@@ -2081,7 +2081,7 @@ Seems very slow on coffeescript output of reasonable size; disabling.
           (push name names))
       (message (mapconcat #'identity names ".")))))
 
-(defun dan/python-where-am-i ()
+(defun dan/python-where-am-i (&optional arg)
   (interactive "P")
   (message
    (dan/save-value-to-kill-ring
@@ -3815,7 +3815,7 @@ I didn't get this to work.
                ("\C-c\M-f" . dan/find)
                ("\C-cg" . dan/magit-status)
                ("\C-ck" . bury-buffer)
-               ("\C-ci" . dan/eol-column-line)
+               ("\C-ci" . dan/where-am-i)
                ("\C-c\M-l" . bookmark-bmenu-list)
                ("\C-cl" . bookmark-bmenu-list)
                ("\C-cm" . bookmark-set)
@@ -3848,7 +3848,7 @@ I didn't get this to work.
                ([(hyper right)] . winner-redo)
                ([(control left)] . winner-undo)
                ([(control right)] . winner-redo)
-               ([(super i)] . dan/where-am-i)
+               ([(super i)] . fci-mode)
                ([(super o)] . dan/open-github-path-from-clipboard)
                ([(super left)] . winner-undo)
                ([(super right)] . winner-redo)
@@ -3862,7 +3862,6 @@ I didn't get this to work.
                ([f4] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?4 arg)))
                ([f5] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?5 arg)))
                ([f6] . dan/find-file-emacs-config)
-               ([f7] . fci-mode)
                ([f11] . dan/find)
                ([f12] . magit-status)
                ([(control return)] . delete-other-windows)
@@ -4079,7 +4078,6 @@ I didn't get this to work.
  '("python" .
    (("\C-c\C-z" . dan/ipython)
     ("\C-cd" . dan/insert-ipdb-set-trace)
-    ("\C-ci" . dan/python-where-am-i)
     ("\C-c\M-n" . dan/insert-import-numpy)
     ("\C-c\C-c" . python-shell-send-buffer)
     ("\C-xrm" . (lambda () (interactive) (bookmark-set (dan/python-current-defun-name))))

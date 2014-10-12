@@ -48,6 +48,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(default-frame-alist (quote ((background-color . "#232323") (border-color . "#232323") (background-mode . dark) (mouse-color . "sienna1") (cursor-color . "#5A647E") (foreground-color . "#E6E1DC") (cursor-type . box) (vertical-scroll-bars))))
  '(haskell-mode-hook (quote (turn-on-haskell-indentation)))
  '(session-use-package t nil (session)))
 (custom-set-faces
@@ -55,7 +56,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "gray7" :foreground "#F8F8F8" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 130 :width normal :foundry "apple" :family "Menlo"))))
+ '(default ((t (:inherit nil :stipple nil :background "#0a0a0a" :foreground "#F8F8F8" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 130 :width normal :foundry "apple" :family "Menlo"))))
  '(comint-highlight-prompt ((t (:foreground "gold"))))
  '(flymake-errline ((t (:background "dark blue" :foreground "black"))))
  '(org-block-begin-line ((t (:inherit org-meta-line :foreground "black"))) t)

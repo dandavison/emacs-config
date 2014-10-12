@@ -646,7 +646,7 @@ parenthesis-delimited list of symbols at point"
   (interactive "P")
   (if (or (eq major-mode 'python-mode)
           (eq major-mode 'django-mode))
-      (dan/python-where-am-i)
+      (dan/python-where-am-i arg)
     (dan/eol-column-line arg)))
 
 (defun dan/find-function-or-library (&optional arg)
@@ -1201,7 +1201,7 @@ Straight copy of `find-function-at-point` but using
 
 
 (add-to-list 'flymake-allowed-file-name-masks
-             '("\\.py\\'" (lambda () (dan/flymake-init "/Users/dan/venvs/website/bin/flake8"))))
+             '("\\.py\\'" (lambda () (dan/flymake-init "/Users/dan/venvs/website/bin/codequality"))))
 
 (add-to-list 'flymake-allowed-file-name-masks
              '("\\.js\\'" (lambda () (dan/flymake-init "/Users/dan/venvs/website/bin/codequality"))))
@@ -1459,172 +1459,6 @@ Straight copy of `find-function-at-point` but using
 
 (dan/require 'plantuml-mode)
 
-;; (defvar dan/python-exec-lines
-;;   "import sys
-;; import os
-;; sys.path.append(os.path.expanduser('~'))
-;; ")
-
-;; %load_ext autoreload
-;; %autoreload 2
-
-(defun dan/python-eval-exec-lines ()
-  "Hack until shellplus honors `exec_lines`"
-  (interactive)
-  (with-current-buffer "*Python*"
-    (python-shell-send-string-no-output
-     dan/python-exec-lines
-     (get-buffer-process (current-buffer)))))
-
-(defun dan/python (cmd split &optional restart)
-  (let* ((buf-name "*Python*")
-         (process-buffer (get-buffer buf-name)))
-    (when (and restart process-buffer) (kill-buffer buf-name))
-    (unless (and process-buffer (get-buffer-process process-buffer))
-      (run-python (eval cmd))
-      (python-shell-send-string dan/python-startup-string)
-      ;; (dan/python-eval-exec-lines)
-      ;; Start up clean
-      ;; (sleep-for 5)
-      ;; (delete-region (point-min) (point-max))
-      (setq process-buffer (get-buffer buf-name)))
-    (if split
-        (set-window-buffer (split-window-below) process-buffer)
-      (switch-to-buffer process-buffer))))
-
-(defvar dan/ipython-command "ipython")
-(defvar dan/python-startup-string
-  (mapconcat 'identity
-             '("from itertools import *"
-               "from functools import *"
-               "from collections import *"
-               "from operator import *"
-               "from django.db.models import Count"
-               "import json")
-             " ; "))
-
-(defun dan/ipython (&optional arg)
-  (interactive "P")
-  (dan/python dan/ipython-command arg))
-
-(defun dan/ipython-console (&optional arg)
-  (interactive "P")
-  (dan/python
-   '(concat "~/lib/python/ipython/ipython.py console "
-            (read-from-minibuffer "Arguments: " "--existing"))
-   arg))
-
-(defun dan/python-shell-clear ()
-  (interactive)
-  (delete-region (point-min) (point-max))
-  (comint-send-input))
-
-
-;; -W ignore:Module:UserWarning %s
-
-(add-hook 'python-mode-hook
-          (lambda () (local-set-key "\C-c\C-z" #'dan/ipython)))
-(global-set-key "\C-c\C-z" #'dan/ipython)
-
-(defun dan/insert-ipdb-set-trace (&optional traceback)
-  (interactive "P")
-  ;; (indent-for-tab-command)
-  (let ((debugger "ipdb")) ;; pudb
-    (insert
-     (format
-      (if traceback
-          "import traceback ; import %s ; print traceback.format_exc() ; %s.set_trace()"
-        "import %s ; %s.set_trace()")
-      debugger debugger))))
-
-(defun dan/insert-import-numpy ()
-  (interactive)
-  (indent-for-tab-command)
-  (insert "import numpy as np"))
-
-(fset 'dict-literal-to-kwargs
-   (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote ([3 114 up up return up up return] 0 "%d")) arg)))
-
-;; (defun dan/python-dict-literal-to-kwargs ()
-;;   (interactive)
-;;   (save-excursion
-;;     (goto-char (region-beginning))
-;;     (while (re-search-forward "'\\([^']+\\)': *\\([^,]+\\)," (region-end) t)
-;;       (replace-match
-;;        (format "%s=%s," (match-string 1) (match-string 2))))))
-
-;; (defun dan/python-kwargs-to-dict-literal ()
-;;   (interactive)
-;;   (save-excursion
-;;     (goto-char (region-beginning))
-;;     (while (re-search-forward "\\([^ =]+\\)" (region-end) t) ;; "\\([^ =]+\\)=\\([^ ]+\\),"
-;;       (replace-match
-;;        (format "'%s': %s," (match-string 1) (match-string 2))))))
-
-
-(defun dan/python-dict-literal-to-kwargs ()
-  (interactive)
-  (replace-regexp
-   "[\"']\\([^\"']+\\)[\"']: \\([^,]+\\),"
-   "\\1=\\2,"
-   nil (region-beginning) (region-end)))
-
-(defun dan/python-kwargs-to-dict-literal ()
-  (interactive)
-  (replace-regexp
-   " \\([^ =]+\\) *= *\\([^,\n]+\\),?\n"
-   " '\\1': \\2,\n"
-   nil (region-beginning) (region-end)))
-
-(defun dan/python-prep-paste ()
-  (interactive)
-  (let ((frag (buffer-substring (region-beginning) (region-end))))
-    (with-temp-buffer
-      (insert frag)
-      (org-do-remove-indentation 999)
-      (goto-char (point-min))
-      (replace-regexp "[\n \\]+" " ")
-      (kill-ring-save (point-min) (point-max)))))
-
-(defun dan/python-kill-ring-save (&optional arg)
-  (interactive "P")
-  (call-interactively
-   (if arg 'dan/python-prep-paste 'kill-ring-save)))
-
-(defun dan/python-wrap-region (format-string)
-  (let* ((beg (region-beginning))
-         (end (region-end))
-         (frag (dan/dedent (buffer-substring beg end)))
-         (indent (python-indent-calculate-indentation))
-         (insertion (dan/indent (format format-string frag) indent)))
-    (delete-region beg end)
-    (insert insertion)))
-
-(defun dan/python-wrap-region-with-debug-info ()
-  (interactive)
-  (dan/python-wrap-region
-   "from django.db import connection
-import datetime
-q0 = len(connection.queries)
-t0 = datetime.datetime.now()
-
-%s
-q1 = len(connection.queries)
-t1 = datetime.datetime.now()
-print 'Queries: %%d' %% (q1 - q0)
-print 'Time: ', (t1 - t0)
-"))
-
-(setq python-fill-docstring-style 'django)
-
-
-(defun dan/python-cleanup-ipython-transcript ()
-  (interactive)
-  (-dan/do-substitutions
-   '(("^In \[[0-9]+\]: " . ">>> ")
-     ("^Out\[[0-9]+\]: " . "   "))))
-
-
 (require 'python)
 (setq auto-mode-alist (cons '("\\.pyw$" . python-mode) auto-mode-alist))
 (setq auto-mode-alist (cons '("\\.pyx$" . python-mode) auto-mode-alist))
@@ -1649,45 +1483,6 @@ print 'Time: ', (t1 - t0)
 
 (setq python-shell-enable-syntax-highlighting nil)
 
-
-;; (setq python-shell-virtualenv-path "~/venvs/logstash_client/")
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; python comint history
-
-(defvar dan/python-comint-history-file "~/.ipython/history")
-(defvar dan/python-comint-history-max 1000)
-
-(defun dan/load-comint-history (&optional file)
-  (interactive "fHistory file: ")
-  (if (null comint-input-ring)
-      (error "This buffer has no comint history"))
-  (message "Loading python comint history...")
-  (mapc (lambda (item) (ring-insert+extend comint-input-ring item 'grow))
-        (dan/read-comint-history file)))
-
-(defun dan/read-comint-history (file)
-  (split-string (with-temp-buffer
-                  (insert-file-contents file)
-                  (buffer-string)) "\n" t))
-
-(defun dan/dump-comint-history (&optional file)
-  (interactive "fHistory file: ")
-  (if (null comint-input-ring)
-      (error "This buffer has no comint history"))
-  ;; Most recent is first in comint-input-ring. Write file in
-  ;; same order seeing as we are overwriting, not appending.
-  (let ((history (org-uniquify (ring-elements comint-input-ring))))
-    (setq history (subseq history 0 (min (length history)
-                                         dan/python-comint-history-max)))
-    (with-temp-buffer
-      (insert (mapconcat #'identity history "\n") "\n")
-      (write-file file))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (add-hook 'kill-buffer-hook
           (lambda () (when (eq major-mode 'inferior-python-mode)
                   (dan/dump-comint-history dan/python-comint-history-file))))
@@ -1698,19 +1493,12 @@ print 'Time: ', (t1 - t0)
   (dan/load-comint-history dan/python-comint-history-file))
 
 
-(defun dan/inferior-python-cpaste ()
-  (interactive)
-  (insert "%cpaste\n")
-  (yank)
-  (insert "--\n")
-  (comint-send-input))
-
-
 (add-hook 'inferior-python-mode-hook
           'dan/inferior-python-mode-hook-function)
 
 (defun dan/python-mode-hook-function ()
   (esk/pretty-lambdas)
+  ;; (highlight-lines-matching-regexp ".\\{80\\}" 'button)
   (setq forward-sexp-function nil) ; for use with paredit
   (add-to-list (make-local-variable 'comint-dynamic-complete-functions)
                'python-completion-complete-at-point))
@@ -1720,79 +1508,11 @@ print 'Time: ', (t1 - t0)
 
 (add-hook 'python-mode-hook 'paredit-c-mode)
 
+(add-hook 'python-mode-hook
+          (lambda () (local-set-key "\C-c\C-z" #'dan/ipython)))
+(global-set-key "\C-c\C-z" #'dan/ipython)
 
-(defun dan/python-shell-send-chunk ()
-  "Send the current chunk to inferior Python process."
-  (interactive)
-  (skip-chars-forward "\n")
-  (python-shell-send-region
-     (progn (backward-paragraph) (point))
-     (progn (forward-paragraph) (point))))
-
-(defun dan/python-current-defun-name ()
-  (interactive)
-  (save-excursion
-    (let* ((get-name (lambda ()
-                       (beginning-of-defun)
-                       (looking-at python-nav-beginning-of-defun-regexp)
-                       (match-string 1)))
-           (names `(,(funcall get-name)))
-           name)
-      (when (looking-at "[ \t]")
-        (while (looking-at "[ \t]")
-          (setq name (funcall get-name)))
-          (push name names))
-      (message (mapconcat #'identity names ".")))))
-
-(defun dan/python-where-am-i ()
-  (interactive "P")
-  (message
-   (dan/save-value-to-kill-ring
-    (if arg
-        (format
-         "website_test %s:%s"
-         (replace-regexp-in-string
-          ".__init__.py" ""
-          (replace-regexp-in-string
-           "/" "."
-           (replace-regexp-in-string
-            (concat "^" (counsyl--git-dir) "/") ""
-            (replace-regexp-in-string
-             "\.py$" "" (buffer-file-name)))))
-         (dan/python-current-defun-name))
-      (format "%s %s"
-              (dan/python-current-defun-name)
-              (dan/eol-column-line))))))
-
-(defun dan/strip-quotes (string)
-  (if (string-match "[\"']+\\(.+\\)[\"']+" string)
-      (match-string 1 string)
-    string))
-
-(defun dan/import-at-point ()
-  (interactive)
-  (let ((end (point))
-        (word (thing-at-point 'symbol)))
-    (backward-word)
-    (delete-region (point) end)
-    (insert
-     (format
-      "from %s import %s"
-      (dan/strip-quotes
-       (python-shell-send-string-no-output
-        (concat word ".__module__"))) word))))
-
-;;; Change directory
-(defun dan/python-cd (directory)
-  "Change current directory in emacs and in the python process"
-  (interactive "DChange directory: ")
-  (let ((process (get-buffer-process (current-buffer)))
-       (directory (expand-file-name directory)))
-    (cd-absolute directory)
-    (python-shell-send-string-no-output
-     (format "import os; os.chdir('%s')" directory)
-     process)))
-
+(setq python-fill-docstring-style 'django)
 
 (defun dan/rope-goto-definition-of-thing-read-from-minibuffer (string)
   (interactive "sGo to definition of: ")
@@ -1925,6 +1645,9 @@ print 'Time: ', (t1 - t0)
  '("marmalade" . "http://marmalade-repo.org/packages/"))
 
 
+
+(setq fci-rule-column 80)
+(setq fci-rule-color "#A5BAF1")
 
 (defun dan/google ()
   (interactive)
@@ -2263,20 +1986,6 @@ print 'Time: ', (t1 - t0)
        (buffer-substring (region-beginning) (region-end))
      (org-completing-read "Regexp: "))
    "*.el" (concat dan/org-mode-src-dir "/lisp")))
-
-(defun ml/org-grep (search &optional context)
-  "Search for word in org files.
-
-Prefix argument determines number of lines."
-  (interactive "sSearch for: \nP")
-  (let ((grep-find-ignored-files '("#*" ".#*"))
-        (grep-template (concat "grep <X> -i -nH "
-                               (when context
-                                 (concat "-C" (number-to-string context)))
-                               " -e <R> <F>")))
-    (lgrep search "*org*" "/home/dan/org/")))
-
-(global-set-key (kbd "<f7>") 'ml/org-grep)
 
 (defun dan/org-edit-special ()
   (interactive)
@@ -2844,6 +2553,7 @@ issued in a language major-mode buffer."
                ([(hyper right)] . winner-redo)
                ([(control left)] . winner-undo)
                ([(control right)] . winner-redo)
+               ([(super i)] . fci-mode)
                ([(super o)] . dan/open-github-path-from-clipboard)
                ([(super left)] . winner-undo)
                ([(super right)] . winner-redo)
@@ -2865,7 +2575,6 @@ issued in a language major-mode buffer."
                ([escape] . dan/other-non-minibuffer-window))))
 
 (global-set-key (kbd "s-,") 'dan/show-buffer-file-name)
-(global-set-key (kbd "s-i") 'dan/where-am-i)
 
 
 (add-hook 'after-change-major-mode-hook
@@ -3017,19 +2726,9 @@ issued in a language major-mode buffer."
     ([(super up)] . scroll-down-line))))
 
 (dan/register-key-bindings
- '("inferior-python" .
-   (("\C-c\C-z" . dan/ipython)
-    ("\C-c\M-n" . dan/insert-import-numpy)
-    ("\C-c\M-y" . dan/inferior-python-cpaste)
-    ("\C-cd" . dan/python-cd)
-    ("\C-l" . dan/python-shell-clear)
-    ("\M-." . dan/rope-goto-definition))))
-
-(dan/register-key-bindings
  '("python" .
    (("\C-c\C-z" . dan/ipython)
     ("\C-cd" . dan/insert-ipdb-set-trace)
-    ("\C-ci" . dan/python-where-am-i)
     ("\C-c\M-n" . dan/insert-import-numpy)
     ("\C-c\C-c" . python-shell-send-buffer)
     ("\C-xrm" . (lambda () (interactive) (bookmark-set (dan/python-current-defun-name))))
@@ -3037,12 +2736,22 @@ issued in a language major-mode buffer."
     ("\M-." . dan/rope-goto-definition)
     ("\M-w" . dan/python-kill-ring-save)
     ("\C-c," . flymake-goto-next-error)
-    ("\C-cs" . counsyl/sort-paragraph-at-point)
+    ("\C-cs" . py-isort)
     ("\C-c\M-p" . dan/python-prep-paste)
+    ("\C-c!" . dan/flymake)
     ([(meta shift right)] . python-indent-shift-right)
     ([(meta shift left)] . python-indent-shift-left)
     ([(meta up)] . org-metaup)
     ([tab] . dan/indent-or-complete))))
+
+(dan/register-key-bindings
+ '("inferior-python" .
+   (("\C-c\C-z" . dan/ipython)
+    ("\C-c\M-n" . dan/insert-import-numpy)
+    ("\C-c\M-y" . dan/inferior-python-cpaste)
+    ("\C-cd" . dan/python-cd)
+    ("\C-l" . dan/python-shell-clear)
+    ("\M-." . dan/rope-goto-definition))))
 
 (dan/register-key-bindings
  '("texinfo" .
@@ -3119,7 +2828,12 @@ issued in a language major-mode buffer."
 (setq ido-separator " ")
 (eshell)
 
+(set-face-attribute 'default-bold nil :weight "normal")
+
+;; (copy-face 'magit-diff-del 'flymake-errline)
 (copy-face 'button 'flymake-errline)
+
+
 
 (setq scroll-preserve-screen-position :always
       scroll-conservatively           most-positive-fixnum
