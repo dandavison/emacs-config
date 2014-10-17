@@ -2085,21 +2085,21 @@ Seems very slow on coffeescript output of reasonable size; disabling.
   (interactive "P")
   (message
    (dan/save-value-to-kill-ring
-    (if arg
-        (format
-         "website_test %s:%s"
+    (if (nil arg)        
+        (format "%s %s"
+                (dan/python-current-defun-name)
+                (dan/eol-column-line))
+      (format
+       "website_test %s:%s"
+       (replace-regexp-in-string
+        ".__init__.py" ""
+        (replace-regexp-in-string
+         "/" "."
          (replace-regexp-in-string
-          ".__init__.py" ""
+          (concat "^" (counsyl--git-dir) "/") ""
           (replace-regexp-in-string
-           "/" "."
-           (replace-regexp-in-string
-            (concat "^" (counsyl--git-dir) "/") ""
-            (replace-regexp-in-string
-             "\.py$" "" (buffer-file-name)))))
-         (dan/python-current-defun-name))
-      (format "%s %s"
-              (dan/python-current-defun-name)
-              (dan/eol-column-line))))))
+           "\.py$" "" (buffer-file-name)))))
+       (dan/python-current-defun-name))))))
 
 (defun dan/strip-quotes (string)
   (if (string-match "[\"']+\\(.+\\)[\"']+" string)
@@ -2503,7 +2503,7 @@ obj[-grep(re, obj)]
 
 ** Fill-column indicator
 #+begin_src emacs-lisp
-(setq fci-rule-column 80)
+(setq fci-rule-column 79)
 (setq fci-rule-color "#A5BAF1")
 #+end_src
 
