@@ -1872,6 +1872,17 @@ Seems very slow on coffeescript output of reasonable size; disabling.
 (add-hook 'latex-mode-hook 'reftex-mode)
 (add-hook 'latex-mode-hook (lambda () (setq truncate-lines t)))
 #+end_src
+*** Make
+#+begin_src emacs-lisp
+(defun dan/makefile-mode-hook ()
+  (setq indent-tabs-mode t)
+  (set (make-local-variable 'before-save-hook) before-save-hook)
+  (add-hook 'before-save-hook (lambda () (replace-regexp "^ +" "\t" nil (point-min) (point-max))))
+  (paredit-c-mode))
+
+(add-hook 'makefile-mode-hook 'dan/makefile-mode-hook)
+#+end_src
+
 *** Markdown
 #+begin_src emacs-lisp
 (add-to-list 'load-path "~/lib/emacs/markdown-mode")
