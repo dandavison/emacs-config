@@ -36,6 +36,18 @@
 #+end_src
 
 * My functions
+** grip
+#+begin_src emacs-lisp
+(defun grip ()
+  (interactive)
+  (let ((temp-file (make-temp-file "grip-")))
+    (shell-command
+     (format
+      "grip --export %s %s && open -a /Applications/Google\\ Chrome.app %s"
+      (buffer-file-name (current-buffer))
+      temp-file
+      temp-file))))
+#+end_src
 ** filter
 #+begin_src emacs-lisp
 (defun dan/filter (condp lst)
