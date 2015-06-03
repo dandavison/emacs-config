@@ -17,13 +17,32 @@
     (lambda (x) (format "%s/starter-kit-%s.org" dotfiles-dir (symbol-name x)))
     dan/starter-kit-components)))
 
-(defun esk/pretty-lambdas ()
+;; From emacs-starter-kit
+(defun dan/pretty-lambdas ()
   (interactive)
   (font-lock-add-keywords
    nil `(("(?\\(lambda\\>\\)"
           (0 (progn (compose-region (match-beginning 1) (match-end 1)
                                     ,(make-char 'greek-iso8859-7 107))
                     nil))))))
+
+(defun grip ()
+  (interactive)
+  (let ((temp-file (make-temp-file "grip-")))
+    (shell-command
+     (format
+      "grip --export %s %s && open -a /Applications/Google\\ Chrome.app %s"
+      (buffer-file-name (current-buffer))
+      temp-file
+      temp-file))))
+
+(defun dan/remove-newlines ()
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (while (re-search-forward "\\([^\n]\\)\n\\([^\n]\\)" nil t)
+      (replace-match
+       (format "%s %s" (match-string 1) (match-string 2)) nil nil))))
 
 (defun dan/filter (condp lst)
     (delq nil
@@ -320,7 +339,7 @@ Wait for REST between each attempt."
           (replace-regexp-in-string
            "[[:space:]\n]*$" ""
            (shell-command-to-string
-            (format "zsh -c '. ~/.zshrc 2>&/dev/null && . ~/venvs/website/bin/activate && echo $%s'" pathvar)))))
+            (format "zsh -c '. ~/.zshrc 2>&/dev/null && echo $%s'" pathvar)))))
     (setenv pathvar path-from-shell)
     (when (string-equal pathvar "PATH")
       (setq exec-path (split-string path-from-shell path-separator)))))
@@ -951,6 +970,9 @@ Straight copy of `find-function-at-point` but using
 (add-to-list 'auto-mode-alist '("\\.compilation$" . compilation-mode))
 (add-to-list 'auto-mode-alist '("\\.gitconfig$" . conf-mode))
 
+(require 're-builder)
+(setq reb-re-syntax 'string)
+
 ;; DNW
 ;; Wrong type argument: window-live-p, nil
 ;; (add-hook 'compilation-mode-hook (lambda () (select-window (get-window-with-predicate (lambda (win) (eq (window-buffer win) (current-buffer)))))))
@@ -1201,13 +1223,7 @@ Straight copy of `find-function-at-point` but using
 
 
 (add-to-list 'flymake-allowed-file-name-masks
-             '("\\.py\\'" (lambda () (dan/flymake-init "/Users/dan/venvs/website/bin/codequality"))))
-
-(add-to-list 'flymake-allowed-file-name-masks
-             '("\\.js\\'" (lambda () (dan/flymake-init "/Users/dan/venvs/website/bin/codequality"))))
-
-(add-to-list 'flymake-allowed-file-name-masks
-             '("\\.coffee\\'" (lambda () (dan/flymake-init "/Users/dan/venvs/website/bin/codequality"))))
+             '("\\.py\\'" (lambda () (dan/flymake-init "/Users/dan/venvs/website/bin/pep8"))))
 
 (defun dan/flymake ()
   (interactive)
@@ -1253,7 +1269,9 @@ Straight copy of `find-function-at-point` but using
 
 (defun dan/dired-no-ask ()
   (interactive)
-  (dired default-directory))
+  (let ((current-filename (buffer-file-name (current-buffer))))
+    (dired default-directory)
+    (when current-filename (dired-goto-file current-filename))))
 
 (setq dired-omit-extensions
       (append dan/ignored-extensions
@@ -1277,7 +1295,7 @@ Straight copy of `find-function-at-point` but using
 (add-to-list 'load-path "~/lib/emacs/gnuplot-mode.0.6.0")
 (add-to-list 'load-path "~/lib/emacs/matlab")
 
-(add-hook 'emacs-lisp-mode-hook 'esk/pretty-lambdas)
+(add-hook 'emacs-lisp-mode-hook 'dan/pretty-lambdas)
 
 ;; Dan Feb 2006: See http://www.xemacs.org/Links/tutorials_1.html
 (defun dan/c-c++-mode-hook ()
@@ -1410,6 +1428,8 @@ Straight copy of `find-function-at-point` but using
 (add-to-list 'load-path "~/lib/emacs/pony-mode/src")
 (require 'pony-mode)
 
+(add-hook 'java-mode-hook 'paredit-c-mode)
+
 (add-to-list 'auto-mode-alist '("\\.json$" . js-mode))
 
 (defun dan/js-mode-hook-fun ()
@@ -1439,6 +1459,15 @@ Straight copy of `find-function-at-point` but using
 (add-hook 'latex-mode-hook 'reftex-mode)
 (add-hook 'latex-mode-hook (lambda () (setq truncate-lines t)))
 
+(defun dan/makefile-mode-hook ()
+  (setq indent-tabs-mode t)
+  (set (make-local-variable 'before-save-hook) before-save-hook)
+  (add-hook 'before-save-hook
+            (lambda () (save-excursion (replace-regexp "^ +" "\t" nil (point-min) (point-max)))))
+  (paredit-c-mode))
+
+(add-hook 'makefile-mode-hook 'dan/makefile-mode-hook)
+
 (add-to-list 'load-path "~/lib/emacs/markdown-mode")
 (require 'markdown-mode)
 (setq auto-mode-alist (cons '("\\.md$" . markdown-mode) auto-mode-alist))
@@ -1458,6 +1487,15 @@ Straight copy of `find-function-at-point` but using
 (add-to-list 'auto-mode-alist '("\\.tweet$" . tweet-mode))
 
 (dan/require 'plantuml-mode)
+
+(add-to-list 'load-path "~/lib/emacs/puppet-syntax-emacs")
+(require 'puppet-mode)
+(add-to-list 'auto-mode-alist '("\\.pp$" . puppet-mode))
+(add-hook 'puppet-mode-hook 'paredit-c-mode)
+
+(add-to-list 'load-path "~/lib/emacs/puppet-flymake")
+(require 'flymake-puppet)
+;; (add-hook 'puppet-mode-hook (lambda () (flymake-puppet-load)))
 
 (require 'python)
 (setq auto-mode-alist (cons '("\\.pyw$" . python-mode) auto-mode-alist))
@@ -1488,7 +1526,7 @@ Straight copy of `find-function-at-point` but using
                   (dan/dump-comint-history dan/python-comint-history-file))))
 
 (defun dan/inferior-python-mode-hook-function ()
-  (esk/pretty-lambdas)
+  (dan/pretty-lambdas)
   (setq truncate-lines t)
   (dan/load-comint-history dan/python-comint-history-file))
 
@@ -1497,7 +1535,7 @@ Straight copy of `find-function-at-point` but using
           'dan/inferior-python-mode-hook-function)
 
 (defun dan/python-mode-hook-function ()
-  (esk/pretty-lambdas)
+  (dan/pretty-lambdas)
   ;; (highlight-lines-matching-regexp ".\\{80\\}" 'button)
   (setq forward-sexp-function nil) ; for use with paredit
   (add-to-list (make-local-variable 'comint-dynamic-complete-functions)
@@ -1513,6 +1551,255 @@ Straight copy of `find-function-at-point` but using
 (global-set-key "\C-c\C-z" #'dan/ipython)
 
 (setq python-fill-docstring-style 'django)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; python comint history
+
+(defvar dan/python-comint-history-file "~/.ipython/history")
+(defvar dan/python-comint-history-max 1000)
+
+(defun dan/load-comint-history (&optional file)
+  (interactive "fHistory file: ")
+  (if (null comint-input-ring)
+      (error "This buffer has no comint history"))
+  (message "Loading python comint history...")
+  (mapc (lambda (item) (ring-insert+extend comint-input-ring item 'grow))
+        (dan/read-comint-history file)))
+
+(defun dan/read-comint-history (file)
+  (split-string (with-temp-buffer
+                  (insert-file-contents file)
+                  (buffer-string)) "\n" t))
+
+(defun dan/dump-comint-history (&optional file)
+  (interactive "fHistory file: ")
+  (if (null comint-input-ring)
+      (error "This buffer has no comint history"))
+  ;; Most recent is first in comint-input-ring. Write file in
+  ;; same order seeing as we are overwriting, not appending.
+  (let ((history (org-uniquify (ring-elements comint-input-ring))))
+    (setq history (subseq history 0 (min (length history)
+                                         dan/python-comint-history-max)))
+    (with-temp-buffer
+      (insert (mapconcat #'identity history "\n") "\n")
+      (write-file file))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+(defun dan/inferior-python-cpaste ()
+  (interactive)
+  (insert "%cpaste\n")
+  (yank)
+  (insert "--\n")
+  (comint-send-input))
+
+(defun dan/python-shell-send-chunk ()
+  "Send the current chunk to inferior Python process."
+  (interactive)
+  (skip-chars-forward "\n")
+  (python-shell-send-region
+     (progn (backward-paragraph) (point))
+     (progn (forward-paragraph) (point))))
+
+(defun dan/python-shell-send-buffer ()
+  (interactive)
+  (python-shell-send-buffer)
+  (dan/ipython))
+
+(defun dan/python-current-defun-name ()
+  (interactive)
+  (save-excursion
+    (let* ((get-name (lambda ()
+                       (beginning-of-defun)
+                       (looking-at python-nav-beginning-of-defun-regexp)
+                       (match-string 1)))
+           (names `(,(funcall get-name)))
+           name)
+      (when (looking-at "[ \t]")
+        (while (looking-at "[ \t]")
+          (setq name (funcall get-name)))
+          (push name names))
+      (message (mapconcat #'identity names ".")))))
+
+(defun dan/python-where-am-i (&optional arg)
+  (interactive "P")
+  (message
+   (dan/save-value-to-kill-ring
+    (if (not arg)
+        (dan/python-current-defun-name)
+      (format
+       "website_test %s:%s"
+       (replace-regexp-in-string
+        ".__init__.py" ""
+        (replace-regexp-in-string
+         "/" "."
+         (replace-regexp-in-string
+          (concat "^" (counsyl--git-dir) "/") ""
+          (replace-regexp-in-string
+           "\.py$" "" (buffer-file-name)))))
+       (dan/python-current-defun-name))))))
+
+(defun dan/strip-quotes (string)
+  (if (string-match "[\"']+\\(.+\\)[\"']+" string)
+      (match-string 1 string)
+    string))
+
+(defun dan/import-at-point ()
+  (interactive)
+  (let ((end (point))
+        (word (thing-at-point 'symbol)))
+    (backward-word)
+    (delete-region (point) end)
+    (insert
+     (format
+      "from %s import %s"
+      (dan/strip-quotes
+       (python-shell-send-string-no-output
+        (concat word ".__module__"))) word))))
+
+;;; Change directory
+(defun dan/python-cd (directory)
+  "Change current directory in emacs and in the python process"
+  (interactive "DChange directory: ")
+  (let ((process (get-buffer-process (current-buffer)))
+       (directory (expand-file-name directory)))
+    (cd-absolute directory)
+    (python-shell-send-string-no-output
+     (format "import os; os.chdir('%s')" directory)
+     process)))
+
+(defun dan/python-eval-exec-lines ()
+  "Hack until shellplus honors `exec_lines`"
+  (interactive)
+  (with-current-buffer "*Python*"
+    (python-shell-send-string-no-output
+     dan/python-exec-lines
+     (get-buffer-process (current-buffer)))))
+
+(defun dan/python (cmd split &optional restart)
+  (let* ((buf-name "*Python*")
+         (process-buffer (get-buffer buf-name)))
+    (when (and restart process-buffer) (kill-buffer buf-name))
+    (unless (and process-buffer (get-buffer-process process-buffer))
+      (run-python (eval cmd))
+      ;; (python-shell-send-string dan/python-startup-string)
+      ;; (dan/python-eval-exec-lines)
+      ;; Start up clean
+      ;; (sleep-for 5)
+      ;; (delete-region (point-min) (point-max))
+      (setq process-buffer (get-buffer buf-name)))
+    (if split
+        (set-window-buffer (split-window-below) process-buffer)
+      (switch-to-buffer process-buffer))))
+
+(defvar dan/ipython-command "ipython")
+(defvar dan/python-startup-string
+  (mapconcat 'identity
+             '("from itertools import *"
+               "from functools import *"
+               "from collections import *"
+               "from operator import *"
+               "from django.db.models import Count"
+               "import json")
+             " ; "))
+
+(defun dan/ipython (&optional arg)
+  (interactive "P")
+  (dan/python dan/ipython-command arg))
+
+(defun dan/ipython-console (&optional arg)
+  (interactive "P")
+  (dan/python
+   '(concat dan/ipython-command " console "
+            (read-from-minibuffer "Arguments: " "--existing"))
+   arg))
+
+(defun dan/python-shell-clear ()
+  (interactive)
+  (delete-region (point-min) (point-max))
+  (comint-send-input))
+
+
+(defun dan/insert-ipdb-set-trace (&optional traceback)
+  (interactive "P")
+  ;; (indent-for-tab-command)
+  (let ((debugger "ipdb")) ;; pudb
+    (insert
+     (format
+      (if traceback
+          "import traceback ; import %s ; print traceback.format_exc() ; %s.set_trace()"
+        "import %s ; %s.set_trace()")
+      debugger debugger))))
+
+(defun dan/insert-import-numpy ()
+  (interactive)
+  (indent-for-tab-command)
+  (insert "import numpy as np"))
+
+(fset 'dict-literal-to-kwargs
+   (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote ([3 114 up up return up up return] 0 "%d")) arg)))
+
+(defun dan/python-dict-literal-to-kwargs ()
+  (interactive)
+  (replace-regexp
+   "[\"']\\([^\"']+\\)[\"']: \\([^,]+\\),"
+   "\\1=\\2,"
+   nil (region-beginning) (region-end)))
+
+(defun dan/python-kwargs-to-dict-literal ()
+  (interactive)
+  (replace-regexp
+   " \\([^ =]+\\) *= *\\([^,\n]+\\),?\n"
+   " '\\1': \\2,\n"
+   nil (region-beginning) (region-end)))
+
+(defun dan/python-prep-paste ()
+  (interactive)
+  (let ((frag (buffer-substring (region-beginning) (region-end))))
+    (with-temp-buffer
+      (insert frag)
+      (org-do-remove-indentation 999)
+      (goto-char (point-min))
+      (replace-regexp "[\n \\]+" " ")
+      (kill-ring-save (point-min) (point-max)))))
+
+(defun dan/python-kill-ring-save (&optional arg)
+  (interactive "P")
+  (call-interactively
+   (if arg 'dan/python-prep-paste 'kill-ring-save)))
+
+(defun dan/python-wrap-region (format-string)
+  (let* ((beg (region-beginning))
+         (end (region-end))
+         (frag (dan/dedent (buffer-substring beg end)))
+         (indent (python-indent-calculate-indentation))
+         (insertion (dan/indent (format format-string frag) indent)))
+    (delete-region beg end)
+    (insert insertion)))
+
+(defun dan/python-wrap-region-with-debug-info ()
+  (interactive)
+  (dan/python-wrap-region
+   "from django.db import connection
+import datetime
+q0 = len(connection.queries)
+t0 = datetime.datetime.now()
+
+%s
+q1 = len(connection.queries)
+t1 = datetime.datetime.now()
+print 'Queries: %%d' %% (q1 - q0)
+print 'Time: ', (t1 - t0)
+"))
+
+(defun dan/python-cleanup-ipython-transcript ()
+  (interactive)
+  (-dan/do-substitutions
+   '(("^In \[[0-9]+\]: " . ">>> ")
+     ("^Out\[[0-9]+\]: " . "   "))))
 
 (defun dan/rope-goto-definition-of-thing-read-from-minibuffer (string)
   (interactive "sGo to definition of: ")
@@ -1637,7 +1924,6 @@ Straight copy of `find-function-at-point` but using
 ;; (dan/require 'zenburn)
 ;; (dan/require 'color-theme-chocolate-rain)
 (load-file "~/lib/emacs/color-theme-railscasts/color-theme-railscasts.el")
-;; (color-theme-railscasts)
 
 (package-initialize)
 (add-to-list
@@ -1646,7 +1932,7 @@ Straight copy of `find-function-at-point` but using
 
 
 
-(setq fci-rule-column 80)
+(setq fci-rule-column 79)
 (setq fci-rule-color "#A5BAF1")
 
 (defun dan/google ()
@@ -2520,7 +2806,7 @@ issued in a language major-mode buffer."
                ("\C-c\M-f" . dan/find)
                ("\C-cg" . dan/magit-status)
                ("\C-ck" . bury-buffer)
-               ("\C-ci" . dan/eol-column-line)
+               ("\C-ci" . dan/where-am-i)
                ("\C-c\M-l" . bookmark-bmenu-list)
                ("\C-cl" . bookmark-bmenu-list)
                ("\C-cm" . bookmark-set)
@@ -2554,10 +2840,12 @@ issued in a language major-mode buffer."
                ([(control left)] . winner-undo)
                ([(control right)] . winner-redo)
                ([(super i)] . fci-mode)
+               ([(super l)] . dan/where-am-i)
                ([(super o)] . dan/open-github-path-from-clipboard)
                ([(super left)] . winner-undo)
                ([(super right)] . winner-redo)
                ([(super return)] . fullscreen-mode-fullscreen-toggle)
+               ([(super w)] . dan/where-am-i)
                ([(meta up)] . org-metaup)
                ([(super down)] . scroll-up-line)
                ([(super up)] . scroll-down-line)
@@ -2785,9 +3073,11 @@ issued in a language major-mode buffer."
   ('darwin
    (set-face-attribute 'default nil :height 125)))
 ;; :weight 'bold :family 'default :foundry 'default :font 'unspecified
+(color-theme-railscasts)
 (dan/sanitise-faces)
 (dan/set-show-paren-style)
 (nconc default-frame-alist '((cursor-type . bar)))
+(copy-face 'button 'flymake-errline)
 ;; (set-face-attribute 'org-block-begin-line nil :box nil :overline nil)
 ;; (set-face-attribute 'org-block-end-line nil :box nil :underline nil)
 
@@ -2827,27 +3117,6 @@ issued in a language major-mode buffer."
 (ido-mode +1)
 (setq ido-separator " ")
 (eshell)
-
-(set-face-attribute 'default-bold nil :weight "normal")
-
-;; (copy-face 'magit-diff-del 'flymake-errline)
-(copy-face 'button 'flymake-errline)
-
-
-
-(setq scroll-preserve-screen-position :always
-      scroll-conservatively           most-positive-fixnum
-      scroll-step                     0)
-
-(setq x-select-enable-primary t)
-
-
-(progn
-  (fset 'unhighlight nil)
-  (fset 'highlight nil)
-  (fset 'next-face nil)
-  (fset 'ap nil)
-  (fset 'e-merge nil))
 
 (add-hook 'ido-setup-hook
  (lambda ()
