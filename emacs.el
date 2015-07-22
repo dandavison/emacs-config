@@ -1026,7 +1026,8 @@ Straight copy of `find-function-at-point` but using
     html-mode
     javascript-mode
     puppet-mode
-    python-mode))
+    python-mode
+    makefile-bsdmake-mode))
 
 (defun dan/query-delete-trailing-whitespace ()
   "If there's trailing whitespace ask to delete it"
@@ -1958,6 +1959,7 @@ print 'Time: ', (t1 - t0)
 
 (add-to-list 'load-path "~/lib/emacs/magit")
 (add-to-list 'load-path "~/lib/emacs/git-modes")
+(setq magit-last-seen-setup-instructions "1.4.0")
 (dan/require 'magit)
 (require 'magit-blame)
 (setq magit-save-some-buffers nil)

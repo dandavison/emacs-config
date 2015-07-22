@@ -1,8 +1,8 @@
 import re
 
 
-START_BLOCK = re.compile(r"^ *#\+begin_src emacs-lisp *$")
-END_BLOCK = re.compile(r"^ *#\+end_src *$")
+START_BLOCK = re.compile(r"^ *#\+begin_src (emacs-lisp|elisp) *$")
+END_BLOCK = re.compile(r"^ *#\+end_src *$") #
 
 
 if __name__ == '__main__':
