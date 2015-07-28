@@ -1,41 +1,3 @@
-* Requires
-
-#+begin_src emacs-lisp
-(require 'cl)
-#+end_src
-
-* Operating system
-#+begin_src emacs-lisp
-(defvar dan/operating-system
-  (intern (downcase
-           (replace-regexp-in-string
-            "\n" ""
-            (shell-command-to-string "uname"))))
-  "The current OS")
-#+end_src
-
-* COMMENT Starter kit
-#+begin_src emacs-lisp
-(setq dan/starter-kit-components-all '(bindings defuns eshell lisp misc org perl registers ruby yasnippet))
-(setq dan/starter-kit-components '())
-
-(let ((dotfiles-dir "~/lib/emacs/emacs-starter-kit"))
-  (mapcar
-   'org-babel-load-file
-   (mapcar
-    (lambda (x) (format "%s/starter-kit-%s.org" dotfiles-dir (symbol-name x)))
-    dan/starter-kit-components)))
-
-;; From emacs-starter-kit
-(defun dan/pretty-lambdas ()
-  (interactive)
-  (font-lock-add-keywords
-   nil `(("(?\\(lambda\\>\\)"
-          (0 (progn (compose-region (match-beginning 1) (match-end 1)
-                                    ,(make-char 'greek-iso8859-7 107))
-                    nil))))))
-#+end_src
-
 * My functions
 ** grip
 #+begin_src emacs-lisp
@@ -110,22 +72,6 @@
 
 ** After-save command
 #+begin_src emacs-lisp
-(defvar dan/after-save-command nil
-  "This string will be executed as a shell command after saving
-  the buffer.")
-
-(defun dan/do-after-save-command ()
-  (when dan/after-save-command
-    (message dan/after-save-command)
-    (save-window-excursion
-      (async-shell-command dan/after-save-command))))
-
-(add-hook 'after-save-hook 'dan/do-after-save-command)
-
-(defun dan/set-after-save-command (cmd)
-  (interactive "sCommand: ")
-  (set (make-local-variable 'dan/after-save-command) cmd))
-
 (defun dan/sync (&optional seq)
   (interactive "P")
   (let* ((remote (if seq "seq-analysis:seq_pipeline" "testp-dan:website"))
@@ -137,6 +83,7 @@
       (format "rsync -u %s %s" from to)))))
 #+end_src
 
+** 
 ** Don't fucking do that
 #+begin_src emacs-lisp
 (defun dan/dontfuckingdothat ()
@@ -235,16 +182,6 @@
           (lambda () (set (make-local-variable 'indent-tabs-mode) nil)))
 #+end_src
 
-** indent or complete
-#+begin_src emacs-lisp
-(defun dan/indent-or-complete ()
-  (interactive)
-  (if (and (looking-at "[ \n)]")
-           (looking-back "[^ \n]"))
-      (complete-symbol nil)
-    (indent-for-tab-command)))
-#+end_src
-
 ** codequality
 #+begin_src emacs-lisp
 (defun dan/codequality (&optional dir)
@@ -298,38 +235,8 @@ Wait for REST between each attempt."
   (call-interactively 'occur-mode-goto-occurrence)
   (other-window 1))
 
-(defun dan/occur ()
-  (interactive)
-  (let ((tap (thing-at-point 'symbol)))
-    (and tap (push tap regexp-history)))
-  (call-interactively 'occur)
-  (let ((results-buffer (get-buffer "*Occur*")))
-    (if results-buffer
-        (progn
-          (other-window 1)
-          (let ((buffer-read-only)) (kill-line 1))
-          (delete-other-windows))
-      (message "No matches"))))
 
 
-(defvar dan/highlighted nil)
-
-(defun dan/highlight (&optional arg)
-  "Highlight the word at point.
-
-   With prefix arg, read the word to be highlighted from the
-   minibuffer. To remove highlighting, call the function with no
-   word at point."
-  (interactive "P")
-  (let ((to-be-highlighted
-         (if arg (read-from-minibuffer "Highlight: ")
-           (thing-at-point 'symbol))))
-    (if (equal to-be-highlighted dan/highlighted)
-        (setq to-be-highlighted nil))
-    (if to-be-highlighted
-        (highlight-regexp to-be-highlighted 'magit-diff-del)
-      (unhighlight-regexp dan/highlighted))
-    (setq dan/highlighted to-be-highlighted)))
 
 (defun dan/highlight-occur ()
   (interactive)
@@ -380,48 +287,9 @@ Wait for REST between each attempt."
 
 ** Appearance
 #+begin_src emacs-lisp
-(defun dan/sanitise-faces ()
-  (interactive)
-  ;; (set-face-background 'region (face-background 'default)) ;; don't highlight region
-  (set-face-background 'fringe (face-background 'default)) ;; don't have different color fringe
-
-  (set-face-background 'highlight (face-background 'default))
-  (set-face-foreground 'highlight (face-foreground 'font-lock-comment-face))
-
-  ;; (set-face-foreground 'cursor (face-foreground 'font-lock-comment-face))
-  (set-cursor-color "red")
-  (set-face-attribute 'org-hide nil
-                      :foreground
-                      (face-attribute 'default :background))
-  (dan/set-show-paren-style)
-  (font-lock-fontify-buffer))
-
-(defun dan/set-show-paren-style ()
-  (interactive)
-  (setq show-paren-delay .125)
-  (setq show-paren-style 'parenthesis)
-  ;; use these in a mode hook function
-  ;; (make-variable-buffer-local 'show-paren-mode)
-  ;; (show-paren-mode t)
-  (set-face-attribute 'show-paren-match-face nil :weight 'extra-bold)
-  (set-face-background 'show-paren-match-face (face-background 'default))
-  (set-face-attribute 'show-paren-match-face nil :foreground "red"))
 #+end_src
 ** Set paths
 #+begin_src emacs-lisp
-(defun dan/set-exec-path-from-shell (&optional pathvar)
-  (let* ((pathvar (or pathvar "PATH"))
-         (path-from-shell
-          (replace-regexp-in-string
-           "[[:space:]\n]*$" ""
-           (shell-command-to-string
-            (format "zsh -c '. ~/.zshrc 2>&/dev/null && echo $%s'" pathvar)))))
-    (setenv pathvar path-from-shell)
-    (when (string-equal pathvar "PATH")
-      (setq exec-path (split-string path-from-shell path-separator)))))
-
-(dan/set-exec-path-from-shell)
-(dan/set-exec-path-from-shell "PYTHONPATH")
 (setenv "GEM_HOME" (org-babel-chomp (shell-command-to-string "brew --prefix")))
 #+end_src
 
@@ -905,8 +773,6 @@ Straight copy of `find-function-at-point` but using
       split-width-threshold nil
       split-height-threshold nil)
 
-(setq ns-use-native-fullscreen nil)
-
 (if nil
     (defun dan/display-buffer-whole-frame (buffer &rest ignored)
       ;; (switch-to-buffer buffer)
@@ -917,48 +783,6 @@ Straight copy of `find-function-at-point` but using
   ;; (setq special-display-function (lambda (buffer &rest ignored) (switch-to-buffer buffer) (delete-other-windows))))
   (setq special-display-function (lambda (buffer &rest ignored) (delete-other-windows)))
   )
-
-(defun dan/window-configuration (register &arg)
-  (interactive "P")
-  (cond
-   ((not arg)
-    (jump-to-register register)
-    (message buffer-file-name))
-
-   ((equal arg '(4))
-    (window-configuration-to-register register)
-    (message (char-to-string register)))
-
-   ((equal arg '(16))
-    (dan/list-window-configurations))))
-
-(defun dan/list-window-configurations ()
-  ;; copied from list-registers
-  (interactive)
-  (let ((list (copy-sequence register-alist))
-        (temp-buffer-name "*window-configurations*")
-        (temp-buffer-show-hook '(compilation-mode)))
-    (setq list
-          (dan/filter (lambda (elt) (and (window-configuration-p (second elt))
-                                    (number-or-marker-p (first elt))))  ;; magit uses :magit-screen
-                      list))
-    (setq list (sort list (lambda (a b) (< (car a) (car b)))))
-    (with-output-to-temp-buffer temp-buffer-name
-      (dolist (elt list)
-        (when (get-register (car elt))
-          (let* ((label (single-key-description (first elt)))
-                 (marker (third elt))
-                 (buffer (marker-buffer marker))
-                 (file-name (buffer-file-name buffer))
-                 line column)
-            (save-window-excursion
-              (goto-char marker)
-              (setq line (line-number-at-pos (point)))
-              (setq column (current-column)))
-              (princ
-               (format "%s:%d:%d: %s" file-name line column label)))
-          (terpri))))
-    (select-window (get-buffer-window temp-buffer-name))))
 
 #+end_src
 
@@ -977,14 +801,6 @@ Straight copy of `find-function-at-point` but using
 ;;              '(gnus-cite-1 ((((class color) (background light)) (:foreground "deep sky blue")))))
 ;; '(cursor ((t (:background "red"))))) ;; "orchid" "goldenrod"
 #+end_src
-** Cursor
-#+begin_src emacs-lisp
-(set-cursor-color "red")
-(setq-default cursor-in-non-selected-windows nil)
-(nconc default-frame-alist '((cursor-type . bar)))
-(blink-cursor-mode -1)
-#+end_src
-
 ** Outline
 #+begin_src emacs-lisp
 (require 'org)
@@ -1162,14 +978,10 @@ Straight copy of `find-function-at-point` but using
 ** Config
 *** Minor modes
 #+begin_src emacs-lisp
-(show-paren-mode t)
-(winner-mode t)
 (global-font-lock-mode t)
 
 ;; (desktop-save-mode t)
 ;; (display-battery-mode t)
-(global-auto-revert-mode t)
-(setq auto-revert-interval 1)
 #+end_src
 *** Elisp programming
 #+begin_src emacs-lisp
@@ -1613,11 +1425,6 @@ index e5855ad..29f6429 100644
 
 (add-hook 'dired-after-readin-hook 'dan/dired-delete-total-line)
 
-(defun dan/dired-no-ask ()
-  (interactive)
-  (let ((current-filename (buffer-file-name (current-buffer))))
-    (dired default-directory)
-    (when current-filename (dired-goto-file current-filename))))
 
 (setq dired-omit-extensions
       (append dan/ignored-extensions
@@ -1646,10 +1453,6 @@ index e5855ad..29f6429 100644
 (add-to-list 'load-path "~/lib/emacs/ruby-emacs")
 (add-to-list 'load-path "~/lib/emacs/gnuplot-mode.0.6.0")
 (add-to-list 'load-path "~/lib/emacs/matlab")
-#+end_src
-*** Elisp
-#+begin_src emacs-lisp
-(add-hook 'emacs-lisp-mode-hook 'dan/pretty-lambdas)
 #+end_src
 *** C & C++
 #+begin_src emacs-lisp
@@ -1860,26 +1663,26 @@ http://xahlee.org/emacs/emacs_html.html
 
 *** Javascript
 #+begin_src emacs-lisp
-(add-to-list 'auto-mode-alist '("\\.json$" . js-mode))
+  (add-to-list 'auto-mode-alist '("\\.json$" . js-mode))
 
-(defun dan/js-mode-hook-fun ()
-  (dan/coffee-mode-hook-fun)
-  (setq js-indent-level 2))
+  (defun dan/js-mode-hook-fun ()
+    (dan/coffee-mode-hook-fun)
+    (setq js-indent-level 2))
 
-(add-hook 'js-mode-hook 'dan/js-mode-hook-fun)
+  (add-hook 'js-mode-hook 'dan/js-mode-hook-fun)
 
 
-(defun dan/scratch-js-in-html ()
-  (interactive)
-  (find-file "/tmp/scratch.html")
-  (delete-region (point-min) (point-max))
-  (insert "<html>
-<script type=\"text/javascript\">
+  (defun dan/scratch-js-in-html ()
+    (interactive)
+    (find-file "/tmp/scratch.html")
+    (delete-region (point-min) (point-max))
+    (insert "<html>
+  <script type=\"text/javascript\">
 
-</script>
-</html>")
-  (previous-line 2)
-  (beginning-of-line))
+  </script>
+  </html>")
+    (previous-line 2)
+    (beginning-of-line))
 #+end_src
 
 **** js2-mode
@@ -2227,17 +2030,6 @@ Seems very slow on coffeescript output of reasonable size; disabling.
   (delete-region (point-min) (point-max))
   (comint-send-input))
 
-
-(defun dan/insert-ipdb-set-trace (&optional traceback)
-  (interactive "P")
-  ;; (indent-for-tab-command)
-  (let ((debugger "ipdb")) ;; pudb
-    (insert
-     (format
-      (if traceback
-          "import traceback ; import %s ; print traceback.format_exc() ; %s.set_trace()"
-        "import %s ; %s.set_trace()")
-      debugger debugger))))
 
 (defun dan/insert-import-numpy ()
   (interactive)
@@ -2598,7 +2390,6 @@ obj[-grep(re, obj)]
 (setq magit-last-seen-setup-instructions "1.4.0")
 (dan/require 'magit)
 (require 'magit-blame)
-(setq magit-save-some-buffers nil)
 (setq magit-process-popup-time 1)
 (setq magit-revert-item-confirm t)
 
@@ -2739,15 +2530,6 @@ obj[-grep(re, obj)]
 ;; (dan/require 'w3m)
 ;; (dan/require 'gnuplot)
 ;; (dan/require 'filladapt)
-#+end_src
-
-** Minimal
-#+begin_src emacs-lisp
-(add-to-list 'load-path "~/src/emacs/minimal")
-(when (dan/require 'minimal)
-  (minimal-mode t)
-  (setq minimal-mode-line-background "sea green")
-  (setq minimal-mode-line-inactive-background "dim grey"))
 #+end_src
 
 ** Paredit
@@ -3839,9 +3621,7 @@ I didn't get this to work.
 
 (dan/register-key-bindings
  '(global-map .
-              (("\C-b" . backward-sexp)
-               ("\C-f" . forward-sexp)
-               ("\C-r" . isearch-backward-regexp)
+              (("\C-r" . isearch-backward-regexp)
                ("\C-s" . isearch-forward-regexp)
                ("\C-\M-r" . search-backward-symbol-at-point)
                ("\C-\M-s" . search-forward-symbol-at-point)
@@ -3850,7 +3630,6 @@ I didn't get this to work.
                ("\C-x\C-b" . org-buffers-list)
                ("\C-x\C-f" . dan/find-file)
                ("\C-x\M-f" . find-file-at-point)
-               ("\C-xd" . dan/dired-no-ask)
                ("\C-xp" . dan/previous-window)
                ("\C-ca" . org-agenda)
                ("\C-cb" . org-iswitchb)
@@ -3863,7 +3642,6 @@ I didn't get this to work.
                ("\C-ce" . show-all)
                ("\C-cf" . dan/find)
                ("\C-c\M-f" . dan/find)
-               ("\C-cg" . dan/magit-status)
                ("\C-ck" . bury-buffer)
                ("\C-ci" . dan/where-am-i)
                ("\C-c\M-l" . bookmark-bmenu-list)
@@ -3891,7 +3669,6 @@ I didn't get this to work.
                ("\M-(" . dan/enclose-rest-of-line-in-parentheses)
                ("\M-n" . forward-paragraph)
                ("\M-p" . backward-paragraph)
-               ("\M-o" . dan/occur)
                ("\M-i" . counsyl/highlight)
                ([delete] . winner-undo)
                ([(hyper left)] . winner-undo)
@@ -3903,7 +3680,6 @@ I didn't get this to work.
                ([(super o)] . dan/open-github-path-from-clipboard)
                ([(super left)] . winner-undo)
                ([(super right)] . winner-redo)
-               ([(super return)] . fullscreen-mode-fullscreen-toggle)
                ([(super w)] . dan/where-am-i)
                ([(meta up)] . org-metaup)
                ([(super down)] . scroll-up-line)
@@ -3916,7 +3692,6 @@ I didn't get this to work.
                ([f6] . dan/find-file-emacs-config)
                ([f11] . dan/find)
                ([f12] . magit-status)
-               ([(control return)] . delete-other-windows)
                ([(control escape)] . delete-window)
                ([(meta escape)] . delete-other-windows)
                ([escape] . dan/other-non-minibuffer-window))))
@@ -4061,14 +3836,6 @@ I didn't get this to work.
    (([(control up)] . log-edit-previous-comment)
     ([(control down)] . log-edit-next-comment))))
 #+end_src
-** markdown
-#+begin_src emacs-lisp
-(dan/register-key-bindings
- '("markdown" .
-   (([(meta left)] . left-word)
-    ([(meta right)] . right-word))))
-#+end_src
-
 ** Mml
 #+begin_src emacs-lisp
 (dan/register-key-bindings
@@ -4129,7 +3896,6 @@ I didn't get this to work.
 (dan/register-key-bindings
  '("python" .
    (("\C-c\C-z" . dan/ipython)
-    ("\C-cd" . dan/insert-ipdb-set-trace)
     ("\C-c\M-n" . dan/insert-import-numpy)
     ("\C-c\C-c" . python-shell-send-buffer)
     ("\C-xrm" . (lambda () (interactive) (bookmark-set (dan/python-current-defun-name))))
@@ -4186,8 +3952,6 @@ I didn't get this to work.
 #+end_src
 * Appearance
 #+begin_src emacs-lisp
-(add-hook 'find-file-hook 'dan/sanitise-faces)
-(add-hook 'find-file-hook 'dan/set-show-paren-style)
 (setq mouse-highlight nil)
 #+end_src
 ** Themes
@@ -4357,3 +4121,4 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 
 * File config
 #+babel: :results silent :tangle yes
+  
