@@ -990,21 +990,15 @@ Straight copy of `find-function-at-point` but using
 #+end_src
 *** Etc
 #+begin_src emacs-lisp
-(setq ring-bell-function (lambda nil nil))
 (setq case-fold-search nil)
 (setq default-major-mode 'org-mode)
 (setq diff-switches "-u")
 (setq frame-title-format "emacs:%b") ;;      (concat  "%b - emacs@" (system-name)))
-(setq kill-read-only-ok t)
-(setq initial-scratch-message nil)
 (setq minibuffer-message-timeout 0.5)
 (setq parens-require-spaces nil)
 (setq require-final-newline 'visit-save)
-(setq vc-follow-symlinks t)
 (setq x-alt-keysym 'meta)
-(setq backup-inhibited t)
 (setq font-lock-verbose nil)
-(setq truncate-lines t)
 (setq tab-width 4)
 (add-hook 'occur-mode-hook (lambda () (setq truncate-lines t)))
 (add-hook 'compilation-mode-hook (lambda () (setq truncate-lines t)))
@@ -1032,7 +1026,6 @@ Straight copy of `find-function-at-point` but using
 ;; (visit-tags-table tags-file-name)
 ;; (setq font-lock-always-fontify-immediately t) where did I get that from?
 
-(fset 'yes-or-no-p 'y-or-n-p) ;; http://www.xsteve.at/prg/emacs/.emacs.txt -- replace y-e-s by y
 (put 'narrow-to-region 'disabled nil)
 
 ;; put back-up files in a single (invisible) directory in the original file's directory

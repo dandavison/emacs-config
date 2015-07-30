@@ -2,12 +2,33 @@
 
 
 ;;; Etc
+(setq backup-inhibited t)
+(setq kill-read-only-ok t)
+(setq initial-scratch-message nil)
+(fset 'yes-or-no-p 'y-or-n-p)
+(setq truncate-lines t)
+(setq vc-follow-symlinks t)
+
+
+
 (global-auto-revert-mode t)
 (setq auto-revert-interval 1)
+(setq dired-auto-revert-buffer t)
+
 (server-start)
 (dan/set-exec-path-from-shell)
 (dan/set-exec-path-from-shell "PYTHONPATH")
 
+
+;;; Ido
+;; https://www.masteringemacs.org/article/introduction-to-ido-mode
+(require 'flx-ido)
+(ido-mode t)
+(ido-everywhere t)
+(flx-ido-mode t)
+;; disable ido faces to see flx highlights.
+(setq ido-enable-flex-matching t)
+(setq ido-use-faces nil)
 
 ;;; Packages
 (package-initialize)
@@ -47,6 +68,9 @@
                ("\C-f" . forward-sexp)
                ("\C-xd" . dan/dired-no-ask)
                ("\C-cg" . magit-status)
+               ("\C-cr" . replace-regexp)
+               ("\M-i" . dan/highlight)
+               ("\C-c\M-f" . dan/search)	       
                ("\M-o" . dan/occur)	       
                ([f2] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?2 arg)))
                ([f3] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?3 arg)))
@@ -56,6 +80,12 @@
 	       ([(control left)] . winner-undo)
                ([(control right)] . winner-redo)
                ([(super return)] . toggle-frame-fullscreen))))
+
+(global-set-key (kbd "s-,") 'dan/show-buffer-file-name)
+
+
+;;; Mode hooks
+(add-hook 'emacs-lisp-mode-hook (lambda () (paredit-mode 1)))
 
 (dan/register-key-bindings
  '("emacs-lisp" .
@@ -74,11 +104,16 @@
 
 ;;; Mode hooks
 (add-hook 'find-file-hook 'dan/set-appearance)
-(add-hook 'emacs-lisp-mode-hook 'dan/pretty-lambdas)
+(add-hook 'emacs-lisp-mode-hook
+	  (lambda ()
+	    (dan/pretty-lambdas)
+	    (paredit-mode t)))
 (add-hook 'python-mode-hook
-	  (lambda () (paredit-c-mode)))
+	  (lambda ()
+	    (paredit-c-mode)))
 (add-hook 'after-change-major-mode-hook
-	  (lambda () (dan/set-appearance)))
+	  (lambda ()
+	    (dan/set-appearance)))
 
 
 ;;; Magit

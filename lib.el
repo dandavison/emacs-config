@@ -8,6 +8,30 @@
     (when (string-equal pathvar "PATH")
       (setq exec-path (split-string path-from-shell path-separator)))))
 
+(defun dan/show-buffer-file-name ()
+  (interactive)
+  (let ((bn (buffer-name (current-buffer)))
+        (bfn (buffer-file-name))
+        (dd default-directory))
+    (when bfn
+      ;; file buffer
+      (if (string= (file-name-nondirectory bfn) bn)
+          ;; expected buffer name
+          (if (string= (file-name-directory bfn) dd)
+              ;; expected default-directory
+              (message bfn)
+            ;; unexpected default-directory
+            (message "buffer-file-name: %s\tdefault-directory: %s" bn dd))
+        ;; unexpected buffer name
+        (if (string= (file-name-directory bfn) dd)
+            ;; expected default-directory
+            (message "buffer-file-name: %s\tbuffer-name: %s" bfn bn)
+          ;; unexpected default-directory
+          (message "buffer-file-name: %s\tbuffer-name: %s\tdefault-directory: %s" bfn bn dd)))
+      (dan/save-value-to-kill-ring bfn))
+    (message "buffer-file-name: %S\tbuffer-name: %s\tdefault-directory: %s" bfn bn dd)))
+
+
 ;;; After-save hook
 
 (defun dan/set-after-save-command (cmd)
@@ -38,10 +62,10 @@
   (blink-cursor-mode -1)
   
   (set-face-background 'fringe (face-background 'default))
-  (dan--set-show-paren-style)
+  (dan/set-show-paren-style)
   (font-lock-fontify-buffer))
 
-(defun dan--set-show-paren-style ()
+(defun dan/set-show-paren-style ()
   (show-paren-mode t)
   (setq show-paren-delay .125)
   (setq show-paren-style 'parenthesis)
@@ -79,6 +103,23 @@
 
 ;;; Search
 
+(defvar dan/ag-arguments '("--ignore" "'*/migrations/*'" "--ignore" "'*/logs/*'"))
+
+(defun dan/search (&optional arg)
+  "Search for word at point in current git repository.
+
+  With prefix arg prompt for search term.
+
+  Requires https://github.com/Wilfred/ag.el"
+  (interactive "P")
+  (let ((ag-arguments
+	 (append dan/ag-arguments ag-arguments)))
+    (ag (if arg (read-from-minibuffer "Regexp: ")
+	  (or (thing-at-point 'symbol)
+	      (error "No word at point")))
+	(dan/git-dir))))
+
+
 (defun dan/occur ()
   (interactive)
   (let ((tap (thing-at-point 'symbol)))
@@ -91,6 +132,41 @@
           (let ((buffer-read-only)) (kill-line 1))
           (delete-other-windows))
       (message "No matches"))))
+
+;;; highlight
+(setq dan/highlighted nil)
+(setq dan/highlight-faces
+      (ring-convert-sequence-to-ring
+       '(magit-diff-del
+	 mode-line-highlight
+	 highlight
+	 match
+	 query-replace
+	 trailing-whitespace
+	 ediff-fine-face)))
+
+(defun dan/highlight (&optional arg)
+  "Toggle highlighting of word at point.
+
+   With prefix arg, read the word to be highlighted from the
+   minibuffer."
+  (interactive "P")
+  (flet ((next-face () (ring-insert
+			dan/highlight-faces
+			(ring-remove dan/highlight-faces)))
+	 (unhighlight (word)
+		      (setq dan/highlighted
+			    (remove word dan/highlighted))
+		      (unhighlight-regexp word))
+	 (highlight (word)
+		    (add-to-list 'dan/highlighted word)
+		    (highlight-regexp word (next-face))))
+    (let ((word (if arg (read-from-minibuffer "Highlight: ")
+		  (thing-at-point 'symbol))))
+      (when word
+	(if (member word dan/highlighted)
+	    (unhighlight word)
+	  (highlight word))))))
 
 
 ;;; Windows
@@ -174,12 +250,12 @@ is a symbol, it is used as is.")
    dan/key-bindings
    (cons
     bindings-alist
-    (dan--assoc-delete-all (car bindings-alist) dan/key-bindings)))
-  (dan--set-key-bindings)
+    (dan/assoc-delete-all (car bindings-alist) dan/key-bindings)))
+  (dan/set-key-bindings)
   nil)
 
 
-(defun dan--set-key-bindings (&optional mode-map in-mode-map)
+(defun dan/set-key-bindings (&optional mode-map in-mode-map)
   "Set custom key bindings
 Optional argument MODE-MAP sets bindings in that mode only
 Optional argument IN-MODE-MAP sets MODE-MAP bindings in IN-MODE-MAP
@@ -195,6 +271,21 @@ Optional argument IN-MODE-MAP sets MODE-MAP bindings in IN-MODE-MAP
                   bindings)))
         (or (and mode-map `(,(assoc mode-map dan/key-bindings)))
             dan/key-bindings)))
+
+
+;;; Markdown
+(defun dan/grip (&optional export)
+  (interactive "P")
+  (if export
+      (let ((temp-file (make-temp-file "grip-")))
+	(shell-command
+	 (format
+	  "grip --export --wide %s %s && open -a /Applications/Google\\ Chrome.app %s"
+	  (buffer-file-name (current-buffer))
+	  temp-file
+	  temp-file)))
+    (async-shell-command
+     (format "grip --wide %s" (buffer-file-name (current-buffer))))))
 
 
 ;;; Python
@@ -213,8 +304,25 @@ Optional argument IN-MODE-MAP sets MODE-MAP bindings in IN-MODE-MAP
 
 ;;; Utilities
 
-(defun dan--assoc-delete-all (key alist)
+(defun dan/assoc-delete-all (key alist)
   "Like `assq-delete-all' but using `equal' for comparison"
   (delq nil
         (mapcar (lambda (el) (unless (equal (car el) key) el))
                 alist)))
+
+(defun dan/git-dir ()
+  "Root dir of current repo"
+  (let ((git-dir (org-babel-chomp
+		  (shell-command-to-string "git rev-parse --git-dir"))))
+    (directory-file-name
+     (expand-file-name (if (equal git-dir ".git")
+	  default-directory
+	(file-name-directory git-dir))))))
+
+(defun dan/save-value-to-kill-ring (&optional sexp)
+  (interactive "XExpression to evaluate and save to kill-ring: ")
+  (with-temp-buffer
+    (let ((string (format "%s" sexp)))
+      (insert string)
+      (kill-ring-save (point-min) (point-max))
+      string)))
