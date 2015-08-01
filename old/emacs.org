@@ -1,15 +1,6 @@
 * My functions
 ** grip
 #+begin_src emacs-lisp
-(defun grip ()
-  (interactive)
-  (let ((temp-file (make-temp-file "grip-")))
-    (shell-command
-     (format
-      "grip --export %s %s && open -a /Applications/Google\\ Chrome.app %s"
-      (buffer-file-name (current-buffer))
-      temp-file
-      temp-file))))
 #+end_src
 
 ** Remove newlines
@@ -83,7 +74,6 @@
       (format "rsync -u %s %s" from to)))))
 #+end_src
 
-** 
 ** Don't fucking do that
 #+begin_src emacs-lisp
 (defun dan/dontfuckingdothat ()
@@ -272,14 +262,6 @@ Wait for REST between each attempt."
 
 ** Evaluate expression and save string to kill ring
 #+begin_src emacs-lisp
-(defun dan/save-value-to-kill-ring (&optional sexp)
-  (interactive "XExpression to evaluate and save to kill-ring: ")
-  (with-temp-buffer
-    (let ((string (format "%s" sexp)))
-      (insert string)
-      (kill-ring-save (point-min) (point-max))
-      string)))
-
 (defun dan/save-buffer-file-name-to-kill-ring ()
   (interactive)
   (dan/save-value-to-kill-ring buffer-file-name))
@@ -528,31 +510,6 @@ parenthesis-delimited list of symbols at point"
                               (concat file ".elc"))
       (byte-compile-file (concat file ".el")))
   (load file))
-#+end_src
-** Show buffer-file-name
-#+begin_src emacs-lisp
-(defun dan/show-buffer-file-name ()
-  (interactive)
-  (let ((bn (buffer-name (current-buffer)))
-        (bfn (buffer-file-name))
-        (dd default-directory))
-    (when bfn
-      ;; file buffer
-      (if (string= (file-name-nondirectory bfn) bn)
-          ;; expected buffer name
-          (if (string= (file-name-directory bfn) dd)
-              ;; expected default-directory
-              (message bfn)
-            ;; unexpected default-directory
-            (message "buffer-file-name: %s\tdefault-directory: %s" bn dd))
-        ;; unexpected buffer name
-        (if (string= (file-name-directory bfn) dd)
-            ;; expected default-directory
-            (message "buffer-file-name: %s\tbuffer-name: %s" bfn bn)
-          ;; unexpected default-directory
-          (message "buffer-file-name: %s\tbuffer-name: %s\tdefault-directory: %s" bfn bn dd)))
-      (dan/save-value-to-kill-ring bfn))
-    (message "buffer-file-name: %S\tbuffer-name: %s\tdefault-directory: %s" bfn bn dd)))
 #+end_src
 ** Show variable
 #+begin_src emacs-lisp
@@ -804,22 +761,6 @@ Straight copy of `find-function-at-point` but using
 ** Outline
 #+begin_src emacs-lisp
 (require 'org)
-(add-hook 'outline-minor-mode-hook
-          (lambda ()
-            (define-key outline-minor-mode-map [(control tab)] 'org-cycle)
-            (define-key outline-minor-mode-map [(backtab)] 'org-global-cycle))) ;; (shift tab) doesn't work
-
-(add-hook 'outline-mode-hook
-          (lambda ()
-            (define-key outline-mode-map [(tab)] 'org-cycle)
-            (define-key outline-mode-map [(backtab)] 'org-global-cycle))) ;; (shift tab) doesn't work
-
-(defun dan/set-up-outline-minor-mode (outline-regexp)
-  (set (make-local-variable 'outline-regexp) outline-regexp)
-  (outline-minor-mode t)
-  (org-overview)
-  (org-content))
-
 (add-hook 'python-mode-hook
           (lambda () (dan/set-up-outline-minor-mode "[ \t]*\\(def .+\\|class .+\\|##\\)")))
 
@@ -835,8 +776,6 @@ Straight copy of `find-function-at-point` but using
 (add-hook 'markdown-mode-hook
           (lambda () (dan/set-up-outline-minor-mode "##")))
 
-(add-hook 'emacs-lisp-mode-hook
-          (lambda () (dan/set-up-outline-minor-mode "\\((\\|;;;\\)")))
 (add-hook 'ess-mode-hook
           (lambda ()
             (unless (eq noweb-code-mode 'R-mode)
@@ -990,15 +929,20 @@ Straight copy of `find-function-at-point` but using
 #+end_src
 *** Etc
 #+begin_src emacs-lisp
+(setq ring-bell-function (lambda nil nil))
 (setq case-fold-search nil)
 (setq default-major-mode 'org-mode)
 (setq diff-switches "-u")
 (setq frame-title-format "emacs:%b") ;;      (concat  "%b - emacs@" (system-name)))
+(setq kill-read-only-ok t)
+(setq initial-scratch-message nil)
 (setq minibuffer-message-timeout 0.5)
 (setq parens-require-spaces nil)
 (setq require-final-newline 'visit-save)
+(setq vc-follow-symlinks t)
 (setq x-alt-keysym 'meta)
 (setq font-lock-verbose nil)
+(setq truncate-lines t)
 (setq tab-width 4)
 (add-hook 'occur-mode-hook (lambda () (setq truncate-lines t)))
 (add-hook 'compilation-mode-hook (lambda () (setq truncate-lines t)))
@@ -1026,6 +970,7 @@ Straight copy of `find-function-at-point` but using
 ;; (visit-tags-table tags-file-name)
 ;; (setq font-lock-always-fontify-immediately t) where did I get that from?
 
+(fset 'yes-or-no-p 'y-or-n-p) ;; http://www.xsteve.at/prg/emacs/.emacs.txt -- replace y-e-s by y
 (put 'narrow-to-region 'disabled nil)
 
 ;; put back-up files in a single (invisible) directory in the original file's directory
@@ -1392,7 +1337,6 @@ index e5855ad..29f6429 100644
 (setq dired-no-confirm
       '(byte-compile chgrp chmod chown compress copy hardlink load move print shell symlink
                      touch uncompress))
-(setq dired-auto-revert-buffer t)
 
 (require 'dired-x)
 (add-hook 'dired-mode-hook (lambda () (dired-omit-mode t)))
@@ -3632,9 +3576,7 @@ I didn't get this to work.
                ("\C-p" . dan/previous-line-and-indent)
                ("\C-ca" . org-agenda)
                ("\C-c\C-a" . show-all)
-               ("\C-ce" . show-all)
                ("\C-cf" . dan/find)
-               ("\C-c\M-f" . dan/find)
                ("\C-ck" . bury-buffer)
                ("\C-ci" . dan/where-am-i)
                ("\C-c\M-l" . bookmark-bmenu-list)
@@ -3643,7 +3585,6 @@ I didn't get this to work.
                ("\C-cn" . dan/show-buffer-file-name)
                ("\C-co" . dan/scratch-buffer)
                ("\C-cp" . dan/paredit-mode)
-               ("\C-cr" . replace-regexp)
                ("\C-cv" . dan/show-variable)
                ("\C-cw" . delete-window)
                ("\C-c)" . blink-matching-open)
@@ -3662,7 +3603,6 @@ I didn't get this to work.
                ("\M-(" . dan/enclose-rest-of-line-in-parentheses)
                ("\M-n" . forward-paragraph)
                ("\M-p" . backward-paragraph)
-               ("\M-i" . counsyl/highlight)
                ([delete] . winner-undo)
                ([(hyper left)] . winner-undo)
                ([(hyper right)] . winner-redo)
@@ -3959,7 +3899,6 @@ I didn't get this to work.
 (menu-bar-mode -1)
 (if (featurep 'scroll-bar)
     (scroll-bar-mode -1))
-(setq inhibit-startup-message t)
 #+end_src
 ** Save faces
 #+begin_src emacs-lisp :tangle no

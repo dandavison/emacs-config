@@ -31,7 +31,6 @@
       (dan/save-value-to-kill-ring bfn))
     (message "buffer-file-name: %S\tbuffer-name: %s\tdefault-directory: %s" bfn bn dd)))
 
-
 ;;; After-save hook
 
 (defun dan/set-after-save-command (cmd)
@@ -134,6 +133,7 @@
       (message "No matches"))))
 
 ;;; highlight
+(require 'ring)
 (setq dan/highlighted nil)
 (setq dan/highlight-faces
       (ring-convert-sequence-to-ring
@@ -167,6 +167,16 @@
 	(if (member word dan/highlighted)
 	    (unhighlight word)
 	  (highlight word))))))
+
+
+;;; Outline
+
+(require 'org)
+(defun dan/set-up-outline-minor-mode (outline-regexp)
+  (set (make-local-variable 'outline-regexp) outline-regexp)
+  (outline-minor-mode t)
+  (org-overview)
+  (org-content))
 
 
 ;;; Windows
