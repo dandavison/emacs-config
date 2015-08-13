@@ -1,3 +1,15 @@
+;;; Packages
+(require 'cl)
+(require 'dired-x)
+(package-initialize)
+(add-to-list 'load-path "~/src/1p/minimal") (require 'minimal)
+(add-to-list 'load-path "~/src/1p/paredit-c") (require 'paredit-c)
+
+(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
+                         ("marmalade" . "https://marmalade-repo.org/packages/")
+                         ("melpa" . "http://melpa.org/packages/")))
+
+
 (load-file "~/src/1p/emacs-config/lib.el")
 (load-file "~/src/1p/emacs-config/experimental.el")
 
@@ -11,26 +23,21 @@
 (setq vc-follow-symlinks t)
 (setq async-shell-command-buffer 'rename-buffer)
 
+(setq-default fill-column 79)
 (setq-default indent-tabs-mode nil)
 
 (global-auto-revert-mode t)
 (setq auto-revert-interval 0.1)
 (setq global-auto-revert-non-file-buffers t)
 (setq dired-auto-revert-buffer t)
+(setq-default dired-omit-files-p t)
 
 (server-start)
 (dan/set-exec-path-from-shell)
 (dan/set-exec-path-from-shell "PYTHONPATH")
 
-
-;;; Packages
-(package-initialize)
-(add-to-list 'load-path "~/src/1p/minimal") (require 'minimal)
-(add-to-list 'load-path "~/src/1p/paredit-c") (require 'paredit-c)
-
-(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
-                         ("marmalade" . "https://marmalade-repo.org/packages/")
-                         ("melpa" . "http://melpa.org/packages/")))
+(setq fci-rule-column 79)
+(setq fci-rule-color "#A5BAF1")
 
 
 ;;; Appearance
@@ -71,17 +78,18 @@
     ([f3] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?3 arg)))
     ([f4] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?4 arg)))
     ([f5] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?5 arg)))
-    ([(control return)] . delete-other-windows)
-    ([(control left)] . winner-undo)
-    ([(control right)] . winner-redo)
-    ([(super return)] . toggle-frame-fullscreen))))
+    ([(super i)] . fci-mode)
+    ([(super left)] . winner-undo)
+    ([(super right)] . winner-redo)
+    ([(super return)] . delete-other-windows))))
 
 (global-set-key (kbd "s-,") 'dan/show-buffer-file-name)
 
 
 (dan/register-key-bindings
  '("emacs-lisp" .
-   (([tab] . dan/indent-or-complete))))
+   (("\C-cd" . edebug-defun)
+    ([tab] . dan/indent-or-complete))))
 
 (require 'markdown-mode)
 (dan/register-key-bindings
@@ -92,7 +100,8 @@
 (require 'python)
 (dan/register-key-bindings
  '("python" .
-   (("\C-cd" . dan/insert-ipdb-set-trace))))
+   (("\C-cd" . dan/insert-ipdb-set-trace)
+    ([tab] . python-shell-completion-complete-or-indent))))
 
 
 (dan/register-key-bindings
@@ -125,6 +134,31 @@
 (add-hook 'after-change-major-mode-hook 'dan/after-change-major-mode-hook-fn)
 ;; (add-hook 'find-file-hook 'dan/set-appearance)
 
+(defun dan/minibuffer-setup-hook-fn ()
+  (when (eq this-command 'eval-expression)
+    (setq completion-at-point-functions '(lisp-completion-at-point t))
+    (local-set-key [tab] 'complete-symbol)
+    (paredit-mode 1)))
+(add-hook 'minibuffer-setup-hook 'dan/minibuffer-setup-hook-fn)
+
 
 ;;; Magit
 (setq magit-save-repository-buffers nil)
+
+(setq magit-status-sections-hook
+      '(
+        ;; magit-insert-status-headers
+        magit-insert-merge-log
+        magit-insert-rebase-sequence
+        magit-insert-am-sequence
+        magit-insert-sequencer-sequence
+        magit-insert-bisect-output
+        magit-insert-bisect-rest
+        magit-insert-bisect-log
+        ;; magit-insert-untracked-files
+        magit-insert-unstaged-changes
+        magit-insert-staged-changes
+        ;; magit-insert-stashes
+        ;; magit-insert-unpulled-commits
+        ;; magit-insert-unpushed-commits
+        ))

@@ -102,6 +102,7 @@
 
 ;;; Search
 
+(require 'ag)
 (defvar dan/ag-arguments '("--ignore" "'*/migrations/*'" "--ignore" "'*/logs/*'"))
 
 (defun dan/search (&optional arg)
@@ -132,7 +133,7 @@
           (delete-other-windows))
       (message "No matches"))))
 
-;;; highlight
+;;; Highlight
 (require 'ring)
 (setq dan/highlighted nil)
 (setq dan/highlight-faces
@@ -283,19 +284,41 @@ Optional argument IN-MODE-MAP sets MODE-MAP bindings in IN-MODE-MAP
             dan/key-bindings)))
 
 
-;;; Markdown
-(defun dan/grip (&optional export)
+;;; Git
+(defun dan/open-in-github (&optional clipboard-only)
+  "Open current file location in github.
+With C-u prefix argument copy URL to clipboard only."
   (interactive "P")
-  (if export
-      (let ((temp-file (make-temp-file "grip-")))
-	(shell-command
-	 (format
-	  "grip --export --wide %s %s && open -a /Applications/Google\\ Chrome.app %s"
+  (let ((git-dir (dan/git-get-git-dir)))
+    (if git-dir
+	(let* ((repo-url (dan/git-get-repo-url))
+	       (commit (dan/git-get-commit))
+	       (path (replace-regexp-in-string
+		      (concat "^" git-dir) "" (buffer-file-name)))
+	       (line (line-number-at-pos (point)))
+	       (url (format
+		     "%s/blob/%s%s#L%d"
+		     repo-url commit path line)))
+	  (if clipboard-only
+	      (progn (kill-new url) (message url))
+	    (browse-url url)))
+      (message "Not in a git repo"))))
+
+
+
+;;; Markdown
+(defun dan/grip (&optional server)
+  (interactive "P")
+  (if server
+      (async-shell-command
+       (format "grip --wide %s" (buffer-file-name (current-buffer))))
+    (let ((temp-file (make-temp-file "grip-")))
+      (shell-command
+       (format
+        "grip --export --wide %s %s && open -a /Applications/Google\\ Chrome.app %s"
 	  (buffer-file-name (current-buffer))
 	  temp-file
-	  temp-file)))
-    (async-shell-command
-     (format "grip --wide %s" (buffer-file-name (current-buffer))))))
+	  temp-file)))))
 
 
 ;;; Python
@@ -320,14 +343,32 @@ Optional argument IN-MODE-MAP sets MODE-MAP bindings in IN-MODE-MAP
         (mapcar (lambda (el) (unless (equal (car el) key) el))
                 alist)))
 
-(defun dan/git-dir ()
+(defun dan/git-get-git-dir ()
   "Root dir of current repo"
   (let ((git-dir (org-babel-chomp
 		  (shell-command-to-string "git rev-parse --git-dir"))))
     (directory-file-name
-     (expand-file-name (if (equal git-dir ".git")
-	  default-directory
-	(file-name-directory git-dir))))))
+     (expand-file-name
+      (if (equal git-dir ".git")
+          (file-name-directory buffer-file-name)
+        (file-name-directory git-dir))))))
+
+(defun dan/git-get-commit ()
+  "Current commit"
+  (org-babel-chomp
+   (shell-command-to-string "git rev-parse HEAD")))
+
+
+(defun dan/git-get-repo-url ()
+  (let* ((remote-uri
+          (org-babel-chomp
+           (shell-command-to-string "git config --get remote.origin.url"))))
+    (if (string-match "\\([^@]+\\)@\\([^:]+\\):\\([^.]+\\).git" remote-uri)
+        (let ((protocol (match-string 1 remote-uri))
+              (hostname (match-string 2 remote-uri))
+              (repo (match-string 3 remote-uri)))
+          (format "https://%s/%s" hostname repo))
+      (error "Failed to parse URI: %s" remote-uri))))
 
 (defun dan/save-value-to-kill-ring (&optional sexp)
   (interactive "XExpression to evaluate and save to kill-ring: ")

@@ -760,33 +760,33 @@ Straight copy of `find-function-at-point` but using
 #+end_src
 ** Outline
 #+begin_src emacs-lisp
-(require 'org)
-(add-hook 'python-mode-hook
-          (lambda () (dan/set-up-outline-minor-mode "[ \t]*\\(def .+\\|class .+\\|##\\)")))
+  (require 'org)
+  (add-hook 'python-mode-hook
+            (lambda () (dan/set-up-outline-minor-mode "[ \t]*\\(def .+\\|class .+\\|##\\)")))
 
-(add-hook 'coffee-mode-hook
-          (lambda () (dan/set-up-outline-minor-mode "[ \t]*\\(class .+\\)")))
+  (add-hook 'coffee-mode-hook
+            (lambda () (dan/set-up-outline-minor-mode "[ \t]*\\(class .+\\)")))
 
-;; (add-hook 'coffee-mode-hook
-;;           (lambda () (dan/set-up-outline-minor-mode "[ \t]*\\(class .+\\|[^:]+:.+[=-]>\\)")))
+  ;; (add-hook 'coffee-mode-hook
+  ;;           (lambda () (dan/set-up-outline-minor-mode "[ \t]*\\(class .+\\|[^:]+:.+[=-]>\\)")))
 
-(add-hook 'js-mode-hook
-          (lambda () (dan/set-up-outline-minor-mode ".+\\(function .+\\)")))
+  (add-hook 'js-mode-hook
+            (lambda () (dan/set-up-outline-minor-mode ".+\\(function .+\\)")))
 
-(add-hook 'markdown-mode-hook
-          (lambda () (dan/set-up-outline-minor-mode "##")))
+  (add-hook 'markdown-mode-hook
+            (lambda () (dan/set-up-outline-minor-mode "##")))
 
-(add-hook 'ess-mode-hook
-          (lambda ()
-            (unless (eq noweb-code-mode 'R-mode)
-              ;; (dan/set-up-outline-minor-mode "^\\(###\\|[a-zA-Z._[\"][a-zA-Z._0-9[\"]* *<- *function\\)")
-              ;; (dan/set-up-outline-minor-mode "^[a-zA-Z._[\"][a-zA-Z._0-9[\"]* *<- *function")
-              (dan/set-up-outline-minor-mode "[a-zA-Z._][a-zA-Z._0-9]* *<- *function"))))
-;; (add-hook 'c-mode-hook
-;;        (lambda () (dan/set-up-outline-minor-mode nil)))
-;;                    "\\(void\\|int\\|double\\|char\\|struct\\|static\\|const\\)")))
-(add-hook 'bibtex-mode-hook
-          (lambda () (dan/set-up-outline-minor-mode "@")))
+  (add-hook 'ess-mode-hook
+            (lambda ()
+              (unless (eq noweb-code-mode 'R-mode)
+                ;; (dan/set-up-outline-minor-mode "^\\(###\\|[a-zA-Z._[\"][a-zA-Z._0-9[\"]* *<- *function\\)")
+                ;; (dan/set-up-outline-minor-mode "^[a-zA-Z._[\"][a-zA-Z._0-9[\"]* *<- *function")
+                (dan/set-up-outline-minor-mode "[a-zA-Z._][a-zA-Z._0-9]* *<- *function"))))
+  ;; (add-hook 'c-mode-hook
+  ;;        (lambda () (dan/set-up-outline-minor-mode nil)))
+  ;;                    "\\(void\\|int\\|double\\|char\\|struct\\|static\\|const\\)")))
+  (add-hook 'bibtex-mode-hook
+            (lambda () (dan/set-up-outline-minor-mode "@")))
 #+end_src
 
 
@@ -2279,12 +2279,6 @@ obj[-grep(re, obj)]
 
 #+end_src
 
-** Fill-column indicator
-#+begin_src emacs-lisp
-(setq fci-rule-column 79)
-(setq fci-rule-color "#A5BAF1")
-#+end_src
-
 ** Google Search
 #+begin_src emacs-lisp
 (defun dan/google ()
@@ -2389,16 +2383,6 @@ obj[-grep(re, obj)]
 
 (define-key magit-status-mode-map (kbd "q") 'magit-quit-session)
 
-
-
-(defun dan/magit-hide-all-sections ()
-  (interactive)
-  (save-excursion
-    (goto-char (point-min))
-    (let ((next))
-      (while (setq next (magit-find-section-after (point)))
-        (magit-goto-section next)
-        (magit-hide-section)))))
 
 
 (defun dan/magit-status (&optional arg)
@@ -2515,13 +2499,6 @@ obj[-grep(re, obj)]
 (add-hook 'inferior-ess-mode-hook 'paredit-c-mode)
 (add-hook 'comint-mode-hook 'paredit-c-mode)
 
-;; http://stackoverflow.com/questions/2665292/how-can-i-get-paredit-mode-when-doing-eval-expression
-(defun dan/configure-minibuffer-for-lisp ()
-  (when (eq this-command 'eval-expression)
-    (setq completion-at-point-functions '(lisp-completion-at-point t))
-    (local-set-key [tab] 'complete-symbol)
-    (paredit-mode 1)))
-(add-hook 'minibuffer-setup-hook 'dan/configure-minibuffer-for-lisp)
 #+end_src
 
 ** Search
@@ -3608,7 +3585,6 @@ I didn't get this to work.
                ([(hyper right)] . winner-redo)
                ([(control left)] . winner-undo)
                ([(control right)] . winner-redo)
-               ([(super i)] . fci-mode)
                ([(super l)] . dan/where-am-i)
                ([(super o)] . dan/open-github-path-from-clipboard)
                ([(super left)] . winner-undo)
