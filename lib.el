@@ -52,26 +52,6 @@
 
 
 ;;; Appearance
-(defun dan/set-appearance ()
-  (interactive)
-  (set-cursor-color "red")
-  (set-face-foreground 'cursor (face-foreground 'font-lock-comment-face))
-  (setq-default cursor-in-non-selected-windows nil)
-  (setq cursor-type 'bar)
-  (blink-cursor-mode -1)
-  
-  (set-face-background 'fringe (face-background 'default))
-  (dan/set-show-paren-style)
-  (font-lock-fontify-buffer))
-
-(defun dan/set-show-paren-style ()
-  (show-paren-mode t)
-  (setq show-paren-delay .125)
-  (setq show-paren-style 'parenthesis)
-  (set-face-attribute 'show-paren-match nil :weight 'extra-bold)
-  (set-face-background 'show-paren-match (face-background 'default))
-  (set-face-attribute 'show-paren-match nil :foreground "red"))
-
 ;; From emacs-starter-kit
 (defun dan/pretty-lambdas ()
   (interactive)
@@ -103,7 +83,7 @@
 ;;; Search
 
 (require 'ag)
-(defvar dan/ag-arguments '("--ignore" "'*/migrations/*'" "--ignore" "'*/logs/*'"))
+(defvar dan/ag-arguments)
 
 (defun dan/search (&optional arg)
   "Search for word at point in current git repository.
@@ -117,7 +97,7 @@
     (ag (if arg (read-from-minibuffer "Regexp: ")
 	  (or (thing-at-point 'symbol)
 	      (error "No word at point")))
-	(dan/git-dir))))
+	(dan/git-get-git-dir))))
 
 
 (defun dan/occur ()
@@ -349,9 +329,10 @@ With C-u prefix argument copy URL to clipboard only."
 		  (shell-command-to-string "git rev-parse --git-dir"))))
     (directory-file-name
      (expand-file-name
-      (if (equal git-dir ".git")
-          (file-name-directory buffer-file-name)
-        (file-name-directory git-dir))))))
+      (file-name-directory
+       (if (equal git-dir ".git")
+           (or buffer-file-name default-directory)
+         git-dir))))))
 
 (defun dan/git-get-commit ()
   "Current commit"
@@ -360,9 +341,9 @@ With C-u prefix argument copy URL to clipboard only."
 
 
 (defun dan/git-get-repo-url ()
-  (let* ((remote-uri
-          (org-babel-chomp
-           (shell-command-to-string "git config --get remote.origin.url"))))
+  (let ((remote-uri
+         (org-babel-chomp
+          (shell-command-to-string "git config --get remote.origin.url"))))
     (if (string-match "\\([^@]+\\)@\\([^:]+\\):\\([^.]+\\).git" remote-uri)
         (let ((protocol (match-string 1 remote-uri))
               (hostname (match-string 2 remote-uri))

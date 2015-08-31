@@ -26,6 +26,8 @@
 (setq-default fill-column 79)
 (setq-default indent-tabs-mode nil)
 
+(setq auto-save-default nil)
+
 (global-auto-revert-mode t)
 (setq auto-revert-interval 0.1)
 (setq global-auto-revert-non-file-buffers t)
@@ -39,9 +41,14 @@
 (setq fci-rule-column 79)
 (setq fci-rule-color "#A5BAF1")
 
+(setq dan/ag-arguments '("--ignore" "*/migrations/*" "--ignore" "*/logs/*" "--ignore" "*/thirdparty/*"))
+
 
 ;;; Appearance
-;; (load-file "~/.emacs.d/elpa/color-theme-railscasts-0.0.2/color-theme-railscasts.el")
+
+
+
+(load-file "~/.emacs.d/elpa/color-theme-railscasts-0.0.2/color-theme-railscasts.el")
 (setq ns-use-native-fullscreen nil)
 (setq ring-bell-function (lambda nil nil))
 
@@ -51,14 +58,37 @@
 (setq minimal-mode-line-background "sea green")
 (setq minimal-mode-line-inactive-background "dim grey")
 
+(defun dan/set-appearance ()
+  (interactive)
+  (set-cursor-color "red")
+  (set-face-foreground 'cursor (face-foreground 'font-lock-comment-face))
+  (setq-default cursor-in-non-selected-windows nil)
+  (setq cursor-type 'bar)
+  (blink-cursor-mode -1)
+  
+  (set-face-background 'fringe (face-background 'default))
+  (dan/set-show-paren-style)
+  (font-lock-fontify-buffer))
+
+(defun dan/set-show-paren-style ()
+  (show-paren-mode t)
+  (setq show-paren-delay .125)
+  (setq show-paren-style 'parenthesis)
+  (set-face-attribute 'show-paren-match nil :weight 'extra-bold)
+  (set-face-background 'show-paren-match (face-background 'default))
+  (set-face-attribute 'show-paren-match nil :foreground "red"))
 
 (dan/set-appearance)
 
 
-
-
 ;;; Windows
 (winner-mode t)
+
+
+;;; Python
+(setq python-shell-interpreter "ipython"
+      python-shell-interpreter-args "-i")
+
 
 ;;; Keys
 
@@ -72,7 +102,8 @@
     ("\C-cg" . magit-status)
     ("\C-cr" . replace-regexp)
     ("\M-i" . dan/highlight)
-    ("\C-c\M-f" . dan/search)	       
+    ("\C-c\M-f" . dan/search)
+    ("\C-x\C-c" . kill-emacs)
     ("\M-o" . dan/occur)	       
     ([f2] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?2 arg)))
     ([f3] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?3 arg)))
@@ -85,6 +116,10 @@
 
 (global-set-key (kbd "s-,") 'dan/show-buffer-file-name)
 
+(dan/register-key-bindings
+ '("comint" .
+   (([(meta up)] . comint-previous-matching-input-from-input)
+    ([(meta down)] . comint-next-matching-input-from-input))))
 
 (dan/register-key-bindings
  '("emacs-lisp" .
@@ -108,7 +143,7 @@
  '(outline-minor-mode-map
    .
    (([(control tab)] . org-cycle)
-    ([(backtab)] org-global-cycle))))
+    ([(backtab)] . org-global-cycle))))
 
 
 (dan/register-key-bindings
@@ -129,10 +164,14 @@
   (dan/set-up-outline-minor-mode "[ \t]*\\(def .+\\|class .+\\|##\\)"))
 (add-hook 'python-mode-hook 'dan/python-mode-hook-fn)
 
+(defun dan/inferior-python-mode-hook-fn ()
+  (paredit-c-mode))
+(add-hook 'inferior-python-mode-hook 'dan/inferior-python-mode-hook-fn)
+
+
 (defun dan/after-change-major-mode-hook-fn ()
   (dan/set-appearance))
 (add-hook 'after-change-major-mode-hook 'dan/after-change-major-mode-hook-fn)
-;; (add-hook 'find-file-hook 'dan/set-appearance)
 
 (defun dan/minibuffer-setup-hook-fn ()
   (when (eq this-command 'eval-expression)
@@ -141,6 +180,9 @@
     (paredit-mode 1)))
 (add-hook 'minibuffer-setup-hook 'dan/minibuffer-setup-hook-fn)
 
+(defun dan/ag-mode-hook-fn ()
+  (delete-other-windows))
+(add-hook 'ag-mode-hook 'dan/ag-mode-hook-fn)
 
 ;;; Magit
 (setq magit-save-repository-buffers nil)
@@ -162,3 +204,4 @@
         ;; magit-insert-unpulled-commits
         ;; magit-insert-unpushed-commits
         ))
+(put 'downcase-region 'disabled nil)

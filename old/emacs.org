@@ -908,10 +908,6 @@ Straight copy of `find-function-at-point` but using
      (setq comint-scroll-to-bottom-on-output 'others) ; not current
      ;;=default: (setq comint-scroll-to-bottom-on-input nil)
      (setq comint-scroll-show-maximum-output t) ;;; this is the key
-     (define-key comint-mode-map [C-up]
-       'comint-previous-matching-input-from-input)
-     (define-key comint-mode-map [C-down]
-       'comint-next-matching-input-from-input)
      (define-key comint-mode-map "\C-a" 'comint-bol)))
 #+end_src
 ** Config
@@ -3571,7 +3567,6 @@ I didn't get this to work.
                ("\C-c\M-r" . rgrep)
                ("\C-\M-g" . lgrep)
                ("\C-x1" . (lambda () (interactive) (message "M-return")))
-               ("\C-x\C-c" . kill-emacs)  ;; If it's not saved already that's your fault
                ("\C-x\C-q" . dan/toggle-read-only)
                ([(control next)] . end-of-buffer)
                ([(control prior)] . beginning-of-buffer)
