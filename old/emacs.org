@@ -1018,33 +1018,6 @@ Straight copy of `find-function-at-point` but using
 ;; buffer-file-name doesn't correspond to a file
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
 
-(defvar dan/delete-trailing-whitespace-major-modes
-  '(clojure-mode
-    coffee-mode
-    ess-mode
-    go-mode
-    graphviz-dot-mode
-    haskell-mode
-    html-mode
-    javascript-mode
-    puppet-mode
-    python-mode
-    makefile-bsdmake-mode))
-
-(defun dan/query-delete-trailing-whitespace ()
-  "If there's trailing whitespace ask to delete it"
-  (when (memq major-mode dan/delete-trailing-whitespace-major-modes)
-    (unless buffer-read-only
-      (save-excursion
-        (save-window-excursion
-          (save-restriction
-            (goto-char (point-min))
-            (and (re-search-forward "[ \t]$" nil t)
-                 ;; (yes-or-no-p "Delete trailing whitespace?")
-                 (delete-trailing-whitespace))))))))
-
-(add-hook 'before-save-hook 'dan/query-delete-trailing-whitespace)
-
 ;; Make sure code is visible when jumping into it from compilation buffer
 (add-hook 'next-error-hook #'show-all)
 (add-hook 'find-function-after-hook #'show-all)

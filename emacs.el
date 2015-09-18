@@ -184,6 +184,12 @@
   (delete-other-windows))
 (add-hook 'ag-mode-hook 'dan/ag-mode-hook-fn)
 
+(defun dan/before-save-hook-fn ()
+  (dan/query-delete-trailing-whitespace))
+(add-hook 'before-save-hook 'dan/before-save-hook-fn)
+
+
+
 ;;; Magit
 (setq magit-save-repository-buffers nil)
 

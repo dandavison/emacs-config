@@ -49,6 +49,32 @@
 
 (add-hook 'after-save-hook 'dan/do-after-save-command)
 
+;;; Trailing whitespace
+
+(defvar dan/delete-trailing-whitespace-major-modes
+  '(clojure-mode
+    coffee-mode
+    ess-mode
+    go-mode
+    graphviz-dot-mode
+    haskell-mode
+    html-mode
+    javascript-mode
+    puppet-mode
+    python-mode
+    makefile-bsdmake-mode))
+
+(defun dan/query-delete-trailing-whitespace ()
+  "If there's trailing whitespace ask to delete it"
+  (when (memq major-mode dan/delete-trailing-whitespace-major-modes)
+    (unless buffer-read-only
+      (save-excursion
+        (save-window-excursion
+          (save-restriction
+            (goto-char (point-min))
+            (and (re-search-forward "[ \t]$" nil t)
+                 ;; (yes-or-no-p "Delete trailing whitespace?")
+                 (delete-trailing-whitespace))))))))
 
 
 ;;; Appearance
