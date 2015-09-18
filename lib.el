@@ -144,13 +144,7 @@
 (setq dan/highlighted nil)
 (setq dan/highlight-faces
       (ring-convert-sequence-to-ring
-       '(magit-diff-del
-	 mode-line-highlight
-	 highlight
-	 match
-	 query-replace
-	 trailing-whitespace
-	 ediff-fine-face)))
+       '(trailing-whitespace)))
 
 (defun dan/highlight (&optional arg)
   "Toggle highlighting of word at point.
