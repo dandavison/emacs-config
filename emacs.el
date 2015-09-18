@@ -25,6 +25,7 @@
 
 (setq-default fill-column 79)
 (setq-default indent-tabs-mode nil)
+(setq tab-always-indent 'complete)
 
 (setq auto-save-default nil)
 
@@ -135,8 +136,7 @@
 (require 'python)
 (dan/register-key-bindings
  '("python" .
-   (("\C-cd" . dan/insert-ipdb-set-trace)
-    ([tab] . python-shell-completion-complete-or-indent))))
+   (("\C-cd" . dan/insert-ipdb-set-trace))))
 
 
 (dan/register-key-bindings
