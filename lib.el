@@ -152,7 +152,7 @@
    With prefix arg, read the word to be highlighted from the
    minibuffer."
   (interactive "P")
-  (flet ((next-face () (ring-insert
+  (cl-flet ((next-face () (ring-insert
 			dan/highlight-faces
 			(ring-remove dan/highlight-faces)))
 	 (unhighlight (word)
