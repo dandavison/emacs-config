@@ -112,6 +112,7 @@
     ("\C-c\M-f" . dan/search)
     ("\C-x\C-c" . kill-emacs)
     ("\M-o" . dan/occur)
+    ([f1] . other-window)
     ([f2] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?2 arg)))
     ([f3] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?3 arg)))
     ([f4] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?4 arg)))
