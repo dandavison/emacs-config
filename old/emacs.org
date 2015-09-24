@@ -3783,8 +3783,6 @@ I didn't get this to work.
     ("\C-cs" . py-isort)
     ("\C-c\M-p" . dan/python-prep-paste)
     ("\C-c!" . dan/flymake)
-    ([(meta shift right)] . python-indent-shift-right)
-    ([(meta shift left)] . python-indent-shift-left)
     ([(meta up)] . org-metaup)
     ([tab] . dan/indent-or-complete))))
 #+end_src

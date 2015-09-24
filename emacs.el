@@ -136,7 +136,9 @@
 (require 'python)
 (dan/register-key-bindings
  '("python" .
-   (("\C-cd" . dan/insert-ipdb-set-trace))))
+   (("\C-cd" . dan/insert-ipdb-set-trace)
+    ([(meta shift right)] . python-indent-shift-right)
+    ([(meta shift left)] . python-indent-shift-left))))
 
 
 (dan/register-key-bindings
