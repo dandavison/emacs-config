@@ -335,6 +335,10 @@ With C-u prefix argument copy URL to clipboard only."
       debugger debugger))))
 
 
+(defun dan/python-set-virtualenv (path)
+  (interactive "Dvirtualenv location: ")
+  (setq python-shell-virtualenv-path path))
+
 ;;; Utilities
 
 (defun dan/assoc-delete-all (key alist)
