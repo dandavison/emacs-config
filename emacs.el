@@ -146,13 +146,11 @@
     ([(meta shift right)] . python-indent-shift-right)
     ([(meta shift left)] . python-indent-shift-left))))
 
-
 (dan/register-key-bindings
  '(outline-minor-mode-map
    .
    (([(control tab)] . org-cycle)
     ([(backtab)] . org-global-cycle))))
-
 
 (dan/register-key-bindings
  '("org"
@@ -176,7 +174,6 @@
 (defun dan/inferior-python-mode-hook-fn ()
   (paredit-c-mode))
 (add-hook 'inferior-python-mode-hook 'dan/inferior-python-mode-hook-fn)
-
 
 (defun dan/after-change-major-mode-hook-fn ()
   (dan/set-appearance))
