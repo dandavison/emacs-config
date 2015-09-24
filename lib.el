@@ -349,14 +349,9 @@ With C-u prefix argument copy URL to clipboard only."
 
 (defun dan/git-get-git-dir ()
   "Root dir of current repo"
-  (let ((git-dir (org-babel-chomp
-		  (shell-command-to-string "git rev-parse --git-dir"))))
-    (directory-file-name
-     (expand-file-name
-      (file-name-directory
-       (if (equal git-dir ".git")
-           (or buffer-file-name default-directory)
-         git-dir))))))
+  (file-name-as-directory
+   (org-babel-chomp
+    (shell-command-to-string "git rev-parse --show-toplevel"))))
 
 (defun dan/git-get-commit ()
   "Current commit"
