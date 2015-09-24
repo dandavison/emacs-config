@@ -186,6 +186,10 @@
     (paredit-mode 1)))
 (add-hook 'minibuffer-setup-hook 'dan/minibuffer-setup-hook-fn)
 
+(defun dan/next-error-hook-fn ()
+  (show-all))
+(add-hook 'next-error-hook 'dan/next-error-hook-fn)
+
 (defun dan/before-save-hook-fn ()
   (dan/query-delete-trailing-whitespace))
 (add-hook 'before-save-hook 'dan/before-save-hook-fn)
