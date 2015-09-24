@@ -163,6 +163,7 @@
 
 (defun dan/python-mode-hook-fn ()
   (paredit-c-mode)
+  (dan/pretty-lambdas)
   (dan/set-up-outline-minor-mode "[ \t]*\\(def .+\\|class .+\\|##\\)"))
 (add-hook 'python-mode-hook 'dan/python-mode-hook-fn)
 
