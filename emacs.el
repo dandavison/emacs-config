@@ -42,8 +42,14 @@
 (setq fci-rule-column 79)
 (setq fci-rule-color "#A5BAF1")
 
-(setq dan/ag-arguments '("--ignore" "*/migrations/*" "--ignore" "*/logs/*" "--ignore" "*/thirdparty/*"))
 
+;;; Search
+(setq ag-arguments
+      '("--line-number" "--smart-case" "--nogroup" "--column" "--"))
+(setq dan/extra-ag-arguments
+      '("--ignore" "*/migrations/*"
+        "--ignore" "*/logs/*"
+        "--ignore" "*/thirdparty/*"))
 
 ;;; Appearance
 
@@ -182,10 +188,6 @@
     (local-set-key [tab] 'complete-symbol)
     (paredit-mode 1)))
 (add-hook 'minibuffer-setup-hook 'dan/minibuffer-setup-hook-fn)
-
-(defun dan/ag-mode-hook-fn ()
-  (delete-other-windows))
-(add-hook 'ag-mode-hook 'dan/ag-mode-hook-fn)
 
 (defun dan/before-save-hook-fn ()
   (dan/query-delete-trailing-whitespace))

@@ -114,16 +114,37 @@
 (defun dan/search (&optional arg)
   "Search for word at point in current git repository.
 
-  With prefix arg prompt for search term.
-
-  Requires https://github.com/Wilfred/ag.el"
+  With prefix arg prompt for search term."
   (interactive "P")
-  (let ((ag-arguments
-	 (append dan/ag-arguments ag-arguments)))
-    (ag (if arg (read-from-minibuffer "Regexp: ")
-	  (or (thing-at-point 'symbol)
-	      (error "No word at point")))
-	(dan/git-get-git-dir))))
+  (let* ((string (if arg (read-from-minibuffer "Regexp: ")
+                   (or (thing-at-point 'symbol)
+                       (error "No word at point"))))
+         (directory (dan/git-get-git-dir))
+         (backend 'git-grep))
+    (switch-to-buffer "*search*")
+    (delete-other-windows)
+    (setq default-directory directory)
+    (let ((buffer-read-only nil))
+      (delete-region (point-min) (point-max))
+      (save-excursion
+        (insert (shell-command-to-string
+                 (dan/make-search-command string backend)))))
+    (compilation-mode)))
+
+
+(defun dan/make-search-command (string backend)
+  (mapconcat
+   #'shell-quote-argument
+   (case backend
+     ('ag
+      (append '("ag")
+              dan/extra-ag-arguments
+              ag-arguments
+              (list string ".")))
+     ('git-grep
+      (list "git" "grep" "-n" string))
+     (t (error "Invalid backend")))
+   " "))
 
 
 (defun dan/occur ()
