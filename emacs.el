@@ -47,7 +47,8 @@
 (setq ag-arguments
       '("--line-number" "--smart-case" "--nogroup" "--column" "--"))
 (setq dan/extra-ag-arguments
-      '("--ignore" "*/migrations/*"
+      '("--follow"
+        "--ignore" "*/migrations/*"
         "--ignore" "*/logs/*"
         "--ignore" "*/thirdparty/*"))
 
