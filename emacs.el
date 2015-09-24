@@ -66,7 +66,7 @@
   (setq-default cursor-in-non-selected-windows nil)
   (setq cursor-type 'bar)
   (blink-cursor-mode -1)
-  
+
   (set-face-background 'fringe (face-background 'default))
   (dan/set-show-paren-style)
   (font-lock-fontify-buffer))
@@ -105,7 +105,7 @@
     ("\M-i" . dan/highlight)
     ("\C-c\M-f" . dan/search)
     ("\C-x\C-c" . kill-emacs)
-    ("\M-o" . dan/occur)	       
+    ("\M-o" . dan/occur)
     ([f2] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?2 arg)))
     ([f3] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?3 arg)))
     ([f4] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?4 arg)))
@@ -157,7 +157,7 @@
 ;;; Mode hooks
 (defun dan/emacs-lisp-mode-hook-fn ()
   (paredit-mode t)
-  (dan/pretty-lambdas)  
+  (dan/pretty-lambdas)
   (dan/set-up-outline-minor-mode "\\((\\|;;;\\)"))
 (add-hook 'emacs-lisp-mode-hook 'dan/emacs-lisp-mode-hook-fn)
 
