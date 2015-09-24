@@ -159,26 +159,25 @@
    (([(meta left)] . backward-word)
     ([(meta right)] . forward-word))))
 
+
 ;;; Mode hooks
+(defun dan/after-change-major-mode-hook-fn ()
+  (dan/set-appearance))
+(add-hook 'after-change-major-mode-hook 'dan/after-change-major-mode-hook-fn)
+
+(defun dan/before-save-hook-fn ()
+  (dan/query-delete-trailing-whitespace))
+(add-hook 'before-save-hook 'dan/before-save-hook-fn)
+
 (defun dan/emacs-lisp-mode-hook-fn ()
   (paredit-mode t)
   (dan/pretty-lambdas)
   (dan/set-up-outline-minor-mode "\\((\\|;;;\\)"))
 (add-hook 'emacs-lisp-mode-hook 'dan/emacs-lisp-mode-hook-fn)
 
-(defun dan/python-mode-hook-fn ()
-  (paredit-c-mode)
-  (dan/pretty-lambdas)
-  (dan/set-up-outline-minor-mode "[ \t]*\\(def .+\\|class .+\\|##\\)"))
-(add-hook 'python-mode-hook 'dan/python-mode-hook-fn)
-
 (defun dan/inferior-python-mode-hook-fn ()
   (paredit-c-mode))
 (add-hook 'inferior-python-mode-hook 'dan/inferior-python-mode-hook-fn)
-
-(defun dan/after-change-major-mode-hook-fn ()
-  (dan/set-appearance))
-(add-hook 'after-change-major-mode-hook 'dan/after-change-major-mode-hook-fn)
 
 (defun dan/minibuffer-setup-hook-fn ()
   (when (eq this-command 'eval-expression)
@@ -191,10 +190,11 @@
   (show-all))
 (add-hook 'next-error-hook 'dan/next-error-hook-fn)
 
-(defun dan/before-save-hook-fn ()
-  (dan/query-delete-trailing-whitespace))
-(add-hook 'before-save-hook 'dan/before-save-hook-fn)
-
+(defun dan/python-mode-hook-fn ()
+  (paredit-c-mode)
+  (dan/pretty-lambdas)
+  (dan/set-up-outline-minor-mode "[ \t]*\\(def .+\\|class .+\\|##\\)"))
+(add-hook 'python-mode-hook 'dan/python-mode-hook-fn)
 
 
 ;;; Magit
