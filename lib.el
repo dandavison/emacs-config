@@ -163,9 +163,7 @@
 ;;; Highlight
 (require 'ring)
 (setq dan/highlighted nil)
-(setq dan/highlight-faces
-      (ring-convert-sequence-to-ring
-       '(trailing-whitespace)))
+(setq dan/highlight-face 'trailing-whitespace)
 
 (defun dan/highlight (&optional arg)
   "Toggle highlighting of word at point.
@@ -173,16 +171,12 @@
    With prefix arg, read the word to be highlighted from the
    minibuffer."
   (interactive "P")
-  (cl-flet ((next-face () (ring-insert
-			dan/highlight-faces
-			(ring-remove dan/highlight-faces)))
-	 (unhighlight (word)
-		      (setq dan/highlighted
-			    (remove word dan/highlighted))
-		      (unhighlight-regexp word))
-	 (highlight (word)
-		    (add-to-list 'dan/highlighted word)
-		    (highlight-regexp word (next-face))))
+  (cl-flet ((highlight (word)
+                       (add-to-list 'dan/highlighted word)
+                       (highlight-regexp word dan/highlight-face))
+            (unhighlight (word)
+                         (setq dan/highlighted nil)
+                         (unhighlight-regexp word)))
     (let ((word (if arg (read-from-minibuffer "Highlight: ")
 		  (thing-at-point 'symbol))))
       (when word
