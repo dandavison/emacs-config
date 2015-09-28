@@ -235,3 +235,5 @@
         ;; magit-insert-unpushed-commits
         ))
 
+;;; Projectile
+(setq projectile-globally-ignored-file-suffixes '("pyc"))
