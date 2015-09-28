@@ -42,6 +42,9 @@
 (setq fci-rule-column 79)
 (setq fci-rule-color "#A5BAF1")
 
+(put 'downcase-region 'disabled nil)
+(put 'narrow-to-region 'disabled nil)
+
 
 ;;; Search
 (setq ag-arguments
@@ -223,4 +226,4 @@
         ;; magit-insert-unpulled-commits
         ;; magit-insert-unpushed-commits
         ))
-(put 'downcase-region 'disabled nil)
+
