@@ -374,6 +374,28 @@ With C-u prefix argument copy URL to clipboard only."
     "lib/python2.7/site-packages/")))
 
 
+
+;; Redefine an emacs function to get multiple buffers per dedicated process.
+
+(defun dan/python-shell-dedicated-process-identifier ()
+  (projectile-project-name))
+
+(defun python-shell-get-process-name (dedicated)
+  "Calculate the appropriate process name for inferior Python process.
+If DEDICATED is t and the variable `buffer-file-name' is non-nil
+returns a string with the form
+`python-shell-buffer-name'[variable `buffer-file-name'] else
+returns the value of `python-shell-buffer-name'."
+  (let ((process-name
+         (if (and dedicated
+                  buffer-file-name)
+             ;; (format "%s[%s]" python-shell-buffer-name buffer-file-name)
+             (format "%s[%s]" python-shell-buffer-name
+                     (dan/python-shell-dedicated-process-identifier))
+           (format "%s" python-shell-buffer-name))))
+    process-name))
+
+
 ;;; Utilities
 
 (defun dan/assoc-delete-all (key alist)
