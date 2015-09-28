@@ -366,6 +366,14 @@ With C-u prefix argument copy URL to clipboard only."
   (interactive "Dvirtualenv location: ")
   (setq python-shell-virtualenv-path path))
 
+(defun dan/python-dired-site-packages ()
+  (interactive)
+  (dired
+   (concat
+    (file-name-as-directory python-shell-virtualenv-path)
+    "lib/python2.7/site-packages/")))
+
+
 ;;; Utilities
 
 (defun dan/assoc-delete-all (key alist)
