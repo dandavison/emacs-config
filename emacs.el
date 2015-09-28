@@ -170,6 +170,10 @@
 
 
 ;;; Mode hooks
+(defun dan/on-jump-into-buffer ()
+  (delete-other-windows)
+  (show-all))
+
 (defun dan/after-change-major-mode-hook-fn ()
   (dan/set-appearance))
 (add-hook 'after-change-major-mode-hook 'dan/after-change-major-mode-hook-fn)
@@ -196,8 +200,12 @@
 (add-hook 'minibuffer-setup-hook 'dan/minibuffer-setup-hook-fn)
 
 (defun dan/next-error-hook-fn ()
-  (show-all))
+  (dan/on-jump-into-buffer))
 (add-hook 'next-error-hook 'dan/next-error-hook-fn)
+
+(defun dan/occur-mode-find-occurrence-hook-fn ()
+  (dan/on-jump-into-buffer))
+(add-hook 'occur-mode-find-occurrence-hook 'dan/occur-mode-find-occurrence-hook-fn)
 
 (defun dan/python-mode-hook-fn ()
   (paredit-c-mode)
