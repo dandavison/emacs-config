@@ -105,6 +105,8 @@
    .
    (("\C-b" . backward-sexp)
     ("\C-f" . forward-sexp)
+    ("\C-xb" . dan/switch-to-buffer)
+    ("\C-x\C-f" . dan/find-file)
     ("\C-xd" . dan/dired-no-ask)
     ("\C-ce" . show-all)
     ("\C-cg" . magit-status)

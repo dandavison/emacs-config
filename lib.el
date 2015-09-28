@@ -1,4 +1,16 @@
 ;;; Etc
+(defun dan/switch-to-buffer (&optional arg)
+  (interactive "P")
+  (call-interactively
+   (if arg 'switch-to-buffer 'projectile-switch-to-buffer)))
+
+
+(defun dan/find-file (&optional arg)
+  (interactive "P")
+  (call-interactively
+   (if arg 'find-file 'projectile-find-file)))
+
+
 (defun dan/set-exec-path-from-shell (&optional pathvar)
   (let* ((pathvar (or pathvar "PATH"))
          (path-from-shell
