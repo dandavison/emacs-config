@@ -130,7 +130,10 @@
 (dan/register-key-bindings
  '("comint" .
    (([(meta up)] . comint-previous-matching-input-from-input)
-    ([(meta down)] . comint-next-matching-input-from-input))))
+    ([(meta down)] . comint-next-matching-input-from-input)
+    ([(control up)] . comint-previous-matching-input-from-input)
+    ([(control down)] . comint-next-matching-input-from-input)
+    ("\C-l" . dan/comint-clear-buffer))))
 
 (dan/register-key-bindings
  '("emacs-lisp" .

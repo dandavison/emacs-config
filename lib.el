@@ -396,6 +396,14 @@ returns the value of `python-shell-buffer-name'."
     process-name))
 
 
+;;; Comint
+
+(defun dan/comint-clear-buffer (&optional arg)
+  (interactive "P")
+  (delete-region (point-min) (point-max))
+  (comint-send-input))
+
+
 ;;; Utilities
 
 (defun dan/assoc-delete-all (key alist)
