@@ -1,5 +1,0 @@
-PROMPT_COMMAND=''
-export PS1='\w> '
-alias ls='/bin/ls' # no colour so as not to confuse tramp file-completion (experimental)
-
-. ~/.shellrc
