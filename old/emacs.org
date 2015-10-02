@@ -683,44 +683,6 @@ Straight copy of `find-function-at-point` but using
 #+end_src
 ** Scratch buffers
 #+begin_src emacs-lisp
-(defun dan/scratch-buffer (&optional arg)
-  "Scratch buffers for various major modes"
-  (interactive "P")
-  (let* ((modes
-          `(("text-mode" . "txt")
-            ("org-mode" . "org")
-            ("python-mode" . "py")
-            ("coffee-mode" . "coffee")
-            ("emacs-lisp-mode" . "el")
-            ("clojure-mode" . "clj")
-            ("js-mode" . "js")
-            ("html-mode" . "html")
-            ("compilation-mode" . "compilation")
-            ("sql-mode" . "sql")
-            ("markdown-mode" . "md")))
-         (buf-file-name (buffer-file-name (current-buffer)))
-         (buf-mode
-          (or (assoc (symbol-name major-mode) modes)
-              (and buf-file-name
-                   (cons (symbol-name major-mode)
-                         (file-name-extension buf-file-name)))))
-         (modes
-          (if buf-mode
-              (delete-dups (append (list buf-mode) modes))
-            modes))
-         (mode
-          (ido-completing-read "Mode: " (mapcar #'car modes)))
-         (mode-fun (intern mode))
-         (contents
-          (and (region-active-p)
-               (prog1 (buffer-substring (region-beginning)
-                                        (region-end))
-                 (if arg (kill-region (region-beginning) (region-end)))))))
-    (find-file (concat "/Users/dan/misc/scratch." (cdr (assoc mode modes))))
-    (unless (eq major-mode mode-fun) (funcall mode-fun))
-    (when contents
-      (delete-region (point-min) (point-max))
-      (insert (org-remove-indentation contents)))))
 #+end_src
 * Core
 ** Windows and Frames
@@ -3529,7 +3491,6 @@ I didn't get this to work.
                ("\C-cl" . bookmark-bmenu-list)
                ("\C-cm" . bookmark-set)
                ("\C-cn" . dan/show-buffer-file-name)
-               ("\C-co" . dan/scratch-buffer)
                ("\C-cp" . dan/paredit-mode)
                ("\C-cv" . dan/show-variable)
                ("\C-cw" . delete-window)

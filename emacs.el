@@ -55,6 +55,10 @@
         "--ignore" "*/logs/*"
         "--ignore" "*/thirdparty/*"))
 
+
+;;; Scratch buffers
+(setq dan/scratch-buffer-dir "/tmp")
+
 ;;; Appearance
 
 
@@ -113,6 +117,7 @@
     ("\C-xd" . dan/dired-no-ask)
     ("\C-ce" . show-all)
     ("\C-cg" . magit-status)
+    ("\C-co" . dan/scratch-buffer)
     ("\C-cr" . replace-regexp)
     ("\M-i" . dan/highlight)
     ("\C-c\M-f" . dan/search)

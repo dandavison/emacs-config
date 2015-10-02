@@ -197,7 +197,51 @@
 	  (highlight word))))))
 
 
-;;; Outline
+;;; Scratch buffers
+(defvar dan/scratch-buffer-dir)
+
+(defun dan/scratch-buffer (&optional arg)
+  "Scratch buffers for various major modes"
+  (interactive "P")
+  (let* ((modes
+          `(("clojure-mode" . "clj")
+            ("coffee-mode" . "coffee")
+            ("compilation-mode" . "compilation")
+            ("emacs-lisp-mode" . "el")
+            ("html-mode" . "html")
+            ("js-mode" . "js")
+            ("markdown-mode" . "md")
+            ("org-mode" . "org")
+            ("python-mode" . "py")
+            ("sql-mode" . "sql")
+            ("text-mode" . "txt")))
+         (buf-file-name (buffer-file-name (current-buffer)))
+         (buf-mode
+          (or (assoc (symbol-name major-mode) modes)
+              (and buf-file-name
+                   (cons (symbol-name major-mode)
+                         (file-name-extension buf-file-name)))))
+         (modes
+          (if buf-mode
+              (delete-dups (append (list buf-mode) modes))
+            modes))
+         (mode
+          (ido-completing-read "Mode: " (mapcar #'car modes)))
+         (mode-fun (intern mode))
+         (contents
+          (and (region-active-p)
+               (prog1 (buffer-substring (region-beginning)
+                                        (region-end))
+                 (if arg (kill-region (region-beginning) (region-end)))))))
+    (find-file (concat (file-name-as-directory dan/scratch-buffer-dir) "scratch." (cdr (assoc mode modes))))
+    (unless (eq major-mode mode-fun) (funcall mode-fun))
+    (when contents
+      (delete-region (point-min) (point-max))
+      (insert (org-remove-indentation contents)))))
+
+
+
+;;; OUTLINE
 
 (require 'org)
 (defun dan/set-up-outline-minor-mode (outline-regexp)
