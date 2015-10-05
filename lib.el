@@ -398,6 +398,9 @@ With C-u prefix argument copy URL to clipboard only."
         "import %s ; %s.set_trace()")
       debugger debugger))))
 
+
+(setenv "WORKON_HOME" "~/tmp/virtualenvs")  ;; FIXME
+
 (defun dan/python-set-virtualenv (path)
   (interactive (list (read-directory-name "" (getenv "WORKON_HOME"))))
   (set (make-variable-buffer-local 'python-shell-virtualenv-path) path))
