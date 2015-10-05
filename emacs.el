@@ -134,6 +134,12 @@
 
 ;;; Projectile
 (setq projectile-globally-ignored-file-suffixes '("pyc" "~" "#"))
+
+
+;;; Smartparens
+(smartparens-global-mode t)
+(add-to-list 'sp-no-reindent-after-kill-modes 'python-mode)
+
 ;;; Yasnippet
 (setq yas/trigger-key "\C-cy")
 (define-key yas/keymap [tab] 'yas/next-field-group)
@@ -225,7 +231,6 @@
 (add-hook 'before-save-hook 'dan/before-save-hook-fn)
 
 (defun dan/emacs-lisp-mode-hook-fn ()
-  (paredit-mode t)
   (dan/pretty-lambdas)
   (dan/set-up-outline-minor-mode "\\((\\|;;;\\)"))
 (add-hook 'emacs-lisp-mode-hook 'dan/emacs-lisp-mode-hook-fn)
@@ -234,8 +239,7 @@
   (zencoding-mode))
 (add-hook 'html-mode-hook 'dan/html-mode-hook-fn)
 
-(defun dan/inferior-python-mode-hook-fn ()
-  (paredit-c-mode))
+(defun dan/inferior-python-mode-hook-fn ())
 (add-hook 'inferior-python-mode-hook 'dan/inferior-python-mode-hook-fn)
 
 (defun dan/js-mode-hook-fn ()
@@ -245,8 +249,8 @@
 (defun dan/minibuffer-setup-hook-fn ()
   (when (eq this-command 'eval-expression)
     (setq completion-at-point-functions '(lisp-completion-at-point t))
-    (local-set-key [tab] 'complete-symbol)
-    (paredit-mode 1)))
+    (smartparens-mode t)
+    (local-set-key [tab] 'complete-symbol)))
 (add-hook 'minibuffer-setup-hook 'dan/minibuffer-setup-hook-fn)
 
 (defun dan/next-error-hook-fn ()
@@ -258,7 +262,6 @@
 (add-hook 'occur-mode-find-occurrence-hook 'dan/occur-mode-find-occurrence-hook-fn)
 
 (defun dan/python-mode-hook-fn ()
-  (paredit-c-mode)
   (dan/pretty-lambdas)
   (dan/set-up-outline-minor-mode "[ \t]*\\(def .+\\|class .+\\|##\\)"))
 (add-hook 'python-mode-hook 'dan/python-mode-hook-fn)
