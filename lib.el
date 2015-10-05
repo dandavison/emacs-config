@@ -402,8 +402,10 @@ With C-u prefix argument copy URL to clipboard only."
   (interactive (list (read-directory-name "" (getenv "WORKON_HOME"))))
   (set (make-variable-buffer-local 'python-shell-virtualenv-path) path))
 
-(defun dan/python-dired-site-packages ()
+(defun dan/python-cd-site-packages ()
   (interactive)
+  (if (null python-shell-virtualenv-path)
+      (call-interactively 'dan/python-set-virtualenv))
   (dired
    (concat
     (file-name-as-directory python-shell-virtualenv-path)
