@@ -59,10 +59,10 @@
 ;;; Scratch buffers
 (setq dan/scratch-buffer-dir "/tmp")
 
+
+
+
 ;;; Appearance
-
-
-
 (load-file "~/.emacs.d/elpa/color-theme-railscasts-0.0.2/color-theme-railscasts.el")
 (setq ns-use-native-fullscreen nil)
 (setq ring-bell-function (lambda nil nil))
@@ -75,6 +75,7 @@
 
 (defun dan/set-appearance ()
   (interactive)
+  (scroll-bar-mode -1)
   (set-cursor-color "red")
   (set-face-foreground 'cursor (face-foreground 'font-lock-comment-face))
   (setq-default cursor-in-non-selected-windows nil)
