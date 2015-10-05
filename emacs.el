@@ -45,6 +45,8 @@
 (put 'downcase-region 'disabled nil)
 (put 'narrow-to-region 'disabled nil)
 
+(winner-mode t)
+
 
 ;;; Search
 (setq ag-arguments
@@ -58,13 +60,6 @@
 
 ;;; Scratch buffers
 (setq dan/scratch-buffer-dir "/tmp")
-
-
-;;; Yasnippet
-(setq yas/trigger-key "\C-cy")
-(define-key yas/keymap [tab] 'yas/next-field-group)
-(yas/initialize)
-(yas/load-directory (concat (file-name-directory (buffer-file-name)) "snippets"))
 
 
 ;;; Appearance
@@ -102,14 +97,39 @@
 (dan/set-appearance)
 
 
-;;; Windows
-(winner-mode t)
-
 
 ;;; Python
 (setq python-shell-interpreter "ipython"
       python-shell-interpreter-args "-i")
 
+
+;;; Magit
+(setq magit-save-repository-buffers nil)
+(setq magit-status-sections-hook
+      '(
+        ;; magit-insert-status-headers
+        magit-insert-merge-log
+        magit-insert-rebase-sequence
+        magit-insert-am-sequence
+        magit-insert-sequencer-sequence
+        magit-insert-bisect-output
+        magit-insert-bisect-rest
+        magit-insert-bisect-log
+        ;; magit-insert-untracked-files
+        magit-insert-unstaged-changes
+        magit-insert-staged-changes
+        ;; magit-insert-stashes
+        ;; magit-insert-unpulled-commits
+        ;; magit-insert-unpushed-commits
+        ))
+
+;;; Projectile
+(setq projectile-globally-ignored-file-suffixes '("pyc"))
+;;; Yasnippet
+(setq yas/trigger-key "\C-cy")
+(define-key yas/keymap [tab] 'yas/next-field-group)
+(yas/initialize)
+(yas/load-directory (concat (file-name-directory (buffer-file-name)) "snippets"))
 
 ;;; Keys
 
@@ -232,28 +252,3 @@
   (dan/pretty-lambdas)
   (dan/set-up-outline-minor-mode "[ \t]*\\(def .+\\|class .+\\|##\\)"))
 (add-hook 'python-mode-hook 'dan/python-mode-hook-fn)
-
-
-;;; Magit
-(setq magit-save-repository-buffers nil)
-
-(setq magit-status-sections-hook
-      '(
-        ;; magit-insert-status-headers
-        magit-insert-merge-log
-        magit-insert-rebase-sequence
-        magit-insert-am-sequence
-        magit-insert-sequencer-sequence
-        magit-insert-bisect-output
-        magit-insert-bisect-rest
-        magit-insert-bisect-log
-        ;; magit-insert-untracked-files
-        magit-insert-unstaged-changes
-        magit-insert-staged-changes
-        ;; magit-insert-stashes
-        ;; magit-insert-unpulled-commits
-        ;; magit-insert-unpushed-commits
-        ))
-
-;;; Projectile
-(setq projectile-globally-ignored-file-suffixes '("pyc"))
