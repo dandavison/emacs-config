@@ -103,6 +103,12 @@
       python-shell-interpreter-args "-i")
 
 
+;;; Ido
+(ido-mode t)
+(ido-everywhere t)
+(setq ido-enable-flex-matching t)
+
+
 ;;; Magit
 (setq magit-save-repository-buffers nil)
 (setq magit-status-sections-hook
