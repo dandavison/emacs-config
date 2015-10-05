@@ -1,17 +1,20 @@
 ;;; Packages
 (require 'cl)
 (require 'dired-x)
-(package-initialize)
-(add-to-list 'load-path "~/src/1p/minimal") (require 'minimal)
-(add-to-list 'load-path "~/src/1p/paredit-c") (require 'paredit-c)
 
 (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
                          ("marmalade" . "https://marmalade-repo.org/packages/")
                          ("melpa" . "http://melpa.org/packages/")))
+(package-initialize)
+(load-file "~/.emacs.d/elpa/color-theme-railscasts-0.0.2/color-theme-railscasts.el")
 
+(add-to-list 'load-path "~/src/smartparens") (require 'smartparens-config)
+(add-to-list 'load-path "~/src/projectile") (require 'projectile)
+
+(add-to-list 'load-path "~/src/1p/minimal") (require 'minimal)
+(add-to-list 'load-path "~/src/1p/paredit-c") (require 'paredit-c)
 
 (load-file "~/src/1p/emacs-config/lib.el")
-(load-file "~/src/1p/emacs-config/experimental.el")
 
 
 ;;; Etc
@@ -63,7 +66,6 @@
 
 
 ;;; Appearance
-(load-file "~/.emacs.d/elpa/color-theme-railscasts-0.0.2/color-theme-railscasts.el")
 (setq ns-use-native-fullscreen nil)
 (setq ring-bell-function (lambda nil nil))
 
