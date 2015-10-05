@@ -415,6 +415,7 @@ With C-u prefix argument copy URL to clipboard only."
 
 ;; Redefine an emacs function to get multiple buffers per dedicated process.
 
+(require 'python)
 (defun dan/python-shell-dedicated-process-identifier ()
   (projectile-project-name))
 
