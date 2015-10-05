@@ -80,7 +80,7 @@
   (interactive)
   (message "Don't fucking do that."))
 #+end_src
-   
+
 ** paint buffer according to predicate function
 #+begin_src emacs-lisp
 (defun dan/paint-buffer-by-predicate (predicate)
@@ -168,7 +168,7 @@
         (dan/toggle-read-only))))
 
 (add-hook 'find-file-hook 'dan/set-read-only-maybe)
-(add-hook 'find-file-hook 
+(add-hook 'find-file-hook
           (lambda () (set (make-local-variable 'indent-tabs-mode) nil)))
 #+end_src
 
@@ -291,7 +291,7 @@ Wait for REST between each attempt."
   "Trace functions with names matching regexp"
   ;; TODO: read regexp from minibuffer
   (interactive "sTrace functions matching: ")
-  (mapc (lambda (sym) (message "Tracing %s" (symbol-name sym)) (trace-function sym)) 
+  (mapc (lambda (sym) (message "Tracing %s" (symbol-name sym)) (trace-function sym))
         (loop for x being the symbols
               if (and (fboundp x) (string-match regexp (symbol-name x)))
               collect x)))
@@ -848,7 +848,7 @@ Straight copy of `find-function-at-point` but using
 (setq completion-show-help nil)
 
 ;; (add-hook 'completion-list-mode-hook
-;;           (lambda () 
+;;           (lambda ()
 ;;             (unless (minibufferp (current-buffer)) (progn (goto-char (point-min))
 ;;                     (and (looking-at "Possible completions are:")
 ;;                          (kill-line 1))))))
@@ -1054,12 +1054,12 @@ index e5855ad..29f6429 100644
 +                     (not (winner-ignore-buffer
 +                          (buffer-name (window-buffer win)))))
            (push win xwins)))            ; delete this window
- 
+
        ;; Restore marks
 @@ -335,6 +335,15 @@ You may want to include buffer names such as *Help*, *Apropos*,
                (delete-window (car xwins))
                t))))))
- 
+
 +(defun winner-ignore-buffer (buffer-name)
 +  (delq
 +   nil
@@ -1503,13 +1503,13 @@ http://xahlee.org/emacs/emacs_html.html
     (add-to-list 'load-path "~/lib/emacs/haskell-mode")
     (require 'haskell-mode)
     (add-to-list 'auto-mode-alist '("\\.hs$" . haskell-mode))
-    
-    
+
+
     (defun dan/haskell-hook-function ()
       (turn-on-haskell-indentation)
       (paredit-c-mode)
       (local-set-key "'" 'self-insert-command))
-    
+
     (add-hook 'haskell-mode-hook 'dan/haskell-hook-function)
     (add-hook 'haskell-mode-hook 'paredit-c-mode)
     #+end_src
@@ -1532,12 +1532,6 @@ http://xahlee.org/emacs/emacs_html.html
 *** Javascript
 #+begin_src emacs-lisp
   (add-to-list 'auto-mode-alist '("\\.json$" . js-mode))
-
-  (defun dan/js-mode-hook-fun ()
-    (dan/coffee-mode-hook-fun)
-    (setq js-indent-level 2))
-
-  (add-hook 'js-mode-hook 'dan/js-mode-hook-fun)
 
 
   (defun dan/scratch-js-in-html ()
@@ -1970,7 +1964,7 @@ print 'Time: ', (t1 - t0)
 #+RESULTS:
 : dan/python-cleanup-ipython-transcript
 
- 
+
 **** Ropemacs
      Need to
      1. install pymacs python module
@@ -2062,7 +2056,7 @@ print 'Time: ', (t1 - t0)
 (add-to-list 'auto-mode-alist '("\\.scss$" . scss-mode))
 
 (defun dan/coffee-mode-hook-fun ()
-  
+
   (set (make-local-variable 'indent-tabs-mode) nil)
   (paredit-c-mode))
 
@@ -2444,31 +2438,6 @@ obj[-grep(re, obj)]
 (setq tramp-remote-path (append tramp-remote-path (list "~/bin")))
 #+end_src
 
-** Yasnippet
-#+begin_src emacs-lisp
-(add-to-list 'load-path "~/lib/emacs/yasnippet")
-(when (dan/require 'yasnippet)
-  (setq yas/extra-mode-hooks nil)
-  (setq yas/trigger-key "\C-cy")
-  (define-key yas/keymap [tab] 'yas/next-field-group)
-  (yas/initialize)
-  (mapc (lambda (dir)
-          (let ((dir (expand-file-name dir)))
-            (if (file-exists-p dir) (yas/load-directory dir))))
-        '("~/lib/emacs/yasnippet/snippets"
-          "~/lib/emacs/Worg/org-contrib/babel/snippets"
-          "~/lib/emacs/yasnippet-ess"
-          "~/config/emacs/snippets"))
-
-  (defun dan/yas-tab-setup ()
-    ;; Initially by Eric for Org-mode hook
-    (interactive)
-;;    (make-variable-buffer-local 'yas/trigger-key)
-;;    (setq yas/trigger-key [tab])
-    (define-key yas/keymap [tab] 'yas/next-field-group)))
-
-(yas/load-directory "~/lib/emacs/django-mode/snippets")
-#+end_src
 ** Org
 *** Functions
 **** Table import
@@ -3956,4 +3925,3 @@ http://www.emacswiki.org/emacs/TransparentEmacs
 
 * File config
 #+babel: :results silent :tangle yes
-  
