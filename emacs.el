@@ -60,6 +60,11 @@
 (setq dan/scratch-buffer-dir "/tmp")
 
 
+;;; Yasnippet
+(setq yas/trigger-key "\C-cy")
+(define-key yas/keymap [tab] 'yas/next-field-group)
+(yas/initialize)
+(yas/load-directory (concat (file-name-directory (buffer-file-name)) "snippets"))
 
 
 ;;; Appearance
