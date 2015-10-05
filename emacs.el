@@ -147,6 +147,7 @@
 (dan/register-key-bindings
  '("emacs-lisp" .
    (("\C-cd" . edebug-defun)
+    ("\C-c," . find-function)
     ([tab] . dan/indent-or-complete))))
 
 (require 'markdown-mode)
