@@ -195,9 +195,17 @@
   (dan/set-up-outline-minor-mode "\\((\\|;;;\\)"))
 (add-hook 'emacs-lisp-mode-hook 'dan/emacs-lisp-mode-hook-fn)
 
+(defun dan/html-mode-hook-fn ()
+  (zencoding-mode))
+(add-hook 'html-mode-hook 'dan/html-mode-hook-fn)
+
 (defun dan/inferior-python-mode-hook-fn ()
   (paredit-c-mode))
 (add-hook 'inferior-python-mode-hook 'dan/inferior-python-mode-hook-fn)
+
+(defun dan/js-mode-hook-fn ()
+  (setq js-indent-level 2))
+(add-hook 'js-mode-hook 'dan/js-mode-hook-fn)
 
 (defun dan/minibuffer-setup-hook-fn ()
   (when (eq this-command 'eval-expression)
