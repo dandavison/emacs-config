@@ -234,7 +234,7 @@
 
 
 
-;;; OUTLINE
+;;; Outline
 
 (require 'org)
 (defun dan/set-up-outline-minor-mode (outline-regexp)
