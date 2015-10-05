@@ -150,6 +150,7 @@
     ("\C-xb" . dan/switch-to-buffer)
     ("\C-x\C-f" . dan/find-file)
     ("\C-xd" . dan/dired-no-ask)
+    ("\C-xp" . projectile-switch-project)
     ("\C-ce" . show-all)
     ("\C-cg" . magit-status)
     ("\C-co" . dan/scratch-buffer)
