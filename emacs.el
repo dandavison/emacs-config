@@ -133,7 +133,7 @@
         ))
 
 ;;; Projectile
-(setq projectile-globally-ignored-file-suffixes '("pyc"))
+(setq projectile-globally-ignored-file-suffixes '("pyc" "~" "#"))
 ;;; Yasnippet
 (setq yas/trigger-key "\C-cy")
 (define-key yas/keymap [tab] 'yas/next-field-group)
