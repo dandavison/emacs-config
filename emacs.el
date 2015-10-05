@@ -19,6 +19,7 @@
 
 ;;; Etc
 (setq make-backup-files nil)
+(setq create-lockfiles nil)
 (setq kill-read-only-ok t)
 (setq initial-scratch-message nil)
 (fset 'yes-or-no-p 'y-or-n-p)
