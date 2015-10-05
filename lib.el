@@ -67,22 +67,11 @@
 
 ;;; Trailing whitespace
 
-(defvar dan/delete-trailing-whitespace-major-modes
-  '(clojure-mode
-    coffee-mode
-    ess-mode
-    go-mode
-    graphviz-dot-mode
-    haskell-mode
-    html-mode
-    javascript-mode
-    puppet-mode
-    python-mode
-    makefile-bsdmake-mode))
+(defvar dan/no-delete-trailing-whitespace-major-modes nil)
 
 (defun dan/query-delete-trailing-whitespace ()
   "If there's trailing whitespace ask to delete it"
-  (when (memq major-mode dan/delete-trailing-whitespace-major-modes)
+  (unless (memq major-mode dan/no-delete-trailing-whitespace-major-modes)
     (unless buffer-read-only
       (save-excursion
         (save-window-excursion
