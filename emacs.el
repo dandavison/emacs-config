@@ -85,8 +85,7 @@
   (blink-cursor-mode -1)
 
   (set-face-background 'fringe (face-background 'default))
-  (dan/set-show-paren-style)
-  (font-lock-fontify-buffer))
+  (dan/set-show-paren-style))
 
 (defun dan/set-show-paren-style ()
   (show-paren-mode t)
