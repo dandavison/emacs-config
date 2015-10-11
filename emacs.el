@@ -66,6 +66,9 @@
 
 ;;; Appearance
 (setq ns-use-native-fullscreen nil)
+;; Doesn't respect ns-use-native-fullscreen if called now
+;; (toggle-frame-fullscreen)
+
 (setq ring-bell-function (lambda nil nil))
 
 (setq inhibit-startup-message t)
