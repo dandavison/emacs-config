@@ -68,8 +68,6 @@
 (setq ns-use-native-fullscreen nil)
 (setq ring-bell-function (lambda nil nil))
 
-(add-to-list 'load-path "~/src/1p/minimal")
-(minimal-mode t)
 (setq inhibit-startup-message t)
 (setq minimal-mode-line-background "sea green")
 (setq minimal-mode-line-inactive-background "dim grey")
