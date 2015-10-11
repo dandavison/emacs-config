@@ -135,6 +135,7 @@
 ;;; Smartparens
 (smartparens-global-mode t)
 (add-to-list 'sp-no-reindent-after-kill-modes 'python-mode)
+(setq sp-highlight-pair-overlay nil)
 
 ;;; Yasnippet
 (setq yas/trigger-key "\C-cy")
