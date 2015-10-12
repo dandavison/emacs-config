@@ -414,8 +414,6 @@ With C-u prefix argument copy URL to clipboard only."
     (file-name-as-directory python-shell-virtualenv-path)
     "lib/python2.7/site-packages/")))
 
-
-
 ;; Redefine an emacs function to get multiple buffers per dedicated process.
 
 (require 'python)
