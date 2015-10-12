@@ -405,6 +405,13 @@ With C-u prefix argument copy URL to clipboard only."
   (interactive (list (read-directory-name "" (getenv "WORKON_HOME"))))
   (set (make-variable-buffer-local 'python-shell-virtualenv-path) path))
 
+(defun dan/python-django-shell-plus ()
+  (interactive)
+  (run-python
+   (format "%s/bin/python %s/manage.py shell_plus"
+           (directory-file-name python-shell-virtualenv-path)
+           (directory-file-name (dan/git-get-git-dir))) t t))
+
 (defun dan/python-cd-site-packages ()
   (interactive)
   (if (null python-shell-virtualenv-path)
