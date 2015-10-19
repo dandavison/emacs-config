@@ -2,18 +2,16 @@
 (defun dan/switch-to-buffer (&optional arg)
   (interactive "P")
   (call-interactively
-   (if (and (projectile-project-p) (not arg))
+   (if (and (not arg) (projectile-project-p))
        'projectile-switch-to-buffer
-     'switch-to-buffer )))
-
+     'switch-to-buffer)))
 
 (defun dan/find-file (&optional arg)
   (interactive "P")
   (call-interactively
-   (if (and (projectile-project-p) (not arg))
+   (if (and (not arg) (projectile-project-p))
        'projectile-find-file
-     'ido-find-file )))
-
+     'ido-find-file)))
 
 (defun dan/set-exec-path-from-shell (&optional pathvar)
   (let* ((pathvar (or pathvar "PATH"))
