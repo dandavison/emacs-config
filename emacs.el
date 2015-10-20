@@ -99,7 +99,6 @@
 (dan/set-appearance)
 
 
-
 ;;; Python
 (setq python-shell-interpreter "ipython"
       python-shell-interpreter-args "-i")
@@ -131,6 +130,7 @@
         ;; magit-insert-unpushed-commits
         ))
 
+
 ;;; Projectile
 (setq projectile-globally-ignored-file-suffixes '("pyc" "~" "#"))
 (setq projectile-buffers-filter-function 'projectile-buffers-with-file)
@@ -139,16 +139,19 @@
              'dan/projectile-root-by-parent-directory
              'append)
 
+
 ;;; Smartparens
 (smartparens-global-mode t)
 (add-to-list 'sp-no-reindent-after-kill-modes 'python-mode)
 (setq sp-highlight-pair-overlay nil)
+
 
 ;;; Yasnippet
 (setq yas/trigger-key "\C-cy")
 (define-key yas/keymap [tab] 'yas/next-field-group)
 (yas/initialize)
 (yas/load-directory "/Users/dan/src/dandavison--emacs-config/snippets")
+
 
 ;;; Keys
 
