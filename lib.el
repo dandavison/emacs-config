@@ -449,6 +449,28 @@ returns the value of `python-shell-buffer-name'."
   (comint-send-input))
 
 
+;;; Projectile
+
+(defvar dan/projectile-root-parent-directories
+  '("site-packages")
+  "List of parent directory names identifying a projectile project.
+If a directory is found to have a parent directory with one of
+these names, then the directory (not the parent!) is identified
+as a projectile project root. For example, python programmers
+might add the string \"site-packages\" to this list, in order
+that code directories contained in a site-packages/ directory are
+identified as projectile project roots")
+
+(defun dan/projectile-root-by-parent-directory (dir &optional list)
+  "Identify a project root in DIR by searching for parent directory in LIST.
+If LIST is nil use `projectile-project-root-parent-directories'"
+  (projectile-locate-dominating-file
+   dir
+   (lambda (dir)
+     (member (file-name-nondirectory (projectile-parent dir))
+             dan/projectile-root-parent-directories))))
+
+
 ;;; Utilities
 
 (defun dan/assoc-delete-all (key alist)
