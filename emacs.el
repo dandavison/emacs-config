@@ -163,6 +163,7 @@
     ("\M-i" . dan/highlight)
     ("\C-c\M-f" . dan/search)
     ("\C-x\C-c" . kill-emacs)
+    ("\C-z" . (lambda () (interactive)))
     ("\M-o" . dan/occur)
     ([f1] . other-window)
     ([f2] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?2 arg)))
