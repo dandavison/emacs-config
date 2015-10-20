@@ -132,7 +132,8 @@
 
 ;;; Projectile
 (setq projectile-globally-ignored-file-suffixes '("pyc" "~" "#"))
-
+(setq projectile-buffers-filter-function 'projectile-buffers-with-file)
+(setq projectile-use-git-grep t)
 
 ;;; Smartparens
 (smartparens-global-mode t)
