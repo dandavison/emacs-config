@@ -48,6 +48,7 @@
 (put 'narrow-to-region 'disabled nil)
 
 (winner-mode t)
+(windmove-default-keybindings)
 
 
 ;;; Search
