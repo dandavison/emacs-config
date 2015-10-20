@@ -243,6 +243,10 @@
   (dan/set-up-outline-minor-mode "\\((\\|;;;\\)"))
 (add-hook 'emacs-lisp-mode-hook 'dan/emacs-lisp-mode-hook-fn)
 
+(defun dan/find-function-after-hook-fn ()
+  (dan/on-jump-into-buffer))
+(add-hook 'find-function-after-hook 'dan/find-function-after-hook-fn)
+
 (defun dan/html-mode-hook-fn ()
   (zencoding-mode))
 (add-hook 'html-mode-hook 'dan/html-mode-hook-fn)
