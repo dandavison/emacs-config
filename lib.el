@@ -163,6 +163,22 @@
           (delete-other-windows))
       (message "No matches"))))
 
+(defun dan/clean-up-compilation-buffer (buf status)
+  (with-current-buffer buf
+    (let ((buffer-read-only nil)
+          (grep-match-re "^[^: ]+:[0-9]+:"))
+      (goto-char (point-min))
+      (delete-region (point)
+                     (progn
+                       (re-search-forward grep-match-re)
+                       (point-at-bol)))
+      (goto-char (point-max))
+      (delete-region (progn
+                       (re-search-backward grep-match-re)
+                       (forward-line 1)
+                       (point-at-bol))
+                     (point)))))
+
 ;;; Highlight
 (require 'ring)
 (setq dan/highlighted nil)

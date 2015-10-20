@@ -230,6 +230,10 @@
   (dan/query-delete-trailing-whitespace))
 (add-hook 'before-save-hook 'dan/before-save-hook-fn)
 
+(defun dan/compilation-finish-fn ()
+  (dan/clean-up-compilation-buffer))
+(add-hook 'compilation-finish-functions 'dan/compilation-finish-fn)
+
 (defun dan/emacs-lisp-mode-hook-fn ()
   (paredit-mode t)
   (dan/pretty-lambdas)
