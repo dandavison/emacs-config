@@ -231,6 +231,11 @@
   (dan/query-delete-trailing-whitespace))
 (add-hook 'before-save-hook 'dan/before-save-hook-fn)
 
+(defun dan/clojure-mode-hook-fn ()
+  (paredit-mode))
+(add-hook 'clojure-mode-hook 'dan/clojure-mode-hook-fn)
+(add-hook 'clojurescript-mode-hook 'dan/clojure-mode-hook-fn)
+
 (defun dan/compilation-finish-fn ()
   (dan/clean-up-compilation-buffer))
 (add-hook 'compilation-finish-functions 'dan/compilation-finish-fn)
