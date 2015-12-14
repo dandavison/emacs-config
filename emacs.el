@@ -171,6 +171,8 @@
     ([f3] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?3 arg)))
     ([f4] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?4 arg)))
     ([f5] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?5 arg)))
+    ([(meta shift left)] . dan/indent-shift-left)
+    ([(meta shift right)] . dan/indent-shift-right)
     ([(super i)] . fci-mode)
     ([(super left)] . winner-undo)
     ([(super right)] . winner-redo)
