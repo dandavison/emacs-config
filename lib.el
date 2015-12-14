@@ -45,6 +45,20 @@
       (dan/save-value-to-kill-ring bfn))
     (message "buffer-file-name: %S\tbuffer-name: %s\tdefault-directory: %s" bfn bn dd)))
 
+
+;;; Indentation
+
+(defun dan/indent-shift-left ()
+  (interactive)
+  (let ((python-indent-offset 2))
+    (call-interactively 'python-indent-shift-left)))
+
+(defun dan/indent-shift-right ()
+  (interactive)
+  (let ((python-indent-offset 2))
+    (call-interactively 'python-indent-shift-right)))
+
+
 ;;; After-save hook
 
 (defun dan/set-after-save-command (cmd)
