@@ -431,23 +431,83 @@ With C-u prefix argument copy URL to clipboard only."
 
 (defun dan/python-set-virtualenv (path)
   (interactive (list (read-directory-name "" (getenv "WORKON_HOME"))))
-  (set (make-variable-buffer-local 'python-shell-virtualenv-path) path))
+  (set (make-variable-buffer-local 'python-shell-virtualenv-root) path))
 
 (defun dan/python-django-shell-plus ()
   (interactive)
   (run-python
    (format "%s/bin/python %s/manage.py shell_plus"
-           (directory-file-name python-shell-virtualenv-path)
+           (directory-file-name python-shell-virtualenv-root)
            (directory-file-name (dan/git-get-git-dir))) t t))
 
 (defun dan/python-cd-site-packages ()
   (interactive)
-  (if (null python-shell-virtualenv-path)
+  (if (null python-shell-virtualenv-root)
       (call-interactively 'dan/python-set-virtualenv))
   (dired
    (concat
-    (file-name-as-directory python-shell-virtualenv-path)
+    (file-name-as-directory python-shell-virtualenv-root)
     "lib/python2.7/site-packages/")))
+
+(defun dan/python-dict-literal-to-kwargs ()
+  (interactive)
+  (replace-regexp
+   "[\"']\\([^\"']+\\)[\"']: \\([^,]+\\),"
+   "\\1=\\2,"
+   nil (region-beginning) (region-end)))
+
+(defun dan/python-kwargs-to-dict-literal ()
+  (interactive)
+  (replace-regexp
+   " \\([^ =]+\\) *= *\\([^,\n]+\\),?\n"
+   " '\\1': \\2,\n"
+   nil (region-beginning) (region-end)))
+
+(defun dan/python-prep-paste ()
+  (interactive)
+  (let ((frag (buffer-substring (region-beginning) (region-end))))
+    (with-temp-buffer
+      (insert frag)
+      (org-do-remove-indentation 999)
+      (goto-char (point-min))
+      (replace-regexp "[\n \\]+" " ")
+      (kill-ring-save (point-min) (point-max)))))
+
+
+(defun dan/python-current-defun-name ()
+  (interactive)
+  (save-excursion
+    (let* ((get-name (lambda ()
+                       (beginning-of-defun)
+                       (looking-at python-nav-beginning-of-defun-regexp)
+                       (match-string 1)))
+           (names `(,(funcall get-name)))
+           name)
+      (when (looking-at "[ \t]")
+        (while (looking-at "[ \t]")
+          (setq name (funcall get-name)))
+          (push name names))
+      (message (mapconcat #'identity names ".")))))
+
+(defun dan/python-where-am-i (&optional arg)
+  (interactive "P")
+  (message
+   (dan/save-value-to-kill-ring
+    (if (not arg)
+        (dan/python-current-defun-name)
+      (format
+       "website_test %s:%s"
+       (replace-regexp-in-string
+        ".__init__.py" ""
+        (replace-regexp-in-string
+         "/" "."
+         (replace-regexp-in-string
+          (concat "^" (dan/git-get-git-dir) "/") ""
+          (replace-regexp-in-string
+           "\.py$" "" (buffer-file-name)))))
+       (dan/python-current-defun-name))))))
+
+
 
 ;; Redefine an emacs function to get multiple buffers per dedicated process.
 

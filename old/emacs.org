@@ -1779,39 +1779,6 @@ Seems very slow on coffeescript output of reasonable size; disabling.
   (python-shell-send-buffer)
   (dan/ipython))
 
-(defun dan/python-current-defun-name ()
-  (interactive)
-  (save-excursion
-    (let* ((get-name (lambda ()
-                       (beginning-of-defun)
-                       (looking-at python-nav-beginning-of-defun-regexp)
-                       (match-string 1)))
-           (names `(,(funcall get-name)))
-           name)
-      (when (looking-at "[ \t]")
-        (while (looking-at "[ \t]")
-          (setq name (funcall get-name)))
-          (push name names))
-      (message (mapconcat #'identity names ".")))))
-
-(defun dan/python-where-am-i (&optional arg)
-  (interactive "P")
-  (message
-   (dan/save-value-to-kill-ring
-    (if (not arg)
-        (dan/python-current-defun-name)
-      (format
-       "website_test %s:%s"
-       (replace-regexp-in-string
-        ".__init__.py" ""
-        (replace-regexp-in-string
-         "/" "."
-         (replace-regexp-in-string
-          (concat "^" (counsyl--git-dir) "/") ""
-          (replace-regexp-in-string
-           "\.py$" "" (buffer-file-name)))))
-       (dan/python-current-defun-name))))))
-
 (defun dan/strip-quotes (string)
   (if (string-match "[\"']+\\(.+\\)[\"']+" string)
       (match-string 1 string)
@@ -1900,30 +1867,6 @@ Seems very slow on coffeescript output of reasonable size; disabling.
 
 (fset 'dict-literal-to-kwargs
    (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote ([3 114 up up return up up return] 0 "%d")) arg)))
-
-(defun dan/python-dict-literal-to-kwargs ()
-  (interactive)
-  (replace-regexp
-   "[\"']\\([^\"']+\\)[\"']: \\([^,]+\\),"
-   "\\1=\\2,"
-   nil (region-beginning) (region-end)))
-
-(defun dan/python-kwargs-to-dict-literal ()
-  (interactive)
-  (replace-regexp
-   " \\([^ =]+\\) *= *\\([^,\n]+\\),?\n"
-   " '\\1': \\2,\n"
-   nil (region-beginning) (region-end)))
-
-(defun dan/python-prep-paste ()
-  (interactive)
-  (let ((frag (buffer-substring (region-beginning) (region-end))))
-    (with-temp-buffer
-      (insert frag)
-      (org-do-remove-indentation 999)
-      (goto-char (point-min))
-      (replace-regexp "[\n \\]+" " ")
-      (kill-ring-save (point-min) (point-max)))))
 
 (defun dan/python-kill-ring-save (&optional arg)
   (interactive "P")
