@@ -281,9 +281,9 @@
         (temp-buffer-name "*window-configurations*")
         (temp-buffer-show-hook '(compilation-mode)))
     (setq list
-          (dan/filter (lambda (elt) (and (window-configuration-p (second elt))
-                                    (number-or-marker-p (first elt))))  ;; magit uses :magit-screen
-                      list))
+          (-filter (lambda (elt) (and (window-configuration-p (second elt))
+                                 (number-or-marker-p (first elt))))  ;; magit uses :magit-screen
+                   list))
     (setq list (sort list (lambda (a b) (< (car a) (car b)))))
     (with-output-to-temp-buffer temp-buffer-name
       (dolist (elt list)
@@ -291,14 +291,17 @@
           (let* ((label (single-key-description (first elt)))
                  (marker (third elt))
                  (buffer (marker-buffer marker))
-                 (file-name (buffer-file-name buffer))
-                 line column)
-            (save-window-excursion
+                 (file-name (abbreviate-file-name (buffer-file-name buffer)))
+                 project line column)
+            (with-current-buffer (marker-buffer marker)
               (goto-char marker)
+              (setq project
+                    (file-name-nondirectory
+                     (directory-file-name (projectile-project-root))))
               (setq line (line-number-at-pos (point)))
               (setq column (current-column)))
-              (princ
-               (format "%s:%d:%d: %s" file-name line column label)))
+            (princ
+             (format "%s:%d:%d: <%s> %s" file-name line column project label)))
           (terpri))))
     (select-window (get-buffer-window temp-buffer-name))))
 
