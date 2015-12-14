@@ -262,6 +262,10 @@
   (setq js-indent-level 2))
 (add-hook 'js-mode-hook 'dan/js-mode-hook-fn)
 
+(defun dan/magit-diff-mode-hook-fn ()
+  (dan/magit-hide-all-sections))
+(add-hook 'magit-diff-mode-hook 'dan/magit-diff-mode-hook-fn)
+
 (defun dan/minibuffer-setup-hook-fn ()
   (when (eq this-command 'eval-expression)
     (setq completion-at-point-functions '(lisp-completion-at-point t))
