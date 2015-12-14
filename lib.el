@@ -386,6 +386,17 @@ With C-u prefix argument copy URL to clipboard only."
       (message "Not in a git repo"))))
 
 
+;;; Magit
+
+(defun dan/magit-hide-all-sections ()
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (ignore-errors
+      (while t
+        (magit-section-forward)
+        (magit-section-hide (magit-current-section))))))
+
 
 ;;; Markdown
 (defun dan/grip (&optional server)
