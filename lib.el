@@ -17,7 +17,8 @@
   (let* ((pathvar (or pathvar "PATH"))
          (path-from-shell
           (shell-command-to-string
-	   (format "/bin/bash -c '. ~/.bashrc && echo -n $%s'" pathvar))))
+           (format "/bin/bash -c '. ~/.bashrc && echo -n $%s'" pathvar))))
+    (setq path-from-shell "/usr/local/opt/coreutils/libexec/gnubin:/Users/dan/bin:/usr/local/bin:/usr/local/texlive/2015/bin/x86_64-darwin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/TeX/texbin:/usr/local/texlive/2015/bin/x86_64-darwin/")
     (setenv pathvar path-from-shell)
     (when (string-equal pathvar "PATH")
       (setq exec-path (split-string path-from-shell path-separator)))))
@@ -159,7 +160,7 @@
               ag-arguments
               (list string ".")))
      ('git-grep
-      (list "git" "grep" "-n" string))
+      (list "git" "grep" "-n" "--exclude-standard" "--no-index" string))
      (t (error "Invalid backend")))
    " "))
 
@@ -196,7 +197,7 @@
 ;;; Highlight
 (require 'ring)
 (setq dan/highlighted nil)
-(setq dan/highlight-face 'trailing-whitespace)
+(setq dan/highlight-face 'hi-green)
 
 (defun dan/highlight (&optional arg)
   "Toggle highlighting of word at point.
@@ -403,6 +404,13 @@ With C-u prefix argument copy URL to clipboard only."
       (message "Not in a git repo"))))
 
 
+;;; LaTeX
+(defun dan/latex-fill-paragraph ()
+  (interactive)
+  (text-mode)
+  (call-interactively 'fill-paragraph)
+  (latex-mode))
+
 ;;; Magit
 
 (defun dan/magit-hide-all-sections ()
@@ -539,8 +547,7 @@ returns a string with the form
 `python-shell-buffer-name'[variable `buffer-file-name'] else
 returns the value of `python-shell-buffer-name'."
   (let ((process-name
-         (if (and dedicated
-                  buffer-file-name)
+         (if dedicated
              ;; (format "%s[%s]" python-shell-buffer-name buffer-file-name)
              (format "%s[%s]" python-shell-buffer-name
                      (dan/python-shell-dedicated-process-identifier))
@@ -551,9 +558,9 @@ returns the value of `python-shell-buffer-name'."
 ;;; Comint
 
 (defun dan/comint-clear-buffer (&optional arg)
-  (interactive "P")
-  (delete-region (point-min) (point-max))
-  (comint-send-input))
+  (interactive)
+  (let ((comint-buffer-maximum-size 0))
+    (comint-truncate-buffer)))
 
 
 ;;; Projectile
