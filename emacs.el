@@ -2,11 +2,17 @@
 (require 'cl)
 (require 'dired-x)
 
-(setq package-archives '(("melpa" . "http://melpa.org/packages/")))
 (package-initialize)
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+;; (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/") t)
+
 (load-file "~/.emacs.d/elpa/color-theme-railscasts-0.0.2/color-theme-railscasts.el")
 
 (add-to-list 'load-path "~/src/projectile") (require 'projectile)
+
+
+(setq puml-plantuml-jar-path "/usr/local/Cellar/plantuml/8029/plantuml.8029.jar")
+(add-to-list 'load-path "~/src/puml-mode") (require 'puml-mode)
 
 (add-to-list 'load-path "~/src/1p/minimal") (require 'minimal)
 (add-to-list 'load-path "~/src/1p/paredit-c") (require 'paredit-c)
@@ -27,6 +33,8 @@
 (setq-default fill-column 79)
 (setq-default indent-tabs-mode nil)
 (setq tab-always-indent 'complete)
+
+(set-default 'tab-width 4)
 
 (setq auto-save-default nil)
 
@@ -111,6 +119,7 @@
 
 ;;; Magit
 (setq magit-save-repository-buffers nil)
+(setq magit-push-always-verify nil)
 (setq magit-status-sections-hook
       '(
         ;; magit-insert-status-headers
@@ -166,11 +175,12 @@
     ("\C-x\C-c" . kill-emacs)
     ("\C-z" . (lambda () (interactive)))
     ("\M-o" . dan/occur)
-    ([f1] . other-window)
+    ([f1] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?1 arg)))
     ([f2] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?2 arg)))
     ([f3] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?3 arg)))
     ([f4] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?4 arg)))
     ([f5] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?5 arg)))
+    ([f10] . (lambda () (interactive) (find-file (file-chase-links "~/.emacs"))))
     ([(meta shift left)] . dan/indent-shift-left)
     ([(meta shift right)] . dan/indent-shift-right)
     ([(super i)] . fci-mode)
@@ -238,6 +248,11 @@
 (add-hook 'clojure-mode-hook 'dan/clojure-mode-hook-fn)
 (add-hook 'clojurescript-mode-hook 'dan/clojure-mode-hook-fn)
 
+(defun dan/coffee-mode-hook-fn ()
+  (paredit-c-mode)
+  (setq coffee-tab-width 2))
+(add-hook 'coffee-mode-hook 'dan/coffee-mode-hook-fn)
+
 (defun dan/compilation-finish-fn ()
   (dan/clean-up-compilation-buffer))
 (add-hook 'compilation-finish-functions 'dan/compilation-finish-fn)
@@ -247,6 +262,11 @@
   (dan/pretty-lambdas)
   (dan/set-up-outline-minor-mode "\\((\\|;;;\\)"))
 (add-hook 'emacs-lisp-mode-hook 'dan/emacs-lisp-mode-hook-fn)
+
+(defun dan/r-mode-hook-fn ()
+  (paredit-c-mode))
+(add-hook 'ess-mode-hook 'dan/r-mode-hook-fn)
+(add-hook 'inferior-ess-mode-hook 'dan/r-mode-hook-fn)
 
 (defun dan/find-function-after-hook-fn ()
   (dan/on-jump-into-buffer))
@@ -268,6 +288,10 @@
   (dan/magit-hide-all-sections))
 (add-hook 'magit-diff-mode-hook 'dan/magit-diff-mode-hook-fn)
 
+(defun dan/makefile-mode-hook-fn ()
+  (paredit-c-mode))
+(add-hook 'makefile-mode-hook 'dan/makefile-mode-hook-fn)
+
 (defun dan/minibuffer-setup-hook-fn ()
   (when (eq this-command 'eval-expression)
     (setq completion-at-point-functions '(lisp-completion-at-point t))
@@ -288,3 +312,28 @@
   (dan/pretty-lambdas)
   (dan/set-up-outline-minor-mode "[ \t]*\\(def .+\\|class .+\\|##\\)"))
 (add-hook 'python-mode-hook 'dan/python-mode-hook-fn)
+(put 'dired-find-alternate-file 'disabled nil)
+
+(defun dan/sh-mode-hook-fn ()
+  (setq sh-indentation 4)
+  (setq sh-basic-offset)
+  (paredit-c-mode))
+(add-hook 'sh-mode-hook 'dan/sh-mode-hook-fn)
+
+
+;;; Spam
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (auto-overlays aumix-mode plantuml-mode buffer-move confluence ess zencoding-mode yasnippet-bundle yasnippet yaml-mode smartparens rust-mode railscasts-theme paredit-everywhere minimal-theme markdown-mode magit latex-pretty-symbols flycheck flx-ido fill-column-indicator eyuml evil dockerfile-mode dired-details+ color-theme-railscasts coffee-mode clojure-mode auctex ag))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
