@@ -290,38 +290,42 @@
     (dan/list-window-configurations))))
 
 (defun dan/list-window-configurations ()
-  ;; copied from list-registers
   (interactive)
   (let ((list (copy-sequence register-alist))
-        (temp-buffer-name "*window-configurations*")
-        (temp-buffer-show-hook '(compilation-mode)))
+        (buffer-name "*window-configurations*"))
     (setq list
           (-filter (lambda (elt) (and (window-configuration-p (second elt))
-                                 (number-or-marker-p (first elt))))  ;; magit uses :magit-screen
+                                 (number-or-marker-p (first elt))))
                    list))
     (setq list (sort list (lambda (a b) (< (car a) (car b)))))
-    (with-output-to-temp-buffer temp-buffer-name
-      (dolist (elt list)
-        (when (get-register (car elt))
-          (let* ((label (single-key-description (first elt)))
-                 (marker (third elt))
-                 (buffer (marker-buffer marker))
-                 (file-name (buffer-file-name buffer))
-                 project line column)
-            (when file-name
-              (with-current-buffer (marker-buffer marker)
-                (goto-char marker)
-                (setq project
-                      (file-name-nondirectory
-                       (directory-file-name (projectile-project-root))))
-                (setq line (line-number-at-pos (point)))
-                (setq column (current-column)))
-              (princ
-               (format "%s:%d:%d: <%s> %s"
-                       (abbreviate-file-name file-name)
-                       line column project label))
-              (terpri))))))
-    (select-window (get-buffer-window temp-buffer-name))))
+    (with-current-buffer  (get-buffer-create buffer-name)
+      (let ((inhibit-read-only t))
+        (delete-region (point-min) (point-max))
+        (dolist (elt list)
+          (when (get-register (car elt))
+            (let* ((label (single-key-description (first elt)))
+                   (marker (third elt))
+                   (buffer (marker-buffer marker))
+                   (file-name (buffer-file-name buffer))
+                   project line column)
+              (when file-name
+                (with-current-buffer (marker-buffer marker)
+                  (goto-char marker)
+                  (setq project
+                        (file-name-nondirectory
+                         (directory-file-name (projectile-project-root))))
+                  (setq line (line-number-at-pos (point)))
+                  (setq column (current-column)))
+                (let ((link (format "%s:%d:%d:" file-name line column)))
+                  (insert (format "%s     %-40s %s"
+                                  link (format "<%s>" project) label))
+                  (put-text-property
+                   (point-at-bol) (+ 1 (point-at-bol) (length link))
+                   'display
+                   (format "%-20s" (file-name-nondirectory file-name))))
+                (insert ?\n))))))
+      (compilation-mode))
+    (set-window-buffer nil buffer-name)))
 
 
 ;;; Key bindings
