@@ -305,18 +305,21 @@
           (let* ((label (single-key-description (first elt)))
                  (marker (third elt))
                  (buffer (marker-buffer marker))
-                 (file-name (abbreviate-file-name (buffer-file-name buffer)))
+                 (file-name (buffer-file-name buffer))
                  project line column)
-            (with-current-buffer (marker-buffer marker)
-              (goto-char marker)
-              (setq project
-                    (file-name-nondirectory
-                     (directory-file-name (projectile-project-root))))
-              (setq line (line-number-at-pos (point)))
-              (setq column (current-column)))
-            (princ
-             (format "%s:%d:%d: <%s> %s" file-name line column project label)))
-          (terpri))))
+            (when file-name
+              (with-current-buffer (marker-buffer marker)
+                (goto-char marker)
+                (setq project
+                      (file-name-nondirectory
+                       (directory-file-name (projectile-project-root))))
+                (setq line (line-number-at-pos (point)))
+                (setq column (current-column)))
+              (princ
+               (format "%s:%d:%d: <%s> %s"
+                       (abbreviate-file-name file-name)
+                       line column project label))
+              (terpri))))))
     (select-window (get-buffer-window temp-buffer-name))))
 
 
