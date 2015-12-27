@@ -193,7 +193,7 @@
     ([(super i)] . fci-mode)
     ([(super left)] . winner-undo)
     ([(super right)] . winner-redo)
-    ([(super return)] . delete-other-windows))))
+    ([(super return)] . dan/maximize))))
 
 (global-set-key (kbd "s-,") 'dan/show-buffer-file-name)
 

@@ -275,6 +275,11 @@
 
 ;;; Windows
 
+(defun dan/maximize (&optional arg)
+  (interactive "P")
+  (if (not arg) (delete-other-windows)
+    (toggle-frame-fullscreen)))
+
 (defun dan/window-configuration (register &arg)
   (interactive "P")
   (cond
