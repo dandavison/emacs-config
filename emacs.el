@@ -254,6 +254,7 @@
   (paredit-mode))
 (add-hook 'clojure-mode-hook 'dan/clojure-mode-hook-fn)
 (add-hook 'clojurescript-mode-hook 'dan/clojure-mode-hook-fn)
+(add-hook 'inf-clojure-mode 'dan/clojure-mode-hook-fn)
 
 (defun dan/coffee-mode-hook-fn ()
   (paredit-c-mode)
