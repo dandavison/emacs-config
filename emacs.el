@@ -197,6 +197,12 @@
 
 (global-set-key (kbd "s-,") 'dan/show-buffer-file-name)
 
+(require 'clojure-mode)
+(dan/register-key-bindings
+ '("clojure" .
+   (("\C-x\C-e" . inf-clojure-eval-last-sexp)
+    ("\C-c\C-z" . inf-clojure))))
+
 (dan/register-key-bindings
  '("comint" .
    (([(meta up)] . comint-previous-matching-input-from-input)
@@ -251,10 +257,13 @@
 (add-hook 'before-save-hook 'dan/before-save-hook-fn)
 
 (defun dan/clojure-mode-hook-fn ()
-  (paredit-mode))
+  (paredit-mode)
+  (inf-clojure-minor-mode))
 (add-hook 'clojure-mode-hook 'dan/clojure-mode-hook-fn)
 (add-hook 'clojurescript-mode-hook 'dan/clojure-mode-hook-fn)
-(add-hook 'inf-clojure-mode 'dan/clojure-mode-hook-fn)
+(defun dan/inf-clojure-mode-hook-fn ()
+  (paredit-mode))
+(add-hook 'inf-clojure-mode-hook 'dan/inf-clojure-mode-hook-fn)
 
 (defun dan/coffee-mode-hook-fn ()
   (paredit-c-mode)
