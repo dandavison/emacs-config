@@ -103,6 +103,7 @@
   (set-face-background 'show-paren-match (face-background 'default))
   (set-face-attribute 'show-paren-match nil :foreground "red"))
 
+(minimal-mode)
 (dan/set-appearance)
 
 
