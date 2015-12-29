@@ -218,6 +218,10 @@
     ("\C-c," . find-function)
     ([tab] . dan/indent-or-complete))))
 
+(dan/register-key-bindings
+ '("js" .
+   (("\C-cd" . (lambda () (interactive) (insert "debugger;"))))))
+
 (require 'markdown-mode)
 (dan/register-key-bindings
  '("markdown" .
@@ -299,6 +303,7 @@
 (add-hook 'inferior-python-mode-hook 'dan/inferior-python-mode-hook-fn)
 
 (defun dan/js-mode-hook-fn ()
+  (paredit-c-mode)
   (setq js-indent-level 2))
 (add-hook 'js-mode-hook 'dan/js-mode-hook-fn)
 
