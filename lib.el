@@ -584,7 +584,8 @@ returns the value of `python-shell-buffer-name'."
 ;;; Projectile
 
 (defvar dan/projectile-root-parent-directories
-  '("site-packages")
+  '("site-packages"
+    "elpa")
   "List of parent directory names identifying a projectile project.
 If a directory is found to have a parent directory with one of
 these names, then the directory (not the parent!) is identified
