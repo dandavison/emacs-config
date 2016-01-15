@@ -136,16 +136,8 @@
 (require 'ag)
 (defvar dan/ag-arguments)
 
-(defun dan/search (&optional arg)
-  "Search for word at point in current git repository.
-
-  With prefix arg prompt for search term."
-  (interactive "P")
-  (let* ((string (if arg (read-from-minibuffer "Regexp: ")
-                   (or (thing-at-point 'symbol)
-                       (error "No word at point"))))
-         (directory (projectile-project-root))
-         (backend (if (eq (projectile-project-vcs) 'git) 'git-grep 'ag)))
+(defun dan/search (string directory)
+  (let ((backend (if (eq (projectile-project-vcs) 'git) 'git-grep 'ag)))
     (switch-to-buffer "*search*")
     (delete-other-windows)
     (setq default-directory directory)
@@ -156,6 +148,15 @@
                  (dan/make-search-command string backend)))))
     (compilation-mode)))
 
+(defun dan/search-thing-at-point (&optional arg)
+  "Search for word at point in current git repository.
+
+  With prefix arg prompt for search term."
+  (interactive "P")
+  (dan/search
+   (if arg (read-from-minibuffer "Regexp: ")
+     (or (thing-at-point 'symbol) (error "No word at point")))
+   (projectile-project-root)))
 
 (defun dan/make-search-command (string backend)
   (mapconcat
