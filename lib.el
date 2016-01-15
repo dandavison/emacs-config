@@ -539,13 +539,13 @@ With C-u prefix argument copy URL to clipboard only."
     (if (not arg)
         (dan/python-current-defun-name)
       (format
-       "website_test %s:%s"
+       "run-test %s:%s"
        (replace-regexp-in-string
         ".__init__.py" ""
         (replace-regexp-in-string
          "/" "."
          (replace-regexp-in-string
-          (concat "^" (dan/git-get-git-dir) "/") ""
+          (concat "^" (dan/git-get-git-dir)) ""
           (replace-regexp-in-string
            "\.py$" "" (buffer-file-name)))))
        (dan/python-current-defun-name))))))
