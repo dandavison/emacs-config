@@ -411,10 +411,11 @@ With C-u prefix argument copy URL to clipboard only."
 	(let* ((repo-url (dan/git-get-repo-url))
 	       (commit (dan/git-get-commit))
 	       (path (replace-regexp-in-string
-		      (concat "^" git-dir) "" (buffer-file-name)))
+                  (concat "^" git-dir) ""
+                  (file-chase-links (buffer-file-name))))
 	       (line (line-number-at-pos (point)))
 	       (url (format
-		     "%s/blob/%s%s#L%d"
+		     "%s/blob/%s/%s#L%d"
 		     repo-url commit path line)))
 	  (if clipboard-only
 	      (progn (kill-new url) (message url))
