@@ -53,6 +53,10 @@
       (dan/save-value-to-kill-ring bfn))
     (message "buffer-file-name: %S\tbuffer-name: %s\tdefault-directory: %s" bfn bn dd)))
 
+(defun dan/delete-matching-lines (&optional arg)
+  (interactive "P")
+  (call-interactively
+   (if arg 'delete-non-matching-lines 'delete-matching-lines)))
 
 ;;; Indentation
 
