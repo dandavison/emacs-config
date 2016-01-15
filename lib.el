@@ -26,6 +26,13 @@
 (defun dan/show-buffer-file-name ()
   (interactive)
   (let ((bn (buffer-name (current-buffer)))
+        (bfn (buffer-file-name)))
+    (dan/save-value-to-kill-ring bfn)
+    (message "%s        %s" bfn bn)))
+
+(defun dan/show-buffer-file-name-complex ()
+  (interactive)
+  (let ((bn (buffer-name (current-buffer)))
         (bfn (buffer-file-name))
         (dd default-directory))
     (when bfn
