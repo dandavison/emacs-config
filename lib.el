@@ -337,6 +337,7 @@
                    'display
                    (format "%-20s" (file-name-nondirectory file-name))))
                 (insert ?\n))))))
+      (goto-char (point-min))
       (compilation-mode))
     (set-window-buffer nil buffer-name)))
 
