@@ -157,10 +157,16 @@
 
   With prefix arg prompt for search term."
   (interactive "P")
-  (dan/search
-   (if arg (read-from-minibuffer "Regexp: ")
-     (or (thing-at-point 'symbol) (error "No word at point")))
-   (projectile-project-root)))
+  (let ((string (if (equal arg '(4)) (read-from-minibuffer "Regexp: ")
+                  (or (thing-at-point 'symbol) (error "No word at point")))))
+    (dan/search
+     ;; arg is string prefix or nil
+     (concat (unless (equal arg '(4)) arg) string)
+     (projectile-project-root))))
+
+(defun dan/search-thing-at-point-maybe-with-def-prefix (&optional arg)
+  (interactive "P")
+  (dan/search-thing-at-point (and arg "\\(def\\|class\\) ")))
 
 (defun dan/make-search-command (string backend)
   (mapconcat
@@ -554,8 +560,6 @@ With C-u prefix argument copy URL to clipboard only."
           (replace-regexp-in-string
            "\.py$" "" (buffer-file-name)))))
        (dan/python-current-defun-name))))))
-
-
 
 ;; Redefine an emacs function to get multiple buffers per dedicated process.
 
