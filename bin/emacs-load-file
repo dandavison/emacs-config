@@ -1,0 +1,4 @@
+#!/bin/bash
+
+emacsclient --no-wait \
+    --eval "(load-file \"$1\")" > /dev/null

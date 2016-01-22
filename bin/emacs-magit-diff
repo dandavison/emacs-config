@@ -1,0 +1,9 @@
+#!/bin/bash
+
+commit1=${1:-master}
+commit2=${2:-HEAD}
+
+emacsclient --no-wait \
+    --eval "(magit-status \"$PWD\")" \
+    --eval "(magit-diff \"$commit1...$commit2\")" \
+    --eval "(progn (select-frame-set-input-focus (selected-frame)) (delete-other-windows))" > /dev/null
