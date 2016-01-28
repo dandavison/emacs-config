@@ -162,8 +162,10 @@
   (let ((string (if (equal arg '(4)) (read-from-minibuffer "Regexp: ")
                   (or (thing-at-point 'symbol) (error "No word at point")))))
     (dan/search
-     ;; arg is string prefix or nil
-     (concat (unless (equal arg '(4)) arg) string)
+     ;; arg is either prefix arg or string prefix or nil
+     (if (and arg (not (equal arg '(4))))
+         (format "%s%s(" arg string)
+       string)
      (projectile-project-root))))
 
 (defun dan/search-thing-at-point-maybe-with-def-prefix (&optional arg)
