@@ -550,7 +550,7 @@ With C-u prefix argument copy URL to clipboard only."
     (if (not arg)
         (dan/python-current-defun-name)
       (format
-       "run-test %s:%s"
+       "%s:%s"
        (replace-regexp-in-string
         ".__init__.py" ""
         (replace-regexp-in-string
