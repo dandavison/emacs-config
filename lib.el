@@ -162,15 +162,14 @@
   (let ((string (if (equal arg '(4)) (read-from-minibuffer "Regexp: ")
                   (or (thing-at-point 'symbol) (error "No word at point")))))
     (dan/search
-     ;; arg is either prefix arg or string prefix or nil
-     (if (and arg (not (equal arg '(4))))
-         (format "%s%s(" arg string)
-       string)
+     ;; arg is either prefix arg or string-transforming function or nil
+     (if (functionp arg) (funcall arg string) string)
      (projectile-project-root))))
 
 (defun dan/search-thing-at-point-maybe-with-def-prefix (&optional arg)
   (interactive "P")
-  (dan/search-thing-at-point (and arg "\\(def\\|class\\) ")))
+  (dan/search-thing-at-point
+   (and arg (lambda (string) (format "\\(def\\|class\\) %s(" string)))))
 
 (defun dan/make-search-command (string backend)
   (mapconcat
