@@ -150,7 +150,9 @@
       (save-excursion
         (insert (shell-command-to-string
                  (dan/make-search-command string backend)))))
-    (compilation-mode)))
+    (compilation-mode)
+    (when (eq (count-lines (point-min) (point-max)) 1)
+      (compile-goto-error))))
 
 (defun dan/search-thing-at-point (&optional arg)
   "Search for word at point in current git repository.
