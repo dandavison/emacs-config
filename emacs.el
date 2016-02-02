@@ -194,6 +194,8 @@
     ([(super i)] . fci-mode)
     ([(super ?,)] . (lambda () (interactive) (dan/search-thing-at-point '(4))))
     ([(super ?.)] . dan/search-thing-at-point-maybe-with-def-prefix)
+    ([(super ?\;)] . dan/show-buffer-file-name)
+    ([(super ?')] . dan/where-am-i)
     ([(super left)] . winner-undo)
     ([(super right)] . winner-redo)
     ([(super return)] . dan/maximize))))

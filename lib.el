@@ -23,6 +23,13 @@
     (when (string-equal pathvar "PATH")
       (setq exec-path (split-string path-from-shell path-separator)))))
 
+(defun dan/where-am-i (&optional arg)
+  (interactive "P")
+  (if (or (eq major-mode 'python-mode)
+          (eq major-mode 'django-mode))
+      (dan/python-where-am-i arg)
+    (dan/show-buffer-file-name)))
+
 (defun dan/show-buffer-file-name ()
   (interactive)
   (let ((bn (buffer-name (current-buffer)))
