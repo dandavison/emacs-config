@@ -161,22 +161,30 @@
     (when (eq (count-lines (point-min) (point-max)) 1)
       (compile-goto-error))))
 
-(defun dan/search-thing-at-point (&optional arg)
-  "Search for word at point in current git repository.
+(defun dan/search-read-from-minibuffer (&optional search-for-definition-p)
+  "Search for word entered in minibuffer.
 
-  With prefix arg prompt for search term."
+  With prefix arg search for definition."
   (interactive "P")
-  (let ((string (if (equal arg '(4)) (read-from-minibuffer "Regexp: ")
-                  (or (thing-at-point 'symbol) (error "No word at point")))))
-    (dan/search
-     ;; arg is either prefix arg or string-transforming function or nil
-     (if (functionp arg) (funcall arg string) string)
-     (projectile-project-root))))
+  (dan/search-for-string-or-definition
+   (read-from-minibuffer "Regexp: ")
+   search-for-definition-p))
 
-(defun dan/search-thing-at-point-maybe-with-def-prefix (&optional arg)
+(defun dan/search-thing-at-point (&optional search-for-definition-p)
+  "Search for word at point.
+
+  With prefix arg search for definition."
   (interactive "P")
-  (dan/search-thing-at-point
-   (and arg (lambda (string) (format "\\(def\\|class\\) %s(" string)))))
+  (dan/search-for-string-or-definition
+   (or (thing-at-point 'symbol) (error "No word at point"))
+   search-for-definition-p))
+
+(defun dan/search-for-string-or-definition (string search-for-definition-p)
+  (dan/search
+   (if search-for-definition-p
+       (format "\\(def\\|class\\) %s(" string)
+     string)
+   (projectile-project-root)))
 
 (defun dan/make-search-command (string backend)
   (mapconcat
