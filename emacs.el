@@ -16,6 +16,7 @@
 
 (add-to-list 'load-path "~/src/1p/minimal") (require 'minimal)
 (add-to-list 'load-path "~/src/1p/paredit-c") (require 'paredit-c)
+(add-to-list 'load-path "~/src/1p/emacs-search-files") (require 'search-files)
 
 (load-file "~/src/1p/emacs-config/lib.el")
 
