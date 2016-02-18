@@ -1,10 +1,15 @@
 #!/bin/sh
 :;exec emacs --quick --load "$0" "$@"
-(setq package-archives
-      '(("melpa" . "http://melpa.org/packages/")))
-(package-initialize)
-(unless (package-installed-p 'magit)
-  (package-refresh-contents)
-  (package-install 'magit))
+(let ((magit-install-from-local-git-repo nil))
+  (if magit-install-from-local-git-repo
+      (progn
+        (add-to-list 'load-path "~/src/magit/lisp")
+        (require 'magit))
+    (setq package-archives
+          '(("melpa" . "http://melpa.org/packages/")))
+    (package-initialize)
+    (unless (package-installed-p 'magit)
+      (package-refresh-contents)
+      (package-install 'magit))))
 (magit-status)
 (delete-other-windows)
