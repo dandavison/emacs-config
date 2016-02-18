@@ -579,6 +579,10 @@ With C-u prefix argument copy URL to clipboard only."
            "\.py$" "" (buffer-file-name)))))
        (dan/python-current-defun-name))))))
 
+(defun dan/python-bookmark-set ()
+  (interactive)
+  (bookmark-set (dan/python-current-defun-name)))
+
 ;; Redefine an emacs function to get multiple buffers per dedicated process.
 
 (require 'python)
