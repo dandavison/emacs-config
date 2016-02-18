@@ -237,6 +237,8 @@
 (dan/register-key-bindings
  '("python" .
    (("\C-cd" . dan/insert-ipdb-set-trace)
+    ("\C-c/" . dan/python-where-am-i)
+    ("\C-xrm" . dan/python-bookmark-set)
     ([(meta shift right)] . python-indent-shift-right)
     ([(meta shift left)] . python-indent-shift-left))))
 
