@@ -1,4 +1,9 @@
 ;;; Etc
+(defun dan/shell-command-on-region-and-replace ()
+  (interactive)
+  (let ((current-prefix-arg t))
+    (call-interactively 'shell-command-on-region)))
+
 (defun dan/switch-to-buffer (&optional arg)
   (interactive "P")
   (call-interactively
