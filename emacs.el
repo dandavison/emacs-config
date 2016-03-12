@@ -112,6 +112,8 @@
 (setq python-shell-interpreter "ipython"
       python-shell-interpreter-args "-i")
 
+(defvar dan/python-misc-dir "~/src/1p/misc")
+
 
 ;;; Ido
 (ido-mode t)
