@@ -123,11 +123,6 @@
 
 ** toggle read only
 #+begin_src emacs-lisp
-(defun dan/delete-matching-lines (&optional arg)
-  (interactive "P")
-  (call-interactively
-   (if arg 'delete-non-matching-lines 'delete-matching-lines)))
-
 (defun dan/toggle-read-only (&optional arg)
   (interactive "P")
   (unless arg (toggle-read-only))
@@ -595,12 +590,6 @@ parenthesis-delimited list of symbols at point"
       (end-of-line)
       (dan/current-column-line))))
 
-(defun dan/where-am-i (&optional arg)
-  (interactive "P")
-  (if (or (eq major-mode 'python-mode)
-          (eq major-mode 'django-mode))
-      (dan/python-where-am-i arg)
-    (dan/eol-column-line arg)))
 #+end_src
 
 ** Find function or library
@@ -1959,12 +1948,6 @@ print 'Time: ', (t1 - t0)
 #+begin_src python :tangle no
 (add-to-list 'load-path "~/lib/python/pysmell")
 (require 'pysmell)
-#+end_src
-**** py-isort
-#+begin_src python
-(add-to-list 'load-path "~/lib/emacs/py-isort.el")
-(require 'py-isort)
-(setq py-isort-options '("--lines=9999999" "--force_single_line_imports"))
 #+end_src
 
 **** autocomplete

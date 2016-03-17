@@ -9,6 +9,7 @@
 (load-file "~/.emacs.d/elpa/color-theme-railscasts-0.0.2/color-theme-railscasts.el")
 
 (add-to-list 'load-path "~/src/projectile") (require 'projectile)
+(add-to-list 'load-path "~/src/magit/lisp") (require 'magit) ;; (require 'magit-autoloads)
 
 
 (setq puml-plantuml-jar-path "/usr/local/Cellar/plantuml/8029/plantuml.8029.jar")
@@ -21,6 +22,9 @@
 (load-file "~/src/1p/emacs-config/lib.el")
 
 
+;;; Modes
+(add-to-list 'auto-mode-alist '("\\.jira\\'" . jira-markup-mode))
+
 ;;; Etc
 (setq make-backup-files nil)
 (setq create-lockfiles nil)
@@ -29,9 +33,11 @@
 (fset 'yes-or-no-p 'y-or-n-p)
 (setq truncate-lines t)
 (setq vc-follow-symlinks t)
+(setq save-silently t)
 (setq async-shell-command-buffer 'rename-buffer)
 
 (setq-default fill-column 79)
+(setq electric-indent-mode nil)
 (setq-default indent-tabs-mode nil)
 (setq tab-always-indent 'complete)
 
@@ -57,6 +63,14 @@
 
 (winner-mode t)
 (windmove-default-keybindings)
+
+;;; Bookmarks
+(setq bookmark-bmenu-file-column 80)
+(setq bookmark-sort-flag nil)
+(setq bookmark-save-flag 20)
+
+;; message overwrites useful messages
+(defun bookmark-maybe-message (fmt &rest args))
 
 
 ;;; Search
@@ -112,8 +126,16 @@
 (setq python-shell-interpreter "ipython"
       python-shell-interpreter-args "-i")
 
+(require 'py-isort)
+(setq py-isort-options
+      '("--lines=9999999"
+        "--force_single_line_imports"
+        "--dont-skip=__init__.py"))
+
 (defvar dan/python-misc-dir "~/src/1p/misc")
 
+;; (add-function :before (symbol-function 'run-python) 'dan/python-set-virtualenv)
+;; (remove-function (symbol-function 'run-python) 'dan/python-set-virtualenv)
 
 ;;; Ido
 (ido-mode t)
@@ -123,7 +145,10 @@
 
 ;;; Magit
 (setq magit-save-repository-buffers nil)
+;; (setq magit-revert-buffers nil)
 (setq magit-push-always-verify nil)
+(setq magit-revision-insert-related-refs nil)
+(setq magit-log-arguments '("--graph" "--decorate" "-n20"))
 (setq magit-status-sections-hook
       '(
         ;; magit-insert-status-headers
@@ -141,6 +166,7 @@
         ;; magit-insert-unpulled-commits
         ;; magit-insert-unpushed-commits
         ))
+
 
 
 ;;; Projectile
@@ -176,7 +202,7 @@
     ("\C-co" . dan/scratch-buffer)
     ("\C-cr" . replace-regexp)
     ("\M-i" . dan/highlight)
-    ("\C-c\M-f" . dan/search-thing-at-point)
+    ("\C-c\M-f" . search-files-thing-at-point)
     ("\C-x\C-c" . kill-emacs)
     ("\C-z" . (lambda () (interactive)))
     ("\M-o" . dan/occur)
@@ -189,21 +215,36 @@
     ([f7] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?7 arg)))
     ([f8] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?8 arg)))
     ([f9] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?9 arg)))
-    ([f10] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?0 arg)))
-    ([f11] . (lambda () (interactive) (find-file (file-chase-links "~/.emacs"))))
-    ([f12] . dan/list-window-configurations)
+    ([f10] . dan/list-window-configurations)
+    ([f11] . (lambda (&optional arg) (interactive "P") (find-file (if arg "~/src/1p/emacs-config/lib.el" (file-chase-links "~/.emacs")))))
+    ([f12] . dan/project-scratch-buffer)
     ([(meta shift left)] . dan/indent-shift-left)
     ([(meta shift right)] . dan/indent-shift-right)
+    ;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;; temp
+    ([(shift left)] . other-frame)
+    ([(shift right)] . other-frame)
+    ;;;;;;;;;;;;;;;;;;;;;;;;;
+    ([(super d)] . dan/bookmark-set)
+    ([(super k)] . dan/bookmark-set)
+    ;; ([(super k)] . (lambda (&optional arg) (interactive "P") (if arg (dan/bookmark-set) (dan/where-am-i))))
+    ([(super l)] . bookmark-bmenu-list)
     ([(super i)] . fci-mode)
-    ([(super ?,)] . dan/search-read-from-minibuffer)
-    ([(super ?.)] . dan/search-thing-at-point)
+    ([(super ?,)] . search-files-read-from-minibuffer)
+    ([(super ?.)] . search-files-thing-at-point)
     ([(super ?\;)] . dan/show-buffer-file-name)
     ([(super ?')] . dan/where-am-i)
     ([(super left)] . winner-undo)
     ([(super right)] . winner-redo)
-    ([(super return)] . dan/maximize))))
+    ([(super return)] . dan/maximize)
+    ([(super |)] . dan/shell-command-on-region-and-replace))))
 
 (global-set-key (kbd "s-,") 'dan/show-buffer-file-name)
+
+(require 'bookmark)
+(dan/register-key-bindings
+ '("bookmark-bmenu" .
+   (("\C-x\C-s" . bookmark-save))))
 
 (require 'clojure-mode)
 (dan/register-key-bindings
@@ -220,11 +261,17 @@
     ("\C-l" . dan/comint-clear-buffer))))
 
 (dan/register-key-bindings
+ '("compilation" .
+   (("\C-cd" . dan/delete-matching-lines))))
+
+
+(dan/register-key-bindings
  '("emacs-lisp" .
    (("\C-cd" . edebug-defun)
     ("\C-c," . find-function)
     ([tab] . dan/indent-or-complete))))
 
+(require 'js)
 (dan/register-key-bindings
  '("js" .
    (("\C-cd" . (lambda () (interactive) (insert "debugger;"))))))
@@ -240,7 +287,6 @@
  '("python" .
    (("\C-cd" . dan/insert-ipdb-set-trace)
     ("\C-c/" . dan/python-where-am-i)
-    ("\C-xrm" . dan/python-bookmark-set)
     ([(meta shift right)] . python-indent-shift-right)
     ([(meta shift left)] . python-indent-shift-left))))
 
@@ -339,6 +385,8 @@
   (dan/on-jump-into-buffer))
 (add-hook 'occur-mode-find-occurrence-hook 'dan/occur-mode-find-occurrence-hook-fn)
 
+
+;; (advice-add 'revert-buffer :around (symbol-function 'save-excursion))
 (defun dan/python-mode-hook-fn ()
   (paredit-c-mode)
   (dan/pretty-lambdas)
@@ -360,9 +408,10 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks")
  '(package-selected-packages
    (quote
-    (auto-overlays aumix-mode plantuml-mode buffer-move confluence ess zencoding-mode yasnippet-bundle yasnippet yaml-mode smartparens rust-mode railscasts-theme paredit-everywhere minimal-theme markdown-mode magit latex-pretty-symbols flycheck flx-ido fill-column-indicator eyuml evil dockerfile-mode dired-details+ color-theme-railscasts coffee-mode clojure-mode auctex ag))))
+    (py-isort jira-markup-mode flycheck-package inf-clojure auto-overlays aumix-mode plantuml-mode buffer-move confluence ess zencoding-mode yasnippet-bundle yasnippet yaml-mode smartparens rust-mode railscasts-theme paredit-everywhere minimal-theme markdown-mode latex-pretty-symbols flycheck flx-ido fill-column-indicator eyuml evil dockerfile-mode dired-details+ color-theme-railscasts coffee-mode clojure-mode auctex ag))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

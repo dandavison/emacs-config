@@ -147,64 +147,16 @@
     (indent-for-tab-command)))
 
 
+;;; Bookmarks
+
+(defun dan/bookmark-set ()
+  (interactive)
+  (if (eq major-mode 'python-mode)
+      (dan/python-bookmark-set)
+    (call-interactively 'bookmark-set)))
+
+
 ;;; Search
-
-(require 'ag)
-(defvar dan/ag-arguments)
-
-(defun dan/search (string directory)
-  (let ((backend (if (eq (projectile-project-vcs) 'git) 'git-grep 'ag)))
-    (switch-to-buffer "*search*")
-    (delete-other-windows)
-    (setq default-directory directory)
-    (let ((buffer-read-only nil))
-      (delete-region (point-min) (point-max))
-      (save-excursion
-        (insert (shell-command-to-string
-                 (dan/make-search-command string backend)))))
-    (compilation-mode)
-    (when (eq (count-lines (point-min) (point-max)) 1)
-      (compile-goto-error))))
-
-(defun dan/search-read-from-minibuffer (&optional search-for-definition-p)
-  "Search for word entered in minibuffer.
-
-  With prefix arg search for definition."
-  (interactive "P")
-  (dan/search-for-string-or-definition
-   (read-from-minibuffer "Regexp: ")
-   search-for-definition-p))
-
-(defun dan/search-thing-at-point (&optional search-for-definition-p)
-  "Search for word at point.
-
-  With prefix arg search for definition."
-  (interactive "P")
-  (dan/search-for-string-or-definition
-   (or (thing-at-point 'symbol) (error "No word at point"))
-   search-for-definition-p))
-
-(defun dan/search-for-string-or-definition (string search-for-definition-p)
-  (dan/search
-   (if search-for-definition-p
-       (format "\\(def\\|class\\) %s(" string)
-     string)
-   (projectile-project-root)))
-
-(defun dan/make-search-command (string backend)
-  (mapconcat
-   #'shell-quote-argument
-   (case backend
-     ('ag
-      (append '("ag")
-              dan/extra-ag-arguments
-              ag-arguments
-              (list string ".")))
-     ('git-grep
-      (list "git" "grep" "-n" "--exclude-standard" "--no-index" string))
-     (t (error "Invalid backend")))
-   " "))
-
 
 (defun dan/occur ()
   (interactive)
@@ -218,22 +170,6 @@
           (let ((buffer-read-only)) (kill-line 1))
           (delete-other-windows))
       (message "No matches"))))
-
-(defun dan/clean-up-compilation-buffer (buf status)
-  (with-current-buffer buf
-    (let ((buffer-read-only nil)
-          (grep-match-re "^[^: ]+:[0-9]+:"))
-      (goto-char (point-min))
-      (delete-region (point)
-                     (progn
-                       (re-search-forward grep-match-re)
-                       (point-at-bol)))
-      (goto-char (point-max))
-      (delete-region (progn
-                       (re-search-backward grep-match-re)
-                       (forward-line 1)
-                       (point-at-bol))
-                     (point)))))
 
 ;;; Highlight
 (require 'ring)
@@ -441,18 +377,18 @@ With C-u prefix argument copy URL to clipboard only."
   (interactive "P")
   (let ((git-dir (dan/git-get-git-dir)))
     (if git-dir
-	(let* ((repo-url (dan/git-get-repo-url))
-	       (commit (dan/git-get-commit))
-	       (path (replace-regexp-in-string
-                  (concat "^" git-dir) ""
-                  (file-chase-links (buffer-file-name))))
-	       (line (line-number-at-pos (point)))
-	       (url (format
-		     "%s/blob/%s/%s#L%d"
-		     repo-url commit path line)))
-	  (if clipboard-only
-	      (progn (kill-new url) (message url))
-	    (browse-url url)))
+        (let* ((repo-url (dan/git-get-repo-url))
+               (commit "master") ; (dan/git-get-commit)
+               (path (replace-regexp-in-string
+                      (concat "^" (file-truename git-dir)) ""
+                      (file-truename (buffer-file-name))))
+               (line (line-number-at-pos (point)))
+               (url (format
+                     "%s/blob/%s/%s#L%d"
+                     repo-url commit path line)))
+          (if clipboard-only
+              (progn (kill-new url) (message url))
+            (browse-url url)))
       (message "Not in a git repo"))))
 
 
@@ -474,6 +410,14 @@ With C-u prefix argument copy URL to clipboard only."
         (magit-section-forward)
         (magit-section-hide (magit-current-section))))))
 
+(defun dan/magit-profile ()
+  "https://github.com/magit/magit/issues/2228"
+  ;; (elp-restore-all)
+  (elp-instrument-package "magit")
+  ;; (elp-reset-all)
+  (magit-show-commit "8f8903f")
+  ;; (magit-status "/path/to/repo")
+  (elp-results))
 
 ;;; Markdown
 (defun dan/grip (&optional server)
@@ -564,7 +508,15 @@ With C-u prefix argument copy URL to clipboard only."
         (while (looking-at "[ \t]")
           (setq name (funcall get-name)))
           (push name names))
-      (message (mapconcat #'identity names ".")))))
+      ;; (push (dan/python-current-module-name) names)
+      (setq name (mapconcat #'identity names "."))
+      (dan/save-value-to-kill-ring name)
+      (message name))))
+
+(defun dan/python-current-module-name ()
+  (replace-regexp-in-string
+   "\.py$" ""
+   (file-name-nondirectory (buffer-file-name))))
 
 (defun dan/python-where-am-i (&optional arg)
   (interactive "P")
@@ -651,6 +603,9 @@ If LIST is nil use `projectile-project-root-parent-directories'"
      (member (file-name-nondirectory (projectile-parent dir))
              dan/projectile-root-parent-directories))))
 
+(defun dan/project-scratch-buffer ()
+  (interactive)
+  (find-file "/Users/dan/src/counsyl/misc/GEN-341-evidence-from-annotations.org"))
 
 ;;; Utilities
 
@@ -676,12 +631,13 @@ If LIST is nil use `projectile-project-root-parent-directories'"
   (let ((remote-uri
          (org-babel-chomp
           (shell-command-to-string "git config --get remote.origin.url"))))
-    (if (string-match "\\([^@]+\\)@\\([^:]+\\):\\([^.]+\\).git" remote-uri)
-        (let ((protocol (match-string 1 remote-uri))
-              (hostname (match-string 2 remote-uri))
-              (repo (match-string 3 remote-uri)))
-          (format "https://%s/%s" hostname repo))
-      (error "Failed to parse URI: %s" remote-uri))))
+    (cond
+     ((string-match "\\([^@]+\\)@\\([^:]+\\):\\([^.]+\\)\\(.git\\)?" remote-uri)
+      (let ((protocol (match-string 1 remote-uri))
+            (hostname (match-string 2 remote-uri))
+            (repo (match-string 3 remote-uri)))
+        (format "https://%s/%s" hostname repo)))
+     (t (error "Failed to parse URI: %s" remote-uri)))))
 
 (defun dan/save-value-to-kill-ring (&optional sexp)
   (interactive "XExpression to evaluate and save to kill-ring: ")
