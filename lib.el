@@ -252,6 +252,17 @@
 
 ;;; Windows
 
+(defun dan/toggle-windows-frames (&optional arg)
+  (interactive "P")
+  (if arg
+      (progn
+        (global-set-key [(shift left)] 'other-frame)
+        (global-set-key [(shift right)] 'other-frame)
+        (message "frames"))
+    (progn
+      (windmove-default-keybindings)
+      (message "windows"))))
+
 (defun dan/maximize (&optional arg)
   (interactive "P")
   (if (not arg) (delete-other-windows)
