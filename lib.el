@@ -625,6 +625,24 @@ If LIST is nil use `projectile-project-root-parent-directories'"
   (interactive)
   (find-file "/Users/dan/src/counsyl/misc/GEN-341-evidence-from-annotations.org"))
 
+
+(defun dan/projectile-add-to-project ()
+  (interactive)
+  (if (buffer-modified-p) (error "Save buffer first."))
+  (let* ((this-file buffer-file-name)
+         (project
+          (projectile-completing-read
+           "Add to project: "
+           (projectile-relevant-known-projects)))
+         (link-in-project
+          (expand-file-name
+           (format "%s/tmp/%s" project
+                   (file-name-nondirectory (buffer-file-name))))))
+    (make-symbolic-link this-file link-in-project t)
+    (kill-buffer (current-buffer))
+    (find-file link-in-project)
+    (message link-in-project)))
+
 ;;; Utilities
 
 (defun dan/assoc-delete-all (key alist)
