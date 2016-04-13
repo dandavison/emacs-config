@@ -18,6 +18,12 @@
        'projectile-find-file
      'ido-find-file)))
 
+(defun dan/find-file-maybe-in-project (file)
+  (find-file
+   (if (projectile-project-p)
+       (expand-file-name file (projectile-project-root))
+     file)))
+
 (defun dan/set-exec-path-from-shell (&optional pathvar)
   (let* ((pathvar (or pathvar "PATH"))
          (path-from-shell

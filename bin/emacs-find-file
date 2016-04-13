@@ -1,0 +1,8 @@
+#!/bin/bash -u
+
+file="$1"
+
+emacsclient --no-wait \
+    --eval "(dan/find-file-maybe-in-project \"$file\")" \
+    --eval "(select-frame-set-input-focus (selected-frame))" \
+    > /dev/null
