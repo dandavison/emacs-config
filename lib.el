@@ -119,6 +119,12 @@
 
 
 ;;; Appearance
+
+(defun dan/theme-load ()
+  (interactive)
+  (call-interactively 'load-theme)
+  (dan/set-appearance))
+
 ;; From emacs-starter-kit
 (defun dan/pretty-lambdas ()
   (interactive)
