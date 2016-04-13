@@ -6,11 +6,9 @@
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 ;; (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/") t)
 
-(load-file "~/.emacs.d/elpa/color-theme-railscasts-0.0.2/color-theme-railscasts.el")
-
 (add-to-list 'load-path "~/src/projectile") (require 'projectile)
 (add-to-list 'load-path "~/src/magit/lisp") (require 'magit) ;; (require 'magit-autoloads)
-
+(add-to-list 'load-path "~/src/ESS/lisp") (require 'ess)
 
 (setq puml-plantuml-jar-path "/usr/local/Cellar/plantuml/8029/plantuml.8029.jar")
 (add-to-list 'load-path "~/src/puml-mode") (require 'puml-mode)
@@ -198,9 +196,11 @@
     ("\C-xp" . projectile-switch-project)
     ("\C-ce" . show-all)
     ("\C-cg" . magit-status)
-    ("\C-cl" . dan/list-window-configurations)
+    ("\C-cl" . linum-mode)
     ("\C-co" . dan/scratch-buffer)
     ("\C-cr" . replace-regexp)
+    ("\C-cw" . dan/list-window-configurations)
+    ("\C-c\C-l" . eval-buffer)
     ("\M-i" . dan/highlight)
     ("\C-c\M-f" . search-files-thing-at-point)
     ("\C-x\C-c" . kill-emacs)
@@ -225,11 +225,11 @@
     ([(shift left)] . other-frame)
     ([(shift right)] . other-frame)
     ;;;;;;;;;;;;;;;;;;;;;;;;;
+    ([(super c)] . fci-mode)
     ([(super d)] . dan/bookmark-set)
     ([(super k)] . dan/bookmark-set)
     ;; ([(super k)] . (lambda (&optional arg) (interactive "P") (if arg (dan/bookmark-set) (dan/where-am-i))))
     ([(super l)] . bookmark-bmenu-list)
-    ([(super i)] . fci-mode)
     ([(super ?,)] . search-files-read-from-minibuffer)
     ([(super ?.)] . search-files-thing-at-point)
     ([(super ?\;)] . dan/show-buffer-file-name)
@@ -286,7 +286,7 @@
 (dan/register-key-bindings
  '("python" .
    (("\C-cd" . dan/insert-ipdb-set-trace)
-    ("\C-c/" . dan/python-where-am-i)
+    ([(super i)] . dan/python-where-am-i)
     ([(meta shift right)] . python-indent-shift-right)
     ([(meta shift left)] . python-indent-shift-left))))
 
@@ -339,6 +339,11 @@
   (dan/pretty-lambdas)
   (dan/set-up-outline-minor-mode "\\((\\|;;;\\)"))
 (add-hook 'emacs-lisp-mode-hook 'dan/emacs-lisp-mode-hook-fn)
+
+(defun dan/eshell-mode-hook-fn ()
+  (paredit-mode t)
+  (dan/pretty-lambdas))
+(add-hook 'eshell-mode-hook 'dan/eshell-mode-hook-fn)
 
 (defun dan/r-mode-hook-fn ()
   (paredit-c-mode))
@@ -409,9 +414,12 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks")
+ '(custom-safe-themes
+   (quote
+    ("a3821772b5051fa49cf567af79cc4dabfcfd37a1b9236492ae4724a77f42d70d" "3b4800ea72984641068f45e8d1911405b910f1406b83650cbd747a831295c911" default)))
  '(package-selected-packages
    (quote
-    (py-isort jira-markup-mode flycheck-package inf-clojure auto-overlays aumix-mode plantuml-mode buffer-move confluence ess zencoding-mode yasnippet-bundle yasnippet yaml-mode smartparens rust-mode railscasts-theme paredit-everywhere minimal-theme markdown-mode latex-pretty-symbols flycheck flx-ido fill-column-indicator eyuml evil dockerfile-mode dired-details+ color-theme-railscasts coffee-mode clojure-mode auctex ag))))
+    (color-theme-modern zones py-isort jira-markup-mode flycheck-package inf-clojure auto-overlays aumix-mode plantuml-mode buffer-move confluence ess zencoding-mode yasnippet-bundle yasnippet yaml-mode smartparens rust-mode railscasts-theme paredit-everywhere minimal-theme markdown-mode latex-pretty-symbols flycheck flx-ido fill-column-indicator eyuml evil dockerfile-mode dired-details+ color-theme-railscasts coffee-mode clojure-mode auctex ag))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
