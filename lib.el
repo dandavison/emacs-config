@@ -540,19 +540,19 @@ With C-u prefix argument copy URL to clipboard only."
   (interactive "P")
   (message
    (dan/save-value-to-kill-ring
-    (if (not arg)
-        (dan/python-current-defun-name)
-      (format
-       "%s:%s"
-       (replace-regexp-in-string
-        ".__init__.py" ""
-        (replace-regexp-in-string
-         "/" "."
-         (replace-regexp-in-string
-          (concat "^" (dan/git-get-git-dir)) ""
-          (replace-regexp-in-string
-           "\.py$" "" (buffer-file-name)))))
-       (dan/python-current-defun-name))))))
+    (let ((module (replace-regexp-in-string
+                   "\.__init__\\(.py\\)?" ""
+                   (replace-regexp-in-string
+                    "/" "."
+                    (replace-regexp-in-string
+                     (concat "^" (dan/git-get-git-dir)) ""
+                     (replace-regexp-in-string
+                      "\.py$" ""
+                      (file-truename (buffer-file-name)))))))
+          (def (dan/python-current-defun-name)))
+      (if (not arg)
+          (format "from %s import %s" module def)
+        (format "%s:%s" module def))))))
 
 (defun dan/python-bookmark-set ()
   (interactive)
