@@ -24,9 +24,11 @@
 (add-to-list 'auto-mode-alist '("\\.jira\\'" . jira-markup-mode))
 
 ;;; Server
-(let ((dir (getenv "EMACS_SERVER_SOCKET_DIR")))
-  (when dir (setq server-socket-dir dir)))
-(setq server-name ".emacs-socket")
+
+(setq server-socket-dir "/tmp/emacs-sockets")
+(make-directory server-socket-dir 'parents)
+(set-file-modes server-socket-dir #o700)
+(setq server-name (or (getenv "PROJECT_NAME") server-name))
 (server-start)
 
 
