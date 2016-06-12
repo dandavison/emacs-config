@@ -1,0 +1,8 @@
+#!/bin/bash
+
+args=
+if [ -n "$PROJECT_NAME" ]; then
+    args="--socket-name /tmp/emacs-sockets/$PROJECT_NAME"
+fi
+
+/usr/local/bin/emacsclient $args "$@"
