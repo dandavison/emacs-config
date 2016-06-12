@@ -181,6 +181,9 @@
 (add-to-list 'projectile-project-root-files-functions
              'dan/projectile-root-by-parent-directory
              'append)
+(add-to-list 'projectile-project-root-files-functions
+             'dan/projectile-root-custom)
+
 (add-to-list 'projectile-globally-ignored-modes "dired-mode")
 
 ;;; Yasnippet

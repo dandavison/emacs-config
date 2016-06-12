@@ -627,6 +627,20 @@ If LIST is nil use `projectile-project-root-parent-directories'"
      (member (file-name-nondirectory (projectile-parent dir))
              dan/projectile-root-parent-directories))))
 
+(defun dan/projectile-root-custom-hash-key (dir)
+  (format "dan/custom-%s" dir))
+
+(defun dan/projectile-root-custom (dir)
+  (gethash (dan/projectile-root-custom-hash-key dir)
+           projectile-project-root-cache))
+
+(defun dan/projectile-set-project-root (dir)
+  (interactive "DProject root directory: ")
+  (let ((cache-key ))
+    (puthash (dan/projectile-root-custom-hash-key default-directory)
+             dir
+             projectile-project-root-cache)))
+
 (defun dan/project-scratch-buffer ()
   (interactive)
   (find-file "/Users/dan/src/counsyl/misc/GEN-341-evidence-from-annotations.org"))
