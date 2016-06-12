@@ -23,6 +23,13 @@
 ;;; Modes
 (add-to-list 'auto-mode-alist '("\\.jira\\'" . jira-markup-mode))
 
+;;; Server
+(let ((dir (getenv "EMACS_SERVER_SOCKET_DIR")))
+  (when dir (setq server-socket-dir dir)))
+(setq server-name ".emacs-socket")
+(server-start)
+
+
 ;;; Etc
 (setq make-backup-files nil)
 (setq create-lockfiles nil)
