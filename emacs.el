@@ -207,12 +207,14 @@
     ("\C-xd" . dan/dired-no-ask)
     ("\C-xp" . projectile-switch-project)
     ("\C-ce" . show-all)
+    ("\C-cf" . search-files-by-name)
     ("\C-cg" . magit-status)
     ("\C-cl" . linum-mode)
     ("\C-co" . dan/scratch-buffer)
     ("\C-cr" . replace-regexp)
     ("\C-cw" . dan/list-window-configurations)
     ("\C-c\C-l" . eval-buffer)
+    ("\C-c1" . flycheck-mode)
     ("\M-i" . dan/highlight)
     ("\C-c\M-f" . search-files-thing-at-point)
     ("\C-x\C-c" . kill-emacs)
@@ -232,12 +234,7 @@
     ([f12] . dan/project-scratch-buffer)
     ([(meta shift left)] . dan/indent-shift-left)
     ([(meta shift right)] . dan/indent-shift-right)
-    ;;;;;;;;;;;;;;;;;;;;;;;;;
-    ;; temp
-    ([(shift left)] . other-frame)
-    ([(shift right)] . other-frame)
-    ;;;;;;;;;;;;;;;;;;;;;;;;;
-    ([(super c)] . fci-mode)
+    ([(super ?\])] . fci-mode)
     ([(super d)] . dan/bookmark-set)
     ([(super k)] . dan/bookmark-set)
     ;; ([(super k)] . (lambda (&optional arg) (interactive "P") (if arg (dan/bookmark-set) (dan/where-am-i))))
@@ -293,6 +290,14 @@
  '("markdown" .
    (([(meta left)] . left-word)
     ([(meta right)] . right-word))))
+
+
+(require 'org)
+(dan/register-key-bindings
+ '("org" .
+   (([(shift left)] . windmove-left)
+    ([(shift right)] . windmove-right))))
+
 
 (require 'python)
 (dan/register-key-bindings
