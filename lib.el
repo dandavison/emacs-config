@@ -476,7 +476,12 @@ With C-u prefix argument copy URL to clipboard only."
 
 (defun dan/python-set-virtualenv (path)
   (interactive (list (read-directory-name "" (getenv "WORKON_HOME"))))
-  (set (make-variable-buffer-local 'python-shell-virtualenv-root) path))
+  (let ((flake8 (expand-file-name "bin/flake8" path)))
+    (when (file-exists-p flake8)
+      (set (make-variable-buffer-local 'flycheck-python-flake8-executable)
+           flake8)))
+  (set (make-variable-buffer-local 'python-shell-virtualenv-root)
+       path))
 
 (defun dan/python-django-shell-plus ()
   (interactive)
