@@ -323,7 +323,9 @@
 ;;; Mode hooks
 (defun dan/on-jump-into-buffer ()
   (delete-other-windows)
-  (show-all))
+  (show-all)
+  (when (eq major-mode 'python-mode)
+    (dan/python-current-defun-name)))
 
 (defun dan/after-change-major-mode-hook-fn ()
   (dan/set-appearance))
