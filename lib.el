@@ -518,10 +518,10 @@ With C-u prefix argument copy URL to clipboard only."
       (replace-regexp "[\n \\]+" " ")
       (kill-ring-save (point-min) (point-max)))))
 
-
 (defun dan/python-current-defun-name ()
   (interactive)
   (save-excursion
+    (end-of-line)
     (let* ((get-name (lambda ()
                        (beginning-of-defun)
                        (looking-at python-nav-beginning-of-defun-regexp)
