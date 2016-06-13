@@ -188,6 +188,17 @@
 
 (add-to-list 'projectile-globally-ignored-modes "dired-mode")
 
+;;; Helm
+(add-to-list 'load-path "~/src/emacs-async")
+(add-to-list 'load-path "~/src/helm")
+(require 'helm-config)
+
+(setq helm-grep-file-path-style 'relative)
+
+(setq projectile-completion-system 'helm)
+(helm-projectile-on)
+
+
 ;;; Yasnippet
 (setq yas/trigger-key "\C-cy")
 (define-key yas/keymap [tab] 'yas/next-field-group)
