@@ -29,8 +29,6 @@
          (path-from-shell
           (shell-command-to-string
            (format "/bin/bash -c '. ~/.bashrc && echo -n $%s'" pathvar))))
-    (setq path-from-shell "/usr/local/opt/coreutils/libexec/gnubin:/Users/dan/bin:/usr/local/bin:/usr/local/texlive/2015/bin/x86_64-darwin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/TeX/texbin:/usr/local/texlive/2015/bin/x86_64-darwin/")
-    (setenv pathvar path-from-shell)
     (when (string-equal pathvar "PATH")
       (setq exec-path (split-string path-from-shell path-separator)))))
 
