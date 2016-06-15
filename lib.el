@@ -666,6 +666,26 @@ If LIST is nil use `projectile-project-root-parent-directories'"
     (find-file link-in-project)
     (message link-in-project)))
 
+
+;;; Helm
+(defun dan/helm-projectile-switch-project (&optional arg)
+  (interactive "P")
+  (if arg (projectile-switch-project)
+    (let ((projectile-switch-project-action 'helm-projectile-grep))
+      (projectile-switch-project))))
+
+(defun dan/helm-projectile-grep-1 (&optional arg)
+  (interactive "P")
+  (if arg (helm-projectile-grep)
+    ;; FIXME: This didn't seem to work
+    (flet ((bounds-of-thing-at-point (thing) nil))
+      (helm-projectile-grep))))
+
+(defun dan/helm-projectile-grep (&optional use-input)
+  (interactive "P")
+  (helm-projectile-grep nil (not use-input)))
+
+
 ;;; Utilities
 
 (defun dan/assoc-delete-all (key alist)
