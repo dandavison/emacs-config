@@ -36,10 +36,12 @@
      file)))
 
 (defun dan/set-exec-path-from-shell (&optional pathvar)
+  (interactive)
   (let* ((pathvar (or pathvar "PATH"))
          (path-from-shell
           (shell-command-to-string
            (format "/bin/bash -c '. ~/.bashrc && echo -n $%s'" pathvar))))
+    (setenv pathvar path-from-shell)
     (when (string-equal pathvar "PATH")
       (setq exec-path (split-string path-from-shell path-separator)))))
 
