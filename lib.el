@@ -683,7 +683,7 @@ If LIST is nil use `projectile-project-root-parent-directories'"
 (defun dan/helm-projectile-switch-project (&optional arg)
   (interactive "P")
   (if arg (projectile-switch-project)
-    (let ((projectile-switch-project-action 'helm-projectile-grep))
+    (let ((projectile-switch-project-action 'projectile-switch-to-buffer))
       (projectile-switch-project))))
 
 (defun dan/helm-projectile-grep-1 (&optional arg)
