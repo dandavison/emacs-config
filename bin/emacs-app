@@ -1,3 +1,3 @@
 #!/bin/bash -e
 perl -pi -e "s,CFBundleName += +\"[^\"]+\";,CFBundleName = \"${PROJECT_NAME:-Emacs}\";," /usr/local/Cellar/emacs/HEAD/Emacs.app/Contents/Resources/English.lproj/InfoPlist.strings
-/Applications/Emacs.app/Contents/MacOS/Emacs $@
+/Applications/Emacs.app/Contents/MacOS/Emacs "$@" &
