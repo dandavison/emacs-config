@@ -243,6 +243,8 @@
     ([f10] . dan/list-window-configurations)
     ([f11] . (lambda (&optional arg) (interactive "P") (find-file (if arg "~/src/1p/emacs-config/lib.el" (file-chase-links "~/.emacs")))))
     ([f12] . dan/project-scratch-buffer)
+    ([(meta up)] . dan/transpose-line-up)
+    ([(meta down)] . dan/transpose-line-down)
     ([(meta shift left)] . dan/indent-shift-left)
     ([(meta shift right)] . dan/indent-shift-right)
     ([(super ?\])] . fci-mode)

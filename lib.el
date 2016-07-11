@@ -1,4 +1,15 @@
 ;;; Etc
+
+(defun dan/transpose-line-up ()
+  (interactive)
+  (save-excursion (transpose-lines 1))
+  (previous-line))
+
+(defun dan/transpose-line-down ()
+  (interactive)
+  (next-line)
+  (save-excursion (transpose-lines 1)))
+
 (defun dan/shell-command-on-region-and-replace ()
   (interactive)
   (let ((current-prefix-arg t))
