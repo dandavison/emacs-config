@@ -30,6 +30,7 @@
 
 ;;; Server
 
+(require 'server)
 (setq server-socket-dir "/tmp/emacs-sockets")
 (make-directory server-socket-dir 'parents)
 (set-file-modes server-socket-dir #o700)
@@ -62,8 +63,8 @@
 (setq global-auto-revert-non-file-buffers t)
 (setq dired-auto-revert-buffer t)
 (setq-default dired-omit-files-p t)
+(setq dired-omit-files "^\\.")  ;; "^\\.?#\\|^\\.$\\|^\\.\\.$"
 
-(server-start)
 (dan/set-exec-path-from-shell)
 (dan/set-exec-path-from-shell "PYTHONPATH")
 
@@ -130,10 +131,16 @@
   (set-face-background 'show-paren-match (face-background 'default))
   (set-face-attribute 'show-paren-match nil :foreground "red"))
 
+;; (load-theme 'railscast t)
 (minimal-mode)
 (dan/set-appearance)
 
 
+;;; Flycheck
+(setq flycheck-highlighting-mode 'lines)
+
+;;; Org
+(setq org-src-fontify-natively t)
 ;;; Python
 (setq python-shell-interpreter "ipython"
       python-shell-interpreter-args "-i")
@@ -179,7 +186,8 @@
         ;; magit-insert-unpushed-commits
         ))
 
-
+(fset 'dan/magit-diff-master
+   [?\C-c ?g ?d ?r ?m ?a ?s ?t ?e ?r ?. ?. ?. return])
 
 ;;; Projectile
 (setq projectile-globally-ignored-file-suffixes '("pyc" "~" "#"))
@@ -270,6 +278,7 @@
     ([(super ?')] . dan/where-am-i)
     ([(super left)] . winner-undo)
     ([(super right)] . winner-redo)
+    ([(super down)] . (lambda () (interactive) (set-mark-command t)))
     ([(shift super left)] . helm-resume)
     ([(super return)] . dan/maximize)
     ([(super |)] . dan/shell-command-on-region-and-replace))))
@@ -378,6 +387,7 @@
   (inf-clojure-minor-mode))
 (add-hook 'clojure-mode-hook 'dan/clojure-mode-hook-fn)
 (add-hook 'clojurescript-mode-hook 'dan/clojure-mode-hook-fn)
+
 (defun dan/inf-clojure-mode-hook-fn ()
   (paredit-mode))
 (add-hook 'inf-clojure-mode-hook 'dan/inf-clojure-mode-hook-fn)
@@ -465,7 +475,7 @@
 
 (defun dan/sh-mode-hook-fn ()
   (setq sh-indentation 4)
-  (setq sh-basic-offset)
+  (setq sh-basic-offset nil)
   (paredit-c-mode))
 (add-hook 'sh-mode-hook 'dan/sh-mode-hook-fn)
 
@@ -480,10 +490,10 @@
  '(bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks")
  '(custom-safe-themes
    (quote
-    ("a3821772b5051fa49cf567af79cc4dabfcfd37a1b9236492ae4724a77f42d70d" "3b4800ea72984641068f45e8d1911405b910f1406b83650cbd747a831295c911" default)))
+    ("780c67d3b58b524aa485a146ad9e837051918b722fd32fd1b7e50ec36d413e70" "a11043406c7c4233bfd66498e83600f4109c83420714a2bd0cd131f81cbbacea" "45482e7ddf47ab1f30fe05f75e5f2d2118635f5797687e88571842ff6f18b4d5" "a3821772b5051fa49cf567af79cc4dabfcfd37a1b9236492ae4724a77f42d70d" "3b4800ea72984641068f45e8d1911405b910f1406b83650cbd747a831295c911" default)))
  '(package-selected-packages
    (quote
-    (color-theme-modern zones py-isort jira-markup-mode flycheck-package inf-clojure auto-overlays aumix-mode plantuml-mode buffer-move confluence ess zencoding-mode yasnippet-bundle yasnippet yaml-mode smartparens rust-mode railscasts-theme paredit-everywhere minimal-theme markdown-mode latex-pretty-symbols flycheck flx-ido fill-column-indicator eyuml evil dockerfile-mode dired-details+ color-theme-railscasts coffee-mode clojure-mode auctex ag))))
+    (graphviz-dot-mode helm-projectile flycheck color-theme-modern zones py-isort jira-markup-mode inf-clojure auto-overlays aumix-mode buffer-move confluence ess zencoding-mode yasnippet-bundle yasnippet yaml-mode smartparens rust-mode railscasts-theme paredit-everywhere minimal-theme markdown-mode latex-pretty-symbols flx-ido fill-column-indicator eyuml evil dockerfile-mode dired-details+ color-theme-railscasts coffee-mode clojure-mode auctex ag))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
