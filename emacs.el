@@ -369,6 +369,10 @@
   (dan/query-delete-trailing-whitespace))
 (add-hook 'before-save-hook 'dan/before-save-hook-fn)
 
+(defun dan/c-mode-hook-fn ()
+  (paredit-c-mode))
+(add-hook 'c-mode-hook 'dan/c-mode-hook-fn)
+
 (defun dan/clojure-mode-hook-fn ()
   (paredit-mode)
   (inf-clojure-minor-mode))
@@ -446,6 +450,12 @@
 (add-hook 'helm-goto-line-before-hook 'dan/on-jump-into-buffer)
 
 ;; (advice-add 'revert-buffer :around (symbol-function 'save-excursion))
+
+(defun dan/paredit-c-mode-hook-fn ()
+  (local-set-key [(meta up)] 'dan/transpose-line-up)
+  (local-set-key [(meta down)] 'dan/transpose-line-down))
+(add-hook 'paredit-c-mode-hook 'dan/paredit-c-mode-hook-fn)
+
 (defun dan/python-mode-hook-fn ()
   (paredit-c-mode)
   (prettify-symbols-mode)
