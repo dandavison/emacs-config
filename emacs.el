@@ -6,18 +6,23 @@
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 ;; (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/") t)
 
-(add-to-list 'load-path "~/src/projectile") (require 'projectile)
-(add-to-list 'load-path "~/src/magit/lisp") (require 'magit) ;; (require 'magit-autoloads)
-(add-to-list 'load-path "~/src/ESS/lisp") (require 'ess)
+(add-to-list 'load-path "~/src/3p/projectile") (require 'projectile)
+(add-to-list 'load-path "~/src/3p/helm-projectile") (require 'helm-projectile)
+
+;; (add-to-list 'load-path "~/src/3p/magit/lisp") (require 'magit) ;; (require 'magit-autoloads)
+(add-to-list 'load-path "~/src/3p/ESS/lisp") (require 'ess)
 
 (setq puml-plantuml-jar-path "/usr/local/Cellar/plantuml/8029/plantuml.8029.jar")
-(add-to-list 'load-path "~/src/puml-mode") (require 'puml-mode)
+(add-to-list 'load-path "~/src/3p/puml-mode") (require 'puml-mode)
 
-(add-to-list 'load-path "~/src/1p/minimal") (require 'minimal)
-(add-to-list 'load-path "~/src/1p/paredit-c") (require 'paredit-c)
-(add-to-list 'load-path "~/src/1p/emacs-search-files") (require 'search-files)
+(add-to-list 'load-path "~/src/minimal") (require 'minimal)
+(add-to-list 'load-path "~/src/paredit-c") (require 'paredit-c)
+(add-to-list 'load-path "~/src/emacs-search-files") (require 'search-files)
+(add-to-list 'load-path "~/src/facet/emacs") (require 'facet)
 
-(load-file "~/src/1p/emacs-config/lib.el")
+(load-file "~/src/emacs-config/lib.el")
+(when (file-exists-p "~/src/emacs-config/extra.el")
+  (load-file "~/src/emacs-config/extra.el"))
 
 
 ;;; Modes
@@ -139,7 +144,7 @@
         "--force_single_line_imports"
         "--dont-skip=__init__.py"))
 
-(defvar dan/python-misc-dir "~/src/1p/misc")
+(defvar dan/python-misc-dir "~/src/misc")
 
 ;; (add-function :before (symbol-function 'run-python) 'dan/python-set-virtualenv)
 ;; (remove-function (symbol-function 'run-python) 'dan/python-set-virtualenv)
@@ -203,7 +208,7 @@
 (setq yas/trigger-key "\C-cy")
 (define-key yas/keymap [tab] 'yas/next-field-group)
 (yas/initialize)
-(yas/load-directory "/Users/dan/src/dandavison--emacs-config/snippets")
+(yas/load-directory "/Users/dan/src/emacs-config/snippets")
 
 
 ;;; Keys
@@ -241,7 +246,7 @@
     ([f8] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?8 arg)))
     ([f9] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?9 arg)))
     ([f10] . dan/list-window-configurations)
-    ([f11] . (lambda (&optional arg) (interactive "P") (find-file (if arg "~/src/1p/emacs-config/lib.el" (file-chase-links "~/.emacs")))))
+    ([f11] . (lambda (&optional arg) (interactive "P") (find-file (if arg "~/src/emacs-config/lib.el" (file-chase-links "~/.emacs.d/init.el")))))
     ([f12] . dan/project-scratch-buffer)
     ([(meta up)] . dan/transpose-line-up)
     ([(meta down)] . dan/transpose-line-down)
