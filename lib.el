@@ -267,8 +267,8 @@
   (interactive "P")
   (if arg
       (progn
-        (global-set-key [(shift left)] 'other-frame)
-        (global-set-key [(shift right)] 'other-frame)
+        (local-set-key [(shift left)] 'other-frame)
+        (local-set-key [(shift right)] 'other-frame)
         (message "frames"))
     (progn
       (windmove-default-keybindings)
