@@ -369,7 +369,7 @@
 
 (defun dan/emacs-lisp-mode-hook-fn ()
   (paredit-mode t)
-  (dan/pretty-lambdas)
+  (prettify-symbols-mode)
   (dan/set-up-outline-minor-mode "\\((\\|;;;\\)"))
 (add-hook 'emacs-lisp-mode-hook 'dan/emacs-lisp-mode-hook-fn)
 
@@ -427,7 +427,7 @@
 ;; (advice-add 'revert-buffer :around (symbol-function 'save-excursion))
 (defun dan/python-mode-hook-fn ()
   (paredit-c-mode)
-  (dan/pretty-lambdas)
+  (prettify-symbols-mode)
   (dan/set-up-outline-minor-mode "[ \t]*\\(def .+\\|class .+\\|##\\)"))
 (add-hook 'python-mode-hook 'dan/python-mode-hook-fn)
 (put 'dired-find-alternate-file 'disabled nil)

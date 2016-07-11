@@ -140,16 +140,6 @@
   (call-interactively 'load-theme)
   (dan/set-appearance))
 
-;; From emacs-starter-kit
-(defun dan/pretty-lambdas ()
-  (interactive)
-  (font-lock-add-keywords
-   nil `(("(?\\(lambda\\>\\)"
-          (0 (progn (compose-region (match-beginning 1) (match-end 1)
-                                    ,(make-char 'greek-iso8859-7 107))
-                    nil))))))
-
-
 ;;; Dired
 
 (defun dan/dired-no-ask ()
