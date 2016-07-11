@@ -642,6 +642,10 @@ If LIST is nil use `projectile-project-root-parent-directories'"
      (member (file-name-nondirectory (projectile-parent dir))
              dan/projectile-root-parent-directories))))
 
+(defun dan/projectile-root-default (dir)
+  "Use DIR as current project root"
+  dir)
+
 (defun dan/projectile-root-custom-hash-key (dir)
   (format "dan/custom-%s" dir))
 
