@@ -486,10 +486,17 @@ With C-u prefix argument copy URL to clipboard only."
 
 (defun dan/python-django-shell-plus ()
   (interactive)
+  (let ((cmd (format "%s/bin/python %s/counsyl/product/manage.py shell_plus"
+                     (directory-file-name python-shell-virtualenv-root)
+                     (directory-file-name (dan/git-get-git-dir)))))
+    (message cmd)
+    (run-python cmd t t)))
+
+(defun dan/ipython-shell ()
+  (interactive)
   (run-python
-   (format "%s/bin/python %s/manage.py shell_plus"
-           (directory-file-name python-shell-virtualenv-root)
-           (directory-file-name (dan/git-get-git-dir))) t t))
+   (format "%s/bin/ipython"
+           (directory-file-name python-shell-virtualenv-root)) t t))
 
 (defun dan/python-cd-site-packages ()
   (interactive)
