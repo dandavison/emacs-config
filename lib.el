@@ -702,6 +702,11 @@ If LIST is nil use `projectile-project-root-parent-directories'"
   (helm-projectile-grep nil (not use-input)))
 
 
+(defun dan/helm-projectile-grep-thing-at-point (&optional use-input)
+  (interactive "P")
+  (helm-projectile-grep nil (not use-input)))
+
+
 ;;; Utilities
 
 (defun dan/assoc-delete-all (key alist)

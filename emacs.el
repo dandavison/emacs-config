@@ -201,7 +201,9 @@
 (add-to-list 'load-path "~/src/helm")
 (require 'helm-config)
 
+(setq helm-input-idle-delay 0.1)
 (setq helm-grep-file-path-style 'relative)
+(setq helm-full-frame t)
 
 (setq projectile-completion-system 'helm)
 (helm-projectile-on)
@@ -235,8 +237,10 @@
     ("\C-c\C-l" . eval-buffer)
     ("\C-c1" . flycheck-mode)
     ("\M-i" . dan/highlight)
+    ("\M-x" . helm-M-x)
     ("\C-c\M-f" . search-files-thing-at-point)
     ("\C-x\C-c" . kill-emacs)
+    ("\C-xp" . dan/helm-projectile-switch-project)
     ("\C-z" . (lambda () (interactive)))
     ("\M-o" . dan/occur)
     ([f1] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?1 arg)))
@@ -257,7 +261,6 @@
     ([(meta shift right)] . dan/indent-shift-right)
     ([(super ?\])] . fci-mode)
     ([(super d)] . dan/bookmark-set)
-    ([(super g)] . dan/helm-projectile-grep)
     ([(super k)] . dan/bookmark-set)
     ;; ([(super k)] . (lambda (&optional arg) (interactive "P") (if arg (dan/bookmark-set) (dan/where-am-i))))
     ([(super l)] . bookmark-bmenu-list)
@@ -267,6 +270,7 @@
     ([(super ?')] . dan/where-am-i)
     ([(super left)] . winner-undo)
     ([(super right)] . winner-redo)
+    ([(shift super left)] . helm-resume)
     ([(super return)] . dan/maximize)
     ([(super |)] . dan/shell-command-on-region-and-replace))))
 
@@ -301,6 +305,14 @@
    (("\C-cd" . edebug-defun)
     ("\C-c," . find-function)
     ([tab] . dan/indent-or-complete))))
+
+(require 'helm)
+(dan/register-key-bindings
+ '("helm-grep" .
+   (([(left)] . backward-char)
+    ([(right)] . forward-char)
+    ([(control up)] . previous-history-element)
+    ([(control down)] . next-history-element))))
 
 (require 'js)
 (dan/register-key-bindings
@@ -431,6 +443,7 @@
   (dan/on-jump-into-buffer))
 (add-hook 'occur-mode-find-occurrence-hook 'dan/occur-mode-find-occurrence-hook-fn)
 
+(add-hook 'helm-goto-line-before-hook 'dan/on-jump-into-buffer)
 
 ;; (advice-add 'revert-buffer :around (symbol-function 'save-excursion))
 (defun dan/python-mode-hook-fn ()
