@@ -1,4 +1,4 @@
 #name : clint
 # --
 from clint.textui.colored import $1 as col
-print col($2)
+print(col($2))
