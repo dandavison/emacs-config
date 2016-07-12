@@ -706,6 +706,19 @@ If LIST is nil use `projectile-project-root-parent-directories'"
   (interactive "P")
   (helm-projectile-grep nil (not use-input)))
 
+(defvar dan/helm-filter-buffer "*helm filter*")
+
+(defun dan/helm-search-files-mode-action (-ignored)
+  (with-current-buffer (get-buffer-create dan/helm-filter-buffer)
+    (let ((buffer-read-only nil))
+      (delete-region (point-min) (point-max))
+      (with-current-buffer helm-last-buffer
+        (copy-to-buffer dan/helm-filter-buffer (point-min) (point-max)))))
+  (switch-to-buffer dan/helm-filter-buffer)
+  (goto-char (point-min))
+  (search-files-clean-up-compilation-buffer)
+  (search-files-mode))
+
 
 ;;; Utilities
 
