@@ -85,6 +85,8 @@
 ;; message overwrites useful messages
 (defun bookmark-maybe-message (fmt &rest args))
 
+;; (advice-add 'revert-buffer :around (symbol-function 'save-excursion))
+
 
 ;;; Search
 (setq ag-arguments
@@ -134,6 +136,8 @@
 ;; (load-theme 'railscast t)
 (minimal-mode)
 (dan/set-appearance)
+
+(advice-add 'load-theme :after (lambda (&rest args) (dan/set-appearance)))
 
 
 ;;; Flycheck
@@ -466,7 +470,6 @@
 
 (add-hook 'helm-goto-line-before-hook 'dan/on-jump-into-buffer)
 
-;; (advice-add 'revert-buffer :around (symbol-function 'save-excursion))
 
 (defun dan/paredit-c-mode-hook-fn ()
   (local-set-key [(meta up)] 'dan/transpose-line-up)
@@ -486,10 +489,6 @@
   (paredit-c-mode))
 (add-hook 'sh-mode-hook 'dan/sh-mode-hook-fn)
 
-
-;;; Advice
-
-(advice-add 'load-theme :after (lambda (&rest args) (dan/set-appearance)))
 
 ;;; Spam
 
