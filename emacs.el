@@ -111,8 +111,7 @@
 (setq minimal-mode-line-background "sea green")
 (setq minimal-mode-line-inactive-background "dim grey")
 
-(defun dan/set-appearance ()
-  (interactive)
+(defun dan--set-appearance (&rest args)
   (scroll-bar-mode -1)
   (set-cursor-color "red")
   (set-face-foreground 'cursor (face-foreground 'font-lock-comment-face))
@@ -122,6 +121,10 @@
 
   (set-face-background 'fringe (face-background 'default))
   (dan/set-show-paren-style))
+
+(defun dan/set-appearance ()
+  (interactive)
+  (dan--set-appearance))
 
 (defun dan/set-show-paren-style ()
   (show-paren-mode t)
@@ -486,6 +489,10 @@
   (paredit-c-mode))
 (add-hook 'sh-mode-hook 'dan/sh-mode-hook-fn)
 
+
+;;; Advice
+
+(advice-add 'load-theme :after (symbol-function 'dan--set-appearance))
 
 ;;; Spam
 
