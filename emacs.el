@@ -410,7 +410,7 @@
 (add-hook 'coffee-mode-hook 'dan/coffee-mode-hook-fn)
 
 (defun dan/compilation-finish-fn ()
-  (dan/clean-up-compilation-buffer))
+  (filter-results-clean-up-compilation-buffer))
 (add-hook 'compilation-finish-functions 'dan/compilation-finish-fn)
 
 (defun dan/emacs-lisp-mode-hook-fn ()
