@@ -222,6 +222,18 @@
 (helm-projectile-on)
 
 
+;; (helm-add-action-to-source
+;;  "`filter-results-mode'"
+;;  'filter-results-helm-action
+;;  helm-source-grep)
+
+;; But helm-projectile-grep overwrites helm-source-grep, so
+(setq helm-projectile-grep-or-ack-actions
+      (append helm-projectile-grep-or-ack-actions
+              '("`filter-results-mode'"
+                filter-results-helm-action)))
+
+
 ;;; Yasnippet
 (setq yas/trigger-key "\C-cy")
 (define-key yas/keymap [tab] 'yas/next-field-group)
