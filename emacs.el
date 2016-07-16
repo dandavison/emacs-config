@@ -4,21 +4,22 @@
 
 (package-initialize)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
-;; (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/") t)
-
+(add-to-list 'load-path "~/src/3p/emacs-async")
+(add-to-list 'load-path "~/src/3p/helm") (require 'helm-config)
 (add-to-list 'load-path "~/src/3p/projectile") (require 'projectile)
 (add-to-list 'load-path "~/src/3p/helm-projectile") (require 'helm-projectile)
-
-;; (add-to-list 'load-path "~/src/3p/magit/lisp") (require 'magit) ;; (require 'magit-autoloads)
 (add-to-list 'load-path "~/src/3p/ESS/lisp") (require 'ess)
-
 (setq puml-plantuml-jar-path "/usr/local/Cellar/plantuml/8029/plantuml.8029.jar")
 (add-to-list 'load-path "~/src/3p/puml-mode") (require 'puml-mode)
 
 (add-to-list 'load-path "~/src/minimal") (require 'minimal)
 (add-to-list 'load-path "~/src/paredit-c") (require 'paredit-c)
+(add-to-list 'load-path "~/src/emacs-filter-results") (require 'filter-results)
 (add-to-list 'load-path "~/src/emacs-search-files") (require 'search-files)
 (add-to-list 'load-path "~/src/facet/emacs") (require 'facet)
+
+;; (add-to-list 'custom-theme-load-path (expand-file-name
+;;                                       "~/src/3p/emacs-themes-site/root/assets/local-src"))
 
 (load-file "~/src/emacs-config/lib.el")
 (when (file-exists-p "~/src/emacs-config/extra.el")
