@@ -322,7 +322,6 @@
 
 (require 'helm)
 
-(require 'helm)
 (dan/register-key-bindings
  '(helm-map .
    (([(tab)] . (lambda () (interactive)))
