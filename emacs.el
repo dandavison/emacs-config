@@ -415,6 +415,7 @@
 
 (defun dan/emacs-lisp-mode-hook-fn ()
   (paredit-mode t)
+  (setq prettify-symbols-alist '(("lambda" . 955)))
   (prettify-symbols-mode)
   (dan/set-up-outline-minor-mode "\\((\\|;;;\\)"))
 (add-hook 'emacs-lisp-mode-hook 'dan/emacs-lisp-mode-hook-fn)
@@ -479,6 +480,7 @@
 
 (defun dan/python-mode-hook-fn ()
   (paredit-c-mode)
+  (setq prettify-symbols-alist '(("lambda" . 955)))
   (prettify-symbols-mode)
   (dan/set-up-outline-minor-mode "[ \t]*\\(def .+\\|class .+\\|##\\)"))
 (add-hook 'python-mode-hook 'dan/python-mode-hook-fn)
