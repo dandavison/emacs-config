@@ -316,6 +316,13 @@
     ([tab] . dan/indent-or-complete))))
 
 (require 'helm)
+
+(require 'helm)
+(dan/register-key-bindings
+ '(helm-map .
+   (([(tab)] . (lambda () (interactive)))
+    ([(control return)] . helm-select-action))))
+
 (dan/register-key-bindings
  '("helm-grep" .
    (([(left)] . backward-char)
