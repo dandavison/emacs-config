@@ -222,6 +222,17 @@
 (helm-projectile-on)
 
 
+(if nil
+  ;; Results in flickering and other undesirable behavior
+  (defun dan/helm-change-selection-hook-fn (&rest args)
+    ;; helm-current-source seems not to be set so can't do this
+    ;; (when (eq helm-current-source 'helm-themes-source))
+    (condition-case nil
+        (load-theme (intern (helm-get-selection)) t)
+      (error nil)))
+  (advice-add 'helm-next-line :after #'dan/helm-change-selection-hook-fn)
+  (advice-add 'helm-previous-line :after #'dan/helm-change-selection-hook-fn))
+
 ;; (helm-add-action-to-source
 ;;  "`filter-results-mode'"
 ;;  'filter-results-helm-action
