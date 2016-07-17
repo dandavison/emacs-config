@@ -5,4 +5,4 @@ set -u
 regex="$1"
 
 emacsclient --no-wait \
-    --eval "(progn (search-files \"$regex\" \"$PWD\") (select-frame-set-input-focus (selected-frame)) (other-window 1) (delete-other-windows))" > /dev/null
+    --eval "(progn (search-files \"$regex\" \"$PWD\" 'git-grep) (select-frame-set-input-focus (selected-frame)) (other-window 1) (delete-other-windows))" > /dev/null
