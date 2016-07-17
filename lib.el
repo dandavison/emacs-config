@@ -469,7 +469,7 @@ With C-u prefix argument copy URL to clipboard only."
      (format
       (if traceback
           "import traceback ; import %s ; print(traceback.format_exc()) ; %s.set_trace()"
-        (if nil
+        (if t
             "import %s ; %s.set_trace()"
           "import IPython; IPython.embed(banner1='')"))
       debugger debugger))))
