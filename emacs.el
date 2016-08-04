@@ -146,6 +146,8 @@
 
 ;;; Org
 (setq org-src-fontify-natively t)
+
+
 ;;; Python
 (setq python-shell-interpreter "ipython"
       python-shell-interpreter-args "-i")
