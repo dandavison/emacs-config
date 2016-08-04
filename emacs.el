@@ -319,7 +319,7 @@
     ;; ([(super k)] . (lambda (&optional arg) (interactive "P") (if arg (dan/bookmark-set) (dan/where-am-i))))
     ([(super l)] . bookmark-bmenu-list)
     ([(super ?,)] . dan/helm-projectile-grep)
-    ([(super ?.)] . helm-projectile-grep)
+    ([(super ?.)] . dan/helm-projectile-grep-thing-at-point)
     ([(super ?\;)] . dan/show-buffer-file-name)
     ([(super ?')] . dan/where-am-i)
     ([(super left)] . winner-undo)
