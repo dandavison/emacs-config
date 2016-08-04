@@ -308,7 +308,7 @@
     ([f9] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?9 arg)))
     ([f10] . dan/list-window-configurations)
     ([f11] . (lambda (&optional arg) (interactive "P") (find-file (if arg "~/src/emacs-config/lib.el" (file-chase-links "~/.emacs.d/init.el")))))
-    ([f12] . dan/project-scratch-buffer)
+    ([f12] . facet-workon)
     ([(meta up)] . dan/transpose-line-up)
     ([(meta down)] . dan/transpose-line-down)
     ([(meta shift left)] . dan/indent-shift-left)
