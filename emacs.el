@@ -78,6 +78,8 @@
 (winner-mode t)
 (windmove-default-keybindings)
 
+(setq tramp-verbose 2)
+
 ;;; Bookmarks
 (setq bookmark-bmenu-file-column 80)
 (setq bookmark-sort-flag nil)
