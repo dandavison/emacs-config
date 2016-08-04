@@ -152,6 +152,19 @@
 (setq python-shell-interpreter "ipython"
       python-shell-interpreter-args "-i")
 
+(defun dan/get-default-directory-from-python-shell-maybe ()
+  (let ((process (python-shell-get-process)))
+    (if process
+        (with-current-buffer (process-buffer process)
+          default-directory)
+      default-directory)))
+
+(advice-add 'python-eldoc-function
+            :around
+            (lambda (orig-func &rest args)
+              (let ((default-directory (dan/get-default-directory-from-python-shell-maybe)))
+                (apply orig-func args))))
+
 (require 'py-isort)
 (setq py-isort-options
       '("--lines=9999999"
