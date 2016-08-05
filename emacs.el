@@ -240,7 +240,7 @@
 (helm-projectile-on)
 
 
-(if nil
+(when nil
   ;; Results in flickering and other undesirable behavior
   (defun dan/helm-change-selection-hook-fn (&rest args)
     ;; helm-current-source seems not to be set so can't do this
