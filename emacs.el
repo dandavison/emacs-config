@@ -168,6 +168,12 @@
               (let ((default-directory (dan/get-default-directory-from-python-shell-maybe)))
                 (apply orig-func args))))
 
+(advice-add 'python-shell-send-string
+            :around
+            (lambda (orig-func &rest args)
+              (let ((default-directory (dan/get-default-directory-from-python-shell-maybe)))
+                (apply orig-func args))))
+
 (require 'py-isort)
 (setq py-isort-options
       '("--lines=9999999"
