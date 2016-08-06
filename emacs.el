@@ -375,7 +375,7 @@
     ([(control return)] . helm-select-action))))
 
 (dan/register-key-bindings
- '("helm-grep" .
+ '(helm-grep-map .
    (([(left)] . backward-char)
     ([(right)] . forward-char)
     ([(control up)] . previous-history-element)
