@@ -447,16 +447,28 @@ With C-u prefix argument copy URL to clipboard only."
 ;;; Markdown
 (defun dan/grip (&optional server)
   (interactive "P")
+  (dan/grip- (buffer-file-name (current-buffer)) server))
+
+(defun dan/grip-code-region (&optional server)
+  (interactive "P")
+  (let ((code (buffer-substring (region-beginning) (region-end)))
+        (lang (replace-regexp-in-string "-mode$" "" (symbol-name major-mode)))
+        (temp-file-name (make-temp-file "dan/grip-code-region")))
+    (with-temp-file temp-file-name
+      (insert (format "```%s\n%s\n```" lang code)))
+    (dan/grip- temp-file-name t)))
+
+(defun dan/grip- (file-name server)
   (if server
       (async-shell-command
-       (format "grip --wide %s" (buffer-file-name (current-buffer))))
+       (format "grip --browser --wide %s $(free-port)" file-name))
     (let ((temp-file (make-temp-file "grip-")))
       (shell-command
        (format
-        "grip --export --wide %s %s && open -a /Applications/Google\\ Chrome.app %s"
-	  (buffer-file-name (current-buffer))
-	  temp-file
-	  temp-file)))))
+        "grip --browser --export --wide %s %s"
+        file-name
+        temp-file
+        temp-file)))))
 
 
 ;;; Python
