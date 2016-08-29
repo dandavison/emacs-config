@@ -8,7 +8,7 @@
 (setq package-archives '(("melpa" . "http://melpa.org/packages/")))
 (package-initialize)
 
-(if t
+(if nil
     ;; install magit from local git repo
     (progn
       (-install-package 'dash)
