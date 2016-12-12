@@ -29,6 +29,7 @@
        'projectile-find-file
      'ido-find-file)))
 
+;; Is this useful?
 (defun dan/find-file-maybe-in-project (file)
   (find-file
    (if (projectile-project-p)
@@ -171,6 +172,7 @@
 
 ;;; Search
 
+;; deprecated for helm-swoop?
 (defun dan/occur ()
   (interactive)
   (let ((tap (thing-at-point 'symbol)))
@@ -471,6 +473,12 @@ With C-u prefix argument copy URL to clipboard only."
         temp-file)))))
 
 
+(defun dan/org-table-to-markdown ()
+  (interactive)
+  (save-excursion
+    (replace-regexp "-\\+-" "-|-" nil (point-min) (point-max))))
+
+
 ;;; Python
 
 (defun dan/insert-ipdb-set-trace (&optional traceback)
@@ -512,14 +520,53 @@ With C-u prefix argument copy URL to clipboard only."
    (format "%s/bin/ipython"
            (directory-file-name python-shell-virtualenv-root)) t t))
 
-(defun dan/python-cd-site-packages ()
-  (interactive)
+(defun dan/jupyter-console (&optional ask-kernel)
+  (interactive "P")
+  (let* ((jupyter "/Users/dan/tmp/virtualenvs/jupyter-dev/bin/jupyter")
+         (kernel (when ask-kernel (read-from-minibuffer "kernel:")))
+         (cmd (format "%s console --existing %s" jupyter (or kernel ""))))
+    (message cmd)
+    (run-python cmd)))
+
+
+(defun dan/python-cd-site-packages (&optional python3)
+  (interactive "P")
   (if (null python-shell-virtualenv-root)
       (call-interactively 'dan/python-set-virtualenv))
   (dired
    (concat
     (file-name-as-directory python-shell-virtualenv-root)
-    "lib/python2.7/site-packages/")))
+    (format "lib/python%s/site-packages/" (if python3 "3.5" "2.7")))))
+
+
+(defvar dan/python-shell-function #'run-python)
+
+(defun dan/python-shell-send-buffer (&optional restart-p)
+  (interactive "P")
+  (when restart-p
+    (kill-buffer
+     (process-buffer
+      (python-shell-get-process-or-error "This buffer has no python process"))))
+  (funcall dan/python-shell-function)
+  (while (not (python-shell-get-process)) (sleep-for 0.5))
+  (python-shell-send-buffer)
+  (python-shell-switch-to-shell))
+
+(defun dan/python-shell-send-string (string)
+  (while (not (python-shell-get-process)) (sleep-for 0.5))
+  (python-shell-send-string string))
+
+(when nil
+  ;; What was I doing here?
+  (defun dan/python-cd-site-packages ()
+    (interactive)
+    (if (null python-shell-virtualenv-root)
+        (call-interactively 'dan/python-set-virtualenv))
+    (cl-flet ((make-site-package python-version
+                                 (concat
+                                  (file-name-as-directory python-shell-virtualenv-root)
+                                  "lib/python2.7/site-packages/"))))))
+
 
 (defun dan/python-dict-literal-to-kwargs ()
   (interactive)
@@ -702,24 +749,37 @@ If LIST is nil use `projectile-project-root-parent-directories'"
     (let ((projectile-switch-project-action 'projectile-switch-to-buffer))
       (projectile-switch-project))))
 
-(defun dan/helm-projectile-grep-1 (&optional arg)
-  (interactive "P")
-  (if arg (helm-projectile-grep)
-    ;; FIXME: This didn't seem to work
-    (flet ((bounds-of-thing-at-point (thing) nil))
-      (helm-projectile-grep))))
-
-(defun dan/helm-projectile-grep (&optional use-input)
-  (interactive "P")
-  (helm-projectile-grep nil (not use-input)))
-
-
 (defun dan/helm-projectile-grep-thing-at-point (&optional search-for-definition)
   (interactive "P")
   (if search-for-definition
       (search-files-thing-at-point 'search-for-definition)
-    (helm-projectile-grep)))
+    (let ((helm-projectile-set-input-automatically t))
+      (helm-projectile-grep))))
 
+(when nil
+  (defun dan/helm-projectile-grep-no-input ()
+    (interactive)
+    (cl-flet ((helm-projectile-grep-or-ack
+               (&rest args)
+               (let ((helm-projectile-set-input-automatically nil))
+                 (apply #'helm-projectile-grep-or-ack args))))
+      (helm-projectile-grep))))
+
+(defun dan/helm-projectile-grep-no-input (&optional dir)
+  "Copied from helm-projectile-grep, disabling `helm-projectile-set-input-automatically'."
+  (interactive)
+  (funcall 'run-with-timer 0.01 nil
+           (lambda (dir)
+             (let ((project-root (or dir (projectile-project-root)
+                                     (error "You're not in a project")))
+                   (helm-projectile-set-input-automatically nil))
+               (helm-projectile-grep-or-ack project-root))) dir))
+
+
+(defun dan/helm-swoop-thing-at-point ()
+  (interactive)
+  (let ((helm-swoop-pre-input-function (lambda () (thing-at-point 'symbol))))
+    (helm-swoop)))
 
 ;;; Utilities
 

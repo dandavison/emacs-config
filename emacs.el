@@ -7,6 +7,7 @@
 (add-to-list 'load-path "~/src/3p/emacs-async")
 (add-to-list 'load-path "~/src/3p/helm") (require 'helm-config)
 (add-to-list 'load-path "~/src/3p/projectile") (require 'projectile)
+(add-to-list 'load-path "~/src/3p/emacs-helm-ag") (require 'helm-ag)
 (add-to-list 'load-path "~/src/3p/helm-projectile") (require 'helm-projectile)
 (add-to-list 'load-path "~/src/3p/ESS/lisp") (require 'ess)
 (setq puml-plantuml-jar-path "/usr/local/Cellar/plantuml/8029/plantuml.8029.jar")
@@ -29,6 +30,7 @@
 ;;; Modes
 (add-to-list 'auto-mode-alist '("\\.jira\\'" . jira-markup-mode))
 (add-to-list 'auto-mode-alist '("\\.es6\\'" . js-mode))
+(add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
 
 ;;; Server
 
@@ -46,7 +48,7 @@
 (setq kill-read-only-ok t)
 (setq initial-scratch-message nil)
 (fset 'yes-or-no-p 'y-or-n-p)
-(setq truncate-lines t)
+(set-default 'truncate-lines t)
 (setq vc-follow-symlinks t)
 (setq save-silently t)
 (setq async-shell-command-buffer 'rename-buffer)
@@ -268,7 +270,8 @@
               '("`filter-results-mode'"
                 filter-results-helm-action)))
 
-
+(setq helm-swoop-speed-or-color 'color)
+(setq helm-swoop-pre-input-function (lambda ()))
 ;;; Yasnippet
 (setq yas/trigger-key "\C-cy")
 (define-key yas/keymap [tab] 'yas/next-field-group)
@@ -283,6 +286,7 @@
    .
    (("\C-b" . backward-sexp)
     ("\C-f" . forward-sexp)
+    ("\C-s" . helm-swoop)
     ("\C-xb" . dan/switch-to-buffer)
     ("\C-x\C-f" . dan/find-file)
     ("\C-xd" . dan/dired-no-ask)
@@ -295,14 +299,16 @@
     ("\C-cr" . replace-regexp)
     ("\C-cw" . dan/list-window-configurations)
     ("\C-c\C-l" . eval-buffer)
+    ("\C-c\C-z" . python-shell-switch-to-shell)
     ("\C-c1" . flycheck-mode)
     ("\M-i" . dan/highlight)
+    ("\M-q" . fill-paragraph)
     ("\M-x" . helm-M-x)
     ("\C-c\M-f" . search-files-thing-at-point)
     ("\C-x\C-c" . kill-emacs)
     ("\C-xp" . dan/helm-projectile-switch-project)
     ("\C-z" . (lambda () (interactive)))
-    ("\M-o" . dan/occur)
+    ("\M-o" . dan/helm-swoop-thing-at-point)
     ([f1] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?1 arg)))
     ([f2] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?2 arg)))
     ([f3] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?3 arg)))
@@ -324,7 +330,7 @@
     ([(super k)] . dan/bookmark-set)
     ;; ([(super k)] . (lambda (&optional arg) (interactive "P") (if arg (dan/bookmark-set) (dan/where-am-i))))
     ([(super l)] . bookmark-bmenu-list)
-    ([(super ?,)] . dan/helm-projectile-grep)
+    ([(super ?,)] . dan/helm-projectile-grep-no-input)
     ([(super ?.)] . dan/helm-projectile-grep-thing-at-point)
     ([(super ?\;)] . dan/show-buffer-file-name)
     ([(super ?')] . dan/where-am-i)
@@ -404,6 +410,8 @@
 (dan/register-key-bindings
  '("python" .
    (("\C-cd" . dan/insert-ipdb-set-trace)
+    ("\C-c\C-c" . dan/python-shell-send-buffer)
+    (";" . self-insert-command)
     ([(super i)] . dan/python-where-am-i)
     ([(meta shift right)] . python-indent-shift-right)
     ([(meta shift left)] . python-indent-shift-left))))
@@ -434,7 +442,9 @@
 (add-hook 'after-change-major-mode-hook 'dan/after-change-major-mode-hook-fn)
 
 (defun dan/before-save-hook-fn ()
-  (dan/query-delete-trailing-whitespace))
+  (dan/query-delete-trailing-whitespace)
+  (when (eq major-mode 'org-mode)
+    (dan/org-table-to-markdown)))
 (add-hook 'before-save-hook 'dan/before-save-hook-fn)
 
 (defun dan/c-mode-hook-fn ()
@@ -551,9 +561,10 @@
  '(custom-safe-themes
    (quote
     ("9e6ac467fa1e5eb09e2ac477f61c56b2e172815b4a6a43cf48def62f9d3e5bf9" "b9183de9666c3a16a7ffa7faaa8e9941b8d0ab50f9aaba1ca49f2f3aec7e3be9" "0e8c264f24f11501d3f0cabcd05e5f9811213f07149e4904ed751ffdcdc44739" "780c67d3b58b524aa485a146ad9e837051918b722fd32fd1b7e50ec36d413e70" "a11043406c7c4233bfd66498e83600f4109c83420714a2bd0cd131f81cbbacea" "45482e7ddf47ab1f30fe05f75e5f2d2118635f5797687e88571842ff6f18b4d5" "a3821772b5051fa49cf567af79cc4dabfcfd37a1b9236492ae4724a77f42d70d" "3b4800ea72984641068f45e8d1911405b910f1406b83650cbd747a831295c911" default)))
+ '(magit-diff-arguments (quote ("--ignore-all-space" "--no-ext-diff")))
  '(package-selected-packages
    (quote
-    (helm-themes graphviz-dot-mode helm-projectile flycheck color-theme-modern zones py-isort jira-markup-mode inf-clojure auto-overlays aumix-mode buffer-move confluence ess zencoding-mode yasnippet-bundle yasnippet yaml-mode smartparens rust-mode railscasts-theme paredit-everywhere minimal-theme markdown-mode latex-pretty-symbols flx-ido fill-column-indicator eyuml evil dockerfile-mode dired-details+ color-theme-railscasts coffee-mode clojure-mode auctex ag))))
+    (smooth-scroll soothe-theme debbugs fzf helm-swoop elpy transpose-frame magit helm-themes graphviz-dot-mode helm-projectile flycheck color-theme-modern zones py-isort jira-markup-mode inf-clojure auto-overlays aumix-mode buffer-move confluence ess zencoding-mode yasnippet-bundle yasnippet yaml-mode smartparens rust-mode railscasts-theme paredit-everywhere minimal-theme markdown-mode latex-pretty-symbols flx-ido fill-column-indicator eyuml evil dockerfile-mode dired-details+ color-theme-railscasts coffee-mode clojure-mode auctex ag))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
