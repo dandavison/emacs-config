@@ -479,6 +479,29 @@ With C-u prefix argument copy URL to clipboard only."
     (replace-regexp "-\\+-" "-|-" nil (point-min) (point-max))))
 
 
+;;; Pelican
+(defun dan/pelican-autoreload ()
+  (interactive)
+  (let* ((title (or (dan/pelican-get-title)
+                    (error "Can't find title")))
+         (chrome-cli-output
+          (shell-command-to-string
+           (format "chrome-cli list tabs | grep '%s'" title)))
+         (tab-id (or (and (string-match "^\[[0-9]+:\\([0-9]+\\)\]" chrome-cli-output)
+                          (match-string 1 chrome-cli-output))
+                     (error "Can't parse chrome-cli output: %s" chrome-cli-output)))
+         (cmd (format "sleep 0.7 && chrome-cli reload -t %s" tab-id)))
+    (message cmd)
+    (dan/set-after-save-command cmd)))
+
+
+(defun dan/pelican-get-title ()
+  (save-excursion
+    (goto-char (point-min))
+    (and (looking-at "Title: +\\(.+\\) *")
+         (match-string 1))))
+
+
 ;;; Python
 
 (defun dan/insert-ipdb-set-trace (&optional traceback)
