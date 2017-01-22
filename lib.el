@@ -426,6 +426,23 @@ With C-u prefix argument copy URL to clipboard only."
   (call-interactively 'fill-paragraph)
   (latex-mode))
 
+(defun dan/latex-frac-region ()
+  (let ((s (buffer-substring (region-beginning) (region-end))))
+    (when (string-match "\\([^/]+\\)/\\([^/]+\\)" s)
+      (delete-region (region-beginning) (region-end))
+      (insert (format "\\frac{%s}{%s}" (match-string 1 s) (match-string 2 s))))))
+
+(defun dan/latex-frac-back ()
+  (when (looking-back "\\([^/]+\\)/\\([^/]+\\)")
+    (let ((numerator (match-string 1))
+          (denominator (match-string 2)))
+      (delete-region (match-beginning 0) (match-end 0))
+      (insert (format "\\frac{%s}{%s}"  numerator denominator)))))
+
+(defun dan/latex-frac ()
+  (interactive)
+  (or (dan/latex-frac-region) (dan/latex-frac-back)))
+
 ;;; Magit
 
 (defun dan/magit-hide-all-sections ()
