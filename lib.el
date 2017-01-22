@@ -265,6 +265,34 @@
   (org-content))
 
 
+;;; Paired characters
+
+;; hack: use one of the many pairing modes
+(defun dan/paired-character (open close)
+  (if (region-active-p)
+      (progn
+        (save-excursion
+          (goto-char (region-beginning))
+          (insert open))
+        (save-excursion
+          (goto-char (region-end))
+          (insert close)))
+    (insert open close)
+    (backward-char)))
+
+(defun dan/paired-dollar ()
+  (interactive)
+  (dan/paired-character ?$ ?$))
+
+(defun dan/paired-paren ()
+  (interactive)
+  (dan/paired-character ?\( ?\)))
+
+(defun dan/paired-brace ()
+  (interactive)
+  (dan/paired-character ?{ ?}))
+
+
 ;;; Windows
 
 (defun dan/toggle-windows-frames (&optional arg)
