@@ -471,6 +471,27 @@ With C-u prefix argument copy URL to clipboard only."
   (interactive)
   (or (dan/latex-frac-region) (dan/latex-frac-back)))
 
+(defun dan/focus ()
+  (interactive)
+  (when (not (region-active-p))
+    (error "There is no active region."))
+  (save-mark-and-excursion
+   (condition-case nil (comment-region
+     (region-beginning)
+     (save-excursion
+       (goto-char (region-beginning))
+       (search-backward "\\begin{description}")
+       (forward-line +1)
+       (point))) (error nil))
+   (condition-case nil (comment-region
+     (region-end)
+     (save-excursion
+       (goto-char (region-end))
+       (search-forward "\\end{description}")
+       (forward-line -1)
+       (point))) (error nil)))
+  (narrow-to-region (region-beginning) (region-end)))
+
 ;;; Magit
 
 (defun dan/magit-hide-all-sections ()
