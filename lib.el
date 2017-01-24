@@ -492,6 +492,11 @@ With C-u prefix argument copy URL to clipboard only."
        (point))) (error nil)))
   (narrow-to-region (region-beginning) (region-end)))
 
+(defun dan/latex-watch ()
+  (interactive)
+  (dan/set-after-save-command
+   (format "rubber -d %s" buffer-file-name)))
+
 ;;; Magit
 
 (defun dan/magit-hide-all-sections ()
