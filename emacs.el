@@ -372,10 +372,21 @@
  '("js" .
    (("\C-cd" . (lambda () (interactive) (insert "debugger;"))))))
 
+
+;; (require 'latex)
+;; (dan/register-key-bindings
+;;  '("latex" .
+;;    (("$" . dan/paired-dollar)
+;;     ("\C-cf" . dan/latex-frac))))
+
 (require 'markdown-mode)
 (dan/register-key-bindings
  '("markdown" .
-   (([(meta left)] . left-word)
+   (("$" . dan/paired-dollar)
+    ("\M-q" . fill-paragraph)
+    ;; force file write to force pelican reload
+    ("\C-X\C-s" . (lambda () (interactive) (set-buffer-modified-p t) (save-buffer)))
+    ([(meta left)] . left-word)
     ([(meta right)] . right-word))))
 
 
@@ -483,6 +494,10 @@
   (paredit-c-mode)
   (setq js-indent-level 2))
 (add-hook 'js-mode-hook 'dan/js-mode-hook-fn)
+
+(defun dan/latex-mode-hook-fn ()
+  (dan/setup-paired-characters))
+(add-hook 'latex-mode-hook 'dan/latex-mode-hook-fn)
 
 (defun dan/magit-diff-mode-hook-fn ()
   (dan/magit-hide-all-sections))
