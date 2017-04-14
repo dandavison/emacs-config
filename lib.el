@@ -90,12 +90,12 @@
 
 ;;; Indentation
 
-(defun dan/indent-shift-left ()
+(defun dan/indent-shift-left (&rest args)
   (interactive)
   (let ((python-indent-offset 2))
     (call-interactively 'python-indent-shift-left)))
 
-(defun dan/indent-shift-right ()
+(defun dan/indent-shift-right (&rest args)
   (interactive)
   (let ((python-indent-offset 2))
     (call-interactively 'python-indent-shift-right)))
