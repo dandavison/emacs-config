@@ -438,7 +438,6 @@ is a symbol, it is used as is.")
     bindings-alist
     (dan/assoc-delete-all (car bindings-alist) dan/key-bindings)))
   (dan/set-key-bindings)
-  (windmove-default-keybindings)
   nil)
 
 
