@@ -909,8 +909,10 @@ If LIST is nil use `projectile-project-root-parent-directories'"
   (interactive "P")
   (if search-for-definition
       (search-files-thing-at-point 'search-for-definition)
-    (let ((helm-projectile-set-input-automatically t))
-      (helm-projectile-grep))))
+    (if nil
+        (let ((helm-projectile-set-input-automatically t))
+          (helm-projectile-grep))
+      (counsel-git-grep nil (thing-at-point 'symbol)))))
 
 (when nil
   (defun dan/helm-projectile-grep-no-input ()
