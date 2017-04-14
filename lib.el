@@ -313,6 +313,12 @@
   (dan/paired-character ?{ ?}))
 
 
+(defun dan/setup-paired-characters ()
+  (interactive)
+  (local-set-key "{" 'dan/paired-brace)
+  (local-set-key "(" 'dan/paired-paren)
+  (local-set-key "$" 'dan/paired-dollar))
+
 ;;; Windows
 
 (defun dan/toggle-windows-frames (&optional arg)
@@ -500,22 +506,48 @@ With C-u prefix argument copy URL to clipboard only."
      (region-beginning)
      (save-excursion
        (goto-char (region-beginning))
-       (search-backward "\\begin{description}")
+       (search-backward "\\begin{document}")
        (forward-line +1)
        (point))) (error nil))
    (condition-case nil (comment-region
      (region-end)
      (save-excursion
        (goto-char (region-end))
-       (search-forward "\\end{description}")
+       (search-forward "\\end{document}")
        (forward-line -1)
        (point))) (error nil)))
   (narrow-to-region (region-beginning) (region-end)))
 
-(defun dan/latex-watch ()
+(defun dan/unfocus ()
   (interactive)
+  (let ((beg (point-min))
+        (end (point-max)))
+    (widen)
+    (condition-case nil
+        (uncomment-region
+         beg
+         (save-excursion
+           (goto-char beg)
+           (search-backward "\\begin{description}")
+           (forward-line +1)
+           (point)))
+     (error nil))
+   (condition-case nil
+       (uncomment-region
+        end
+        (save-excursion
+          (goto-char end)
+          (search-forward "\\end{description}")
+          (forward-line -1)
+          (point)))
+     (error nil))))
+
+(defun dan/latex-watch (&optional arg)
+  (interactive "P")
   (dan/set-after-save-command
-   (format "rubber -d %s" buffer-file-name)))
+   (if (or arg t)
+       ;;
+       (format "/Users/dan/src/3p/rubber/build/scripts-2.7/rubber -d --shell-escape %s" buffer-file-name))))
 
 ;;; Magit
 
