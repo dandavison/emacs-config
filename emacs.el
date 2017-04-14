@@ -128,6 +128,17 @@
 
 (advice-add 'load-theme :after (lambda (&rest args) (dan/set-appearance)))
 
+;;; scrolling
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; one line at a time
+(setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
+(setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+(setq scroll-step 1) ;; keyboard scroll one line at a time
+(setq linum-delay t)
+
+;; (require 'sublimity)
+;; (require 'sublimity-scroll)
+;; (sublimity-mode 1)
+
 ;;; Comint
 
 (advice-add 'comint-previous-matching-input-from-input :after (lambda (&rest args) (goto-char (point-at-eol))))
