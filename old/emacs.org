@@ -1657,14 +1657,10 @@ Seems very slow on coffeescript output of reasonable size; disabling.
 
 (setq python-shell-enable-syntax-highlighting nil)
 
-(add-hook 'kill-buffer-hook
-          (lambda () (when (eq major-mode 'inferior-python-mode)
-                  (dan/dump-comint-history dan/python-comint-history-file))))
-
 (defun dan/inferior-python-mode-hook-function ()
   (dan/pretty-lambdas)
   (setq truncate-lines t)
-  (dan/load-comint-history dan/python-comint-history-file))
+
 
 
 (add-hook 'inferior-python-mode-hook
@@ -1711,40 +1707,6 @@ Seems very slow on coffeescript output of reasonable size; disabling.
 **** Functions
 
 #+begin_src elisp
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; python comint history
-
-(defvar dan/python-comint-history-file "~/.ipython/history")
-(defvar dan/python-comint-history-max 1000)
-
-(defun dan/load-comint-history (&optional file)
-  (interactive "fHistory file: ")
-  (if (null comint-input-ring)
-      (error "This buffer has no comint history"))
-  (message "Loading python comint history...")
-  (mapc (lambda (item) (ring-insert+extend comint-input-ring item 'grow))
-        (dan/read-comint-history file)))
-
-(defun dan/read-comint-history (file)
-  (split-string (with-temp-buffer
-                  (insert-file-contents file)
-                  (buffer-string)) "\n" t))
-
-(defun dan/dump-comint-history (&optional file)
-  (interactive "fHistory file: ")
-  (if (null comint-input-ring)
-      (error "This buffer has no comint history"))
-  ;; Most recent is first in comint-input-ring. Write file in
-  ;; same order seeing as we are overwriting, not appending.
-  (let ((history (org-uniquify (ring-elements comint-input-ring))))
-    (setq history (subseq history 0 (min (length history)
-                                         dan/python-comint-history-max)))
-    (with-temp-buffer
-      (insert (mapconcat #'identity history "\n") "\n")
-      (write-file file))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 

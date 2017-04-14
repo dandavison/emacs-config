@@ -2,4 +2,7 @@
 
 file="$1"
 
-emacsclient --no-wait "$file"
+emacsclient --no-wait \
+    --eval "(find-file \"$file\")" \
+    --eval "(select-frame-set-input-focus (selected-frame))" \
+    > /dev/null

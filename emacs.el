@@ -67,7 +67,8 @@
 (setq global-auto-revert-non-file-buffers t)
 (setq dired-auto-revert-buffer t)
 (setq-default dired-omit-files-p t)
-(setq dired-omit-files "^\\.")  ;; "^\\.?#\\|^\\.$\\|^\\.\\.$"
+(setq dired-omit-size-limit nil)
+(setq dired-omit-files "^\\.\\|\\.log\\|\\.aux\\|\\.out")  ;; "^\\.?#\\|^\\.$\\|^\\.\\.$"
 
 (dan/set-exec-path-from-shell)
 (dan/set-exec-path-from-shell "PYTHONPATH")
@@ -82,6 +83,8 @@
 (windmove-default-keybindings)
 
 (setq tramp-verbose 2)
+
+(advice-add 'goto-line :before (lambda (&rest args) (show-all)))
 
 ;;; Bookmarks
 (setq bookmark-bmenu-file-column 80)
@@ -125,6 +128,11 @@
 
 (advice-add 'load-theme :after (lambda (&rest args) (dan/set-appearance)))
 
+;;; Comint
+
+(advice-add 'comint-previous-matching-input-from-input :after (lambda (&rest args) (goto-char (point-at-eol))))
+
+
 
 ;;; Flycheck
 (setq flycheck-highlighting-mode 'lines)
@@ -154,7 +162,21 @@
             :around
             (lambda (orig-func &rest args)
               (let ((default-directory (dan/get-default-directory-from-python-shell-maybe)))
-                (apply orig-func args))))
+                (apply orig-func args)
+
+                ;; This could be nice to get rid of the active region after
+                ;; evaluating code, but I think python-shell-send-string is
+                ;; called in the background by a timer, so need to not do it then.
+                ;; (deactivate-mark)
+                )))
+
+(when nil
+  (advice-add 'python-shell-completion-native-get-completions
+              :around
+              (lambda (orig-func process import input)
+                (when (or import input)
+                  (apply orig-func (list process import input))))))
+
 
 (require 'py-isort)
 (setq py-isort-options
@@ -166,6 +188,50 @@
 
 ;; (add-function :before (symbol-function 'run-python) 'dan/python-set-virtualenv)
 ;; (remove-function (symbol-function 'run-python) 'dan/python-set-virtualenv)
+
+;;;; Python comint history
+(defvar dan/python-comint-history-file "~/.ipython/history")
+(defvar dan/python-comint-history-max 1000)
+
+(defun dan/load-comint-history (&optional file)
+  (interactive "fHistory file: ")
+  (if (null comint-input-ring)
+      (error "This buffer has no comint history"))
+  (message "Loading python comint history...")
+  (mapc (lambda (item) (ring-insert+extend comint-input-ring item 'grow))
+        (dan/read-comint-history file))
+  (message "done"))
+
+(defun dan/read-comint-history (file)
+  (split-string (with-temp-buffer
+                  (insert-file-contents file)
+                  (buffer-string)) "\n" t))
+
+(defun dan/dump-comint-history (&optional file)
+  (interactive "fHistory file: ")
+  (if (null comint-input-ring)
+      (error "This buffer has no comint history"))
+  ;; Most recent is first in comint-input-ring. Write file in
+  ;; same order seeing as we are overwriting, not appending.
+  (let ((history (org-uniquify (ring-elements comint-input-ring))))
+    (setq history (subseq history 0 (min (length history)
+                                         dan/python-comint-history-max)))
+    (with-temp-buffer
+      (insert (mapconcat #'identity history "\n") "\n")
+      (write-file file))))
+
+
+(add-hook 'kill-buffer-hook
+          (lambda () (when (eq major-mode 'inferior-python-mode)
+                  (dan/dump-comint-history dan/python-comint-history-file))))
+
+(add-hook 'inferior-python-mode-hook
+          (lambda () (dan/load-comint-history dan/python-comint-history-file)))
+
+;;; Elpy
+;; (add-to-list 'package-archives
+;;              '("elpy" . "http://jorgenschaefer.github.io/packages/"))
+;; (elpy-enable)
 
 ;;; Ido
 (ido-mode t)
@@ -309,6 +375,7 @@
     ([(super d)] . dan/bookmark-set)
     ([(super k)] . dan/bookmark-set)
     ;; ([(super k)] . (lambda (&optional arg) (interactive "P") (if arg (dan/bookmark-set) (dan/where-am-i))))
+    ([(super G)] . isearch-repeat-backward)
     ([(super l)] . bookmark-bmenu-list)
     ([(super ?,)] . dan/helm-projectile-grep-no-input)
     ([(super ?.)] . dan/helm-projectile-grep-thing-at-point)
@@ -439,6 +506,7 @@
 (add-hook 'before-save-hook 'dan/before-save-hook-fn)
 
 (defun dan/c-mode-hook-fn ()
+  (setq c-basic-offset 4)
   (paredit-c-mode))
 (add-hook 'c-mode-hook 'dan/c-mode-hook-fn)
 
@@ -532,7 +600,8 @@
 
 (defun dan/python-mode-hook-fn ()
   (paredit-c-mode)
-  (setq prettify-symbols-alist '(("lambda" . 955)))
+  (setq prettify-symbols-alist
+        '(("lambda" . 955)))
   (prettify-symbols-mode)
   (dan/set-up-outline-minor-mode "[ \t]*\\(def .+\\|class .+\\|##\\)"))
 (add-hook 'python-mode-hook 'dan/python-mode-hook-fn)
@@ -559,7 +628,7 @@
  '(magit-diff-arguments (quote ("--ignore-all-space" "--no-ext-diff")))
  '(package-selected-packages
    (quote
-    (smooth-scroll soothe-theme debbugs fzf helm-swoop elpy transpose-frame magit helm-themes graphviz-dot-mode helm-projectile flycheck color-theme-modern zones py-isort jira-markup-mode inf-clojure auto-overlays aumix-mode buffer-move confluence ess zencoding-mode yasnippet-bundle yasnippet yaml-mode smartparens rust-mode railscasts-theme paredit-everywhere minimal-theme markdown-mode latex-pretty-symbols flx-ido fill-column-indicator eyuml evil dockerfile-mode dired-details+ color-theme-railscasts coffee-mode clojure-mode auctex ag))))
+    (use-package sublimity avy auctex-latexmk smooth-scroll soothe-theme debbugs fzf helm-swoop elpy transpose-frame magit helm-themes graphviz-dot-mode helm-projectile flycheck color-theme-modern zones py-isort jira-markup-mode inf-clojure auto-overlays aumix-mode buffer-move confluence ess zencoding-mode yasnippet-bundle yasnippet yaml-mode smartparens rust-mode railscasts-theme paredit-everywhere minimal-theme markdown-mode latex-pretty-symbols flx-ido fill-column-indicator eyuml evil dockerfile-mode dired-details+ color-theme-railscasts coffee-mode clojure-mode auctex ag))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
