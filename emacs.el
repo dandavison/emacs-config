@@ -388,7 +388,7 @@
     ;; ([(super k)] . (lambda (&optional arg) (interactive "P") (if arg (dan/bookmark-set) (dan/where-am-i))))
     ([(super G)] . isearch-repeat-backward)
     ([(super l)] . bookmark-bmenu-list)
-    ([(super ?,)] . dan/helm-projectile-grep-no-input)
+    ([(super ?,)] . counsel-git-grep)
     ([(super ?.)] . dan/helm-projectile-grep-thing-at-point)
     ([(super ?\;)] . dan/show-buffer-file-name)
     ([(super ?')] . dan/where-am-i)
