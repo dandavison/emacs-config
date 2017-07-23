@@ -9,6 +9,7 @@
 (add-to-list 'load-path "~/src/3p/projectile") (require 'projectile)
 (add-to-list 'load-path "~/src/3p/emacs-helm-ag") (require 'helm-ag)
 (add-to-list 'load-path "~/src/3p/helm-projectile") (require 'helm-projectile)
+(add-to-list 'load-path "~/src/3p/magit/lisp") (require 'magit)
 (add-to-list 'load-path "~/src/3p/ESS/lisp") (require 'ess)
 (setq puml-plantuml-jar-path "/usr/local/Cellar/plantuml/8029/plantuml.8029.jar")
 (add-to-list 'load-path "~/src/3p/puml-mode") (require 'puml-mode)
@@ -39,7 +40,7 @@
 (make-directory server-socket-dir 'parents)
 (set-file-modes server-socket-dir #o700)
 (setq server-name (or (getenv "PROJECT_NAME") server-name))
-(server-start)
+(unless (server-running-p) (server-start))
 
 
 ;;; Etc
@@ -292,6 +293,27 @@
 
 (add-to-list 'projectile-globally-ignored-modes "dired-mode")
 
+(if nil
+    (setq projectile-completion-system 'ivy)
+  (setq projectile-completion-system 'helm)
+  (helm-projectile-on))
+
+
+;;; Ivy
+(setq ivy-height #xFFFFFFFF)
+;; (setq ivy-fixed-height-minibuffer t)
+
+(require 'popup)
+
+(defun ivy-display-function-popup (text)
+  (with-ivy-window
+    (popup-tip
+     (setq ivy-insert-debug
+           (substring text 1))
+     :nostrip t)))
+
+;; (setq ivy-display-function 'ivy-display-function-popup)
+
 ;;; Helm
 (add-to-list 'load-path "~/src/emacs-async")
 (add-to-list 'load-path "~/src/helm")
@@ -300,9 +322,6 @@
 (setq helm-input-idle-delay 0.1)
 (setq helm-grep-file-path-style 'relative)
 (setq helm-full-frame t)
-
-(setq projectile-completion-system 'helm)
-(helm-projectile-on)
 
 
 (when nil
@@ -348,6 +367,7 @@
     ("\C-x\C-f" . dan/find-file)
     ("\C-xd" . dan/dired-no-ask)
     ("\C-xp" . projectile-switch-project)
+    ("\C-cb" . magit-blame)
     ("\C-ce" . show-all)
     ("\C-cf" . search-files-by-name)
     ("\C-cg" . magit-status)
@@ -358,6 +378,7 @@
     ("\C-c\C-l" . eval-buffer)
     ("\C-c\C-z" . python-shell-switch-to-shell)
     ("\C-c1" . flycheck-mode)
+    ("\M-;" . comment-or-uncomment-region-or-line)
     ("\M-i" . dan/highlight)
     ("\M-q" . fill-paragraph)
     ("\M-x" . helm-M-x)
@@ -502,7 +523,7 @@
 (defun dan/on-jump-into-buffer ()
   (delete-other-windows)
   (show-all)
-  (helm-highlight-current-line nil nil nil nil 'pulse)
+  (helm-highlight-current-line nil nil nil 'pulse)
   (when (eq major-mode 'python-mode)
     (dan/python-current-defun-name)))
 
@@ -603,10 +624,10 @@
 
 (add-hook 'helm-goto-line-before-hook 'dan/on-jump-into-buffer)
 
-
 (defun dan/paredit-c-mode-hook-fn ()
   (local-set-key [(meta up)] 'dan/transpose-line-up)
-  (local-set-key [(meta down)] 'dan/transpose-line-down))
+  (local-set-key [(meta down)] 'dan/transpose-line-down)
+  (local-set-key ";" 'self-insert-command))
 (add-hook 'paredit-c-mode-hook 'dan/paredit-c-mode-hook-fn)
 
 (defun dan/python-mode-hook-fn ()
@@ -617,6 +638,10 @@
   (dan/set-up-outline-minor-mode "[ \t]*\\(def .+\\|class .+\\|##\\)"))
 (add-hook 'python-mode-hook 'dan/python-mode-hook-fn)
 (put 'dired-find-alternate-file 'disabled nil)
+
+(defun dan/scheme-mode-hook-fn ()
+  (scheme-mode))
+(add-hook 'scheme-mode-hook 'dan/scheme-mode-hook-fn)
 
 (defun dan/sh-mode-hook-fn ()
   (setq sh-indentation 4)
@@ -639,10 +664,13 @@
  '(magit-diff-arguments (quote ("--ignore-all-space" "--no-ext-diff")))
  '(package-selected-packages
    (quote
-    (use-package sublimity avy auctex-latexmk smooth-scroll soothe-theme debbugs fzf helm-swoop elpy transpose-frame magit helm-themes graphviz-dot-mode helm-projectile flycheck color-theme-modern zones py-isort jira-markup-mode inf-clojure auto-overlays aumix-mode buffer-move confluence ess zencoding-mode yasnippet-bundle yasnippet yaml-mode smartparens rust-mode railscasts-theme paredit-everywhere minimal-theme markdown-mode latex-pretty-symbols flx-ido fill-column-indicator eyuml evil dockerfile-mode dired-details+ color-theme-railscasts coffee-mode clojure-mode auctex ag))))
+    (ivy counsel use-package sublimity avy auctex-latexmk smooth-scroll soothe-theme debbugs fzf helm-swoop elpy transpose-frame helm-themes graphviz-dot-mode helm-projectile flycheck color-theme-modern zones py-isort jira-markup-mode inf-clojure auto-overlays aumix-mode buffer-move confluence ess zencoding-mode yasnippet-bundle yasnippet yaml-mode smartparens rust-mode railscasts-theme paredit-everywhere minimal-theme markdown-mode latex-pretty-symbols flx-ido fill-column-indicator eyuml evil dockerfile-mode dired-details+ color-theme-railscasts coffee-mode clojure-mode auctex ag)))
+ '(safe-local-variable-values (quote ((bug-reference-bug-regexp . "#\\(?2:[0-9]+\\)")))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
+(message "⚡")

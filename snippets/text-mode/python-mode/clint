@@ -1,4 +1,4 @@
 #name : clint
 # --
-from clint.textui.colored import $1; col = lambda s: $1(s, bold=True)
-print(col($2))
+from clint.textui import colored; $1 = lambda s: colored.$1(s, bold=True)
+print($1($2))

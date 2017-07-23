@@ -237,12 +237,15 @@
             (unhighlight (word)
                          (setq dan/highlighted nil)
                          (unhighlight-regexp word)))
-    (let ((word (if arg (read-from-minibuffer "Highlight: ")
-		  (thing-at-point 'symbol))))
+    (let ((word (cond
+                 (arg (read-from-minibuffer "Highlight: "))
+                 ((region-active-p) (buffer-substring (region-beginning) (region-end)))
+                 (t (thing-at-point 'symbol)))))
       (when word
 	(if (member word dan/highlighted)
 	    (unhighlight word)
-	  (highlight word))))))
+	  (highlight word))
+    (when (region-active-p) (deactivate-mark))))))
 
 
 ;;; Scratch buffers
@@ -562,6 +565,14 @@ With C-u prefix argument copy URL to clipboard only."
        ;;
        (format "/Users/dan/src/3p/rubber/build/scripts-2.7/rubber -d --shell-escape %s" buffer-file-name))))
 
+;;; Eplot
+(defun dan/eplot-region ()
+  (interactive)
+  (let ((tmp-file "/tmp/eplot.png"))
+    (shell-command-on-region (region-beginning) (region-end)
+                             (format "eplot -q -P -o %s" tmp-file))
+    (insert-image (create-image tmp-file))))
+
 ;;; Magit
 
 (defun dan/magit-hide-all-sections ()
@@ -599,7 +610,7 @@ With C-u prefix argument copy URL to clipboard only."
 (defun dan/grip- (file-name server)
   (if server
       (async-shell-command
-       (format "grip --browser --wide %s $(free-port)" file-name))
+       (format "grip --browser --wide %s --api-url=https://github.counsyl.com/api/v3 --user=dan $(free-port)" file-name))
     (let ((temp-file (make-temp-file "grip-")))
       (shell-command
        (format
@@ -613,6 +624,20 @@ With C-u prefix argument copy URL to clipboard only."
   (interactive)
   (save-excursion
     (replace-regexp "-\\+-" "-|-" nil (point-min) (point-max))))
+
+
+;;; Chrome
+(defun dan/chrome-autoreload (tab-name)
+  (interactive "sChrome tab name: ")
+  (let* ((chrome-cli-output
+          (shell-command-to-string
+           (format "chrome-cli list tabs | grep '%s'" tab-name)))
+         (tab-id (or (and (string-match "^\[[0-9]+:\\([0-9]+\\)\]" chrome-cli-output)
+                          (match-string 1 chrome-cli-output))
+                     (error "Can't parse chrome-cli output: %s" chrome-cli-output)))
+         (cmd (format "sleep 0.7 && chrome-cli reload -t %s" tab-id)))
+    (message cmd)
+    (dan/set-after-save-command cmd)))
 
 
 ;;; Pelican
@@ -692,7 +717,8 @@ With C-u prefix argument copy URL to clipboard only."
 
 (defun dan/python-cd-site-packages (&optional python3)
   (interactive "P")
-  (if (null python-shell-virtualenv-root)
+  (if (or (null python-shell-virtualenv-root)
+          (not (file-exists-p python-shell-virtualenv-root)))
       (call-interactively 'dan/python-set-virtualenv))
   (dired
    (concat
@@ -826,7 +852,7 @@ returns the value of `python-shell-buffer-name'."
                  dan/python-misc-dir
                  (replace-regexp-in-string "\.py$" "" file))))
     (with-temp-buffer
-      (insert "#!/usr/bin/env python\n\n")
+      (insert "#!/usr/bin/env python3\n\n")
       (write-file file t)
       (executable-chmod))
     (find-file file)
@@ -914,7 +940,7 @@ If LIST is nil use `projectile-project-root-parent-directories'"
   (interactive "P")
   (if search-for-definition
       (search-files-thing-at-point 'search-for-definition)
-    (if nil
+    (if t
         (let ((helm-projectile-set-input-automatically t))
           (helm-projectile-grep))
       (counsel-git-grep nil (thing-at-point 'symbol)))))
