@@ -954,15 +954,6 @@ If LIST is nil use `projectile-project-root-parent-directories'"
           (helm-projectile-grep))
       (counsel-git-grep nil (thing-at-point 'symbol)))))
 
-(when nil
-  (defun dan/helm-projectile-grep-no-input ()
-    (interactive)
-    (cl-flet ((helm-projectile-grep-or-ack
-               (&rest args)
-               (let ((helm-projectile-set-input-automatically nil))
-                 (apply #'helm-projectile-grep-or-ack args))))
-      (helm-projectile-grep))))
-
 (defun dan/helm-projectile-grep-no-input (&optional dir)
   "Copied from helm-projectile-grep, disabling `helm-projectile-set-input-automatically'."
   (interactive)
