@@ -619,6 +619,15 @@ With C-u prefix argument copy URL to clipboard only."
         temp-file
         temp-file)))))
 
+(defun dan/markdown-image-to-html (beg end)
+  "Convert all markdown image links in region to HTML img tags."
+  (interactive "r")
+  (let* ((endm (make-marker))
+         (endm (set-marker endm end)))
+    (save-excursion
+      (goto-char beg)
+      (while (re-search-forward "!\\[\\([^]]*\\)\\](\\([^)]+\\))" endm t)
+        (replace-match "<img width=300px src=\"\\2\" alt=\"\\1\" />")))))
 
 (defun dan/org-table-to-markdown ()
   (interactive)
