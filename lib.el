@@ -855,17 +855,14 @@ returns the value of `python-shell-buffer-name'."
     process-name))
 
 (defun dan/python-misc-file (&optional file)
-  (interactive "MFile name: ")
-  (let ((file
-         (format "%s/%s.py"
-                 dan/python-misc-dir
-                 (replace-regexp-in-string "\.py$" "" file))))
-    (with-temp-buffer
-      (insert "#!/usr/bin/env python3\n\n")
-      (write-file file t)
-      (executable-chmod))
-    (find-file file)
-    (goto-char (point-max))))
+  (interactive (list
+                (read-file-name "File name: " dan/python-misc-dir)))
+  (with-temp-buffer
+    (insert "#!/usr/bin/env python3\n\n")
+    (write-file file t)
+    (executable-chmod))
+  (find-file file)
+  (goto-char (point-max)))
 
 ;;; Comint
 
