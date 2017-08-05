@@ -842,7 +842,9 @@ With C-u prefix argument copy URL to clipboard only."
 
 (defun dan/python-bookmark-set ()
   (interactive)
-  (bookmark-set (dan/python-current-defun-name)))
+  (let ((name (dan/python-current-defun-name)))
+    (while (bookmark-delete name))
+    (bookmark-set name)))
 
 ;; Redefine an emacs function to get multiple buffers per dedicated process.
 
