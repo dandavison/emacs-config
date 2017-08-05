@@ -948,6 +948,8 @@ If LIST is nil use `projectile-project-root-parent-directories'"
 
 
 ;;; Helm
+(setq dan/projectile-ignored-files '("*.sql" "*.wsdl" "*.js"))
+
 (defun dan/helm-projectile-switch-project (&optional arg)
   (interactive "P")
   (if arg (projectile-switch-project)
@@ -959,7 +961,9 @@ If LIST is nil use `projectile-project-root-parent-directories'"
   (if search-for-definition
       (search-files-thing-at-point 'search-for-definition)
     (if t
-        (let ((helm-projectile-set-input-automatically t))
+        (let ((helm-projectile-set-input-automatically t)
+              (grep-find-ignored-files
+               (append grep-find-ignored-files dan/projectile-ignored-files)))
           (helm-projectile-grep))
       (counsel-git-grep nil (thing-at-point 'symbol)))))
 
@@ -970,7 +974,9 @@ If LIST is nil use `projectile-project-root-parent-directories'"
            (lambda (dir)
              (let ((project-root (or dir (projectile-project-root)
                                      (error "You're not in a project")))
-                   (helm-projectile-set-input-automatically nil))
+                   (helm-projectile-set-input-automatically nil)
+                   (grep-find-ignored-files
+                    (append grep-find-ignored-files dan/projectile-ignored-files)))
                (helm-projectile-grep-or-ack project-root))) dir))
 
 
