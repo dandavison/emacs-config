@@ -629,6 +629,16 @@ With C-u prefix argument copy URL to clipboard only."
       (while (re-search-forward "!\\[\\([^]]*\\)\\](\\([^)]+\\))" endm t)
         (replace-match "<img width=300px src=\"\\2\" alt=\"\\1\" />")))))
 
+(defun dan/jira-link-to-markdown (beg end)
+  "Convert all JIRA links in region to markdown links."
+  (interactive "r")
+  (let* ((endm (make-marker))
+         (endm (set-marker endm end)))
+    (save-excursion
+      (goto-char beg)
+      (while (re-search-forward "\\(https?://.+/\\([A-Z]+-[0-9]+\\)\\)" endm t)
+        (replace-match "[\\2](\\1)")))))
+
 (defun dan/org-table-to-markdown ()
   (interactive)
   (save-excursion
