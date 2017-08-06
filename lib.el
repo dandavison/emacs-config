@@ -948,7 +948,16 @@ If LIST is nil use `projectile-project-root-parent-directories'"
 
 
 ;;; Helm
-(setq dan/projectile-ignored-files '("*.sql" "*.wsdl" "*.js"))
+(setq dan/projectile-ignored-files '("*.sql" "*.wsdl" "*.js" "*.css" "*.pdf"))
+
+(setq helm-grep-ignored-files (append helm-grep-ignored-files dan/projectile-ignored-files))
+(setq grep-find-ignored-files (append grep-find-ignored-files dan/projectile-ignored-files))
+
+;; (setq helm-grep-git-grep-command "git --no-pager grep -n%cH --color=always --exclude-standard --no-index --full-name -e %p -- %f")
+(setq helm-grep-git-grep-command
+      (format "%s './*' %s"
+              helm-grep-git-grep-command
+              (mapconcat (lambda (s) (format "':!%s'" s)) dan/projectile-ignored-files " ")))
 
 (defun dan/helm-projectile-switch-project (&optional arg)
   (interactive "P")
