@@ -37,10 +37,6 @@
 ;;; Server
 
 (require 'server)
-(setq server-socket-dir "/tmp/emacs-sockets")
-(make-directory server-socket-dir 'parents)
-(set-file-modes server-socket-dir #o700)
-(setq server-name (or (getenv "PROJECT_NAME") server-name))
 (unless (server-running-p) (server-start))
 
 
