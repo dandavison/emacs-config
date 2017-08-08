@@ -1,8 +1,6 @@
-#!/bin/bash -u
-
-file="$1"
+#!/bin/bash
 
 emacsclient --no-wait \
-    --eval "(find-file \"$file\")" \
-    --eval "(select-frame-set-input-focus (selected-frame))" \
-    > /dev/null
+    --eval "(switch-to-buffer \"*scratch*\")" \
+    --eval "(run-with-timer 0 nil (lambda () (let ((default-directory \"$PWD\")) (projectile-find-file))))" \
+    --eval "(select-frame-set-input-focus (selected-frame))" > /dev/null
