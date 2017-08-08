@@ -1,6 +1,1 @@
-#!/bin/bash
-
-emacsclient --no-wait \
-    --eval "(switch-to-buffer \"*scratch*\")" \
-    --eval "(run-with-timer 0 nil (lambda () (let ((default-directory \"$PWD\")) (helm-projectile-grep))))" \
-    --eval "(select-frame-set-input-focus (selected-frame))" > /dev/null
+emacs-helm-projectile-grep
