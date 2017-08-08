@@ -1,8 +1,6 @@
 #!/bin/bash
 
-set -u
-
-regex="$1"
-
 emacsclient --no-wait \
-    --eval "(progn (search-files \"$regex\" \"$PWD\" 'git-grep) (select-frame-set-input-focus (selected-frame)) (other-window 1) (delete-other-windows))" > /dev/null
+    --eval "(switch-to-buffer \"*scratch*\")" \
+    --eval "(run-with-timer 0 nil (lambda () (let ((default-directory \"$PWD\")) (helm-projectile-grep))))" \
+    --eval "(select-frame-set-input-focus (selected-frame))" > /dev/null
