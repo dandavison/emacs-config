@@ -1,8 +1,0 @@
-#!/bin/bash
-
-set -o
-
-regex="$1"
-
-emacsclient --no-wait \
-    --eval "(progn (find-dired \"$PWD\" (format \"-type f -name %s\" \"$regex\") ) (select-frame-set-input-focus (selected-frame)) (other-window 1) (delete-other-windows))" > /dev/null
