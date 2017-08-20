@@ -58,7 +58,12 @@
   (let ((bn (buffer-name (current-buffer)))
         (bfn (buffer-file-name)))
     (dan/save-value-to-kill-ring bfn)
-    (message "%s        %s" bfn bn)))
+    (message "%s(%s) %s"
+             (let ((website (counsyl/current-website-repo)))
+               (if website (format "website-%s" website) ""))
+             (dan/git-get-branch)
+             (replace-regexp-in-string
+              (concat "^" (dan/git-get-git-dir)) "" bfn))))
 
 (defun dan/show-buffer-file-name-complex ()
   (interactive)
@@ -836,9 +841,13 @@ With C-u prefix argument copy URL to clipboard only."
                       "\.py$" ""
                       (file-truename (buffer-file-name)))))))
           (def (dan/python-current-defun-name)))
-      (if (not arg)
-          (format "from %s import %s" module def)
-        (format "%s:%s" module def))))))
+
+      (cond
+       ((equal arg '(4))
+        (format "%s:%s" module def))
+       ((equal arg '(16))
+        def)
+       (t (format "from %s import %s" module def)))))))
 
 (defun dan/python-bookmark-set ()
   (interactive)
