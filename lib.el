@@ -1018,6 +1018,12 @@ If LIST is nil use `projectile-project-root-parent-directories'"
    (shell-command-to-string "git rev-parse HEAD")))
 
 
+(defun dan/git-get-branch ()
+  "Current branch"
+  (org-babel-chomp
+   (shell-command-to-string "git rev-parse --abbrev-ref HEAD")))
+
+
 (defun dan/git-get-repo-url ()
   (let ((remote-uri
          (org-babel-chomp
