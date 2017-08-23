@@ -66,7 +66,7 @@
 (setq dired-auto-revert-buffer t)
 (setq-default dired-omit-files-p t)
 (setq dired-omit-size-limit nil)
-(setq dired-omit-files "^\\.\\|\\.log\\|\\.aux\\|\\.out")  ;; "^\\.?#\\|^\\.$\\|^\\.\\.$"
+(setq dired-omit-files "^\\.\\|__pycache__")  ;; "^\\.?#\\|^\\.$\\|^\\.\\.$" "\\.log\\|\\.aux\\|\\.out"
 
 (dan/set-exec-path-from-shell)
 (dan/set-exec-path-from-shell "PYTHONPATH")
