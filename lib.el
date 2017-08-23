@@ -650,6 +650,18 @@ With C-u prefix argument copy URL to clipboard only."
     (replace-regexp "-\\+-" "-|-" nil (point-min) (point-max))))
 
 
+;;; iterm2-dwim
+(defun dan/iterm2-dwim ()
+  (interactive)
+  (let ((path (thing-at-point 'filename)))
+    (when path
+      (let ((display-buffer-alist
+             `(("*Async Shell Command*" . (display-buffer-no-window . nil)))))
+        (async-shell-command
+         (format "/usr/local/bin/iterm2-dwim '%s' '%s'"
+                 path (buffer-substring (point) (point-at-eol))))))))
+
+
 ;;; Chrome
 (defun dan/chrome-autoreload (tab-name)
   (interactive "sChrome tab name: ")
