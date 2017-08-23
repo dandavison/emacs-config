@@ -410,13 +410,14 @@
     ([(super ?,)] . dan/helm-projectile-grep-no-input)
     ([(super ?.)] . dan/helm-projectile-grep-thing-at-point)
     ([(super ?\;)] . dan/show-buffer-file-name)
-    ([(super ?')] . dan/where-am-i)
+    ([(super ?')] . dan/iterm2-dwim)
     ([(super left)] . winner-undo)
     ([(super right)] . winner-redo)
     ([(super down)] . (lambda () (interactive) (set-mark-command t)))
     ([(shift super left)] . helm-resume)
     ([(super return)] . dan/maximize)
-    ([(super |)] . dan/shell-command-on-region-and-replace))))
+    ([(super |)] . dan/shell-command-on-region-and-replace)
+    ([(super mouse-1)] . dan/iterm2-dwim))))
 
 (global-set-key (kbd "s-,") 'dan/show-buffer-file-name)
 
