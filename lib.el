@@ -58,12 +58,14 @@
   (let ((bn (buffer-name (current-buffer)))
         (bfn (buffer-file-name)))
     (dan/save-value-to-kill-ring bfn)
-    (message "%s(%s) %s"
-             (let ((website (counsyl/current-website-repo)))
-               (if website (format "website-%s" website) ""))
-             (dan/git-get-branch)
-             (replace-regexp-in-string
-              (concat "^" (dan/git-get-git-dir)) "" bfn))))
+    (let ((website (counsyl/current-website-repo)))
+      (message
+       "%s(%s) %s %s"
+       (if website (format "website-%s" website) "")
+       (dan/git-get-branch)
+       (replace-regexp-in-string
+        (concat "^" (dan/git-get-git-dir)) "" bfn)
+       (dan/git-get-git-dir)))))
 
 (defun dan/show-buffer-file-name-complex ()
   (interactive)
@@ -839,6 +841,11 @@ With C-u prefix argument copy URL to clipboard only."
    "\.py$" ""
    (file-name-nondirectory (buffer-file-name))))
 
+(defun dan/file-or-directory-name ()
+  (if (eq major-mode 'dired-mode)
+      (dired-current-directory)
+    (buffer-file-name)))
+
 (defun dan/python-where-am-i (&optional arg)
   (interactive "P")
   (message
@@ -851,7 +858,7 @@ With C-u prefix argument copy URL to clipboard only."
                      (concat "^" (dan/git-get-git-dir)) ""
                      (replace-regexp-in-string
                       "\.py$" ""
-                      (file-truename (buffer-file-name)))))))
+                      (file-truename (dan/file-or-directory-name)))))))
           (def (dan/python-current-defun-name)))
 
       (cond
