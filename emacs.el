@@ -603,7 +603,7 @@
 (defun dan/latex-mode-hook-fn ()
   (interactive)
   (dan/setup-paired-characters)
-  (local-set-key "\C-c\C-c" 'dan/latex-poke))
+  (local-set-key "\C-c\C-c" 'dan/save-even-if-not-modified))
 (add-hook 'latex-mode-hook 'dan/latex-mode-hook-fn)
 
 (defun dan/magit-diff-mode-hook-fn ()

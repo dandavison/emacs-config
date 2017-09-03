@@ -572,10 +572,10 @@ With C-u prefix argument copy URL to clipboard only."
        ;;
        (format "/Users/dan/src/3p/rubber/build/scripts-2.7/rubber -d --shell-escape %s" buffer-file-name))))
 
-(defun dan/latex-poke ()
+(defun dan/save-even-if-not-modified ()
   (interactive)
-  (cl-flet ((buffer-modified-p (&optional arg) t))
-    (save-buffer)))
+  (set-buffer-modified-p t)
+  (save-buffer))
 
 ;;; Eplot
 (defun dan/eplot-region ()
