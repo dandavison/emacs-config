@@ -30,8 +30,9 @@
 
 
 ;;; Modes
-(add-to-list 'auto-mode-alist '("\\.jira\\'" . jira-markup-mode))
+(add-to-list 'auto-mode-alist '("\\.compilation\\'" . compilation-mode))
 (add-to-list 'auto-mode-alist '("\\.es6\\'" . js-mode))
+(add-to-list 'auto-mode-alist '("\\.jira\\'" . jira-markup-mode))
 (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
 
 ;;; Server
@@ -362,6 +363,10 @@
    (("\C-b" . backward-sexp)
     ("\C-f" . forward-sexp)
     ("\C-s" . helm-swoop)
+    ([(control >)] . mc/mark-next-like-this)
+    ([(super d)] . mc/mark-next-like-this)
+    ([(control <)] . mc/mark-previous-like-this)
+    ([(control c) (control <)] . mc/mark-all-like-this)
     ("\C-xb" . dan/switch-to-buffer)
     ("\C-x\C-f" . dan/find-file)
     ("\C-xd" . dan/dired-no-ask)
@@ -402,7 +407,7 @@
     ([(meta shift left)] . dan/indent-shift-left)
     ([(meta shift right)] . dan/indent-shift-right)
     ([(super ?\])] . fci-mode)
-    ([(super d)] . dan/bookmark-set)
+    ;; ([(super d)] . dan/bookmark-set)
     ([(super k)] . dan/bookmark-set)
     ;; ([(super k)] . (lambda (&optional arg) (interactive "P") (if arg (dan/bookmark-set) (dan/where-am-i))))
     ([(super G)] . isearch-repeat-backward)
@@ -417,7 +422,7 @@
     ([(shift super left)] . helm-resume)
     ([(super return)] . dan/maximize)
     ([(super |)] . dan/shell-command-on-region-and-replace)
-    ([(super mouse-1)] . dan/iterm2-dwim))))
+    ([(super mouse-1)] . (lambda (event) (interactive "e") (mouse-set-point event) (dan/iterm2-dwim))))))
 
 (global-set-key (kbd "s-,") 'dan/show-buffer-file-name)
 
@@ -475,7 +480,8 @@
 ;; (dan/register-key-bindings
 ;;  '("latex" .
 ;;    (("$" . dan/paired-dollar)
-;;     ("\C-cf" . dan/latex-frac))))
+;;     ("\C-cf" . dan/latex-frac)
+;;     ("\C-c\C-c" . dan/latex-poke))))
 
 (require 'markdown-mode)
 (dan/register-key-bindings
@@ -595,7 +601,9 @@
 (add-hook 'js-mode-hook 'dan/js-mode-hook-fn)
 
 (defun dan/latex-mode-hook-fn ()
-  (dan/setup-paired-characters))
+  (interactive)
+  (dan/setup-paired-characters)
+  (local-set-key "\C-c\C-c" 'dan/latex-poke))
 (add-hook 'latex-mode-hook 'dan/latex-mode-hook-fn)
 
 (defun dan/magit-diff-mode-hook-fn ()
@@ -663,7 +671,7 @@
  '(magit-diff-arguments (quote ("--ignore-all-space" "--no-ext-diff")))
  '(package-selected-packages
    (quote
-    (ivy counsel use-package sublimity avy auctex-latexmk smooth-scroll soothe-theme debbugs fzf helm-swoop elpy transpose-frame helm-themes graphviz-dot-mode helm-projectile flycheck color-theme-modern zones py-isort jira-markup-mode inf-clojure auto-overlays aumix-mode buffer-move confluence ess zencoding-mode yasnippet-bundle yasnippet yaml-mode smartparens rust-mode railscasts-theme paredit-everywhere minimal-theme markdown-mode latex-pretty-symbols flx-ido fill-column-indicator eyuml evil dockerfile-mode dired-details+ color-theme-railscasts coffee-mode clojure-mode auctex ag)))
+    (multiple-cursors ivy counsel use-package sublimity avy auctex-latexmk smooth-scroll soothe-theme debbugs fzf helm-swoop elpy transpose-frame helm-themes graphviz-dot-mode helm-projectile flycheck color-theme-modern zones py-isort jira-markup-mode inf-clojure auto-overlays aumix-mode buffer-move confluence ess zencoding-mode yasnippet-bundle yasnippet yaml-mode smartparens rust-mode railscasts-theme paredit-everywhere minimal-theme markdown-mode latex-pretty-symbols flx-ido fill-column-indicator eyuml evil dockerfile-mode dired-details+ color-theme-railscasts coffee-mode clojure-mode auctex ag)))
  '(safe-local-variable-values (quote ((bug-reference-bug-regexp . "#\\(?2:[0-9]+\\)")))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

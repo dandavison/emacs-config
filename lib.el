@@ -62,7 +62,7 @@
       (message
        "%s(%s) %s %s"
        (if website (format "website-%s" website) "")
-       (dan/git-get-branch)
+       (if website (dan/git-get-branch) "")
        (replace-regexp-in-string
         (concat "^" (dan/git-get-git-dir)) "" bfn)
        (dan/git-get-git-dir)))))
@@ -336,7 +336,6 @@
   (interactive)
   (dan/paired-character ?{ ?}))
 
-
 (defun dan/setup-paired-characters ()
   (interactive)
   (local-set-key "{" 'dan/paired-brace)
@@ -355,6 +354,7 @@
     (progn
       (windmove-default-keybindings)
       (message "windows"))))
+
 
 (defun dan/maximize (&optional arg)
   (interactive "P")
@@ -571,6 +571,11 @@ With C-u prefix argument copy URL to clipboard only."
    (if (or arg t)
        ;;
        (format "/Users/dan/src/3p/rubber/build/scripts-2.7/rubber -d --shell-escape %s" buffer-file-name))))
+
+(defun dan/latex-poke ()
+  (interactive)
+  (cl-flet ((buffer-modified-p (&optional arg) t))
+    (save-buffer)))
 
 ;;; Eplot
 (defun dan/eplot-region ()
