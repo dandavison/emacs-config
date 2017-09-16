@@ -123,6 +123,27 @@
 
 ;; (load-theme 'railscast t)
 (minimal-mode)
+
+(defun dan/set-appearance ()
+  (interactive)
+  (scroll-bar-mode -1)
+  (set-cursor-color "red")
+  (set-face-foreground 'cursor (face-foreground 'font-lock-comment-face))
+  (setq-default cursor-in-non-selected-windows nil)
+  (setq cursor-type 'bar)
+  (blink-cursor-mode -1)
+
+  (set-face-background 'fringe (face-background 'default))
+  (dan/set-show-paren-style))
+
+(defun dan/set-show-paren-style ()
+  (show-paren-mode t)
+  (setq show-paren-delay .125)
+  (setq show-paren-style 'parenthesis)
+  (set-face-attribute 'show-paren-match nil :weight 'extra-bold)
+  (set-face-background 'show-paren-match (face-background 'default))
+  (set-face-attribute 'show-paren-match nil :foreground "red"))
+
 (dan/set-appearance)
 
 (advice-add 'load-theme :after (lambda (&rest args) (dan/set-appearance)))
