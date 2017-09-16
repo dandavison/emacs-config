@@ -57,14 +57,16 @@
   (interactive)
   (let ((bn (buffer-name (current-buffer)))
         (bfn (buffer-file-name)))
-    (dan/save-value-to-kill-ring bfn)
+    (when bfn (dan/save-value-to-kill-ring bfn))
     (let ((website (counsyl/current-website-repo)))
       (message
        "%s(%s) %s %s"
        (if website (format "website-%s" website) "")
        (if website (dan/git-get-branch) "")
-       (replace-regexp-in-string
-        (concat "^" (dan/git-get-git-dir)) "" bfn)
+       (if bfn
+           (replace-regexp-in-string
+            (concat "^" (dan/git-get-git-dir)) "" bfn)
+         "")
        (dan/git-get-git-dir)))))
 
 (defun dan/show-buffer-file-name-complex ()
@@ -189,6 +191,12 @@
   (if (eq major-mode 'python-mode)
       (dan/python-bookmark-set)
     (call-interactively 'bookmark-set)))
+
+
+;;; Hot files
+(defun dan/projects-file ()
+  (interactive)
+  (find-file (file-chase-links "~/GoogleDrive/Projects/projects.org")))
 
 
 ;;; Search
@@ -545,12 +553,21 @@ With C-u prefix argument copy URL to clipboard only."
           (point)))
      (error nil))))
 
+(defun dan/show-shell-output-buffer ()
+  (interactive)
+  (let ((buf (get-buffer-create "*Async Shell Command*"))
+        (small-window-lines -4))
+    (when buf
+      (show-buffer
+       (split-window-vertically small-window-lines) buf))))
+
 (defun dan/latex-watch (&optional arg)
   (interactive "P")
   (dan/set-after-save-command
    (if (or arg t)
        ;;
-       (format "/Users/dan/src/3p/rubber/build/scripts-2.7/rubber -d --shell-escape %s" buffer-file-name))))
+       (format "/Users/dan/src/3p/rubber/build/scripts-2.7/rubber -d --shell-escape %s" buffer-file-name)))
+  (dan/show-shell-output-buffer))
 
 (defun dan/save-even-if-not-modified ()
   (interactive)
@@ -961,15 +978,15 @@ If LIST is nil use `projectile-project-root-parent-directories'"
 
 
 ;;; Helm
-(setq dan/ignored-patterns '("*.sql" "*.wsdl" "*.js.min" "*.css.min" "*.pdf" "*/migrations/*" ".svg"))
+(setq dan/ignored-patterns '("*.sql" "*.wsdl" "*.js.min" "*.min.js" "*.css.min" "*.pdf" "*/migrations/*" ".svg"))
 
 ;; Originals
-;; (setq helm-grep-ignored-files '(".#*" "*.o" "*~" "*.bin" "*.lbin" "*.so" "*.a" "*.ln" "*.blg" "*.bbl" "*.elc" "*.lof" "*.glo" "*.idx" "*.lot" "*.fmt" "*.tfm" "*.class" "*.fas" "*.lib" "*.mem" "*.x86f" "*.sparcf" "*.dfsl" "*.pfsl" "*.d64fsl" "*.p64fsl" "*.lx64fsl" "*.lx32fsl" "*.dx64fsl" "*.dx32fsl" "*.fx64fsl" "*.fx32fsl" "*.sx64fsl" "*.sx32fsl" "*.wx64fsl" "*.wx32fsl" "*.fasl" "*.ufsl" "*.fsl" "*.dxl" "*.lo" "*.la" "*.gmo" "*.mo" "*.toc" "*.aux" "*.cp" "*.fn" "*.ky" "*.pg" "*.tp" "*.vr" "*.cps" "*.fns" "*.kys" "*.pgs" "*.tps" "*.vrs" "*.pyc" "*.pyo"))
-;; (setq grep-find-ignored-files '(".#*" "*.o" "*~" "*.bin" "*.lbin" "*.so" "*.a" "*.ln" "*.blg" "*.bbl" "*.elc" "*.lof" "*.glo" "*.idx" "*.lot" "*.fmt" "*.tfm" "*.class" "*.fas" "*.lib" "*.mem" "*.x86f" "*.sparcf" "*.dfsl" "*.pfsl" "*.d64fsl" "*.p64fsl" "*.lx64fsl" "*.lx32fsl" "*.dx64fsl" "*.dx32fsl" "*.fx64fsl" "*.fx32fsl" "*.sx64fsl" "*.sx32fsl" "*.wx64fsl" "*.wx32fsl" "*.fasl" "*.ufsl" "*.fsl" "*.dxl" "*.lo" "*.la" "*.gmo" "*.mo" "*.toc" "*.aux" "*.cp" "*.fn" "*.ky" "*.pg" "*.tp" "*.vr" "*.cps" "*.fns" "*.kys" "*.pgs" "*.tps" "*.vrs" "*.pyc" "*.pyo"))
+(setq dan/helm-grep-ignored-files-orig '(".#*" "*.o" "*~" "*.bin" "*.lbin" "*.so" "*.a" "*.ln" "*.blg" "*.bbl" "*.elc" "*.lof" "*.glo" "*.idx" "*.lot" "*.fmt" "*.tfm" "*.class" "*.fas" "*.lib" "*.mem" "*.x86f" "*.sparcf" "*.dfsl" "*.pfsl" "*.d64fsl" "*.p64fsl" "*.lx64fsl" "*.lx32fsl" "*.dx64fsl" "*.dx32fsl" "*.fx64fsl" "*.fx32fsl" "*.sx64fsl" "*.sx32fsl" "*.wx64fsl" "*.wx32fsl" "*.fasl" "*.ufsl" "*.fsl" "*.dxl" "*.lo" "*.la" "*.gmo" "*.mo" "*.toc" "*.aux" "*.cp" "*.fn" "*.ky" "*.pg" "*.tp" "*.vr" "*.cps" "*.fns" "*.kys" "*.pgs" "*.tps" "*.vrs" "*.pyc" "*.pyo"))
+(setq dan/grep-find-ignored-files-orig '(".#*" "*.o" "*~" "*.bin" "*.lbin" "*.so" "*.a" "*.ln" "*.blg" "*.bbl" "*.elc" "*.lof" "*.glo" "*.idx" "*.lot" "*.fmt" "*.tfm" "*.class" "*.fas" "*.lib" "*.mem" "*.x86f" "*.sparcf" "*.dfsl" "*.pfsl" "*.d64fsl" "*.p64fsl" "*.lx64fsl" "*.lx32fsl" "*.dx64fsl" "*.dx32fsl" "*.fx64fsl" "*.fx32fsl" "*.sx64fsl" "*.sx32fsl" "*.wx64fsl" "*.wx32fsl" "*.fasl" "*.ufsl" "*.fsl" "*.dxl" "*.lo" "*.la" "*.gmo" "*.mo" "*.toc" "*.aux" "*.cp" "*.fn" "*.ky" "*.pg" "*.tp" "*.vr" "*.cps" "*.fns" "*.kys" "*.pgs" "*.tps" "*.vrs" "*.pyc" "*.pyo"))
 ;; (setq helm-grep-git-grep-command "git --no-pager grep -n%cH --color=always --exclude-standard --no-index --full-name -e %p -- %f")
 
-(setq helm-grep-ignored-files (append helm-grep-ignored-files dan/ignored-patterns))
-(setq grep-find-ignored-files (append grep-find-ignored-files dan/ignored-patterns))
+(setq helm-grep-ignored-files (append dan/helm-grep-ignored-files-orig dan/ignored-patterns))
+(setq grep-find-ignored-files (append dan/grep-find-ignored-files-orig dan/ignored-patterns))
 
 (setq helm-grep-git-grep-command
       (format "%s './*' %s"

@@ -3694,8 +3694,6 @@ I didn't get this to work.
 (dan/set-show-paren-style)
 (nconc default-frame-alist '((cursor-type . bar)))
 (copy-face 'button 'flymake-errline)
-;; (set-face-attribute 'org-block-begin-line nil :box nil :overline nil)
-;; (set-face-attribute 'org-block-end-line nil :box nil :underline nil)
 #+end_src
 
 ** Transparency

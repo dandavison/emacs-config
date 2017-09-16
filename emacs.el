@@ -171,6 +171,9 @@
 ;;; Org
 (setq org-src-fontify-natively t)
 
+(set-face-attribute 'org-block-begin-line nil :foreground "lightgrey")
+(set-face-attribute 'org-block-end-line nil :foreground "lightgrey")
+
 
 ;;; Python
 (setq python-shell-interpreter "ipython"
@@ -371,9 +374,13 @@
 (setq helm-swoop-pre-input-function (lambda ()))
 ;;; Yasnippet
 (setq yas/trigger-key "\C-cy")
-(define-key yas/keymap [tab] 'yas/next-field-group)
+(define-key yas/keymap [tab] 'yas/next-field)
 (yas/initialize)
-(yas/load-directory "/Users/dan/src/emacs-config/snippets")
+(defun dan/yas-load ()
+  (interactive)
+  (yas/load-directory "/Users/dan/src/emacs-config/snippets"))
+(dan/yas-load)
+
 
 
 ;;; Keys
@@ -383,11 +390,14 @@
    .
    (("\C-b" . backward-sexp)
     ("\C-f" . forward-sexp)
+    ([(right)] . forward-char)
+    ([(left)] . backward-char)
     ("\C-s" . helm-swoop)
     ([(control >)] . mc/mark-next-like-this)
     ([(super d)] . mc/mark-next-like-this)
     ([(control <)] . mc/mark-previous-like-this)
     ([(control c) (control <)] . mc/mark-all-like-this)
+    ("\C-cm" . mc/edit-lines)
     ("\C-xb" . dan/switch-to-buffer)
     ("\C-x\C-f" . dan/find-file)
     ("\C-xd" . dan/dired-no-ask)
@@ -399,6 +409,9 @@
     ("\C-cl" . linum-mode)
     ("\C-co" . dan/scratch-buffer)
     ("\C-cr" . replace-regexp)
+    ("\C-cs" . (lambda () (interactive)
+                 (shell-command-on-region
+                  (region-beginning) (region-end) "sort" nil 'replace)))
     ("\C-cw" . dan/list-window-configurations)
     ("\C-c\C-l" . eval-buffer)
     ("\C-c\C-z" . python-shell-switch-to-shell)
@@ -624,7 +637,8 @@
 (defun dan/latex-mode-hook-fn ()
   (interactive)
   (dan/setup-paired-characters)
-  (local-set-key "\C-c\C-c" 'dan/save-even-if-not-modified))
+  (local-set-key "\C-c\C-c" 'dan/save-even-if-not-modified)
+  (dan/set-up-outline-minor-mode "\\(\\\\sub\\|\\\\section\\)"))
 (add-hook 'latex-mode-hook 'dan/latex-mode-hook-fn)
 
 (defun dan/magit-diff-mode-hook-fn ()
