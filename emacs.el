@@ -7,10 +7,12 @@
 (add-to-list 'load-path "~/src/3p/emacs-async")
 (add-to-list 'load-path "~/src/3p/helm") (require 'helm-config)
 (add-to-list 'load-path "~/src/3p/projectile") (require 'projectile)
-(add-to-list 'load-path "~/src/3p/emacs-helm-ag") (require 'helm-ag)
+;; (add-to-list 'load-path "~/src/3p/emacs-helm-ag") (require 'helm-ag)
 (add-to-list 'load-path "~/src/3p/helm-projectile") (require 'helm-projectile)
 (add-to-list 'load-path "~/src/3p/swiper/") (require 'ivy) (require 'counsel) (require 'swiper)
 (add-to-list 'load-path "~/src/3p/magit/lisp") (require 'magit)
+(add-to-list 'load-path "~/src/3p/magit/lisp") (require 'magit)
+
 (add-to-list 'load-path "~/src/3p/ESS/lisp") (require 'ess)
 (setq puml-plantuml-jar-path "/usr/local/Cellar/plantuml/8029/plantuml.8029.jar")
 (add-to-list 'load-path "~/src/3p/puml-mode") (require 'puml-mode)
@@ -385,6 +387,19 @@
 
 ;;; Keys
 
+;; http://endlessparentheses.com/multiple-cursors-keybinds.html
+;; (define-prefix-command 'endless/mc-map)
+;; ;; C-x m is usually `compose-mail'. Bind it to something
+;; ;; else if you use this command.
+;; (define-key ctl-x-map "m" 'endless/mc-map)
+
+;; ;;; Really really nice!
+;; (define-key endless/mc-map "i" #'mc/insert-numbers)
+
+(defun length-of-longest-line-in-region ()
+  (apply #'max (mapcar #'length (split-string (buffer-substring-no-properties (region-beginning) (region-end)) "\n"))))
+
+
 (dan/register-key-bindings
  '(global-map
    .
@@ -510,13 +525,6 @@
    (("\C-cd" . (lambda () (interactive) (insert "debugger;"))))))
 
 
-;; (require 'latex)
-;; (dan/register-key-bindings
-;;  '("latex" .
-;;    (("$" . dan/paired-dollar)
-;;     ("\C-cf" . dan/latex-frac)
-;;     ("\C-c\C-c" . dan/latex-poke))))
-
 (require 'markdown-mode)
 (dan/register-key-bindings
  '("markdown" .
@@ -638,7 +646,13 @@
   (interactive)
   (dan/setup-paired-characters)
   (local-set-key "\C-c\C-c" 'dan/save-even-if-not-modified)
-  (dan/set-up-outline-minor-mode "\\(\\\\sub\\|\\\\section\\)"))
+  (dan/set-up-outline-minor-mode "\\(\\\\sub\\|\\\\section\\)")
+  (dan/latex-watch)
+  (add-to-list 'LaTeX-item-list
+               '("align" . dan/latex-insert-item-in-align-environment))
+  (add-to-list 'LaTeX-item-list
+               '("align*" . dan/latex-insert-item-in-align-environment))
+  (local-set-key [(super v)] 'dan/latex-yank-clipboard-image-maybe))
 (add-hook 'latex-mode-hook 'dan/latex-mode-hook-fn)
 
 (defun dan/magit-diff-mode-hook-fn ()

@@ -614,15 +614,17 @@ With C-u prefix argument copy URL to clipboard only."
   (let ((buf (get-buffer-create "*Async Shell Command*"))
         (small-window-lines -4))
     (when buf
+      (delete-other-windows)
       (show-buffer
        (split-window-vertically small-window-lines) buf))))
 
 (defun dan/latex-watch (&optional arg)
   (interactive "P")
   (dan/set-after-save-command
-   (if (or arg t)
-       ;;
-       (format "/Users/dan/src/3p/rubber/build/scripts-2.7/rubber -d --shell-escape %s" buffer-file-name)))
+   (if arg
+       (format "/Users/dan/src/3p/rubber/build/scripts-2.7/rubber -d --shell-escape %s"
+               buffer-file-name)
+     (format "rubber -d %s" buffer-file-name)))
   (dan/show-shell-output-buffer))
 
 (defun dan/save-even-if-not-modified ()
@@ -804,7 +806,7 @@ With C-u prefix argument copy URL to clipboard only."
 
 (defun dan/jupyter-console (&optional ask-kernel)
   (interactive "P")
-  (let* ((jupyter "/Users/dan/tmp/virtualenvs/jupyter-dev/bin/jupyter")
+  (let* ((jupyter "jupyter")
          (kernel (when ask-kernel (read-from-minibuffer "kernel:")))
          (cmd (format "%s console --existing %s" jupyter (or kernel ""))))
     (message cmd)
