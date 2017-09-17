@@ -462,6 +462,14 @@ Optional argument IN-MODE-MAP sets MODE-MAP bindings in IN-MODE-MAP
             dan/key-bindings)))
 
 
+;;; Images
+
+(defun dan/pngpaste-to-latex ()
+  (interactive)
+  (let ((file "img.png"))
+    (shell-command (format "pngpaste %s" file))
+    (insert (format "\\includegraphics[width=300pt]{%s}" file))))
+
 ;;; Git
 (defun dan/open-in-github (&optional clipboard-only)
   "Open current file location in github.
