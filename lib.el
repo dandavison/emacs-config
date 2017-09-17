@@ -464,11 +464,12 @@ Optional argument IN-MODE-MAP sets MODE-MAP bindings in IN-MODE-MAP
 
 ;;; Images
 
-(defun dan/pngpaste-to-latex ()
+(defun dan/image-insert-cliboard-image ()
+  ;; TODO seems to insert multiple tiled images
   (interactive)
   (let ((file "img.png"))
-    (shell-command (format "pngpaste %s" file))
-    (insert (format "\\includegraphics[width=300pt]{%s}" file))))
+    (shell-command (format "pngpaste %s && mogrify -resize 300 %s" file file))
+    (insert-image-file file)))
 
 ;;; Git
 (defun dan/open-in-github (&optional clipboard-only)
@@ -493,6 +494,53 @@ With C-u prefix argument copy URL to clipboard only."
 
 
 ;;; LaTeX
+
+(defun dan/latex-insert-item-in-align-environment ()
+  (latex-indent)
+  (insert "&= ")
+  (latex-indent))
+
+(defun dan/latex-include-clipboard-image ()
+  ;; TODO have latex/auctex mode display the image inline as an overlay
+  (interactive)
+  (let ((file "img.png"))
+    (shell-command (format "pngpaste %s" file))
+    (insert (format "\\includegraphics[width=500pt]{%s}" file))))
+
+(defun org-insert-clipboard-image (&optional file)
+  (interactive "F")
+  (shell-command (concat "pngpaste " file))
+  (insert (concat "[[" file "]]"))
+  (org-display-inline-images))
+
+(defun dan/latex-yank-clipboard-image-maybe ()
+  (interactive)
+  (let* ((exit-status)
+         (output
+          (with-output-to-string
+            (setq exit-status (call-process "pngpaste" nil t nil "-")))))
+    (if (= exit-status 0)
+        (let ((file (read-file-name "File to save image: ")))
+          (write-region output nil file)
+          (insert (format "\\includegraphics[width=500pt]{%s}" file)))
+      (call-interactively 'yank))))
+
+
+(defun dan/latex-yank-clipboard-image-maybe ()
+  (interactive)
+  (let ((file))
+    (with-temp-buffer
+      (let ((exit-status (call-process "pngpaste" nil t nil "-")))
+        (if (= exit-status 0)
+            (progn
+              (setq file (read-file-name "File to save image: "))
+              (write-file file)))))
+    (if file
+        (insert (format "\\includegraphics[width=500pt]{%s}"
+                        (file-relative-name file)))
+      (call-interactively 'yank))))
+
+
 (defun dan/latex-fill-paragraph ()
   (interactive)
   (text-mode)
