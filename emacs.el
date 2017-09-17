@@ -166,6 +166,9 @@
 (advice-add 'comint-previous-matching-input-from-input :after (lambda (&rest args) (goto-char (point-at-eol))))
 
 
+;;; Multiple Cursors
+(advice-add 'mc/edit-lines :before (lambda (&rest args) (previous-logical-line 1 nil)))
+
 
 ;;; Flycheck
 (setq flycheck-highlighting-mode 'lines)
