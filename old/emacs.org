@@ -1199,13 +1199,6 @@ index e5855ad..29f6429 100644
 ;; (setq emmet-move-cursor-after-expanding nil) ;; default t
 #+end_src
 
-** Recentf
-#+begin_src emacs-lisp
-(recentf-mode t)
-;; recentf-exclude
-(setq recentf-max-saved-items nil)
-#+end_src
-
 ** Find-file
 #+begin_src emacs-lisp
 (add-to-list 'load-path "~/lib/emacs/find-file-in-project")

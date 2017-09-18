@@ -85,6 +85,9 @@
 
 (setq tramp-verbose 2)
 
+(recentf-mode t)
+(setq recentf-max-saved-items nil)
+
 (advice-add 'goto-line :before (lambda (&rest args) (show-all)))
 
 ;;; Bookmarks
