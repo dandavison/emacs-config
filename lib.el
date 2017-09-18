@@ -513,18 +513,6 @@ With C-u prefix argument copy URL to clipboard only."
   (insert (concat "[[" file "]]"))
   (org-display-inline-images))
 
-(defun dan/latex-yank-clipboard-image-maybe ()
-  (interactive)
-  (let* ((exit-status)
-         (output
-          (with-output-to-string
-            (setq exit-status (call-process "pngpaste" nil t nil "-")))))
-    (if (= exit-status 0)
-        (let ((file (read-file-name "File to save image: ")))
-          (write-region output nil file)
-          (insert (format "\\includegraphics[width=500pt]{%s}" file)))
-      (call-interactively 'yank))))
-
 
 (defun dan/latex-yank-clipboard-image-maybe ()
   (interactive)
