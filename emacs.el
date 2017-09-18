@@ -282,13 +282,6 @@
 
 
 ;;; Magit
-
-;; https://www.reddit.com/r/emacs/comments/6xf3er/magit_fundraising_campaign_on_kickstarter/dmh7e5o/?sh=5c1e6fea&st=J7OHJB9A
-(defun dan/magit-diff-collapsed-initially (section)
-  (and (memq (magit-section-type section) '(file)) 'hide))
-(add-hook 'magit-section-set-visibility-hook 'dan/magit-diff-collapsed-initially)
-(remove-hook 'magit-diff-expansion 'magit-diff-expansion-threshold)
-
 (setq magit-save-repository-buffers nil)
 ;; (setq magit-revert-buffers nil)
 (setq magit-push-always-verify nil)
