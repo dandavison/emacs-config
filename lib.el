@@ -496,9 +496,15 @@ With C-u prefix argument copy URL to clipboard only."
 ;;; LaTeX
 
 (defun dan/latex-insert-item-in-align-environment ()
+  (let ((copied-line
+         (when current-prefix-arg
+           (save-excursion (beginning-of-line)
+                           (and (looking-at ".+&=\\(.+\\)")
+                                (match-string 1))))))
   (latex-indent)
   (insert "&= ")
-  (latex-indent))
+  (when copied-line (insert copied-line))
+  (latex-indent)))
 
 (defun dan/latex-include-clipboard-image ()
   ;; TODO have latex/auctex mode display the image inline as an overlay
