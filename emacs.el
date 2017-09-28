@@ -442,6 +442,7 @@
     ("\M-q" . fill-paragraph)
     ("\M-x" . helm-M-x)
     ("\C-c\M-f" . search-files-thing-at-point)
+    ("\C-x\C-c" . kill-emacs)
     ("\C-xp" . dan/helm-projectile-switch-project)
     ("\C-z" . (lambda () (interactive)))
     ("\M-o" . dan/helm-swoop-thing-at-point)
