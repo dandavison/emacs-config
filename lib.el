@@ -25,9 +25,15 @@
 (defun dan/find-file (&optional arg)
   (interactive "P")
   (call-interactively
-   (if (and (not arg) (projectile-project-p))
-       'projectile-find-file
-     'ido-find-file)))
+   (cond
+    ((and (not arg)
+          (projectile-project-p))
+     'projectile-find-file)
+    ((not arg) 'ido-find-file)
+    ((equal arg '(4))
+     'helm-recentf)
+    ((equal arg '(16))
+     'ido-find-file))))
 
 ;; Is this useful?
 (defun dan/find-file-maybe-in-project (file)
@@ -197,6 +203,14 @@
 (defun dan/projects-file ()
   (interactive)
   (find-file (file-chase-links "~/GoogleDrive/Projects/projects.org")))
+
+(defun dan/info-file ()
+  (interactive)
+  (find-file (file-chase-links "~/GoogleDrive/Legal/info.txt")))
+
+(defun dan/alias-file ()
+  (interactive)
+  (find-file (file-chase-links "~/src/shell-config/alias.sh")))
 
 
 ;;; Search
@@ -511,7 +525,7 @@ With C-u prefix argument copy URL to clipboard only."
   (interactive)
   (let ((file "img.png"))
     (shell-command (format "pngpaste %s" file))
-    (insert (format "\\includegraphics[width=500pt]{%s}" file))))
+    (insert (format "\\includegraphics[width=300pt]{%s}" file))))
 
 (defun org-insert-clipboard-image (&optional file)
   (interactive "F")
@@ -530,7 +544,7 @@ With C-u prefix argument copy URL to clipboard only."
               (setq file (read-file-name "File to save image: "))
               (write-file file)))))
     (if file
-        (insert (format "\\includegraphics[width=500pt]{%s}"
+        (insert (format "\\includegraphics[width=300pt]{%s}"
                         (file-relative-name file)))
       (call-interactively 'yank))))
 
@@ -957,6 +971,14 @@ returns the value of `python-shell-buffer-name'."
     (executable-chmod))
   (find-file file)
   (goto-char (point-max)))
+
+;;; SQL
+(defun sqlparse-region (beg end)
+  (interactive "r")
+  (shell-command-on-region
+   beg end
+   "python -c 'import sys, sqlparse; print(sqlparse.format(sys.stdin.read(), reindent=True))'"
+   t t))
 
 ;;; Comint
 
