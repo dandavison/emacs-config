@@ -103,6 +103,17 @@
   (call-interactively
    (if arg 'delete-non-matching-lines 'delete-matching-lines)))
 
+
+(defun dan/narrow-to-region ()
+  (interactive)
+  (call-interactively 'narrow-to-region)
+  (deactivate-mark)
+  (let ((mode (intern
+               (ido-completing-read
+                "mode: "
+                `(,(symbol-name major-mode) "python-mode" "sql-mode")))))
+    (unless (eq major-mode mode) (funcall mode))))
+
 ;;; Indentation
 
 (defun dan/indent-shift-left (&rest args)
