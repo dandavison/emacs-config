@@ -108,25 +108,27 @@
   (call-interactively
    (if arg 'delete-non-matching-lines 'delete-matching-lines)))
 
+(defvar dan/narrow-to-region-original-mode nil)
 
-(defun dan/narrow-to-region ()
+(defun dan/narrow-to-region (&optional arg)
   (interactive)
   (call-interactively 'narrow-to-region)
   (deactivate-mark)
-  (let ((mode (intern
-               (ido-completing-read
-                "mode: "
-                `(,(symbol-name major-mode) "python-mode" "sql-mode")))))
-    (unless (eq major-mode mode) (funcall mode))))
+  (when arg
+    (set (make-variable-buffer-local 'dan/narrow-to-region-original-mode)
+         major-mode)
+    (let ((mode (intern
+                 (ido-completing-read
+                  "mode: "
+                  `(,(symbol-name major-mode) "python-mode" "sql-mode")))))
+      (unless (eq major-mode mode) (funcall mode)))))
 
 (defun dan/widen ()
   (interactive)
   (call-interactively 'widen)
-  (let ((mode (intern
-               (ido-completing-read
-                "mode: "
-                `(,(symbol-name major-mode) "python-mode" "sql-mode")))))
-    (unless (eq major-mode mode) (funcall mode))))
+  (when dan/narrow-to-region-original-mode
+    (unless (eq major-mode dan/narrow-to-region-original-mode)
+      (funcall dan/narrow-to-region-original-mode))))
 
 (defun dan/add-face-to-string (string face)
   "Destructive. `face' must be a symbol"
