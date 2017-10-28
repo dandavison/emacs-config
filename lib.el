@@ -61,13 +61,18 @@
 
 (defun dan/show-buffer-file-name ()
   (interactive)
-  (let ((bn (buffer-name (current-buffer)))
-        (bfn (buffer-file-name)))
+  (let* ((bn (buffer-name (current-buffer)))
+         (bfn (copy-seq (buffer-file-name)))
+         (fn (file-name-nondirectory bfn)))
+    (add-text-properties
+     (- (length bfn) (length fn)) (length bfn) (list 'face 'org-warning) bfn)
     (when bfn (dan/save-value-to-kill-ring bfn))
     (let ((website (counsyl/current-website-repo)))
       (message
        "%s(%s) %s %s"
-       (if website (format "website-%s" website) "")
+       (if website (dan/add-face-to-string
+                    (format "website-%s" website) 'org-warning)
+         "")
        (if website (dan/git-get-branch) "")
        (if bfn
            (replace-regexp-in-string
@@ -113,6 +118,20 @@
                 "mode: "
                 `(,(symbol-name major-mode) "python-mode" "sql-mode")))))
     (unless (eq major-mode mode) (funcall mode))))
+
+(defun dan/widen ()
+  (interactive)
+  (call-interactively 'widen)
+  (let ((mode (intern
+               (ido-completing-read
+                "mode: "
+                `(,(symbol-name major-mode) "python-mode" "sql-mode")))))
+    (unless (eq major-mode mode) (funcall mode))))
+
+(defun dan/add-face-to-string (string face)
+  "Destructive. `face' must be a symbol"
+  (add-text-properties 0 (length string) (list 'face face) string)
+  string)
 
 ;;; Indentation
 
@@ -318,8 +337,9 @@
 (defun dan/set-up-outline-minor-mode (outline-regexp)
   (set (make-local-variable 'outline-regexp) outline-regexp)
   (outline-minor-mode t)
-  (org-overview)
-  (org-content))
+  (when (eq (point) (point-min))
+    (org-overview)
+    (org-content)))
 
 
 ;;; Paired characters
@@ -349,11 +369,16 @@
   (interactive)
   (dan/paired-character ?{ ?}))
 
+(defun dan/paired-bracket ()
+  (interactive)
+  (dan/paired-character ?[ ?]))
+
 (defun dan/setup-paired-characters ()
   (interactive)
   (local-set-key "{" 'dan/paired-brace)
   (local-set-key "(" 'dan/paired-paren)
-  (local-set-key "$" 'dan/paired-dollar))
+  (local-set-key "$" 'dan/paired-dollar)
+  (local-set-key "[" 'dan/paired-bracket))
 
 ;;; Windows
 
@@ -573,7 +598,7 @@ With C-u prefix argument copy URL to clipboard only."
       (insert (format "\\frac{%s}{%s}" (match-string 1 s) (match-string 2 s))))))
 
 (defun dan/latex-frac-back ()
-  (when (looking-back "\\([^/]+\\)/\\([^/]+\\)")
+  (when (looking-back " \\([^/ ]+\\) */ *\\([^/ ]+\\)")
     (let ((numerator (match-string 1))
           (denominator (match-string 2)))
       (delete-region (match-beginning 0) (match-end 0))
@@ -581,7 +606,9 @@ With C-u prefix argument copy URL to clipboard only."
 
 (defun dan/latex-frac ()
   (interactive)
-  (or (dan/latex-frac-region) (dan/latex-frac-back)))
+  (if (region-active-p)
+      (dan/latex-frac-region)
+    (dan/latex-frac-back)))
 
 (defun dan/focus ()
   (interactive)
@@ -640,10 +667,10 @@ With C-u prefix argument copy URL to clipboard only."
 (defun dan/latex-watch (&optional arg)
   (interactive "P")
   (dan/set-after-save-command
-   (if arg
-       (format "/Users/dan/src/3p/rubber/build/scripts-2.7/rubber -d --shell-escape %s"
+   (if t
+       (format "cd build && /Users/dan/src/3p/rubber/build/scripts-2.7/rubber -d --shell-escape %s"
                buffer-file-name)
-     (format "rubber -d %s" buffer-file-name)))
+     (format "cd build && rubber -d %s" buffer-file-name)))
   (dan/show-shell-output-buffer))
 
 (defun dan/save-even-if-not-modified ()
@@ -781,6 +808,26 @@ With C-u prefix argument copy URL to clipboard only."
 
 
 ;;; Python
+
+(defun catherine/insert-ipdb-set-trace ()
+  (interactive)
+  (insert "import ipdb; ipdb.set_trace()"))
+
+
+(defun dan/insert-ipdb-set-trace ()
+  (interactive)
+  (insert "import ipdb; ipdb.set_trace()")
+  ;; (indent-for-tab-command)
+  (let ((debugger "ipdb")) ;; pudb
+    (insert
+     (format
+      (if traceback
+          "import traceback ; import %s ; print(traceback.format_exc()) ; %s.set_trace()"
+        (if t
+            "import %s ; %s.set_trace()"
+          "import IPython; IPython.embed(banner1='')"))
+      debugger debugger))))
+
 
 (defun dan/insert-ipdb-set-trace (&optional traceback)
   (interactive "P")
