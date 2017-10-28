@@ -363,9 +363,11 @@
   (interactive)
   (dan/paired-character ?$ ?$))
 
-(defun dan/paired-paren ()
-  (interactive)
-  (dan/paired-character ?\( ?\)))
+(defun dan/paired-paren (&optional arg)
+  (interactive "P")
+  (if arg
+      (dan/paired-character "\\(" "\\)")
+    (dan/paired-character ?\( ?\))))
 
 (defun dan/paired-brace ()
   (interactive)
