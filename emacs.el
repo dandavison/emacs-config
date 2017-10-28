@@ -90,6 +90,8 @@
 
 (advice-add 'goto-line :before (lambda (&rest args) (show-all)))
 
+(delete-selection-mode t)
+
 ;;; Bookmarks
 (setq bookmark-bmenu-file-column 80)
 (setq bookmark-sort-flag nil)
@@ -401,9 +403,12 @@
 
 ;; ;;; Really really nice!
 ;; (define-key endless/mc-map "i" #'mc/insert-numbers)
+;; (define-key ctl-x-)
+;;     ("\C-xnn" . dan/narrow-to-region)
+;;     ("\C-xnw" . dan/widen)
 
-(defun length-of-longest-line-in-region ()
-  (apply #'max (mapcar #'length (split-string (buffer-substring-no-properties (region-beginning) (region-end)) "\n"))))
+(define-key global-map (kbd "C-x n n") 'dan/narrow-to-region)
+(define-key global-map (kbd "C-x n w") 'dan/widen)
 
 
 (dan/register-key-bindings
@@ -479,6 +484,7 @@
     ([(super |)] . dan/shell-command-on-region-and-replace)
     ([(super mouse-1)] . (lambda (event) (interactive "e") (mouse-set-point event) (dan/iterm2-dwim))))))
 
+
 (global-set-key (kbd "s-,") 'dan/show-buffer-file-name)
 
 (require 'bookmark)
@@ -540,6 +546,12 @@
     ("\C-X\C-s" . (lambda () (interactive) (set-buffer-modified-p t) (save-buffer)))
     ([(meta left)] . left-word)
     ([(meta right)] . right-word))))
+
+
+(require 'tex-mode)
+(dan/register-key-bindings
+ '("LaTeX" .
+   (("\C-c\C-c" . dan/save-even-if-not-modified))))
 
 
 (require 'org)
@@ -648,10 +660,9 @@
   (setq js-indent-level 2))
 (add-hook 'js-mode-hook 'dan/js-mode-hook-fn)
 
-(defun dan/latex-mode-hook-fn ()
+(defun dan/LaTeX-mode-hook-fn ()
   (interactive)
   (dan/setup-paired-characters)
-  (local-set-key "\C-c\C-c" 'dan/save-even-if-not-modified)
   (dan/set-up-outline-minor-mode "\\(\\\\sub\\|\\\\section\\)")
   (dan/latex-watch)
   (add-to-list 'LaTeX-item-list
@@ -659,7 +670,7 @@
   (add-to-list 'LaTeX-item-list
                '("align*" . dan/latex-insert-item-in-align-environment))
   (local-set-key [(super v)] 'dan/latex-yank-clipboard-image-maybe))
-(add-hook 'latex-mode-hook 'dan/latex-mode-hook-fn)
+(add-hook 'LaTeX-mode-hook 'dan/LaTeX-mode-hook-fn)
 
 (defun dan/magit-diff-mode-hook-fn ()
   (dan/magit-hide-all-sections))
