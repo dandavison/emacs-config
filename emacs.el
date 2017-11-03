@@ -664,7 +664,7 @@
   (interactive)
   (dan/setup-paired-characters)
   (dan/set-up-outline-minor-mode "\\(\\\\sub\\|\\\\section\\)")
-  (dan/latex-watch)
+  (dan/watch)
   (add-to-list 'LaTeX-item-list
                '("align" . dan/latex-insert-item-in-align-environment))
   (add-to-list 'LaTeX-item-list

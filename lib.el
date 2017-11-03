@@ -166,6 +166,26 @@
 
 (add-hook 'after-save-hook 'dan/do-after-save-command)
 
+(defun dan/show-shell-output-buffer ()
+  (interactive)
+  (let ((buf (get-buffer-create "*Async Shell Command*"))
+        (small-window-lines -4))
+    (when buf
+      (delete-other-windows)
+      (show-buffer
+       (split-window-vertically small-window-lines) buf))))
+
+(defun dan/watch (&optional arg)
+  (interactive "P")
+  (dan/set-after-save-command "make")
+  (dan/show-shell-output-buffer))
+
+(defun dan/save-even-if-not-modified ()
+  (interactive)
+  (set-buffer-modified-p t)
+  (save-buffer))
+
+
 ;;; Trailing whitespace
 
 (defvar dan/no-delete-trailing-whitespace-major-modes nil)
@@ -367,11 +387,13 @@
   (interactive "P")
   (if arg
       (dan/paired-character "\\(" "\\)")
-    (dan/paired-character ?\( ?\))))
+    (dan/paired-character "(" ")")))
 
-(defun dan/paired-brace ()
-  (interactive)
-  (dan/paired-character ?{ ?}))
+(defun dan/paired-brace (&optional arg)
+  (interactive "P")
+  (if arg
+      (dan/paired-character "\\{" "\\}")
+    (dan/paired-character "{" "}")))
 
 (defun dan/paired-bracket ()
   (interactive)
@@ -522,7 +544,7 @@ Optional argument IN-MODE-MAP sets MODE-MAP bindings in IN-MODE-MAP
   ;; TODO seems to insert multiple tiled images
   (interactive)
   (let ((file "img.png"))
-    (shell-command (format "pngpaste %s && mogrify -resize 300 %s" file file))
+    (shell-command (format "pngpaste %s && mogrify -resize 400 %s" file file))
     (insert-image-file file)))
 
 ;;; Git
@@ -584,7 +606,7 @@ With C-u prefix argument copy URL to clipboard only."
               (setq file (read-file-name "File to save image: "))
               (write-file file)))))
     (if file
-        (insert (format "\\includegraphics[width=300pt]{%s}"
+        (insert (format "\\includegraphics[width=400pt]{%s}\\\\"
                         (file-relative-name file)))
       (call-interactively 'yank))))
 
@@ -658,29 +680,6 @@ With C-u prefix argument copy URL to clipboard only."
           (forward-line -1)
           (point)))
      (error nil))))
-
-(defun dan/show-shell-output-buffer ()
-  (interactive)
-  (let ((buf (get-buffer-create "*Async Shell Command*"))
-        (small-window-lines -4))
-    (when buf
-      (delete-other-windows)
-      (show-buffer
-       (split-window-vertically small-window-lines) buf))))
-
-(defun dan/latex-watch (&optional arg)
-  (interactive "P")
-  (dan/set-after-save-command
-   (if t
-       (format "cd build && /Users/dan/src/3p/rubber/build/scripts-2.7/rubber -d --shell-escape %s"
-               buffer-file-name)
-     (format "cd build && rubber -d %s" buffer-file-name)))
-  (dan/show-shell-output-buffer))
-
-(defun dan/save-even-if-not-modified ()
-  (interactive)
-  (set-buffer-modified-p t)
-  (save-buffer))
 
 ;;; Eplot
 (defun dan/eplot-region ()
