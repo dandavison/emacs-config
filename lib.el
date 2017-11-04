@@ -377,7 +377,7 @@
           (goto-char (region-end))
           (insert close)))
     (insert open close)
-    (backward-char)))
+    (backward-char (if current-prefix-arg 2 1))))
 
 (defun dan/paired-dollar ()
   (interactive)
