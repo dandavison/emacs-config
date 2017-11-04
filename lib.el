@@ -177,7 +177,7 @@
 
 (defun dan/watch (&optional arg)
   (interactive "P")
-  (dan/set-after-save-command "make")
+  (dan/set-after-save-command "make all")
   (dan/show-shell-output-buffer))
 
 (defun dan/save-even-if-not-modified ()
