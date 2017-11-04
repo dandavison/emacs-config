@@ -381,7 +381,7 @@
 
 (defun dan/paired-dollar ()
   (interactive)
-  (dan/paired-character ?$ ?$))
+  (dan/paired-character "$" "$"))
 
 (defun dan/paired-paren (&optional arg)
   (interactive "P")
@@ -397,7 +397,7 @@
 
 (defun dan/paired-bracket ()
   (interactive)
-  (dan/paired-character ?[ ?]))
+  (dan/paired-character "[" "]"))
 
 (defun dan/setup-paired-characters ()
   (interactive)
