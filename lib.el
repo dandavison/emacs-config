@@ -177,7 +177,17 @@
 
 (defun dan/watch (&optional arg)
   (interactive "P")
-  (dan/set-after-save-command "make all")
+  (dan/set-after-save-command "make")
+  (dan/show-shell-output-buffer))
+
+(defun dan/watch-mathematics (&optional arg)
+  (interactive "P")
+  (let ((pdf
+         (format "%s.pdf"
+                 (file-name-sans-extension
+                  (file-name-nondirectory (buffer-file-name))))))
+    (dan/set-after-save-command
+     (format "make %s" (if (file-exists-p pdf) pdf "notes.pdf"))))
   (dan/show-shell-output-buffer))
 
 (defun dan/save-even-if-not-modified ()
