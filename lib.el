@@ -395,6 +395,12 @@
       (dan/paired-character "\\{" "\\}")
     (dan/paired-character "{" "}")))
 
+(defun dan/paired-pipe (&optional arg)
+  (interactive "P")
+  (if arg
+      (dan/paired-character "\\|" "\\|")
+    (dan/paired-character "|" "|")))
+
 (defun dan/paired-bracket ()
   (interactive)
   (dan/paired-character "[" "]"))
@@ -404,7 +410,8 @@
   (local-set-key "{" 'dan/paired-brace)
   (local-set-key "(" 'dan/paired-paren)
   (local-set-key "$" 'dan/paired-dollar)
-  (local-set-key "[" 'dan/paired-bracket))
+  (local-set-key "[" 'dan/paired-bracket)
+  (local-set-key "|" 'dan/paired-pipe))
 
 ;;; Windows
 
@@ -603,7 +610,7 @@ With C-u prefix argument copy URL to clipboard only."
       (let ((exit-status (call-process "pngpaste" nil t nil "-")))
         (if (= exit-status 0)
             (progn
-              (setq file (read-file-name "File to save image: "))
+              (setq file (read-file-name "File to save image: " (format "%s/img" default-directory)))
               (write-file file)))))
     (if file
         (insert (format "\\includegraphics[width=400pt]{%s}\\\\"
