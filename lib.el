@@ -913,6 +913,15 @@ With C-u prefix argument copy URL to clipboard only."
   (python-shell-send-buffer)
   (python-shell-switch-to-shell))
 
+(defun dan/python-shell-eval ()
+  (interactive)
+  (if (region-active-p)
+      (progn
+        (call-interactively 'python-shell-send-region)
+        (deactivate-mark))
+    (python-shell-send-buffer))
+  (python-shell-switch-to-shell))
+
 (defun dan/python-shell-send-string (string)
   (while (not (python-shell-get-process)) (sleep-for 0.5))
   (python-shell-send-string string))

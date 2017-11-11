@@ -565,7 +565,7 @@
 (dan/register-key-bindings
  '("python" .
    (("\C-cd" . dan/insert-ipdb-set-trace)
-    ("\C-c\C-c" . dan/python-shell-send-buffer)
+    ("\C-c\C-c" . dan/python-shell-eval)
     (";" . self-insert-command)
     ([(super i)] . dan/python-where-am-i)
     ([(meta shift right)] . python-indent-shift-right)
