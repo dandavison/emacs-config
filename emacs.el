@@ -14,8 +14,8 @@
 (add-to-list 'load-path "~/src/3p/magit/lisp") (require 'magit)
 
 (add-to-list 'load-path "~/src/3p/ESS/lisp") (require 'ess)
-(setq puml-plantuml-jar-path "/usr/local/Cellar/plantuml/8029/plantuml.8029.jar")
-(add-to-list 'load-path "~/src/3p/puml-mode") (require 'puml-mode)
+;; (setq puml-plantuml-jar-path "/usr/local/Cellar/plantuml/8029/plantuml.8029.jar")
+;; (add-to-list 'load-path "~/src/3p/puml-mode") (require 'puml-mode)
 
 (add-to-list 'load-path "~/src/minimal") (require 'minimal)
 (add-to-list 'load-path "~/src/paredit-c") (require 'paredit-c)
@@ -186,7 +186,7 @@
 
 
 ;;; Python
-(setq python-shell-interpreter "ipython"
+(setq python-shell-interpreter "/Users/dan/tmp/virtualenvs/python3/bin/ipython"
       python-shell-interpreter-args "-i")
 
 (defun dan/get-default-directory-from-python-shell-maybe ()
@@ -548,7 +548,7 @@
     ([(meta right)] . right-word))))
 
 
-(require 'tex-mode)
+(require 'latex)
 (dan/register-key-bindings
  '("LaTeX" .
    (("\C-c\C-c" . dan/save-even-if-not-modified))))
