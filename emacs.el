@@ -11,7 +11,6 @@
 (add-to-list 'load-path "~/src/3p/helm-projectile") (require 'helm-projectile)
 (add-to-list 'load-path "~/src/3p/swiper/") (require 'ivy) (require 'counsel) (require 'swiper)
 (add-to-list 'load-path "~/src/3p/magit/lisp") (require 'magit)
-(add-to-list 'load-path "~/src/3p/magit/lisp") (require 'magit)
 
 (add-to-list 'load-path "~/src/3p/ESS/lisp") (require 'ess)
 ;; (setq puml-plantuml-jar-path "/usr/local/Cellar/plantuml/8029/plantuml.8029.jar")
