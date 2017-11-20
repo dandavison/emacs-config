@@ -515,6 +515,7 @@
  '("emacs-lisp" .
    (("\C-cd" . edebug-defun)
     ("\C-c," . find-function)
+    ("\C-c\C-r" . (lambda () (interactive) (call-interactively 'eval-region) (deactivate-mark)))
     ([tab] . dan/indent-or-complete))))
 
 (require 'helm)
