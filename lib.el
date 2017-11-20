@@ -1172,6 +1172,21 @@ If LIST is nil use `projectile-project-root-parent-directories'"
     (let ((projectile-switch-project-action 'projectile-switch-to-buffer))
       (projectile-switch-project))))
 
+(defun dan/set-helm-ignoring! (exclude-tests)
+  (let ((ignored-patterns
+         (if exclude-tests
+             dan/ignored-patterns
+           (-filter (lambda (s) (not (string-match-p (regexp-quote "test") s)))
+                    dan/ignored-patterns))))
+    (message "ignored-patterns: %s" ignored-patterns)
+    (setq helm-grep-ignored-files
+          (append dan/helm-grep-ignored-files-orig ignored-patterns)
+          grep-find-ignored-files
+          (append dan/grep-find-ignored-files-orig ignored-patterns)
+          helm-grep-git-grep-command
+          (dan/make-helm-grep-git-grep-command ignored-patterns))
+    (message "helm-grep-git-grep-command: %s" helm-grep-git-grep-command)))
+
 (defun dan/helm-projectile-grep-thing-at-point (&optional arg)
   (interactive "P")
   (let ((exclude-tests (eq arg '(4)))
@@ -1179,9 +1194,8 @@ If LIST is nil use `projectile-project-root-parent-directories'"
     (if search-for-definition
         (search-files-thing-at-point 'search-for-definition)
       (if t
-          (let ((helm-projectile-set-input-automatically t)
-                (grep-find-ignored-files
-                 (append grep-find-ignored-files dan/ignored-patterns)))
+          (progn
+            (dan/set-helm-ignoring! exclude-tests)
             (helm-projectile-grep))
         (counsel-git-grep nil (thing-at-point 'symbol))))))
 
@@ -1189,21 +1203,15 @@ If LIST is nil use `projectile-project-root-parent-directories'"
   "Originally copied from helm-projectile-grep, disabling
 `helm-projectile-set-input-automatically'."
   (interactive)
-  (funcall 'run-with-timer 0.01 nil
-           (lambda (dir)
-             (let* ((project-root (or dir (projectile-project-root)
-                                      (error "You're not in a project")))
-                    (helm-projectile-set-input-automatically nil)
-                    (dan/ignored-patterns
-                     (if exclude-tests
-                         (-filter (lambda (s) (string-match-p (regexp-quote "test") s))
-                                  dan/ignored-patterns)
-                       dan/ignored-patterns))
-                    (helm-grep-git-grep-command
-                     (dan/make-helm-grep-git-grep-command dan/ignored-patterns))
-                    (grep-find-ignored-files
-                     (append grep-find-ignored-files dan/ignored-patterns)))
-               (helm-projectile-grep-or-ack project-root))) default-directory))
+  (dan/set-helm-ignoring! exclude-tests)
+  (funcall
+   'run-with-timer 0.01 nil
+   (lambda (dir)
+     (let* ((project-root (or dir (projectile-project-root)
+                              (error "You're not in a project")))
+            (helm-projectile-set-input-automatically nil))
+       (helm-projectile-grep-or-ack project-root)))
+   default-directory))
 
 
 (defun dan/helm-swoop-thing-at-point ()
