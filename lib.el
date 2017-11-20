@@ -387,7 +387,7 @@
           (goto-char (region-end))
           (insert close)))
     (insert open close)
-    (backward-char (if current-prefix-arg 2 1))))
+    (backward-char (length close))))
 
 (defun dan/paired-dollar ()
   (interactive)
@@ -395,9 +395,13 @@
 
 (defun dan/paired-paren (&optional arg)
   (interactive "P")
-  (if arg
-      (dan/paired-character "\\(" "\\)")
-    (dan/paired-character "(" ")")))
+  (cond
+   ((not arg)
+    (dan/paired-character "(" ")"))
+   ((equal arg '(4))
+    (dan/paired-character "\\(" "\\)"))
+   ((equal arg '(16))
+    (dan/paired-character "\\Big(" "\\Big)"))))
 
 (defun dan/paired-brace (&optional arg)
   (interactive "P")
@@ -407,9 +411,13 @@
 
 (defun dan/paired-pipe (&optional arg)
   (interactive "P")
-  (if arg
-      (dan/paired-character "\\|" "\\|")
-    (dan/paired-character "|" "|")))
+  (cond
+   ((not arg)
+    (dan/paired-character "|" "|"))
+   ((equal arg '(4))
+    (dan/paired-character "\\|" "\\|"))
+   ((equal arg '(16))
+    (dan/paired-character "\\Big|" "\\Big|"))))
 
 (defun dan/paired-bracket ()
   (interactive)
