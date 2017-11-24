@@ -417,7 +417,9 @@
    ((equal arg '(4))
     (dan/paired-character "\\|" "\\|"))
    ((equal arg '(16))
-    (dan/paired-character "\\Big|" "\\Big|"))))
+    (dan/paired-character "\\Big|" "\\Big|"))
+   ((equal arg '(64))
+    (dan/paired-character "\\Bigg|" "\\Bigg|"))))
 
 (defun dan/paired-bracket ()
   (interactive)
