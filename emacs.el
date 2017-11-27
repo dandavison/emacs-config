@@ -84,6 +84,7 @@
 
 (recentf-mode t)
 (setq recentf-max-saved-items nil)
+(add-to-list 'recentf-exclude ".*\\.\\(png\\|pdf\\)")
 
 (advice-add 'goto-line :before (lambda (&rest args) (show-all)))
 
@@ -358,6 +359,19 @@
 (setq helm-grep-file-path-style 'relative)
 (setq helm-full-frame t)
 
+(setq dan/ignored-patterns '("*.sql" "*.wsdl" "*.js.min" "*.min.js" "*.css.min" "*.pdf" "*/migrations/*" ".svg" "*vendor/*"))  ;  "*/tests/*"
+
+;; Originals
+(setq dan/helm-grep-ignored-files-orig '(".#*" "*.o" "*~" "*.bin" "*.lbin" "*.so" "*.a" "*.ln" "*.blg" "*.bbl" "*.elc" "*.lof" "*.glo" "*.idx" "*.lot" "*.fmt" "*.tfm" "*.class" "*.fas" "*.lib" "*.mem" "*.x86f" "*.sparcf" "*.dfsl" "*.pfsl" "*.d64fsl" "*.p64fsl" "*.lx64fsl" "*.lx32fsl" "*.dx64fsl" "*.dx32fsl" "*.fx64fsl" "*.fx32fsl" "*.sx64fsl" "*.sx32fsl" "*.wx64fsl" "*.wx32fsl" "*.fasl" "*.ufsl" "*.fsl" "*.dxl" "*.lo" "*.la" "*.gmo" "*.mo" "*.toc" "*.aux" "*.cp" "*.fn" "*.ky" "*.pg" "*.tp" "*.vr" "*.cps" "*.fns" "*.kys" "*.pgs" "*.tps" "*.vrs" "*.pyc" "*.pyo"))
+(setq dan/grep-find-ignored-files-orig '(".#*" "*.o" "*~" "*.bin" "*.lbin" "*.so" "*.a" "*.ln" "*.blg" "*.bbl" "*.elc" "*.lof" "*.glo" "*.idx" "*.lot" "*.fmt" "*.tfm" "*.class" "*.fas" "*.lib" "*.mem" "*.x86f" "*.sparcf" "*.dfsl" "*.pfsl" "*.d64fsl" "*.p64fsl" "*.lx64fsl" "*.lx32fsl" "*.dx64fsl" "*.dx32fsl" "*.fx64fsl" "*.fx32fsl" "*.sx64fsl" "*.sx32fsl" "*.wx64fsl" "*.wx32fsl" "*.fasl" "*.ufsl" "*.fsl" "*.dxl" "*.lo" "*.la" "*.gmo" "*.mo" "*.toc" "*.aux" "*.cp" "*.fn" "*.ky" "*.pg" "*.tp" "*.vr" "*.cps" "*.fns" "*.kys" "*.pgs" "*.tps" "*.vrs" "*.pyc" "*.pyo"))
+(setq dan/helm-grep-git-grep-command-orig "git --no-pager grep -n%cH --color=always --exclude-standard --no-index --full-name -e %p -- %f")
+
+(setq helm-grep-ignored-files (append dan/helm-grep-ignored-files-orig dan/ignored-patterns))
+(setq grep-find-ignored-files (append dan/grep-find-ignored-files-orig dan/ignored-patterns))
+(setq helm-grep-git-grep-command
+      (format "%s './*' %s"
+              dan/helm-grep-git-grep-command-orig
+              (mapconcat (lambda (s) (format "':!%s'" s)) dan/ignored-patterns " ")))
 
 (when nil
   ;; Results in flickering and other undesirable behavior
