@@ -1190,17 +1190,17 @@ If LIST is nil use `projectile-project-root-parent-directories'"
           (helm-projectile-grep))
       (counsel-git-grep nil (thing-at-point 'symbol)))))
 
-(defun dan/helm-projectile-grep-no-input (&optional dir)
+(defun dan/helm-projectile-grep-no-input ()
   "Copied from helm-projectile-grep, disabling `helm-projectile-set-input-automatically'."
   (interactive)
   (funcall 'run-with-timer 0.01 nil
-           (lambda (dir)
-             (let ((project-root (or dir (projectile-project-root)
+           (lambda ()
+             (let ((project-root (or (projectile-project-root)
                                      (error "You're not in a project")))
                    (helm-projectile-set-input-automatically nil)
                    (grep-find-ignored-files
                     (append grep-find-ignored-files dan/ignored-patterns)))
-               (helm-projectile-grep-or-ack project-root))) dir))
+               (helm-projectile-grep-or-ack project-root)))))
 
 
 (defun dan/helm-swoop-thing-at-point ()
