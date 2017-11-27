@@ -1162,15 +1162,17 @@ If LIST is nil use `projectile-project-root-parent-directories'"
          "git --no-pager grep -n%cH --color=always --exclude-standard --no-index --full-name -e %p -- %f")
         (ignored-patterns
          (if exclude-tests
-             (-filter (lambda (s) (string-match-p (regexp-quote "test") s))
-                      dan/ignored-patterns)
-           dan/ignored-patterns)))
+             dan/ignored-patterns
+           (-filter (lambda (s) (not (string-match-p (regexp-quote "test") s)))
+                    dan/ignored-patterns))))
     (setq helm-grep-ignored-files (append helm-grep-ignored-files-orig ignored-patterns))
     (setq grep-find-ignored-files (append grep-find-ignored-files-orig ignored-patterns))
     (setq helm-grep-git-grep-command
           (format "%s './*' %s"
                   helm-grep-git-grep-command-orig
-                  (mapconcat (lambda (s) (format "':!%s'" s)) ignored-patterns " ")))))
+                  (mapconcat (lambda (s) (format "':!%s'" s)) ignored-patterns " ")))
+
+    (message "dan/set-global-ignored-files-variables! ignored-patterns is %s" ignored-patterns)))
 
 
 (defun dan/helm-projectile-switch-project (&optional arg)
@@ -1179,20 +1181,21 @@ If LIST is nil use `projectile-project-root-parent-directories'"
     (let ((projectile-switch-project-action 'projectile-switch-to-buffer))
       (projectile-switch-project))))
 
-(defun dan/helm-projectile-grep-thing-at-point (&optional search-for-definition)
-  (interactive "P")
-  (if search-for-definition
-      (search-files-thing-at-point 'search-for-definition)
-    (if t
-        (let ((helm-projectile-set-input-automatically t)
-              (grep-find-ignored-files
-               (append grep-find-ignored-files dan/ignored-patterns)))
-          (helm-projectile-grep))
-      (counsel-git-grep nil (thing-at-point 'symbol)))))
 
-(defun dan/helm-projectile-grep-no-input ()
+(defun dan/helm-projectile-grep-thing-at-point (&optional arg)
+  (interactive "P")
+  (if (equal arg '(16))
+      (search-files-thing-at-point 'search-for-definition)
+    (let ((include-tests arg)
+          (helm-projectile-set-input-automatically t))
+      (dan/set-global-ignored-files-variables! (not include-tests))
+      (helm-projectile-grep))))
+
+
+(defun dan/helm-projectile-grep-no-input (&optional include-tests)
   "Copied from helm-projectile-grep, disabling `helm-projectile-set-input-automatically'."
-  (interactive)
+  (interactive "P")
+  (dan/set-global-ignored-files-variables! (not include-tests))
   (funcall 'run-with-timer 0.01 nil
            (lambda ()
              (let ((project-root (or (projectile-project-root)
