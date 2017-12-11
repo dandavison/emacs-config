@@ -1163,7 +1163,8 @@ If LIST is nil use `projectile-project-root-parent-directories'"
         (ignored-patterns
          (if exclude-tests
              dan/ignored-patterns
-           (-filter (lambda (s) (not (string-match-p (regexp-quote "test") s)))
+           (-filter (lambda (s) (and (not (string-match-p (regexp-quote "test") s))
+                                (not (string-match-p (regexp-quote "fake") s))))
                     dan/ignored-patterns))))
     (setq helm-grep-ignored-files (append helm-grep-ignored-files-orig ignored-patterns))
     (setq grep-find-ignored-files (append grep-find-ignored-files-orig ignored-patterns))

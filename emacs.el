@@ -359,7 +359,7 @@
 (setq helm-grep-file-path-style 'relative)
 (setq helm-full-frame t)
 
-(setq dan/ignored-patterns '("*.sql" "*.wsdl" "*.js.min" "*.min.js" "*.css.min" "*.pdf" "*/migrations/*" ".svg" "*vendor/*" "*/tests/*"))
+(setq dan/ignored-patterns '("*.sql" "*.wsdl" "*.js.min" "*.min.js" "*.css.min" "*.pdf" "*/migrations/*" ".svg" "*vendor/*" "*/tests*" "*/fake/*"))
 (dan/set-global-ignored-files-variables!)
 
 
