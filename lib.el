@@ -635,7 +635,7 @@ With C-u prefix argument copy URL to clipboard only."
               (setq file (read-file-name "File to save image: " (format "%s/img" default-directory)))
               (write-file file)))))
     (if file
-        (insert (format "\\includegraphics[width=400pt]{%s}\\\\"
+        (insert (format "\\begin{mdframed}\n\\includegraphics[width=400pt]{%s}\n\\end{mdframed}"
                         (file-relative-name file)))
       (call-interactively 'yank))))
 
