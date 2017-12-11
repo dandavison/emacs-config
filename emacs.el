@@ -189,7 +189,8 @@
 
 ;;; Python
 (setq python-shell-interpreter "/Users/dan/tmp/virtualenvs/python3/bin/ipython"
-      python-shell-interpreter-args "-i")
+      python-shell-interpreter-args "-i"
+      python-fill-docstring-style 'django)
 
 (defun dan/get-default-directory-from-python-shell-maybe ()
   (let ((process (python-shell-get-process)))
