@@ -602,7 +602,7 @@
 (defun dan/on-jump-into-buffer ()
   (delete-other-windows)
   (show-all)
-  (helm-highlight-current-line nil nil nil 'pulse)
+  (dan/pulse-momentary-highlight-current-line)
   (when (eq major-mode 'python-mode)
     (dan/python-current-defun-name)))
 

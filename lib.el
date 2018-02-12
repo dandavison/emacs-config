@@ -341,6 +341,9 @@
 	  (highlight word))
     (when (region-active-p) (deactivate-mark))))))
 
+(defun dan/pulse-momentary-highlight-current-line ()
+  (pulse-momentary-highlight-one-line (point)))
+
 
 ;;; Scratch buffers
 (defvar dan/scratch-buffer-dir)
