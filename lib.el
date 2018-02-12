@@ -590,6 +590,9 @@ Optional argument IN-MODE-MAP sets MODE-MAP bindings in IN-MODE-MAP
         (or (and mode-map `(,(assoc mode-map dan/key-bindings)))
             dan/key-bindings)))
 
+(defun dan/key-disabled ()
+  (interactive)
+  (message "key binding disabled!"))
 
 ;;; Images
 
