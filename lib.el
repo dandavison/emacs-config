@@ -196,7 +196,8 @@
     (when buf
       (delete-other-windows)
       (show-buffer
-       (split-window-vertically small-window-lines) buf))))
+       (split-window-vertically small-window-lines) buf)
+      (with-current-buffer buf (goto-char (point-min))))))
 
 (defun dan/watch (&optional arg)
   (interactive "P")
@@ -210,7 +211,7 @@
                  (file-name-sans-extension
                   (file-name-nondirectory (buffer-file-name))))))
     (dan/set-after-save-command
-     (format "make %s" (if (file-exists-p pdf) pdf "notes.pdf"))))
+     (format "make %s > /dev/null" (if (file-exists-p pdf) pdf "notes.pdf"))))
   (dan/show-shell-output-buffer))
 
 (defun dan/save-even-if-not-modified ()
