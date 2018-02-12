@@ -660,7 +660,11 @@ With C-u prefix argument copy URL to clipboard only."
       (let ((exit-status (call-process "pngpaste" nil t nil "-")))
         (if (= exit-status 0)
             (progn
-              (setq file (read-file-name "File to save image: " (format "%s/img" default-directory)))
+              (setq file
+                    (read-file-name "File to save image: "
+                                    (format "%s/img" default-directory)
+                                    nil nil nil
+                                    (lambda (file) (not (file-exists-p file)))))
               (write-file file)))))
     (if file
         (insert (format "\\begin{mdframed}\n\\includegraphics[width=400pt]{%s}\n\\end{mdframed}"
