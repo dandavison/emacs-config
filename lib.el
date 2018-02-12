@@ -114,6 +114,8 @@
 
 (defun dan/narrow-to-region (&optional arg)
   (interactive)
+  (when (not (region-active-p))
+    (push-mark (point-at-eol)))
   (call-interactively 'narrow-to-region)
   (deactivate-mark)
   (when arg
@@ -131,6 +133,25 @@
   (when dan/narrow-to-region-original-mode
     (unless (eq major-mode dan/narrow-to-region-original-mode)
       (funcall dan/narrow-to-region-original-mode))))
+
+(defun dan/pop-to-mark-command ()
+  "Jump to mark, and pop a new position for mark off the ring.
+\(Does not affect global mark ring)."
+  (interactive)
+  (if (null (mark t))
+      (user-error "No mark set in this buffer")
+    (if (= (point) (mark t))
+        (message "Mark popped"))
+    ;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;; dan added this
+    (while (< (abs (- (line-number-at-pos (mark t))
+                      (line-number-at-pos (point))))
+              10)
+      (pop-mark))
+    ;;;;;;;;;;;;;;;;;;;;;;;;;
+    (goto-char (mark t))
+    (pop-mark)
+    (dan/pulse-momentary-highlight-current-line)))
 
 (defun dan/add-face-to-string (string face)
   "Destructive. `face' must be a symbol"

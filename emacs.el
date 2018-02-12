@@ -91,6 +91,10 @@
 
 (delete-selection-mode t)
 
+(defun pop-to-mark-command ()
+  (dan/pop-to-mark-command))
+
+
 ;;; Bookmarks
 (setq bookmark-bmenu-file-column 80)
 (setq bookmark-sort-flag nil)
