@@ -52,7 +52,6 @@
 (setq save-silently t)
 (setq async-shell-command-buffer 'rename-buffer)
 
-(setq-default fill-column 79)
 (setq electric-indent-mode nil)
 (setq-default indent-tabs-mode nil)
 (setq tab-always-indent 'complete)
@@ -72,7 +71,8 @@
 (dan/set-exec-path-from-shell)
 (dan/set-exec-path-from-shell "PYTHONPATH")
 
-(setq fci-rule-column 79)
+(setq-default fill-column 99)
+(setq fci-rule-column fill-column)
 (setq fci-rule-color "#A5BAF1")
 
 (put 'downcase-region 'disabled nil)
@@ -459,6 +459,7 @@
     ("\M-x" . helm-M-x)
     ("\C-c\M-f" . search-files-thing-at-point)
     ("\C-xp" . dan/helm-projectile-switch-project)
+    ("\C-x\C-s" . projectile-save-project-buffers)
     ("\C-z" . (lambda () (interactive)))
     ("\M-o" . dan/helm-swoop-thing-at-point)
     ([f1] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?1 arg)))
@@ -487,6 +488,7 @@
     ([(super ?.)] . dan/helm-projectile-grep-thing-at-point)
     ([(super ?\;)] . dan/show-buffer-file-name)
     ([(super ?')] . dan/iterm2-dwim)
+    ([(super ?&)] . (lambda () (interactive) (let ((kill-buffer-query-functions nil)) (kill-buffer))))
     ([(super left)] . winner-undo)
     ([(super right)] . winner-redo)
     ([(super down)] . (lambda () (interactive) (set-mark-command t)))
