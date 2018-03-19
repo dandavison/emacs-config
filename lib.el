@@ -64,7 +64,7 @@
 (defun dan/show-buffer-file-name ()
   (interactive)
   (let* ((bn (buffer-name (current-buffer)))
-         (bfn (copy-seq (buffer-file-name)))
+         (bfn (copy-sequence (buffer-file-name)))
          (fn (file-name-nondirectory bfn)))
     (add-text-properties
      (- (length bfn) (length fn)) (length bfn) (list 'face 'org-warning) bfn)
