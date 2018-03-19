@@ -61,6 +61,8 @@
       (dan/python-where-am-i arg)
     (dan/show-buffer-file-name)))
 
+(defun counsyl/current-website-repo () nil)
+
 (defun dan/show-buffer-file-name ()
   (interactive)
   (let* ((bn (buffer-name (current-buffer)))
