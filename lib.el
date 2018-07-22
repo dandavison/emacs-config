@@ -657,16 +657,18 @@ With C-u prefix argument copy URL to clipboard only."
 
 (defun dan/latex-yank-clipboard-image-maybe ()
   (interactive)
-  (let ((file))
+  (let ((output-file)
+        (temp-file "/tmp/dan--latex-yank-clipboard-image-maybe.png"))
     (with-temp-buffer
-      (let ((exit-status (call-process "pngpaste" nil t nil "-")))
+      (let ((exit-status (call-process "pngpaste" nil `(:file ,temp-file) nil "-")))
         (if (= exit-status 0)
             (progn
-              (setq file (read-file-name "File to save image: " (format "%s/img" default-directory)))
-              (write-file file)))))
-    (if file
+              (setq output-file
+                    (read-file-name "File to save image: " (format "%s/img" default-directory)))
+              (copy-file temp-file output-file t)))))
+    (if output-file
         (insert (format "\\begin{mdframed}\n\\includegraphics[width=400pt]{%s}\n\\end{mdframed}"
-                        (file-relative-name file)))
+                        (file-relative-name output-file)))
       (call-interactively 'yank))))
 
 
