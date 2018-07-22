@@ -197,7 +197,7 @@
         (small-window-lines -4))
     (when buf
       (delete-other-windows)
-      (show-buffer
+      (set-window-buffer
        (split-window-vertically small-window-lines) buf)
       (with-current-buffer buf (goto-char (point-min))))))
 

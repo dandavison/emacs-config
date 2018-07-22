@@ -131,7 +131,7 @@
 (setq minimal-mode-line-background "sea green")
 (setq minimal-mode-line-inactive-background "dim grey")
 
-;; (load-theme 'railscast t)
+(load-theme 'railscasts-reloaded t)
 (minimal-mode)
 
 (defun dan/set-appearance ()
@@ -394,7 +394,7 @@
 (setq helm-swoop-speed-or-color 'color)
 (setq helm-swoop-pre-input-function (lambda ()))
 ;;; Yasnippet
-(setq yas/trigger-key "\C-cy")
+(require 'yasnippet)
 (define-key yas/keymap [tab] 'yas/next-field)
 (yas/initialize)
 (defun dan/yas-load ()
