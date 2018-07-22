@@ -641,12 +641,6 @@ With C-u prefix argument copy URL to clipboard only."
   (when copied-line (insert copied-line))
   (latex-indent)))
 
-(defun dan/latex-include-clipboard-image ()
-  ;; TODO have latex/auctex mode display the image inline as an overlay
-  (interactive)
-  (let ((file "img.png"))
-    (shell-command (format "pngpaste %s" file))
-    (insert (format "\\includegraphics[width=300pt]{%s}" file))))
 
 (defun org-insert-clipboard-image (&optional file)
   (interactive "F")
