@@ -2,8 +2,6 @@
 
 import fcntl
 import os
-import termios
-import tty
 from select import select
 from sys import stdin
 
@@ -28,13 +26,8 @@ def stdin_has_data():
     https://github.com/joeyespo/py-getch.
     """
     fd = stdin.fileno()
-    old = termios.tcgetattr(fd)
     setNonBlocking(fd)
-    try:
-        tty.setraw(fd)
-        return bool(select([stdin], [], [], 0)[0])
-    finally:
-        termios.tcsetattr(fd, termios.TCSADRAIN, old)
+    return bool(select([stdin], [], [], 0)[0])
 
 
 if __name__ == '__main__':
