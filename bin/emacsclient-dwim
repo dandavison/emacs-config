@@ -1,0 +1,46 @@
+#!/usr/bin/env python
+
+import fcntl
+import os
+import termios
+import tty
+from select import select
+from sys import stdin
+
+
+def setNonBlocking(fd):
+    """
+    Set the file description of the given file descriptor to non-blocking.
+
+    Copied from twisted.internet.fdesc.setNonBlocking()
+    https://github.com/twisted/twisted
+    """
+    flags = fcntl.fcntl(fd, fcntl.F_GETFL)
+    flags = flags | os.O_NONBLOCK
+    fcntl.fcntl(fd, fcntl.F_SETFL, flags)
+
+
+def stdin_has_data():
+    """
+    Return True iff there are bytes to read on stdin.
+
+    Adapted from getch()
+    https://github.com/joeyespo/py-getch.
+    """
+    fd = stdin.fileno()
+    old = termios.tcgetattr(fd)
+    setNonBlocking(fd)
+    try:
+        tty.setraw(fd)
+        return bool(select([stdin], [], [], 0)[0])
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old)
+
+
+if __name__ == '__main__':
+    if stdin_has_data():
+        with open('/tmp/scratch.txt', 'w') as fp:
+            fp.write(stdin.read())
+        os.system('emacsclient -n /tmp/scratch.txt')
+    else:
+        os.system('emacsclient -n')
