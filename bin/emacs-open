@@ -1,0 +1,7 @@
+#!/bin/bash
+
+emacsclient --no-wait \
+    --eval "(find-file \"/tmp/scratch.txt\")" \
+    --eval "(delete-region (point-min) (point-max))" \
+    --eval "(insert-file-contents \"$1\")" \
+    --eval "(progn (select-frame-set-input-focus (selected-frame)) (delete-other-windows))" > /dev/null
