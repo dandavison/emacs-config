@@ -1,0 +1,6 @@
+#!/bin/bash
+
+emacsclient --no-wait \
+    --eval "(magit-auto-revert-mode $1)" \
+    --eval "(global-auto-revert-mode $1)" \
+    > /dev/null
