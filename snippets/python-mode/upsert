@@ -1,0 +1,6 @@
+#name : upsert
+# --
+ordering_api.upsert(
+    {'uuid': order.uuid},
+    {$1},
+    user)

@@ -1,0 +1,9 @@
+#name : if
+# --
+if () then
+  -> Yes;
+  stop
+else
+  -> No;
+  stop
+endif

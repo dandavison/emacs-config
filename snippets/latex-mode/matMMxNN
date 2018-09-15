@@ -1,0 +1,4 @@
+#name : matMMxNN
+# --
+matMMxNN{$1}{$3}
+        {$2}{$4}
