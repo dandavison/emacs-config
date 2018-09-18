@@ -678,6 +678,13 @@ With C-u prefix argument copy URL to clipboard only."
       (delete-region (region-beginning) (region-end))
       (insert (format "\\frac{%s}{%s}" (match-string 1 s) (match-string 2 s))))))
 
+(defun dan/latex-unfrac-region (beg end)
+  (interactive "r")
+  (save-excursion
+    (goto-char beg)
+    (while (re-search-forward "\\\\frac{\\([^}]+\\)}{\\([^}]+\\)}" end t)
+     (replace-match "\\1/\\2"))))
+
 (defun dan/latex-frac-back ()
   (when (looking-back " \\([^/ ]+\\) */ *\\([^/ ]+\\)")
     (let ((numerator (match-string 1))
