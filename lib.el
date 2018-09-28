@@ -672,11 +672,35 @@ With C-u prefix argument copy URL to clipboard only."
   (call-interactively 'fill-paragraph)
   (latex-mode))
 
+(defun dan/latex-set-builder-pipe ()
+  (interactive)
+  (insert "~|~"))
+
+(defun dan/latex-bold (beg end)
+  (interactive "r")
+  (let ((end-marker (set-marker (make-marker) end)))
+    (save-excursion
+      (goto-char end)
+      (insert "}"))
+    (save-excursion
+      (goto-char beg)
+      (insert "{\\bf "))
+    (goto-char end-marker)
+    (forward-char)))
+
 (defun dan/latex-frac-region ()
   (let ((s (buffer-substring (region-beginning) (region-end))))
     (when (string-match "\\([^/]+\\)/\\([^/]+\\)" s)
       (delete-region (region-beginning) (region-end))
       (insert (format "\\frac{%s}{%s}" (match-string 1 s) (match-string 2 s))))))
+
+;; DNW
+;; (defun dan/latex-frac-region (beg end)
+;;   (interactive "r")
+;;   (save-excursion
+;;     (goto-char beg)
+;;     (while (re-search-forward "\\([^/]+\\)/\\([^/]+\\)" end t)
+;;      (replace-match "\\\\frac{\\1}{\\2}"))))
 
 (defun dan/latex-unfrac-region (beg end)
   (interactive "r")
