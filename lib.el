@@ -48,8 +48,9 @@
   (interactive)
   (let* ((pathvar (or pathvar "PATH"))
          (path-from-shell
-          (shell-command-to-string
-           (format "/bin/bash -c '. ~/.bashrc && echo -n $%s'" pathvar))))
+          (or "/Users/dan/.pyenv/shims:/Users/dan/bin:/Users/dan/src/emacs-config/bin:/Users/dan/src/misc:/Users/dan/go/bin:/usr/local/opt/postgresql@9.6/bin:/usr/local/opt/coreutils/libexec/gnubin:/usr/local/bin:/usr/local/texlive/2018/bin/x86_64-darwin:/Users/dan/.pyenv/shims:/usr/bin:/bin:/usr/sbin:/sbin:/Library/TeX/texbin:/Users/dan/src/counsyl/bin:/Users/dan/src/counsyl/bin"
+              (shell-command-to-string
+               (format "/bin/bash -c '. ~/.bashrc && echo -n $%s'" pathvar)))))
     (setenv pathvar path-from-shell)
     (when (string-equal pathvar "PATH")
       (setq exec-path (split-string path-from-shell path-separator)))))
@@ -213,7 +214,7 @@
                  (file-name-sans-extension
                   (file-name-nondirectory (buffer-file-name))))))
     (dan/set-after-save-command
-     (format "make %s > /dev/null" (if (file-exists-p pdf) pdf "notes.pdf"))))
+     (format "make %s > /dev/null" (if (file-exists-p pdf) pdf "mathematics.pdf"))))
   (dan/show-shell-output-buffer))
 
 (defun dan/save-even-if-not-modified ()
@@ -345,7 +346,7 @@
     (when (region-active-p) (deactivate-mark))))))
 
 (defun dan/pulse-momentary-highlight-current-line ()
-  (pulse-momentary-highlight-one-line (point)))
+  (pulse-momentary-highlight-one-line (point) 'helm-header))
 
 
 ;;; Scratch buffers
@@ -642,13 +643,6 @@ With C-u prefix argument copy URL to clipboard only."
   (latex-indent)))
 
 
-(defun org-insert-clipboard-image (&optional file)
-  (interactive "F")
-  (shell-command (concat "pngpaste " file))
-  (insert (concat "[[" file "]]"))
-  (org-display-inline-images))
-
-
 (defun dan/latex-yank-clipboard-image-maybe ()
   (interactive)
   (let ((output-file)
@@ -659,6 +653,7 @@ With C-u prefix argument copy URL to clipboard only."
             (progn
               (setq output-file
                     (read-file-name "File to save image: " (format "%s/img" default-directory)))
+              (when (file-exists-p output-file) (error "File exists: %s" output-file))
               (copy-file temp-file output-file t)))))
     (if output-file
         (insert (format "\\begin{mdframed}\n\\includegraphics[width=400pt]{%s}\n\\end{mdframed}"
@@ -679,12 +674,10 @@ With C-u prefix argument copy URL to clipboard only."
 (defun dan/latex-bold (beg end)
   (interactive "r")
   (let ((end-marker (set-marker (make-marker) end)))
-    (save-excursion
-      (goto-char end)
-      (insert "}"))
-    (save-excursion
-      (goto-char beg)
-      (insert "{\\bf "))
+    (goto-char end)
+    (insert "}")
+    (goto-char beg)
+    (insert "{\\bf ")
     (goto-char end-marker)
     (forward-char)))
 
@@ -722,6 +715,11 @@ With C-u prefix argument copy URL to clipboard only."
       (dan/latex-frac-region)
     (dan/latex-frac-back)))
 
+(defun dan/latex-frac-or-unfrac (&optional arg)
+  (interactive "P")
+  (call-interactively
+   (if arg 'dan/latex-unfrac-region 'dan/latex-frac)))
+
 (defun dan/focus ()
   (interactive)
   (when (not (region-active-p))
@@ -731,17 +729,18 @@ With C-u prefix argument copy URL to clipboard only."
      (region-beginning)
      (save-excursion
        (goto-char (region-beginning))
-       (search-backward "\\begin{document}")
+       (or (search-backward "\\begin{document}" nil t) (point-min))
        (forward-line +1)
        (point))) (error nil))
    (condition-case nil (comment-region
      (region-end)
      (save-excursion
        (goto-char (region-end))
-       (search-forward "\\end{document}")
-       (forward-line -1)
+       (or (search-forward "\\end{document}" nil t) (point-max))
+       (beginning-of-line)
        (point))) (error nil)))
-  (narrow-to-region (region-beginning) (region-end)))
+  (narrow-to-region (region-beginning) (region-end))
+  (deactivate-mark))
 
 (defun dan/unfocus ()
   (interactive)
@@ -753,7 +752,7 @@ With C-u prefix argument copy URL to clipboard only."
          beg
          (save-excursion
            (goto-char beg)
-           (search-backward "\\begin{description}")
+           (search-backward "\\begin{document}")
            (forward-line +1)
            (point)))
      (error nil))
@@ -762,10 +761,36 @@ With C-u prefix argument copy URL to clipboard only."
         end
         (save-excursion
           (goto-char end)
-          (search-forward "\\end{description}")
+          (search-forward "\\end{document}")
           (forward-line -1)
           (point)))
      (error nil))))
+
+;;; Org
+(defun dan/org-babel-execute-non-native-src-block ()
+  (interactive)
+  (let ((mode major-mode)
+        (heading "* \n"))
+    (org-narrow-to-block)
+    (org-mode)
+    ;; hack: org requires a heading in file
+    (save-excursion
+      (goto-char (point-min))
+      (insert heading))
+    (forward-char (length heading))
+    (org-babel-execute-src-block-maybe)
+    (save-excursion
+      (goto-char (point-min))
+      (delete-char (length heading)))
+    (widen)
+    (funcall mode)))
+
+(defun dan/org-insert-clipboard-image (&optional file)
+  (interactive "F")
+  (shell-command (concat "pngpaste " file))
+  (insert (concat "[[" file "]]"))
+  (org-display-inline-images))
+
 
 ;;; Eplot
 (defun dan/eplot-region ()
@@ -898,11 +923,6 @@ With C-u prefix argument copy URL to clipboard only."
 
 ;;; Python
 
-(defun catherine/insert-ipdb-set-trace ()
-  (interactive)
-  (insert "import ipdb; ipdb.set_trace()"))
-
-
 (defun dan/insert-ipdb-set-trace ()
   (interactive)
   (insert "import ipdb; ipdb.set_trace()")
@@ -930,7 +950,6 @@ With C-u prefix argument copy URL to clipboard only."
             "import %s ; %s.set_trace()"
           "import IPython; IPython.embed(banner1='')"))
       debugger debugger))))
-
 
 (setenv "WORKON_HOME" "~/tmp/virtualenvs")  ;; FIXME
 
@@ -976,7 +995,7 @@ With C-u prefix argument copy URL to clipboard only."
   (dired
    (concat
     (file-name-as-directory python-shell-virtualenv-root)
-    (format "lib/python%s/site-packages/" (if python3 "3.5" "2.7")))))
+    (format "lib/python%s/site-packages/" (if python3 "3.6" "2.7")))))
 
 
 (defvar dan/python-shell-function #'run-python)
@@ -1135,6 +1154,11 @@ returns the value of `python-shell-buffer-name'."
    beg end
    "python -c 'import sys, sqlparse; print(sqlparse.format(sys.stdin.read(), reindent=True))'"
    t t))
+
+;;; Javascript
+(defun dan/set-after-save-command-for-t ()
+  (interactive)
+  (dan/set-after-save-command "export PATH=/Users/dan/.nvm/versions/node/v10.11.0/bin:$PATH && cd /Users/dan/src/t && make js"))
 
 ;;; Comint
 

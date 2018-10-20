@@ -2,7 +2,7 @@
 (require 'cl)
 (require 'dired-x)
 
-(package-initialize)
+(unless (equal emacs-version "27.0.50") (package-initialize))
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 (add-to-list 'load-path "~/src/3p/emacs-async")
 (add-to-list 'load-path "~/src/3p/helm") (require 'helm-config)
@@ -21,6 +21,8 @@
 (add-to-list 'load-path "~/src/emacs-search-files") (require 'search-files)
 (add-to-list 'load-path "~/src/facet/emacs") (require 'facet)
 
+(add-to-list 'load-path "~/src/3p/org-mode/contrib/lisp") (require 'ob-mathematica)
+
 ;; (add-to-list 'custom-theme-load-path (expand-file-name
 ;;                                       "~/src/3p/emacs-themes-site/root/assets/local-src"))
 
@@ -29,7 +31,47 @@
   (load-file "~/src/emacs-config/extra.el"))
 
 
+;;; Appearance
+(setq ns-use-native-fullscreen nil)
+;; Doesn't respect ns-use-native-fullscreen if called now
+;; (toggle-frame-fullscreen)
+
+(setq ring-bell-function (lambda nil nil))
+
+(setq inhibit-startup-message t)
+(setq minimal-mode-line-background "sea green")
+(setq minimal-mode-line-inactive-background "dim grey")
+
+;; (load-theme 'railscasts-reloaded t)
+(load-theme 'leuven t)
+(minimal-mode)
+
+(defun dan/set-appearance ()
+  (interactive)
+  (scroll-bar-mode -1)
+  (set-cursor-color "red")
+  (set-face-foreground 'cursor (face-foreground 'font-lock-comment-face))
+  (setq-default cursor-in-non-selected-windows nil)
+  (setq cursor-type 'bar)
+  (blink-cursor-mode -1)
+
+  (set-face-background 'fringe (face-background 'default))
+  (dan/set-show-paren-style))
+
+(defun dan/set-show-paren-style ()
+  (show-paren-mode t)
+  (setq show-paren-delay .125)
+  (setq show-paren-style 'parenthesis)
+  (set-face-attribute 'show-paren-match nil :weight 'extra-bold)
+  (set-face-background 'show-paren-match (face-background 'default))
+  (set-face-attribute 'show-paren-match nil :foreground "red"))
+
+(dan/set-appearance)
+
+(advice-add 'load-theme :after (lambda (&rest args) (dan/set-appearance)))
+
 ;;; Modes
+(add-to-list 'auto-mode-alist '("\\.applescript\\'" . applescript-mode))
 (add-to-list 'auto-mode-alist '("\\.compilation\\'" . compilation-mode))
 (add-to-list 'auto-mode-alist '("\\.es6\\'" . js-mode))
 (add-to-list 'auto-mode-alist '("\\.jira\\'" . jira-markup-mode))
@@ -51,6 +93,8 @@
 (setq vc-follow-symlinks t)
 (setq save-silently t)
 (setq async-shell-command-buffer 'rename-buffer)
+(setq shell-command-default-error-buffer "*Shell Command Error*")
+(setq scroll-conservatively 101)
 
 (setq electric-indent-mode nil)
 (setq-default indent-tabs-mode nil)
@@ -60,13 +104,14 @@
 
 (setq auto-save-default nil)
 
+(global-eldoc-mode nil)
 (global-auto-revert-mode t)
 (setq auto-revert-interval 0.1)
 (setq global-auto-revert-non-file-buffers t)
 (setq dired-auto-revert-buffer t)
 (setq-default dired-omit-files-p t)
 (setq dired-omit-size-limit nil)
-(setq dired-omit-files "^\\.\\|__pycache__")  ;; "^\\.?#\\|^\\.$\\|^\\.\\.$" "\\.log\\|\\.aux\\|\\.out"
+(setq dired-omit-files "^\\.\\|__pycache__\\|\\.pyc")  ;; "^\\.?#\\|^\\.$\\|^\\.\\.$" "\\.log\\|\\.aux\\|\\.out"
 
 (dan/set-exec-path-from-shell)
 (dan/set-exec-path-from-shell "PYTHONPATH")
@@ -82,12 +127,13 @@
 (windmove-default-keybindings)
 
 (setq tramp-verbose 2)
+(setq tramp-default-method "ssh")
 
 (recentf-mode t)
 (setq recentf-max-saved-items nil)
 (add-to-list 'recentf-exclude ".*\\.\\(png\\|pdf\\)")
 
-(advice-add 'goto-line :before (lambda (&rest args) (show-all)))
+(advice-add 'goto-line :before (lambda (&rest args) (outline-show-all)))
 
 (delete-selection-mode t)
 
@@ -120,44 +166,6 @@
 (setq dan/scratch-buffer-dir "/tmp")
 
 
-;;; Appearance
-(setq ns-use-native-fullscreen nil)
-;; Doesn't respect ns-use-native-fullscreen if called now
-;; (toggle-frame-fullscreen)
-
-(setq ring-bell-function (lambda nil nil))
-
-(setq inhibit-startup-message t)
-(setq minimal-mode-line-background "sea green")
-(setq minimal-mode-line-inactive-background "dim grey")
-
-(load-theme 'railscasts-reloaded t)
-(minimal-mode)
-
-(defun dan/set-appearance ()
-  (interactive)
-  (scroll-bar-mode -1)
-  (set-cursor-color "red")
-  (set-face-foreground 'cursor (face-foreground 'font-lock-comment-face))
-  (setq-default cursor-in-non-selected-windows nil)
-  (setq cursor-type 'bar)
-  (blink-cursor-mode -1)
-
-  (set-face-background 'fringe (face-background 'default))
-  (dan/set-show-paren-style))
-
-(defun dan/set-show-paren-style ()
-  (show-paren-mode t)
-  (setq show-paren-delay .125)
-  (setq show-paren-style 'parenthesis)
-  (set-face-attribute 'show-paren-match nil :weight 'extra-bold)
-  (set-face-background 'show-paren-match (face-background 'default))
-  (set-face-attribute 'show-paren-match nil :foreground "red"))
-
-(dan/set-appearance)
-
-(advice-add 'load-theme :after (lambda (&rest args) (dan/set-appearance)))
-
 ;;; scrolling
 (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; one line at a time
 (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
@@ -183,13 +191,14 @@
 
 ;;; Org
 (setq org-src-fontify-natively t)
+(setq org-confirm-babel-evaluate nil)
 
 (set-face-attribute 'org-block-begin-line nil :foreground "lightgrey")
 (set-face-attribute 'org-block-end-line nil :foreground "lightgrey")
 
 
 ;;; Plantuml
-(setq plantuml-jar-path "/usr/local/Cellar/plantuml/1.2017.18/libexec/plantuml.jar")
+(setq plantuml-jar-path "/usr/local/Cellar/plantuml/1.2018.11/libexec/plantuml.jar")
 
 
 ;;; Python
@@ -365,7 +374,7 @@
 (setq helm-grep-file-path-style 'relative)
 (setq helm-full-frame t)
 
-(setq dan/ignored-patterns '("*.sql" "*.wsdl" "*.js.min" "*.min.js" "*.css.min" "*.pdf" "*/migrations/*" ".svg" "*vendor/*" "*/tests*" "*/fake/*"))
+(setq dan/ignored-patterns '("*.sql" "*.wsdl" "*.js.min" "*.min.js" "*.css.min" "*.min.css" "*.scss" "*.svg" "*.pdf" "*/migrations/*" "vendor/*" "*/tests*" "*/fake/*" "*.json" "*.csv"))
 (dan/set-global-ignored-files-variables!)
 
 
@@ -440,7 +449,7 @@
     ("\C-xd" . dan/dired-no-ask)
     ("\C-xp" . projectile-switch-project)
     ("\C-cb" . magit-blame)
-    ("\C-ce" . show-all)
+    ("\C-ce" . outline-show-all)
     ("\C-cf" . search-files-by-name)
     ("\C-cg" . magit-status)
     ("\C-cl" . linum-mode)
@@ -453,13 +462,12 @@
     ("\C-c\C-l" . eval-buffer)
     ("\C-c\C-z" . python-shell-switch-to-shell)
     ("\C-c1" . flycheck-mode)
-    ("\M-;" . comment-or-uncomment-region-or-line)
+    ;; ("\M-;" . comment-or-uncomment-region-or-line)
     ("\M-i" . dan/highlight)
     ("\M-q" . fill-paragraph)
     ("\M-x" . helm-M-x)
     ("\C-c\M-f" . search-files-thing-at-point)
     ("\C-xp" . dan/helm-projectile-switch-project)
-    ("\C-x\C-s" . projectile-save-project-buffers)
     ("\C-z" . (lambda () (interactive)))
     ("\M-o" . dan/helm-swoop-thing-at-point)
     ([f1] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?1 arg)))
@@ -565,7 +573,16 @@
 (require 'latex)
 (dan/register-key-bindings
  '("LaTeX" .
-   (("\C-c\C-c" . dan/save-even-if-not-modified))))
+   (("\C-c\C-c" . (lambda () (interactive)
+                    (condition-case nil
+                        (dan/org-babel-execute-non-native-src-block)
+                      (error nil))
+                    (dan/save-even-if-not-modified)))
+    ("\C-cn" . dan/focus)
+    ("\C-cw" . dan/unfocus)
+    ("\C-c|" . dan/latex-set-builder-pipe)
+    ("\C-c/" . dan/latex-frac-or-unfrac)
+    ([(super b)] . dan/latex-bold))))
 
 
 (require 'org)
@@ -579,6 +596,7 @@
 (dan/register-key-bindings
  '("python" .
    (("\C-cd" . dan/insert-ipdb-set-trace)
+    ("\C-cc" . dan/insert-clint-red)
     ("\C-c\C-c" . dan/python-shell-eval)
     (";" . self-insert-command)
     ([(super i)] . dan/python-where-am-i)
@@ -601,7 +619,7 @@
 ;;; Mode hooks
 (defun dan/on-jump-into-buffer ()
   (delete-other-windows)
-  (show-all)
+  (outline-show-all)
   (dan/pulse-momentary-highlight-current-line)
   (when (eq major-mode 'python-mode)
     (dan/python-current-defun-name)))
@@ -626,6 +644,12 @@
   (inf-clojure-minor-mode))
 (add-hook 'clojure-mode-hook 'dan/clojure-mode-hook-fn)
 (add-hook 'clojurescript-mode-hook 'dan/clojure-mode-hook-fn)
+
+
+(defun dan/dired-mode-hook-fn ()
+  (dired-omit-mode))
+(add-hook 'dired-mode-hook 'dan/dired-mode-hook-fn)
+
 
 (defun dan/inf-clojure-mode-hook-fn ()
   (paredit-mode))
@@ -662,7 +686,8 @@
 (add-hook 'find-function-after-hook 'dan/find-function-after-hook-fn)
 
 (defun dan/html-mode-hook-fn ()
-  (zencoding-mode))
+  ;;(zencoding-mode)
+  )
 (add-hook 'html-mode-hook 'dan/html-mode-hook-fn)
 
 (defun dan/inferior-python-mode-hook-fn ()
@@ -677,7 +702,13 @@
 (defun dan/LaTeX-mode-hook-fn ()
   (interactive)
   (dan/setup-paired-characters)
-  (dan/set-up-outline-minor-mode "\\(\\\\sub\\|\\\\section\\)")
+
+  ;; The following DNW for \begin for some reason. Try evaluating
+  ;; (set (make-local-variable 'outline-regexp) "\\(\\\\sub\\|\\\\section\\|\\\\begin\\)")
+  ;; in the buffer instead
+  (dan/set-up-outline-minor-mode "\\(\\\\sub\\|\\\\section\\|\\\\begin\\)")
+
+  (dan/set-up-outline-minor-mode "\\\\section")
   (dan/watch-mathematics)
   (add-to-list 'LaTeX-item-list
                '("align" . dan/latex-insert-item-in-align-environment))
@@ -722,6 +753,7 @@
   (setq prettify-symbols-alist
         '(("lambda" . 955)))
   (prettify-symbols-mode)
+  (eldoc-mode -1)
   (dan/set-up-outline-minor-mode "[ \t]*\\(def .+\\|class .+\\|##\\)"))
 (add-hook 'python-mode-hook 'dan/python-mode-hook-fn)
 (put 'dired-find-alternate-file 'disabled nil)
@@ -733,8 +765,13 @@
 (defun dan/sh-mode-hook-fn ()
   (setq sh-indentation 4)
   (setq sh-basic-offset nil)
+  (dan/set-up-outline-minor-mode "[a-zA-Z_-]+[ \t]*(")
   (paredit-c-mode))
 (add-hook 'sh-mode-hook 'dan/sh-mode-hook-fn)
+
+(defun dan/yaml-mode-hook-fn ()
+  (dan/set-up-outline-minor-mode "[^ \t]+"))
+(add-hook 'yaml-mode-hook 'dan/yaml-mode-hook-fn)
 
 
 ;;; Spam
@@ -746,18 +783,16 @@
  ;; If there is more than one, they won't work right.
  '(bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks")
  '(custom-safe-themes
-   (quote
-    ("9e6ac467fa1e5eb09e2ac477f61c56b2e172815b4a6a43cf48def62f9d3e5bf9" "b9183de9666c3a16a7ffa7faaa8e9941b8d0ab50f9aaba1ca49f2f3aec7e3be9" "0e8c264f24f11501d3f0cabcd05e5f9811213f07149e4904ed751ffdcdc44739" "780c67d3b58b524aa485a146ad9e837051918b722fd32fd1b7e50ec36d413e70" "a11043406c7c4233bfd66498e83600f4109c83420714a2bd0cd131f81cbbacea" "45482e7ddf47ab1f30fe05f75e5f2d2118635f5797687e88571842ff6f18b4d5" "a3821772b5051fa49cf567af79cc4dabfcfd37a1b9236492ae4724a77f42d70d" "3b4800ea72984641068f45e8d1911405b910f1406b83650cbd747a831295c911" default)))
- '(magit-diff-arguments (quote ("--ignore-all-space" "--no-ext-diff")))
+   '("72759f4e42617df7a07d0a4f4b08982314aa97fbd495a5405c9b11f48bd6b839" "9e6ac467fa1e5eb09e2ac477f61c56b2e172815b4a6a43cf48def62f9d3e5bf9" "b9183de9666c3a16a7ffa7faaa8e9941b8d0ab50f9aaba1ca49f2f3aec7e3be9" "0e8c264f24f11501d3f0cabcd05e5f9811213f07149e4904ed751ffdcdc44739" "780c67d3b58b524aa485a146ad9e837051918b722fd32fd1b7e50ec36d413e70" "a11043406c7c4233bfd66498e83600f4109c83420714a2bd0cd131f81cbbacea" "45482e7ddf47ab1f30fe05f75e5f2d2118635f5797687e88571842ff6f18b4d5" "a3821772b5051fa49cf567af79cc4dabfcfd37a1b9236492ae4724a77f42d70d" "3b4800ea72984641068f45e8d1911405b910f1406b83650cbd747a831295c911" default))
+ '(magit-diff-arguments '("--ignore-all-space" "--no-ext-diff"))
  '(package-selected-packages
-   (quote
-    (plantuml-mode multiple-cursors ivy counsel use-package sublimity avy auctex-latexmk smooth-scroll soothe-theme debbugs fzf helm-swoop elpy transpose-frame helm-themes graphviz-dot-mode helm-projectile flycheck color-theme-modern zones py-isort jira-markup-mode inf-clojure auto-overlays aumix-mode buffer-move confluence ess zencoding-mode yasnippet-bundle yasnippet yaml-mode smartparens rust-mode railscasts-theme paredit-everywhere minimal-theme markdown-mode latex-pretty-symbols flx-ido fill-column-indicator eyuml evil dockerfile-mode dired-details+ color-theme-railscasts coffee-mode clojure-mode auctex ag)))
- '(safe-local-variable-values (quote ((bug-reference-bug-regexp . "#\\(?2:[0-9]+\\)")))))
+   '(pony-mode dot-mode applescript-mode railscasts-reloaded-theme plantuml-mode multiple-cursors ivy counsel use-package sublimity avy auctex-latexmk smooth-scroll soothe-theme debbugs fzf helm-swoop elpy transpose-frame helm-themes graphviz-dot-mode helm-projectile flycheck color-theme-modern zones py-isort jira-markup-mode inf-clojure auto-overlays aumix-mode buffer-move confluence ess zencoding-mode yasnippet-bundle yasnippet yaml-mode smartparens rust-mode railscasts-theme paredit-everywhere minimal-theme markdown-mode latex-pretty-symbols flx-ido fill-column-indicator eyuml evil dockerfile-mode dired-details+ color-theme-railscasts coffee-mode clojure-mode auctex ag))
+ '(safe-local-variable-values '((bug-reference-bug-regexp . "#\\(?2:[0-9]+\\)"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(org-level-1 ((t (:foreground "#CC7733" :height 120)))))
 
 (message "⚡")
