@@ -720,51 +720,6 @@ With C-u prefix argument copy URL to clipboard only."
   (call-interactively
    (if arg 'dan/latex-unfrac-region 'dan/latex-frac)))
 
-(defun dan/focus ()
-  (interactive)
-  (when (not (region-active-p))
-    (error "There is no active region."))
-  (save-mark-and-excursion
-   (condition-case nil (comment-region
-     (region-beginning)
-     (save-excursion
-       (goto-char (region-beginning))
-       (or (search-backward "\\begin{document}" nil t) (point-min))
-       (forward-line +1)
-       (point))) (error nil))
-   (condition-case nil (comment-region
-     (region-end)
-     (save-excursion
-       (goto-char (region-end))
-       (or (search-forward "\\end{document}" nil t) (point-max))
-       (beginning-of-line)
-       (point))) (error nil)))
-  (narrow-to-region (region-beginning) (region-end))
-  (deactivate-mark))
-
-(defun dan/unfocus ()
-  (interactive)
-  (let ((beg (point-min))
-        (end (point-max)))
-    (widen)
-    (condition-case nil
-        (uncomment-region
-         beg
-         (save-excursion
-           (goto-char beg)
-           (search-backward "\\begin{document}")
-           (forward-line +1)
-           (point)))
-     (error nil))
-   (condition-case nil
-       (uncomment-region
-        end
-        (save-excursion
-          (goto-char end)
-          (search-forward "\\end{document}")
-          (forward-line -1)
-          (point)))
-     (error nil))))
 
 ;;; Org
 (defun dan/org-babel-execute-non-native-src-block ()
