@@ -720,6 +720,83 @@ With C-u prefix argument copy URL to clipboard only."
   (call-interactively
    (if arg 'dan/latex-unfrac-region 'dan/latex-frac)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; latex-focus
+
+(defvar dan/latex-focus-comment-beg "\\begin{comment}  % latex-focus")
+(defvar dan/latex-focus-comment-end "\\end{comment}  % latex-focus")
+(defvar dan/latex-focus-comment-delimiter-regex
+  (format "\\(\\%s\\|\\%s\\)"
+          dan/latex-focus-comment-beg
+          dan/latex-focus-comment-end))
+
+(defun dan/latex-focus (beg end)
+  (interactive "r")
+  (assert (not (dan/latex-focused)) "Already focused")
+  (-let* (((pre-comment-beg
+            pre-comment-end
+            post-comment-beg
+            post-comment-end)
+           (dan/latex-focus-get-document-coordinates beg end)))
+    (save-excursion
+      (goto-char post-comment-end)
+      (insert dan/latex-focus-comment-end "\n")
+      (goto-char post-comment-beg)
+      (insert dan/latex-focus-comment-beg "\n")
+      (goto-char pre-comment-end)
+      (insert dan/latex-focus-comment-end "\n")
+      (goto-char pre-comment-beg)
+      (insert dan/latex-focus-comment-beg "\n")))
+  (dan/latex-focus-narrow-to-region))
+
+(defun dan/latex-unfocus ()
+  (interactive)
+  (goto-char (point-min))
+  (widen)
+  (assert (dan/latex-focused) "Not focused")
+  (dan/latex-focus-remove-all-comment-delimiters))
+
+(defun dan/latex-focus-get-document-coordinates (beg end)
+  (list
+   (dan/point-at-bol-after (or (search-backward "\\begin{document}" nil t)
+                               (point-min)))
+   (dan/point-at-bol-before beg)
+   (dan/point-at-bol-after end)
+   (dan/point-at-bol-before (or (search-forward "\\end{document}" nil t)
+                                (point-max)))))
+
+(defun dan/latex-focus-narrow-to-region ()
+  (narrow-to-region
+   (save-excursion
+     (goto-char (point-min))
+     (dan/point-at-bol-after
+      (search-forward dan/latex-focus-comment-end)))
+   (save-excursion
+     (goto-char (point-max))
+     (search-backward dan/latex-focus-comment-beg))))
+
+(defun dan/latex-focused ()
+  (save-excursion
+    (goto-char (point-min))
+    (re-search-forward dan/latex-focus-comment-delimiter-regex nil t)))
+
+(defun dan/latex-focus-remove-all-comment-delimiters ()
+  (save-excursion
+    (goto-char (point-min))
+    (flush-lines dan/latex-focus-comment-delimiter-regex)))
+
+(defun dan/point-at-bol-before (pos)
+  (save-excursion
+    (goto-char pos)
+    (point-at-bol 0)))
+
+(defun dan/point-at-bol-after (pos)
+  (save-excursion
+    (goto-char pos)
+    (point-at-bol 2)))
+
+;; end latex-focus
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Org
 (defun dan/org-babel-execute-non-native-src-block ()
