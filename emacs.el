@@ -748,6 +748,13 @@
   (local-set-key ";" 'self-insert-command))
 (add-hook 'paredit-c-mode-hook 'dan/paredit-c-mode-hook-fn)
 
+(defun dan/penrose-hook-fn ()
+  (paredit-c-mode))
+
+(add-hook 'penrose-substance-mode-hook 'dan/penrose-hook-fn)
+(add-hook 'penrose-style-mode-hook 'dan/penrose-hook-fn)
+(add-hook 'penrose-dsl-mode-hook 'dan/penrose-hook-fn)
+
 (defun dan/python-mode-hook-fn ()
   (paredit-c-mode)
   (setq prettify-symbols-alist
