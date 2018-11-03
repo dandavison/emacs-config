@@ -824,6 +824,17 @@ With C-u prefix argument copy URL to clipboard only."
   (org-display-inline-images))
 
 
+(fset 'x
+   (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item '([3 5 104 111 up down] 0 "%d") arg)))
+
+
+(defun dan/org-html-export-to-html ()
+  (kmacro-exec-ring-item '([3 5 104 111 up down] 0 "%d") nil)
+  ;;(org-html-export-to-html t)
+  )
+
+;; (add-hook 'after-save-hook 'dan/org-html-export-to-html)
+
 ;;; Eplot
 (defun dan/eplot-region ()
   (interactive)
