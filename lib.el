@@ -955,6 +955,12 @@ With C-u prefix argument copy URL to clipboard only."
 
 ;;; Python
 
+(defun dan/black ()
+  (interactive)
+  (let ((cmd (format "~/bin/black %s" (buffer-file-name))))
+    (message cmd)
+    (dan/set-after-save-command cmd)))
+
 (defun dan/insert-ipdb-set-trace ()
   (interactive)
   (insert "import ipdb; ipdb.set_trace()")
