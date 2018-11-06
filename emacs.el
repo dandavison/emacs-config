@@ -20,6 +20,12 @@
 (add-to-list 'load-path "~/src/emacs-filter-results") (require 'filter-results)
 (add-to-list 'load-path "~/src/emacs-search-files") (require 'search-files)
 (add-to-list 'load-path "~/src/facet/emacs") (require 'facet)
+(add-to-list 'load-path "~/src/3p/penrose-modes") (require 'penrose-modes)
+
+
+;; (add-to-list 'load-path "~/src/3p/mma-mode") (require 'mma)
+;; (setq auto-mode-alist
+;;       (cons '("\.m\'" . mma-mode) auto-mode-alist))
 
 (add-to-list 'load-path "~/src/3p/org-mode/contrib/lisp") (require 'ob-mathematica)
 
@@ -112,6 +118,7 @@
 (setq-default dired-omit-files-p t)
 (setq dired-omit-size-limit nil)
 (setq dired-omit-files "^\\.\\|__pycache__\\|\\.pyc")  ;; "^\\.?#\\|^\\.$\\|^\\.\\.$" "\\.log\\|\\.aux\\|\\.out"
+(put 'dired-find-alternate-file 'disabled nil)
 
 (dan/set-exec-path-from-shell)
 (dan/set-exec-path-from-shell "PYTHONPATH")
@@ -449,6 +456,7 @@
     ("\C-xd" . dan/dired-no-ask)
     ("\C-xp" . projectile-switch-project)
     ("\C-cb" . magit-blame)
+    ("\C-cc" . (lambda () (interactive) (magit-show-commit "HEAD")))
     ("\C-ce" . outline-show-all)
     ("\C-cf" . search-files-by-name)
     ("\C-cg" . magit-status)
@@ -507,6 +515,10 @@
 
 
 (global-set-key (kbd "s-,") 'dan/show-buffer-file-name)
+
+(dan/register-key-bindings
+ '("dired" .
+   (("R" . (lambda () )))))
 
 (require 'bookmark)
 (dan/register-key-bindings
@@ -582,7 +594,8 @@
     ("\C-xnw" . dan/latex-unfocus)
     ("\C-c|" . dan/latex-set-builder-pipe)
     ("\C-c/" . dan/latex-frac-or-unfrac)
-    ([(super b)] . dan/latex-bold))))
+    ([(super b)] . dan/latex-bold)
+    ([(super t)] . dan/latex-fixed-width))))
 
 
 (require 'org)
@@ -596,7 +609,6 @@
 (dan/register-key-bindings
  '("python" .
    (("\C-cd" . dan/insert-ipdb-set-trace)
-    ("\C-cc" . dan/insert-clint-red)
     ("\C-c\C-c" . dan/python-shell-eval)
     (";" . self-insert-command)
     ([(super i)] . dan/python-where-am-i)
@@ -761,9 +773,9 @@
         '(("lambda" . 955)))
   (prettify-symbols-mode)
   (eldoc-mode -1)
+  (dan/blacken)
   (dan/set-up-outline-minor-mode "[ \t]*\\(def .+\\|class .+\\|##\\)"))
 (add-hook 'python-mode-hook 'dan/python-mode-hook-fn)
-(put 'dired-find-alternate-file 'disabled nil)
 
 (defun dan/scheme-mode-hook-fn ()
   (scheme-mode))

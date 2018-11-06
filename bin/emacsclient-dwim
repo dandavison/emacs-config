@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# bug: when input is from a pipe, this script may execute before anything has been written to the pipe.
 if test -s /dev/stdin; then
     cat > /tmp/scratch.txt
     emacsclient -n /tmp/scratch.txt $@
