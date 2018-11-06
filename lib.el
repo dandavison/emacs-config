@@ -990,11 +990,15 @@ With C-u prefix argument copy URL to clipboard only."
 
 ;;; Python
 
-(defun dan/black ()
+(defun dan/blacken ()
   (interactive)
-  (let ((cmd (format "~/bin/black %s" (buffer-file-name))))
-    (message cmd)
-    (dan/set-after-save-command cmd)))
+  (unless (boundp 'dan/blacken-this-file)
+    (set (make-local-variable 'dan/blacken-this-file)
+         (equal (ido-completing-read "Blacken this file?: " '("no" "yes")) "yes")))
+  (when dan/blacken-this-file
+    (let ((cmd (format "~/bin/black -l 99 %s" (buffer-file-name))))
+      (message cmd)
+      (dan/set-after-save-command cmd))))
 
 (defun dan/insert-ipdb-set-trace ()
   (interactive)
