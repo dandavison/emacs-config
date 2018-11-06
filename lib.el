@@ -852,6 +852,23 @@ With C-u prefix argument copy URL to clipboard only."
 
 ;;; Magit
 
+;; This doesn't seem to work: cl-flet doesn't override name in desired scope?
+;; (defun dan/magit-dired-rename ()
+;;   (interactive)
+;;   (cl-flet ((dired-rename-file (file newname ok-if-already-exists)
+;;                                (message "In redefined dired-rename-file")
+;;                                (magit-file-rename file newname)))
+;;     (call-interactively 'dired-do-rename)))
+
+
+;; DNW?
+;; (defun dan/magit-dired-rename ()
+;;   (interactive)
+;;   (let* ((file (dired-file-name-at-point))
+;;          (newname (read-file-name (format "New name: " file)
+;;                                   (expand-file-name (file-name-directory file)))))
+;;     (magit-file-rename file newname)))
+
 (defun dan/magit-hide-all-sections ()
   (interactive)
   (save-excursion
