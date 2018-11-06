@@ -671,15 +671,22 @@ With C-u prefix argument copy URL to clipboard only."
   (interactive)
   (insert "~|~"))
 
-(defun dan/latex-bold (beg end)
-  (interactive "r")
+(defun dan/latex-format-region (fmt beg end)
   (let ((end-marker (set-marker (make-marker) end)))
     (goto-char end)
     (insert "}")
     (goto-char beg)
-    (insert "{\\bf ")
+    (insert (format "{\\%s " fmt))
     (goto-char end-marker)
     (forward-char)))
+
+(defun dan/latex-bold (beg end)
+  (interactive "r")
+  (dan/latex-format-region "bf" beg end))
+
+(defun dan/latex-fixed-width (beg end)
+  (interactive "r")
+  (dan/latex-format-region "tt" beg end))
 
 (defun dan/latex-frac-region ()
   (let ((s (buffer-substring (region-beginning) (region-end))))
