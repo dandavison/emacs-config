@@ -161,6 +161,17 @@
   (add-text-properties 0 (length string) (list 'face face) string)
   string)
 
+(defun dan/compile-jfdi ()
+  (interactive)
+  (setq-default compilation-directory default-directory)
+  (compilation-start compile-command))
+
+(defun dan/compile-on-save (&optional arg)
+  (interactive "P")
+  (if arg
+      (remove-hook 'after-save-hook 'dan/compile-jfdi t)
+    (add-hook 'after-save-hook 'dan/compile-jfdi nil t)))
+
 ;;; Indentation
 
 (defun dan/indent-shift-left (&rest args)
@@ -173,6 +184,12 @@
   (let ((python-indent-offset 2))
     (call-interactively 'python-indent-shift-right)))
 
+(defun dan/indent-region ()
+  (interactive)
+  (if (region-active-p)
+      (call-interactively 'indent-region)
+    (save-excursion
+      (indent-region (point-min) (point-max)))))
 
 ;;; After-save hook
 
@@ -684,6 +701,10 @@ With C-u prefix argument copy URL to clipboard only."
   (interactive "r")
   (dan/latex-format-region "bf" beg end))
 
+(defun dan/latex-italic (beg end)
+  (interactive "r")
+  (dan/latex-format-region "it" beg end))
+
 (defun dan/latex-fixed-width (beg end)
   (interactive "r")
   (dan/latex-format-region "tt" beg end))
@@ -739,6 +760,7 @@ With C-u prefix argument copy URL to clipboard only."
 
 (defun dan/latex-focus (beg end)
   (interactive "r")
+  (assert (region-active-p) "No region selected")
   (assert (not (dan/latex-focused)) "Already focused")
   (-let* (((pre-comment-beg
             pre-comment-end
@@ -998,7 +1020,11 @@ With C-u prefix argument copy URL to clipboard only."
   (when dan/blacken-this-file
     (let ((cmd (format "~/bin/black -l 99 %s" (buffer-file-name))))
       (message cmd)
-      (dan/set-after-save-command cmd))))
+      (save-window-excursion
+        (async-shell-command cmd)))))
+
+(add-hook 'after-save-hook
+          (lambda () (interactive) (when (eq major-mode 'python-mode) (dan/blacken))))
 
 (defun dan/insert-ipdb-set-trace ()
   (interactive)

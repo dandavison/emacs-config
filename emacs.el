@@ -120,6 +120,9 @@
 (setq dired-omit-files "^\\.\\|__pycache__\\|\\.pyc")  ;; "^\\.?#\\|^\\.$\\|^\\.\\.$" "\\.log\\|\\.aux\\|\\.out"
 (put 'dired-find-alternate-file 'disabled nil)
 
+(setq compilation-ask-about-save nil)
+(setq compilation-save-buffers-predicate (lambda () nil))
+
 (dan/set-exec-path-from-shell)
 (dan/set-exec-path-from-shell "PYTHONPATH")
 
@@ -196,10 +199,16 @@
 ;;; Flycheck
 (setq flycheck-highlighting-mode 'lines)
 
+;; Haskell
+(setq hindent-extra-args '("--line-length" "100"))
+
 ;;; Org
 (setq org-src-fontify-natively t)
-(setq org-confirm-babel-evaluate nil)
+(setq org-edit-src-persistent-message nil)
+(setq org-src-window-setup 'current-window)
 
+(setq org-confirm-babel-evaluate nil)
+(require 'ob-haskell)
 (set-face-attribute 'org-block-begin-line nil :foreground "lightgrey")
 (set-face-attribute 'org-block-end-line nil :foreground "lightgrey")
 
@@ -381,7 +390,7 @@
 (setq helm-grep-file-path-style 'relative)
 (setq helm-full-frame t)
 
-(setq dan/ignored-patterns '("*.sql" "*.wsdl" "*.js.min" "*.min.js" "*.css.min" "*.min.css" "*.scss" "*.svg" "*.pdf" "*/migrations/*" "vendor/*" "*/tests*" "*/fake/*" "*.json" "*.csv"))
+(setq dan/ignored-patterns '("*.sql" "*.wsdl" "*.js.min" "*.min.js" "*.css.min" "*.min.css" "*.scss" "*.svg" "*.pdf" "*/migrations/*" "vendor/*" "*/tests*" "*/fake/*" "*.json" "*.csv" "*.hl7"))
 (dan/set-global-ignored-files-variables!)
 
 
@@ -441,7 +450,8 @@
 (dan/register-key-bindings
  '(global-map
    .
-   (("\C-b" . backward-sexp)
+   (("\C-\M-\\" . dan/indent-region)
+    ("\C-b" . backward-sexp)
     ("\C-f" . forward-sexp)
     ([(right)] . forward-char)
     ([(left)] . backward-char)
@@ -463,6 +473,8 @@
     ("\C-cl" . linum-mode)
     ("\C-co" . dan/scratch-buffer)
     ("\C-cr" . replace-regexp)
+    ("\C-c\C-c" . dan/save-even-if-not-modified)
+    ("\C-c\C-r" . magit-file-rename)
     ("\C-cs" . (lambda () (interactive)
                  (shell-command-on-region
                   (region-beginning) (region-end) "sort" nil 'replace)))
@@ -541,7 +553,8 @@
 
 (dan/register-key-bindings
  '("compilation" .
-   (("\C-cd" . dan/delete-matching-lines))))
+   (([(return)] . compilation-display-error)
+    ("\C-cd" . dan/delete-matching-lines))))
 
 
 (dan/register-key-bindings
@@ -595,6 +608,7 @@
     ("\C-c|" . dan/latex-set-builder-pipe)
     ("\C-c/" . dan/latex-frac-or-unfrac)
     ([(super b)] . dan/latex-bold)
+    ([(super i)] . dan/latex-italic)
     ([(super t)] . dan/latex-fixed-width))))
 
 
@@ -602,7 +616,9 @@
 (dan/register-key-bindings
  '("org" .
    (([(shift left)] . windmove-left)
-    ([(shift right)] . windmove-right))))
+    ([(shift right)] . windmove-right)
+    ([(shift up)] . windmove-up)
+    ([(shift down)] . windmove-down))))
 
 
 (require 'python)
@@ -672,9 +688,7 @@
   (setq coffee-tab-width 2))
 (add-hook 'coffee-mode-hook 'dan/coffee-mode-hook-fn)
 
-(defun dan/compilation-finish-fn ()
-  (filter-results-clean-up-compilation-buffer))
-(add-hook 'compilation-finish-functions 'dan/compilation-finish-fn)
+(add-hook 'compilation-finish-functions 'filter-results-clean-up-compilation-buffer)
 
 (defun dan/emacs-lisp-mode-hook-fn ()
   (paredit-mode t)
@@ -696,6 +710,13 @@
 (defun dan/find-function-after-hook-fn ()
   (dan/on-jump-into-buffer))
 (add-hook 'find-function-after-hook 'dan/find-function-after-hook-fn)
+
+(defun dan/haskell-mode-fn ()
+  (hindent-mode)
+  ;; (add-hook 'after-save-hook 'hindent-reformat-buffer nil t)
+  (paredit-c-mode))
+(add-hook 'haskell-mode-hook 'dan/haskell-mode-fn)
+
 
 (defun dan/html-mode-hook-fn ()
   ;;(zencoding-mode)
@@ -773,7 +794,6 @@
         '(("lambda" . 955)))
   (prettify-symbols-mode)
   (eldoc-mode -1)
-  (dan/blacken)
   (dan/set-up-outline-minor-mode "[ \t]*\\(def .+\\|class .+\\|##\\)"))
 (add-hook 'python-mode-hook 'dan/python-mode-hook-fn)
 
@@ -802,16 +822,17 @@
  ;; If there is more than one, they won't work right.
  '(bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks")
  '(custom-safe-themes
-   '("72759f4e42617df7a07d0a4f4b08982314aa97fbd495a5405c9b11f48bd6b839" "9e6ac467fa1e5eb09e2ac477f61c56b2e172815b4a6a43cf48def62f9d3e5bf9" "b9183de9666c3a16a7ffa7faaa8e9941b8d0ab50f9aaba1ca49f2f3aec7e3be9" "0e8c264f24f11501d3f0cabcd05e5f9811213f07149e4904ed751ffdcdc44739" "780c67d3b58b524aa485a146ad9e837051918b722fd32fd1b7e50ec36d413e70" "a11043406c7c4233bfd66498e83600f4109c83420714a2bd0cd131f81cbbacea" "45482e7ddf47ab1f30fe05f75e5f2d2118635f5797687e88571842ff6f18b4d5" "a3821772b5051fa49cf567af79cc4dabfcfd37a1b9236492ae4724a77f42d70d" "3b4800ea72984641068f45e8d1911405b910f1406b83650cbd747a831295c911" default))
+   '("4e5e58e42f6f37920b95a8502f488928b3dab9b6cc03d864e38101ce36ecb968" "72759f4e42617df7a07d0a4f4b08982314aa97fbd495a5405c9b11f48bd6b839" "9e6ac467fa1e5eb09e2ac477f61c56b2e172815b4a6a43cf48def62f9d3e5bf9" "b9183de9666c3a16a7ffa7faaa8e9941b8d0ab50f9aaba1ca49f2f3aec7e3be9" "0e8c264f24f11501d3f0cabcd05e5f9811213f07149e4904ed751ffdcdc44739" "780c67d3b58b524aa485a146ad9e837051918b722fd32fd1b7e50ec36d413e70" "a11043406c7c4233bfd66498e83600f4109c83420714a2bd0cd131f81cbbacea" "45482e7ddf47ab1f30fe05f75e5f2d2118635f5797687e88571842ff6f18b4d5" "a3821772b5051fa49cf567af79cc4dabfcfd37a1b9236492ae4724a77f42d70d" "3b4800ea72984641068f45e8d1911405b910f1406b83650cbd747a831295c911" default))
  '(magit-diff-arguments '("--ignore-all-space" "--no-ext-diff"))
  '(package-selected-packages
-   '(haskell-mode htmlize pony-mode dot-mode applescript-mode railscasts-reloaded-theme plantuml-mode multiple-cursors ivy counsel use-package sublimity avy auctex-latexmk smooth-scroll soothe-theme debbugs fzf helm-swoop elpy transpose-frame helm-themes graphviz-dot-mode helm-projectile flycheck color-theme-modern zones py-isort jira-markup-mode inf-clojure auto-overlays aumix-mode buffer-move confluence ess zencoding-mode yasnippet-bundle yasnippet yaml-mode smartparens rust-mode railscasts-theme paredit-everywhere minimal-theme markdown-mode latex-pretty-symbols flx-ido fill-column-indicator eyuml evil dockerfile-mode dired-details+ color-theme-railscasts coffee-mode clojure-mode auctex ag))
+   '(hindent haskell-mode htmlize pony-mode dot-mode applescript-mode railscasts-reloaded-theme plantuml-mode multiple-cursors ivy counsel use-package sublimity avy auctex-latexmk smooth-scroll soothe-theme debbugs fzf helm-swoop elpy transpose-frame helm-themes graphviz-dot-mode helm-projectile flycheck color-theme-modern zones py-isort jira-markup-mode inf-clojure auto-overlays aumix-mode buffer-move confluence ess zencoding-mode yasnippet-bundle yasnippet yaml-mode smartparens rust-mode railscasts-theme paredit-everywhere minimal-theme markdown-mode latex-pretty-symbols flx-ido fill-column-indicator eyuml evil dockerfile-mode dired-details+ color-theme-railscasts coffee-mode clojure-mode auctex ag))
  '(safe-local-variable-values '((bug-reference-bug-regexp . "#\\(?2:[0-9]+\\)"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(font-latex-verbatim-face ((t (:inherit nil))))
  '(org-block ((t (:background "white" :foreground "#000088"))))
  '(org-block-begin-line ((t (:background "White" :foreground "lightgrey" :underline nil))))
  '(org-block-end-line ((t (:background "white" :foreground "lightgrey" :overline nil))))
