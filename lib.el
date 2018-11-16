@@ -163,8 +163,10 @@
 
 (defun dan/compile-jfdi ()
   (interactive)
-  (setq-default compilation-directory default-directory)
-  (compilation-start compile-command))
+  (let ((default-directory (locate-dominating-file "." "Makefile"))
+        (compile-command "make"))
+    (setq-default compilation-directory default-directory)
+    (compilation-start compile-command)))
 
 (defun dan/compile-on-save (&optional arg)
   (interactive "P")
