@@ -764,20 +764,7 @@ With C-u prefix argument copy URL to clipboard only."
   (interactive "r")
   (assert (region-active-p) "No region selected")
   (assert (not (dan/latex-focused)) "Already focused")
-  (-let* (((pre-comment-beg
-            pre-comment-end
-            post-comment-beg
-            post-comment-end)
-           (dan/latex-focus-get-document-coordinates beg end)))
-    (save-excursion
-      (goto-char post-comment-end)
-      (insert dan/latex-focus-comment-end "\n")
-      (goto-char post-comment-beg)
-      (insert dan/latex-focus-comment-beg "\n")
-      (goto-char pre-comment-end)
-      (insert dan/latex-focus-comment-end "\n")
-      (goto-char pre-comment-beg)
-      (insert dan/latex-focus-comment-beg "\n")))
+  (dan/latex-focus-insert-comment-delimiters beg end)
   (dan/latex-focus-narrow-to-region))
 
 (defun dan/latex-unfocus ()
@@ -785,7 +772,7 @@ With C-u prefix argument copy URL to clipboard only."
   (goto-char (point-min))
   (widen)
   (assert (dan/latex-focused) "Not focused")
-  (dan/latex-focus-remove-all-comment-delimiters))
+  (dan/latex-focus-remove-comment-delimiters))
 
 (defun dan/latex-focus-get-document-coordinates (beg end)
   (list
@@ -811,7 +798,25 @@ With C-u prefix argument copy URL to clipboard only."
     (goto-char (point-min))
     (re-search-forward dan/latex-focus-comment-delimiter-regex nil t)))
 
-(defun dan/latex-focus-remove-all-comment-delimiters ()
+(defun dan/latex-focus-insert-comment-delimiters (beg end)
+  (interactive "r")
+  (save-excursion
+    (-let* (((pre-comment-beg
+              pre-comment-end
+              post-comment-beg
+              post-comment-end)
+             (dan/latex-focus-get-document-coordinates beg end)))
+      (goto-char post-comment-end)
+      (insert dan/latex-focus-comment-end "\n")
+      (goto-char post-comment-beg)
+      (insert dan/latex-focus-comment-beg "\n")
+      (goto-char pre-comment-end)
+      (insert dan/latex-focus-comment-end "\n")
+      (goto-char pre-comment-beg)
+      (insert dan/latex-focus-comment-beg "\n"))))
+
+(defun dan/latex-focus-remove-comment-delimiters ()
+  (interactive)
   (save-excursion
     (goto-char (point-min))
     (flush-lines dan/latex-focus-comment-delimiter-regex)))
