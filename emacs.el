@@ -20,7 +20,7 @@
 (add-to-list 'load-path "~/src/emacs-filter-results") (require 'filter-results)
 (add-to-list 'load-path "~/src/emacs-search-files") (require 'search-files)
 (add-to-list 'load-path "~/src/facet/emacs") (require 'facet)
-(add-to-list 'load-path "~/src/3p/penrose-modes") (require 'penrose-modes)
+;; (add-to-list 'load-path "~/src/3p/penrose-modes") (require 'penrose-modes)
 
 
 ;; (add-to-list 'load-path "~/src/3p/mma-mode") (require 'mma)
@@ -134,6 +134,11 @@
 (put 'narrow-to-region 'disabled nil)
 
 (winner-mode t)
+(require 'ido)
+(let ((is-dired-buffer? (lambda (buff) (eq (with-current-buffer buff major-mode) 'dired-mode))))
+  (add-to-list 'ido-ignore-buffers is-dired-buffer?)
+  (add-to-list 'winner-boring-buffers is-dired-buffer?))
+
 (windmove-default-keybindings)
 
 (setq tramp-verbose 2)
@@ -198,9 +203,15 @@
 
 ;;; Flycheck
 (setq flycheck-highlighting-mode 'lines)
+(setq flycheck-flake8-maximum-line-length 99)
 
 ;; Haskell
 (setq hindent-extra-args '("--line-length" "100"))
+
+;; Agda
+(load-file (let ((coding-system-for-read 'utf-8))
+             (shell-command-to-string "agda-mode locate")))
+
 
 ;;; Org
 (setq org-src-fontify-natively t)
@@ -213,6 +224,8 @@
 (set-face-attribute 'org-block-end-line nil :foreground "lightgrey")
 
 
+;;; Erc
+(setq erc-nick "dd7")
 ;;; Plantuml
 (setq plantuml-jar-path "/usr/local/Cellar/plantuml/1.2018.11/libexec/plantuml.jar")
 
@@ -467,6 +480,7 @@
     ("\C-xp" . projectile-switch-project)
     ("\C-cb" . magit-blame)
     ("\C-cc" . (lambda () (interactive) (magit-show-commit "HEAD")))
+    ("\C-cd" . dan/magit-diff)
     ("\C-ce" . outline-show-all)
     ("\C-cf" . search-files-by-name)
     ("\C-cg" . magit-status)
@@ -528,10 +542,6 @@
 
 (global-set-key (kbd "s-,") 'dan/show-buffer-file-name)
 
-(dan/register-key-bindings
- '("dired" .
-   (("R" . (lambda () )))))
-
 (require 'bookmark)
 (dan/register-key-bindings
  '("bookmark-bmenu" .
@@ -563,6 +573,12 @@
     ("\C-c," . find-function)
     ("\C-c\C-r" . (lambda () (interactive) (call-interactively 'eval-region) (deactivate-mark)))
     ([tab] . dan/indent-or-complete))))
+
+(require 'haskell)
+(dan/register-key-bindings
+ '("haskell" .
+   (("'" . self-insert-command))))
+
 
 (require 'helm)
 
@@ -608,6 +624,7 @@
     ("\C-c|" . dan/latex-set-builder-pipe)
     ("\C-c/" . dan/latex-frac-or-unfrac)
     ([(super b)] . dan/latex-bold)
+    ([(super d)] . dan/latex-definition)
     ([(super i)] . dan/latex-italic)
     ([(super t)] . dan/latex-fixed-width))))
 
@@ -662,6 +679,11 @@
     (dan/org-table-to-markdown)))
 (add-hook 'before-save-hook 'dan/before-save-hook-fn)
 
+(defun dan/awk-mode-hook-fn ()
+  (paredit-c-mode))
+(add-hook 'awk-mode-hook 'dan/awk-mode-hook-fn)
+
+
 (defun dan/c-mode-hook-fn ()
   (setq c-basic-offset 4)
   (paredit-c-mode))
@@ -714,7 +736,8 @@
 (defun dan/haskell-mode-fn ()
   (hindent-mode)
   ;; (add-hook 'after-save-hook 'hindent-reformat-buffer nil t)
-  (paredit-c-mode))
+  (paredit-c-mode)
+  (local-set-key "'" 'self-insert-command))
 (add-hook 'haskell-mode-hook 'dan/haskell-mode-fn)
 
 
@@ -781,12 +804,15 @@
   (local-set-key ";" 'self-insert-command))
 (add-hook 'paredit-c-mode-hook 'dan/paredit-c-mode-hook-fn)
 
-(defun dan/penrose-hook-fn ()
-  (paredit-c-mode))
 
-(add-hook 'penrose-substance-mode-hook 'dan/penrose-hook-fn)
-(add-hook 'penrose-style-mode-hook 'dan/penrose-hook-fn)
-(add-hook 'penrose-dsl-mode-hook 'dan/penrose-hook-fn)
+(when nil
+  (add-to-list 'load-path "~/src/3p/penrose-modes") (require 'penrose-modes)
+  (defun dan/penrose-hook-fn ()
+    (paredit-c-mode))
+
+  (add-hook 'penrose-substance-mode-hook 'dan/penrose-hook-fn)
+  (add-hook 'penrose-style-mode-hook 'dan/penrose-hook-fn)
+  (add-hook 'penrose-dsl-mode-hook 'dan/penrose-hook-fn))
 
 (defun dan/python-mode-hook-fn ()
   (paredit-c-mode)
@@ -808,6 +834,11 @@
   (paredit-c-mode))
 (add-hook 'sh-mode-hook 'dan/sh-mode-hook-fn)
 
+(defun dan/sql-mode-hook-fn ()
+  (paredit-c-mode)
+  (sqlind-minor-mode))
+(add-hook 'sql-mode-hook 'dan/sql-mode-hook-fn)
+
 (defun dan/yaml-mode-hook-fn ()
   (dan/set-up-outline-minor-mode "[^ \t]+"))
 (add-hook 'yaml-mode-hook 'dan/yaml-mode-hook-fn)
@@ -820,18 +851,20 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(agda2-highlight-level 'non-interactive)
  '(bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks")
  '(custom-safe-themes
    '("4e5e58e42f6f37920b95a8502f488928b3dab9b6cc03d864e38101ce36ecb968" "72759f4e42617df7a07d0a4f4b08982314aa97fbd495a5405c9b11f48bd6b839" "9e6ac467fa1e5eb09e2ac477f61c56b2e172815b4a6a43cf48def62f9d3e5bf9" "b9183de9666c3a16a7ffa7faaa8e9941b8d0ab50f9aaba1ca49f2f3aec7e3be9" "0e8c264f24f11501d3f0cabcd05e5f9811213f07149e4904ed751ffdcdc44739" "780c67d3b58b524aa485a146ad9e837051918b722fd32fd1b7e50ec36d413e70" "a11043406c7c4233bfd66498e83600f4109c83420714a2bd0cd131f81cbbacea" "45482e7ddf47ab1f30fe05f75e5f2d2118635f5797687e88571842ff6f18b4d5" "a3821772b5051fa49cf567af79cc4dabfcfd37a1b9236492ae4724a77f42d70d" "3b4800ea72984641068f45e8d1911405b910f1406b83650cbd747a831295c911" default))
  '(magit-diff-arguments '("--ignore-all-space" "--no-ext-diff"))
  '(package-selected-packages
-   '(hindent haskell-mode htmlize pony-mode dot-mode applescript-mode railscasts-reloaded-theme plantuml-mode multiple-cursors ivy counsel use-package sublimity avy auctex-latexmk smooth-scroll soothe-theme debbugs fzf helm-swoop elpy transpose-frame helm-themes graphviz-dot-mode helm-projectile flycheck color-theme-modern zones py-isort jira-markup-mode inf-clojure auto-overlays aumix-mode buffer-move confluence ess zencoding-mode yasnippet-bundle yasnippet yaml-mode smartparens rust-mode railscasts-theme paredit-everywhere minimal-theme markdown-mode latex-pretty-symbols flx-ido fill-column-indicator eyuml evil dockerfile-mode dired-details+ color-theme-railscasts coffee-mode clojure-mode auctex ag))
+   '(visual-fill-column sql-indent sqlite hindent haskell-mode htmlize pony-mode dot-mode applescript-mode railscasts-reloaded-theme plantuml-mode multiple-cursors ivy counsel use-package sublimity avy auctex-latexmk smooth-scroll soothe-theme debbugs fzf helm-swoop elpy transpose-frame helm-themes graphviz-dot-mode helm-projectile flycheck color-theme-modern zones py-isort jira-markup-mode inf-clojure auto-overlays aumix-mode buffer-move confluence ess zencoding-mode yasnippet-bundle yasnippet yaml-mode smartparens rust-mode railscasts-theme paredit-everywhere minimal-theme markdown-mode latex-pretty-symbols flx-ido fill-column-indicator eyuml evil dockerfile-mode dired-details+ color-theme-railscasts coffee-mode clojure-mode auctex ag))
  '(safe-local-variable-values '((bug-reference-bug-regexp . "#\\(?2:[0-9]+\\)"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(font-latex-math-face ((t (:foreground "red"))))
  '(font-latex-verbatim-face ((t (:inherit nil))))
  '(org-block ((t (:background "white" :foreground "#000088"))))
  '(org-block-begin-line ((t (:background "White" :foreground "lightgrey" :underline nil))))

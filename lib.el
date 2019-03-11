@@ -711,6 +711,16 @@ With C-u prefix argument copy URL to clipboard only."
   (interactive "r")
   (dan/latex-format-region "tt" beg end))
 
+(defun dan/latex-definition (beg end)
+  (interactive "r")
+  (let ((end-marker (set-marker (make-marker) end)))
+    (goto-char end)
+    (insert "}")
+    (goto-char beg)
+    (insert "\\defn{")
+    (goto-char end-marker)
+    (forward-char)))
+
 (defun dan/latex-frac-region ()
   (let ((s (buffer-substring (region-beginning) (region-end))))
     (when (string-match "\\([^/]+\\)/\\([^/]+\\)" s)
@@ -784,6 +794,7 @@ With C-u prefix argument copy URL to clipboard only."
                                 (point-max)))))
 
 (defun dan/latex-focus-narrow-to-region ()
+  (interactive)
   (narrow-to-region
    (save-excursion
      (goto-char (point-min))
@@ -906,6 +917,13 @@ With C-u prefix argument copy URL to clipboard only."
       (while t
         (magit-section-forward)
         (magit-section-hide (magit-current-section))))))
+
+(defun dan/magit-diff (&optional arg)
+  (interactive "P")
+  (if arg (progn (execute-kbd-macro 'dan/magit-diff-master)
+                 (magit-section-cycle-global)
+                 (magit-section-cycle-global))
+    (magit-show-commit "HEAD")))
 
 (defun dan/magit-profile ()
   "https://github.com/magit/magit/issues/2228"
