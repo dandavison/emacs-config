@@ -140,7 +140,7 @@
   (add-to-list 'ido-ignore-buffers is-dired-buffer?)
   (add-to-list 'winner-boring-buffers is-dired-buffer?))
 
-(windmove-default-keybindings)
+;; (windmove-default-keybindings)
 
 (setq tramp-verbose 2)
 (setq tramp-default-method "ssh")
@@ -460,6 +460,48 @@
 (define-key global-map (kbd "C-x n n") 'dan/narrow-to-region)
 (define-key global-map (kbd "C-x n w") 'dan/widen)
 
+(modalka-define-kbd "1" "C-x 1")
+(modalka-define-kbd "a" "C-a")
+(modalka-define-kbd "b" "C-x b")
+(modalka-define-kbd "d" "M-d")
+(modalka-define-kbd "^" "C-x d")
+(modalka-define-kbd "e" "C-e")
+(modalka-define-kbd "f" "C-x C-f")
+(modalka-define-kbd "g" "C-c g")
+(modalka-define-kbd "i" "M-i")
+(modalka-define-kbd "k" "C-k")
+(modalka-define-kbd "o" "M-o")
+(modalka-define-kbd "s" "C-s")
+(modalka-define-kbd "t" "C-c C-t")
+(modalka-define-kbd "u" "C-u")
+(modalka-define-kbd "x" "C-M-x")
+(modalka-define-kbd "y" "C-y")
+(modalka-define-kbd "z" "C-z")
+(modalka-define-kbd "," "s-,")
+(modalka-define-kbd "." "s-.")
+(modalka-define-kbd "[" "C-x o")
+(modalka-define-kbd "]" "C-x o")
+
+(modalka-global-mode 1)
+(add-to-list 'modalka-excluded-modes 'magit-status-mode)
+(add-to-list 'modalka-excluded-modes 'magit-popup-mode)
+(add-to-list 'modalka-excluded-modes 'text-mode)  ;; magit commit edit buffer
+(add-to-list 'modalka-excluded-modes 'magit-log-select-mode)
+(add-to-list 'modalka-excluded-modes 'git-rebase-mode)
+
+(define-key paredit-mode-map "\\" nil)
+(global-set-key (kbd "\\")  #'dan/find-dot-emacs)
+(global-set-key (kbd "M-\\") (lambda () (interactive) (insert "\\")))
+(global-set-key [(kp-delete)] #'modalka-mode)
+(global-set-key [f12] #'modalka-mode)
+
+(dan/register-key-bindings
+ '(modalka-mode-map .
+   ((" " . modalka-mode))))
+
+
+(define-key dired-mode-map [(left)] 'dired-up-directory)
+(define-key dired-mode-map [(right)] 'dired-find-file)
 
 (dan/register-key-bindings
  '(global-map
@@ -505,6 +547,10 @@
     ("\C-xp" . dan/helm-projectile-switch-project)
     ("\C-z" . (lambda () (interactive)))
     ("\M-o" . dan/helm-swoop-thing-at-point)
+
+    ("/" . dabbrev-expand)
+    ("\M-/" . (lambda () (interactive) (insert "/")))
+
     ([f1] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?1 arg)))
     ([f2] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?2 arg)))
     ([f3] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?3 arg)))
@@ -516,7 +562,8 @@
     ([f9] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?9 arg)))
     ([f10] . dan/list-window-configurations)
     ([f11] . dan/find-dot-emacs)
-    ([f12] . facet-workon)
+    ([(control down)] . scroll-up-command)
+    ([(control up)] . scroll-down-command)
     ([(meta up)] . dan/transpose-line-up)
     ([(meta down)] . dan/transpose-line-down)
     ([(meta shift left)] . dan/indent-shift-left)

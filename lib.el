@@ -1,5 +1,9 @@
 ;;; Etc
 
+(defun dan/find-dot-emacs (&optional arg)
+  (interactive "P")
+  (find-file (if arg "~/src/emacs-config/lib.el" (file-chase-links "~/.emacs.d/init.el"))))
+
 (defun dan/transpose-line-up ()
   (interactive)
   (save-excursion (transpose-lines 1))
@@ -415,12 +419,13 @@
 ;;; Outline
 
 (require 'org)
-(defun dan/set-up-outline-minor-mode (outline-regexp)
+(defun dan/set-up-outline-minor-mode (outline-regexp &optional activate)
   (set (make-local-variable 'outline-regexp) outline-regexp)
-  (outline-minor-mode t)
-  (when (eq (point) (point-min))
-    (org-overview)
-    (org-content)))
+  (when activate
+    (outline-minor-mode t)
+    (when (eq (point) (point-min))
+      (org-overview)
+      (org-content))))
 
 
 ;;; Paired characters
