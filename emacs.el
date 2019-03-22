@@ -48,6 +48,7 @@
 (setq minimal-mode-line-background "sea green")
 (setq minimal-mode-line-inactive-background "dim grey")
 
+(defalias 'color-theme 'load-theme)
 ;; (load-theme 'railscasts-reloaded t)
 (load-theme 'leuven t)
 (minimal-mode)
@@ -58,7 +59,7 @@
   (set-cursor-color "red")
   (set-face-foreground 'cursor (face-foreground 'font-lock-comment-face))
   (setq-default cursor-in-non-selected-windows nil)
-  (setq cursor-type 'bar)
+  (setq-default cursor-type 'bar)
   (blink-cursor-mode -1)
 
   (set-face-background 'fringe (face-background 'default))
@@ -491,7 +492,7 @@
     ("\C-c\C-r" . magit-file-rename)
     ("\C-cs" . (lambda () (interactive)
                  (shell-command-on-region
-                  (region-beginning) (region-end) "sort" nil 'replace)))
+                  (region-beginning) (region-end) "sort -V" nil 'replace)))
     ("\C-cw" . dan/list-window-configurations)
     ("\C-c\C-l" . eval-buffer)
     ("\C-c\C-z" . python-shell-switch-to-shell)
@@ -514,7 +515,7 @@
     ([f8] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?8 arg)))
     ([f9] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?9 arg)))
     ([f10] . dan/list-window-configurations)
-    ([f11] . (lambda (&optional arg) (interactive "P") (find-file (if arg "~/src/emacs-config/lib.el" (file-chase-links "~/.emacs.d/init.el")))))
+    ([f11] . dan/find-dot-emacs)
     ([f12] . facet-workon)
     ([(meta up)] . dan/transpose-line-up)
     ([(meta down)] . dan/transpose-line-down)
@@ -538,7 +539,6 @@
     ([(super return)] . dan/maximize)
     ([(super |)] . dan/shell-command-on-region-and-replace)
     ([(super mouse-1)] . (lambda (event) (interactive "e") (mouse-set-point event) (dan/iterm2-dwim))))))
-
 
 (global-set-key (kbd "s-,") 'dan/show-buffer-file-name)
 
@@ -857,7 +857,7 @@
    '("4e5e58e42f6f37920b95a8502f488928b3dab9b6cc03d864e38101ce36ecb968" "72759f4e42617df7a07d0a4f4b08982314aa97fbd495a5405c9b11f48bd6b839" "9e6ac467fa1e5eb09e2ac477f61c56b2e172815b4a6a43cf48def62f9d3e5bf9" "b9183de9666c3a16a7ffa7faaa8e9941b8d0ab50f9aaba1ca49f2f3aec7e3be9" "0e8c264f24f11501d3f0cabcd05e5f9811213f07149e4904ed751ffdcdc44739" "780c67d3b58b524aa485a146ad9e837051918b722fd32fd1b7e50ec36d413e70" "a11043406c7c4233bfd66498e83600f4109c83420714a2bd0cd131f81cbbacea" "45482e7ddf47ab1f30fe05f75e5f2d2118635f5797687e88571842ff6f18b4d5" "a3821772b5051fa49cf567af79cc4dabfcfd37a1b9236492ae4724a77f42d70d" "3b4800ea72984641068f45e8d1911405b910f1406b83650cbd747a831295c911" default))
  '(magit-diff-arguments '("--ignore-all-space" "--no-ext-diff"))
  '(package-selected-packages
-   '(visual-fill-column sql-indent sqlite hindent haskell-mode htmlize pony-mode dot-mode applescript-mode railscasts-reloaded-theme plantuml-mode multiple-cursors ivy counsel use-package sublimity avy auctex-latexmk smooth-scroll soothe-theme debbugs fzf helm-swoop elpy transpose-frame helm-themes graphviz-dot-mode helm-projectile flycheck color-theme-modern zones py-isort jira-markup-mode inf-clojure auto-overlays aumix-mode buffer-move confluence ess zencoding-mode yasnippet-bundle yasnippet yaml-mode smartparens rust-mode railscasts-theme paredit-everywhere minimal-theme markdown-mode latex-pretty-symbols flx-ido fill-column-indicator eyuml evil dockerfile-mode dired-details+ color-theme-railscasts coffee-mode clojure-mode auctex ag))
+   '(modalka visual-fill-column sql-indent sqlite hindent haskell-mode htmlize pony-mode dot-mode applescript-mode railscasts-reloaded-theme plantuml-mode multiple-cursors ivy counsel use-package sublimity avy auctex-latexmk smooth-scroll soothe-theme debbugs fzf helm-swoop elpy transpose-frame helm-themes graphviz-dot-mode helm-projectile flycheck color-theme-modern zones py-isort jira-markup-mode inf-clojure auto-overlays aumix-mode buffer-move confluence ess zencoding-mode yasnippet-bundle yasnippet yaml-mode smartparens rust-mode railscasts-theme paredit-everywhere minimal-theme markdown-mode latex-pretty-symbols flx-ido fill-column-indicator eyuml evil dockerfile-mode dired-details+ color-theme-railscasts coffee-mode clojure-mode auctex ag))
  '(safe-local-variable-values '((bug-reference-bug-regexp . "#\\(?2:[0-9]+\\)"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -872,3 +872,4 @@
  '(org-level-1 ((t (:foreground "#CC7733" :height 120)))))
 
 (message "⚡")
+(put 'upcase-region 'disabled nil)
