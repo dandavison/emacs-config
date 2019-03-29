@@ -1,0 +1,7 @@
+#name : mathematica
+# --
+\begin{verbatim}
+#+begin_src mathematica
+$1
+#+end_src
+\end{verbatim}

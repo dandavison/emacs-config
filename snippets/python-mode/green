@@ -1,0 +1,4 @@
+#name : green
+# --
+from clint.textui import colored; green = lambda s: colored.green(s, bold=True)
+print(green($1))
