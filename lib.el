@@ -1053,9 +1053,6 @@ With C-u prefix argument copy URL to clipboard only."
       (save-window-excursion
         (async-shell-command cmd)))))
 
-(add-hook 'after-save-hook
-          (lambda () (interactive) (when (eq major-mode 'python-mode) (dan/blacken))))
-
 (defun dan/insert-ipdb-set-trace ()
   (interactive)
   (insert "import ipdb; ipdb.set_trace()")
@@ -1071,7 +1068,7 @@ With C-u prefix argument copy URL to clipboard only."
       debugger debugger))))
 
 
-(defun dan/insert-ipdb-set-trace (&optional traceback)
+(defun dan/python-insert-ipdb-set-trace (&optional traceback)
   (interactive "P")
   ;; (indent-for-tab-command)
   (let ((debugger "ipdb")) ;; pudb
@@ -1083,6 +1080,7 @@ With C-u prefix argument copy URL to clipboard only."
             "import %s ; %s.set_trace()"
           "import IPython; IPython.embed(banner1='')"))
       debugger debugger))))
+
 
 (setenv "WORKON_HOME" "~/tmp/virtualenvs")  ;; FIXME
 
@@ -1120,7 +1118,7 @@ With C-u prefix argument copy URL to clipboard only."
     (run-python cmd)))
 
 
-(defun dan/python-cd-site-packages (&optional python3)
+(defun dan/python-cd-site-packages (&optional python2)
   (interactive "P")
   (if (or (null python-shell-virtualenv-root)
           (not (file-exists-p python-shell-virtualenv-root)))
@@ -1128,7 +1126,7 @@ With C-u prefix argument copy URL to clipboard only."
   (dired
    (concat
     (file-name-as-directory python-shell-virtualenv-root)
-    (format "lib/python%s/site-packages/" (if python3 "3.6" "2.7")))))
+    (format "lib/python%s/site-packages/" (if python2 "2.7" "3.6")))))
 
 
 (defvar dan/python-shell-function #'run-python)
@@ -1166,7 +1164,7 @@ With C-u prefix argument copy URL to clipboard only."
     (cl-flet ((make-site-package python-version
                                  (concat
                                   (file-name-as-directory python-shell-virtualenv-root)
-                                  "lib/python2.7/site-packages/"))))))
+                                  "lib/python3.6/site-packages/"))))))
 
 
 (defun dan/python-dict-literal-to-kwargs ()
