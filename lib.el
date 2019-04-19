@@ -1123,10 +1123,39 @@ With C-u prefix argument copy URL to clipboard only."
   (if (or (null python-shell-virtualenv-root)
           (not (file-exists-p python-shell-virtualenv-root)))
       (call-interactively 'dan/python-set-virtualenv))
-  (dired
-   (concat
-    (file-name-as-directory python-shell-virtualenv-root)
-    (format "lib/python%s/site-packages/" (if python2 "2.7" "3.6")))))
+  (let* ((directory (concat
+                     (file-name-as-directory python-shell-virtualenv-root)
+                     (format "lib/python%s/site-packages/" (if python2 "2.7" "3.6"))))
+         (package-directory
+          (helm
+           :sources
+           (helm-build-sync-source "test"
+             :candidates (dan/helm-directory-candidates directory)
+             :fuzzy-match t)
+           :buffer "*Site Packages*")))
+    (message "dan/python-cd-site-packages: %s" package-directory)
+    (dired package-directory)))
+
+
+(defun dan/helm-directory-candidates (directory)
+  "Return alist of directory items
+  Each element is (formatted-item . item)"
+  (mapcar
+     (lambda (file)
+       `(,(file-name-nondirectory file)
+         .
+         ,file))
+     (directory-files directory 'full)))
+
+
+(defun dan/python-site-packages ()
+  "Open dired buffer on an installed python packages"
+  (interactive "P")
+  (let ((facet (if (not arg) (facet-current-facet)
+                 (helm :sources
+                       `((name . "Facets")
+                         (candidates . ,(facet-candidates-list)))))))
+    (dired (expand-file-name facet (facet-facets-directory)))))
 
 
 (defvar dan/python-shell-function #'run-python)
