@@ -421,7 +421,7 @@
 (require 'org)
 (defun dan/set-up-outline-minor-mode (outline-regexp &optional activate)
   (set (make-local-variable 'outline-regexp) outline-regexp)
-  (when activate
+  (when (or t activate)
     (outline-minor-mode t)
     (when (eq (point) (point-min))
       (org-overview)
