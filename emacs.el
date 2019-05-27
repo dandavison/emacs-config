@@ -708,8 +708,6 @@
    (("\C-cd" . dan/python-insert-ipdb-set-trace)
     ("\C-c\C-c" . dan/save-even-if-not-modified)
     (";" . self-insert-command)
-    ("/" . dabbrev-expand)
-    ("\M-/" . (lambda () (interactive) (insert "/")))
     ([(super i)] . dan/python-where-am-i)
     ([(meta shift right)] . python-indent-shift-right)
     ([(meta shift left)] . python-indent-shift-left))))
@@ -718,8 +716,7 @@
 (require 'sql)
 (dan/register-key-bindings
  '("sql" .
-   (("/" . dabbrev-expand)
-    ("\M-/" . (lambda () (interactive) (insert "/"))))))
+   ()))
 
 
 ;;; Mode hooks
