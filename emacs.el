@@ -140,7 +140,7 @@
   (add-to-list 'ido-ignore-buffers is-dired-buffer?)
   (add-to-list 'winner-boring-buffers is-dired-buffer?))
 
-;; (windmove-default-keybindings)
+(windmove-default-keybindings)
 
 (setq tramp-verbose 2)
 (setq tramp-default-method "ssh")
@@ -156,6 +156,7 @@
 (defun pop-to-mark-command ()
   (dan/pop-to-mark-command))
 
+(setq css-indent-offset 2)
 
 ;;; Bookmarks
 (setq bookmark-bmenu-file-column 80)
@@ -463,6 +464,7 @@
 
 (define-key paredit-mode-map "\\" nil)
 (define-key paredit-mode-map ";" nil)
+(define-key paredit-mode-map "\"" 'paredit-c/doublequote)
 
 (modalka-define-kbd "1" "C-x 1")
 (modalka-define-kbd "a" "C-a")
@@ -486,7 +488,7 @@
 (modalka-define-kbd "[" "C-x o")
 (modalka-define-kbd "]" "C-x o")
 
-(modalka-global-mode 1)
+(modalka-global-mode -1)
 (add-to-list 'modalka-excluded-modes 'magit-status-mode)
 (add-to-list 'modalka-excluded-modes 'magit-popup-mode)
 (add-to-list 'modalka-excluded-modes 'text-mode)  ;; magit commit edit buffer
@@ -549,9 +551,6 @@
     ("\C-xp" . dan/helm-projectile-switch-project)
     ("\C-z" . (lambda () (interactive)))
     ("\M-o" . dan/helm-swoop-thing-at-point)
-
-    ("/" . dabbrev-expand)
-    ("\M-/" . (lambda () (interactive) (insert "/")))
 
     ([f1] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?1 arg)))
     ([f2] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?2 arg)))
@@ -644,6 +643,11 @@
     ([(control up)] . previous-history-element)
     ([(control down)] . next-history-element))))
 
+(require 'mhtml-mode)
+(dan/register-key-bindings
+ '(mhtml-mode-map .
+   (("\C-c\C-c" . emmet-expand-line))))
+
 (require 'js)
 (dan/register-key-bindings
  '("js" .
@@ -686,18 +690,10 @@
    (([(shift left)] . windmove-left)
     ([(shift right)] . windmove-right)
     ([(shift up)] . windmove-up)
-    ([(shift down)] . windmove-down))))
+    ([(shift down)] . windmove-down)
+    ([(meta left)] . backward-word)
+    ([(meta right)] . forward-word))))
 
-
-(require 'python)
-(dan/register-key-bindings
- '("python" .
-   (("\C-cd" . dan/python-insert-ipdb-set-trace)
-    ("\C-c\C-c" . dan/python-shell-eval)
-    (";" . self-insert-command)
-    ([(super i)] . dan/python-where-am-i)
-    ([(meta shift right)] . python-indent-shift-right)
-    ([(meta shift left)] . python-indent-shift-left))))
 
 (dan/register-key-bindings
  '(outline-minor-mode-map
@@ -705,11 +701,25 @@
    (([(control tab)] . org-cycle)
     ([(backtab)] . org-global-cycle))))
 
+
+(require 'python)
 (dan/register-key-bindings
- '("org"
-   .
-   (([(meta left)] . backward-word)
-    ([(meta right)] . forward-word))))
+ '("python" .
+   (("\C-cd" . dan/python-insert-ipdb-set-trace)
+    ("\C-c\C-c" . dan/save-even-if-not-modified)
+    (";" . self-insert-command)
+    ("/" . dabbrev-expand)
+    ("\M-/" . (lambda () (interactive) (insert "/")))
+    ([(super i)] . dan/python-where-am-i)
+    ([(meta shift right)] . python-indent-shift-right)
+    ([(meta shift left)] . python-indent-shift-left))))
+
+
+(require 'sql)
+(dan/register-key-bindings
+ '("sql" .
+   (("/" . dabbrev-expand)
+    ("\M-/" . (lambda () (interactive) (insert "/"))))))
 
 
 ;;; Mode hooks
@@ -792,9 +802,7 @@
 (add-hook 'haskell-mode-hook 'dan/haskell-mode-fn)
 
 
-(defun dan/html-mode-hook-fn ()
-  ;;(zencoding-mode)
-  )
+(defun dan/html-mode-hook-fn ())
 (add-hook 'html-mode-hook 'dan/html-mode-hook-fn)
 
 (defun dan/inferior-python-mode-hook-fn ()
@@ -827,6 +835,8 @@
 (defun dan/magit-diff-mode-hook-fn ()
   (dan/magit-hide-all-sections))
 (add-hook 'magit-diff-mode-hook 'dan/magit-diff-mode-hook-fn)
+
+(add-hook 'magit-diff-visit-file-hook 'dan/on-jump-into-buffer)
 
 (defun dan/makefile-mode-hook-fn ()
   (paredit-c-mode))
@@ -872,7 +882,11 @@
         '(("lambda" . 955)))
   (prettify-symbols-mode)
   (eldoc-mode -1)
-  (dan/set-up-outline-minor-mode "[ \t]*\\(def .+\\|class .+\\|##\\)"))
+  (dan/set-up-outline-minor-mode "[ \t]*\\(def .+\\|class .+\\|##\\)")
+  (dan/python-set-virtualenv
+   (format "%s/%s"
+           (getenv "WORKON_HOME")
+           (file-name-nondirectory (directory-file-name (dan/git-get-git-dir))))))
 (add-hook 'python-mode-hook 'dan/python-mode-hook-fn)
 
 (defun dan/scheme-mode-hook-fn ()
@@ -886,9 +900,21 @@
   (paredit-c-mode))
 (add-hook 'sh-mode-hook 'dan/sh-mode-hook-fn)
 
+
+(require 'sql-indent)
+;; See https://github.com/alex-hhh/emacs-sql-indent/blob/master/sql-indent.org
+;; and `sqlind-indentation-offsets-alist'
+(defvar dan/sqlind-offsets-alist
+  `((select-clause 0)
+    (select-table-continuation sqlind-indent-select-table sqlind-lineup-joins-to-anchor 0)
+    ,@sqlind-default-indentation-offsets-alist))
+
 (defun dan/sql-mode-hook-fn ()
   (paredit-c-mode)
-  (sqlind-minor-mode))
+  (sqlind-minor-mode)
+  (setq sqlind-indentation-offsets-alist dan/sqlind-offsets-alist))
+
+
 (add-hook 'sql-mode-hook 'dan/sql-mode-hook-fn)
 
 (defun dan/yaml-mode-hook-fn ()
@@ -929,4 +955,3 @@
 
 (message "⚡")
 (put 'upcase-region 'disabled nil)
-

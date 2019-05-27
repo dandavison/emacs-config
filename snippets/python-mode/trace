@@ -1,4 +1,4 @@
 #name : trace
 # --
 from clint.textui import colored; blue = lambda s: colored.blue(s, bold=True)
-print(blue('`(dan/python-current-defun-name)`'))
+print(blue(f'`(dan/python-current-defun-name)`: $1'))
