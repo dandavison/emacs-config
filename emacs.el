@@ -9,7 +9,6 @@
 (add-to-list 'load-path "~/src/3p/projectile") (require 'projectile)
 ;; (add-to-list 'load-path "~/src/3p/emacs-helm-ag") (require 'helm-ag)
 (add-to-list 'load-path "~/src/3p/helm-projectile") (require 'helm-projectile)
-(add-to-list 'load-path "~/src/3p/swiper/") (require 'ivy) (require 'counsel) (require 'swiper)
 (add-to-list 'load-path "~/src/3p/magit/lisp") (require 'magit)
 (add-to-list 'load-path "~/src/3p/tla-mode") (require 'tla-mode)
 
