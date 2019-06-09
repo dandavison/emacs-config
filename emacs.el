@@ -204,8 +204,17 @@
 
 
 ;;; Flycheck
+(require 'flycheck);;; Flycheck
 (setq flycheck-highlighting-mode 'lines)
 (setq flycheck-flake8-maximum-line-length 99)
+
+(flycheck-add-next-checker 'python-flake8 '(t . python-mypy))
+;; (flycheck-add-next-checker 'python-mypy '(t . python-flake8))
+
+(defun dan/flycheck-configure (&optional virtualenv)
+  (interactive "Dvirtualenv: ")
+  (setq flycheck-python-flake8-executable (f-join virtualenv "/bin/flake8")
+        flycheck-python-mypy-executable (f-join virtualenv "/bin/mypy")))
 
 ;; Haskell
 (setq hindent-extra-args '("--line-length" "100"))
@@ -578,7 +587,6 @@
     ([(super ?,)] . dan/helm-projectile-grep-no-input)
     ([(super ?.)] . dan/helm-projectile-grep-thing-at-point)
     ([(super ?\;)] . dan/show-buffer-file-name)
-    ([(super ?')] . dan/iterm2-dwim)
     ([(super ?&)] . (lambda () (interactive) (let ((kill-buffer-query-functions nil)) (kill-buffer))))
     ([(super left)] . winner-undo)
     ([(super right)] . winner-redo)
@@ -707,7 +715,7 @@
  '("python" .
    (("\C-cd" . dan/python-insert-ipdb-set-trace)
     ("\C-c\C-c" . dan/save-even-if-not-modified)
-    (";" . self-insert-command)
+    ([(super ?')] . flycheck-mode)
     ([(super i)] . dan/python-where-am-i)
     ([(meta shift right)] . python-indent-shift-right)
     ([(meta shift left)] . python-indent-shift-left))))
