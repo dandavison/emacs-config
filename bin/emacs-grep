@@ -1,1 +1,9 @@
-emacs-helm-projectile-grep
+#!/bin/bash
+
+pattern="$1"
+
+emacsclient --no-wait \
+    --eval "(let ((default-directory \"$PWD\") (counsel-projectile-grep-initial-input \"$pattern\")) (call-interactively 'counsel-projectile-git-grep))" > /dev/null 2>&1 &
+
+emacsclient --no-wait \
+    --eval "(select-frame-set-input-focus (selected-frame))" > /dev/null

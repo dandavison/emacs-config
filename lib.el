@@ -23,7 +23,7 @@
   (interactive "P")
   (call-interactively
    (if (and (not arg) (projectile-project-p))
-       'projectile-switch-to-buffer
+       'counsel-projectile-switch-to-buffer
      'switch-to-buffer)))
 
 (defun dan/find-file (&optional arg)
@@ -34,12 +34,12 @@
      (cond
       ((and (not arg)
             (projectile-project-p))
-       'projectile-find-file)
+       'projectile-find-file) ;; counsel- version seemed to have hopeless performance
       ((not arg) 'ido-find-file)
       ((equal arg '(4))
-       'helm-recentf)
+       'counsel-recentf)
       ((equal arg '(16))
-       'ido-find-file)))))
+       'counsel-find-file)))))
 
 ;; Is this useful?
 (defun dan/find-file-maybe-in-project (file)
@@ -327,20 +327,6 @@
 
 ;;; Search
 
-;; deprecated for helm-swoop?
-(defun dan/occur ()
-  (interactive)
-  (let ((tap (thing-at-point 'symbol)))
-    (and tap (push tap regexp-history)))
-  (call-interactively 'occur)
-  (let ((results-buffer (get-buffer "*Occur*")))
-    (if results-buffer
-        (progn
-          (other-window 1)
-          (let ((buffer-read-only)) (kill-line 1))
-          (delete-other-windows))
-      (message "No matches"))))
-
 ;;; Highlight
 (require 'ring)
 (setq dan/highlighted nil)
@@ -369,7 +355,7 @@
     (when (region-active-p) (deactivate-mark))))))
 
 (defun dan/pulse-momentary-highlight-current-line ()
-  (pulse-momentary-highlight-one-line (point) 'helm-header))
+  (pulse-momentary-highlight-one-line (point) 'diff-refine-changed))
 
 
 ;;; Scratch buffers
@@ -1391,67 +1377,15 @@ If LIST is nil use `projectile-project-root-parent-directories'"
     (message link-in-project)))
 
 
-;;; Helm
-
-(defun dan/set-global-ignored-files-variables! (&optional exclude-tests)
-  (interactive)
-  (let ((helm-grep-ignored-files-orig
-         '(".#*" "*.o" "*~" "*.bin" "*.lbin" "*.so" "*.a" "*.ln" "*.blg" "*.bbl" "*.elc" "*.lof" "*.glo" "*.idx" "*.lot" "*.fmt" "*.tfm" "*.class" "*.fas" "*.lib" "*.mem" "*.x86f" "*.sparcf" "*.dfsl" "*.pfsl" "*.d64fsl" "*.p64fsl" "*.lx64fsl" "*.lx32fsl" "*.dx64fsl" "*.dx32fsl" "*.fx64fsl" "*.fx32fsl" "*.sx64fsl" "*.sx32fsl" "*.wx64fsl" "*.wx32fsl" "*.fasl" "*.ufsl" "*.fsl" "*.dxl" "*.lo" "*.la" "*.gmo" "*.mo" "*.toc" "*.aux" "*.cp" "*.fn" "*.ky" "*.pg" "*.tp" "*.vr" "*.cps" "*.fns" "*.kys" "*.pgs" "*.tps" "*.vrs" "*.pyc" "*.pyo"))
-        (grep-find-ignored-files-orig
-         '(".#*" "*.o" "*~" "*.bin" "*.lbin" "*.so" "*.a" "*.ln" "*.blg" "*.bbl" "*.elc" "*.lof" "*.glo" "*.idx" "*.lot" "*.fmt" "*.tfm" "*.class" "*.fas" "*.lib" "*.mem" "*.x86f" "*.sparcf" "*.dfsl" "*.pfsl" "*.d64fsl" "*.p64fsl" "*.lx64fsl" "*.lx32fsl" "*.dx64fsl" "*.dx32fsl" "*.fx64fsl" "*.fx32fsl" "*.sx64fsl" "*.sx32fsl" "*.wx64fsl" "*.wx32fsl" "*.fasl" "*.ufsl" "*.fsl" "*.dxl" "*.lo" "*.la" "*.gmo" "*.mo" "*.toc" "*.aux" "*.cp" "*.fn" "*.ky" "*.pg" "*.tp" "*.vr" "*.cps" "*.fns" "*.kys" "*.pgs" "*.tps" "*.vrs" "*.pyc" "*.pyo"))
-        (helm-grep-git-grep-command-orig
-         "git --no-pager grep -n%cH --color=always --exclude-standard --no-index --full-name -e %p -- %f")
-        (ignored-patterns
-         (if exclude-tests
-             dan/ignored-patterns
-           (-filter (lambda (s) (and (not (string-match-p (regexp-quote "test") s))
-                                (not (string-match-p (regexp-quote "fake") s))))
-                    dan/ignored-patterns))))
-    (setq helm-grep-ignored-files (append helm-grep-ignored-files-orig ignored-patterns))
-    (setq grep-find-ignored-files (append grep-find-ignored-files-orig ignored-patterns))
-    (setq helm-grep-git-grep-command
-          (format "%s './*' %s"
-                  helm-grep-git-grep-command-orig
-                  (mapconcat (lambda (s) (format "':!%s'" s)) ignored-patterns " ")))
-
-    (message "dan/set-global-ignored-files-variables! ignored-patterns is %s" ignored-patterns)))
-
-
-(defun dan/helm-projectile-switch-project (&optional arg)
-  (interactive "P")
-  (if arg (projectile-switch-project)
-    (let ((projectile-switch-project-action 'projectile-switch-to-buffer))
-      (projectile-switch-project))))
-
-
-(defun dan/helm-projectile-grep-thing-at-point (&optional arg)
+(defun dan/grep-thing-at-point (&optional arg)
   (interactive "P")
   (if (equal arg '(16))
-      (search-files-thing-at-point 'search-for-definition)
-    (let ((include-tests arg)
-          (helm-projectile-set-input-automatically t))
-      (dan/set-global-ignored-files-variables! (not include-tests))
-      (helm-projectile-grep))))
+      (if (equal major-mode 'python-mode)
+          (jedi:goto-definition)
+        (search-files-thing-at-point 'search-for-definition))
+    (let ((counsel-projectile-grep-initial-input (ivy-thing-at-point)))
+      (call-interactively 'counsel-projectile-git-grep))))
 
-
-(defun dan/helm-projectile-grep-no-input (&optional include-tests)
-  "Copied from helm-projectile-grep, disabling `helm-projectile-set-input-automatically'."
-  (interactive "P")
-  (dan/set-global-ignored-files-variables! (not include-tests))
-  (funcall 'run-with-timer 0.01 nil
-           (lambda ()
-             (let ((project-root (or (projectile-project-root)
-                                     (error "You're not in a project")))
-                   (helm-projectile-set-input-automatically nil)
-                   (grep-find-ignored-files
-                    (append grep-find-ignored-files dan/ignored-patterns)))
-               (helm-projectile-grep-or-ack project-root)))))
-
-
-(defun dan/helm-swoop-thing-at-point ()
-  (interactive)
-  (let ((helm-swoop-pre-input-function (lambda () (thing-at-point 'symbol))))
-    (helm-swoop)))
 
 ;;; Utilities
 

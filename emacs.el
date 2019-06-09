@@ -5,10 +5,7 @@
 (unless (equal emacs-version "27.0.50") (package-initialize))
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 (add-to-list 'load-path "~/src/3p/emacs-async")
-(add-to-list 'load-path "~/src/3p/helm") (require 'helm-config)
 (add-to-list 'load-path "~/src/3p/projectile") (require 'projectile)
-;; (add-to-list 'load-path "~/src/3p/emacs-helm-ag") (require 'helm-ag)
-(add-to-list 'load-path "~/src/3p/helm-projectile") (require 'helm-projectile)
 (add-to-list 'load-path "~/src/3p/magit/lisp") (require 'magit)
 (add-to-list 'load-path "~/src/3p/tla-mode") (require 'tla-mode)
 
@@ -389,10 +386,7 @@
 
 (add-to-list 'projectile-globally-ignored-modes "dired-mode")
 
-(if nil
-    (setq projectile-completion-system 'ivy)
-  (setq projectile-completion-system 'helm)
-  (helm-projectile-on))
+(setq projectile-completion-system 'ivy)
 
 
 ;;; Ivy
@@ -412,43 +406,6 @@
 
 ;; (setq ivy-display-function 'ivy-display-function-popup)
 
-;;; Helm
-(add-to-list 'load-path "~/src/emacs-async")
-(add-to-list 'load-path "~/src/helm")
-(require 'helm-config)
-
-(setq helm-input-idle-delay 0.1)
-(setq helm-grep-file-path-style 'relative)
-(setq helm-full-frame t)
-
-(setq dan/ignored-patterns '("*.sql" "*.wsdl" "*.js.min" "*.min.js" "*.css.min" "*.min.css" "*.scss" "*.svg" "*.pdf" "*/migrations/*" "vendor/*" "*/tests*" "*/fake/*" "*.json" "*.csv" "*.hl7"))
-(dan/set-global-ignored-files-variables!)
-
-
-(when nil
-  ;; Results in flickering and other undesirable behavior
-  (defun dan/helm-change-selection-hook-fn (&rest args)
-    ;; helm-current-source seems not to be set so can't do this
-    ;; (when (eq helm-current-source 'helm-themes-source))
-    (condition-case nil
-        (load-theme (intern (helm-get-selection)) t)
-      (error nil)))
-  (advice-add 'helm-next-line :after #'dan/helm-change-selection-hook-fn)
-  (advice-add 'helm-previous-line :after #'dan/helm-change-selection-hook-fn))
-
-;; (helm-add-action-to-source
-;;  "`filter-results-mode'"
-;;  'filter-results-helm-action
-;;  helm-source-grep)
-
-;; But helm-projectile-grep overwrites helm-source-grep, so
-(setq helm-projectile-grep-or-ack-actions
-      (append helm-projectile-grep-or-ack-actions
-              '("`filter-results-mode'"
-                filter-results-helm-action)))
-
-(setq helm-swoop-speed-or-color 'color)
-(setq helm-swoop-pre-input-function (lambda ()))
 ;;; Yasnippet
 (require 'yasnippet)
 (define-key yas/keymap [tab] 'yas/next-field)
@@ -530,7 +487,7 @@
     ("\C-f" . forward-sexp)
     ([(right)] . forward-char)
     ([(left)] . backward-char)
-    ("\C-s" . helm-swoop)
+    ("\C-s" . swiper)
     ([(control >)] . mc/mark-next-like-this)
     ([(super d)] . mc/mark-next-like-this)
     ([(control <)] . mc/mark-previous-like-this)
@@ -561,11 +518,10 @@
     ;; ("\M-;" . comment-or-uncomment-region-or-line)
     ("\M-i" . dan/highlight)
     ("\M-q" . fill-paragraph)
-    ("\M-x" . helm-M-x)
+    ("\M-x" . counsel-M-x)
     ("\C-c\M-f" . search-files-thing-at-point)
-    ("\C-xp" . dan/helm-projectile-switch-project)
     ("\C-z" . (lambda () (interactive)))
-    ("\M-o" . dan/helm-swoop-thing-at-point)
+    ("\M-o" . swiper-thing-at-point)
 
     ([f1] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?1 arg)))
     ([f2] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?2 arg)))
@@ -590,14 +546,13 @@
     ;; ([(super k)] . (lambda (&optional arg) (interactive "P") (if arg (dan/bookmark-set) (dan/where-am-i))))
     ([(super G)] . isearch-repeat-backward)
     ([(super l)] . bookmark-bmenu-list)
-    ([(super ?,)] . dan/helm-projectile-grep-no-input)
-    ([(super ?.)] . dan/helm-projectile-grep-thing-at-point)
+    ([(super ?,)] . counsel-projectile-git-grep)
+    ([(super ?.)] . dan/grep-thing-at-point)
     ([(super ?\;)] . dan/show-buffer-file-name)
     ([(super ?&)] . (lambda () (interactive) (let ((kill-buffer-query-functions nil)) (kill-buffer))))
     ([(super left)] . winner-undo)
     ([(super right)] . winner-redo)
     ([(super down)] . (lambda () (interactive) (set-mark-command t)))
-    ([(shift super left)] . helm-resume)
     ([(super return)] . dan/maximize)
     ([(super |)] . dan/shell-command-on-region-and-replace)
     ([(super mouse-1)] . (lambda (event) (interactive "e") (mouse-set-point event) (dan/iterm2-dwim))))))
@@ -642,20 +597,6 @@
  '("haskell" .
    (("'" . self-insert-command))))
 
-
-(require 'helm)
-
-(dan/register-key-bindings
- '(helm-map .
-   (([(tab)] . (lambda () (interactive)))
-    ([(control return)] . helm-select-action))))
-
-(dan/register-key-bindings
- '(helm-grep-map .
-   (([(left)] . backward-char)
-    ([(right)] . forward-char)
-    ([(control up)] . previous-history-element)
-    ([(control down)] . next-history-element))))
 
 (require 'mhtml-mode)
 (dan/register-key-bindings
@@ -865,8 +806,6 @@
   (dan/on-jump-into-buffer))
 (add-hook 'occur-mode-find-occurrence-hook 'dan/occur-mode-find-occurrence-hook-fn)
 
-(add-hook 'helm-goto-line-before-hook 'dan/on-jump-into-buffer)
-
 (defun dan/paredit-c-mode-hook-fn ()
   (local-set-key [(meta up)] 'dan/transpose-line-up)
   (local-set-key [(meta down)] 'dan/transpose-line-down)
@@ -949,7 +888,7 @@
    '("4e5e58e42f6f37920b95a8502f488928b3dab9b6cc03d864e38101ce36ecb968" "72759f4e42617df7a07d0a4f4b08982314aa97fbd495a5405c9b11f48bd6b839" "9e6ac467fa1e5eb09e2ac477f61c56b2e172815b4a6a43cf48def62f9d3e5bf9" "b9183de9666c3a16a7ffa7faaa8e9941b8d0ab50f9aaba1ca49f2f3aec7e3be9" "0e8c264f24f11501d3f0cabcd05e5f9811213f07149e4904ed751ffdcdc44739" "780c67d3b58b524aa485a146ad9e837051918b722fd32fd1b7e50ec36d413e70" "a11043406c7c4233bfd66498e83600f4109c83420714a2bd0cd131f81cbbacea" "45482e7ddf47ab1f30fe05f75e5f2d2118635f5797687e88571842ff6f18b4d5" "a3821772b5051fa49cf567af79cc4dabfcfd37a1b9236492ae4724a77f42d70d" "3b4800ea72984641068f45e8d1911405b910f1406b83650cbd747a831295c911" default))
  '(magit-diff-arguments '("--ignore-all-space" "--no-ext-diff"))
  '(package-selected-packages
-   '(counsel-projectile emmet-mode modalka visual-fill-column sql-indent sqlite hindent haskell-mode htmlize pony-mode dot-mode applescript-mode railscasts-reloaded-theme plantuml-mode multiple-cursors ivy counsel use-package sublimity avy auctex-latexmk smooth-scroll soothe-theme debbugs fzf helm-swoop elpy transpose-frame helm-themes graphviz-dot-mode helm-projectile flycheck color-theme-modern zones py-isort jira-markup-mode inf-clojure auto-overlays aumix-mode buffer-move confluence ess zencoding-mode yasnippet-bundle yasnippet yaml-mode smartparens rust-mode railscasts-theme paredit-everywhere minimal-theme markdown-mode latex-pretty-symbols flx-ido fill-column-indicator eyuml evil dockerfile-mode dired-details+ color-theme-railscasts coffee-mode clojure-mode auctex ag))
+   '(counsel-projectile emmet-mode modalka visual-fill-column sql-indent sqlite hindent haskell-mode htmlize pony-mode dot-mode applescript-mode railscasts-reloaded-theme plantuml-mode multiple-cursors ivy counsel use-package sublimity avy auctex-latexmk smooth-scroll soothe-theme debbugs fzf elpy transpose-frame graphviz-dot-mode flycheck color-theme-modern zones py-isort jira-markup-mode inf-clojure auto-overlays aumix-mode buffer-move confluence ess zencoding-mode yasnippet-bundle yasnippet yaml-mode smartparens rust-mode railscasts-theme paredit-everywhere minimal-theme markdown-mode latex-pretty-symbols flx-ido fill-column-indicator eyuml evil dockerfile-mode dired-details+ color-theme-railscasts coffee-mode clojure-mode auctex ag))
  '(safe-local-variable-values '((bug-reference-bug-regexp . "#\\(?2:[0-9]+\\)"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

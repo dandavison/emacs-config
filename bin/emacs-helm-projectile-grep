@@ -1,8 +1,0 @@
-#!/bin/bash
-
-pattern="$1"
-
-emacsclient --no-wait \
-    --eval "(switch-to-buffer \"*scratch*\")" \
-    --eval "(run-with-timer 0 nil (lambda () (let ((default-directory \"$PWD\") (helm-projectile-set-input-automatically t)) (cl-flet ((thing-at-point (&rest args) \"$pattern\")) (helm-projectile-grep-or-ack)))))" \
-    --eval "(select-frame-set-input-focus (selected-frame))" > /dev/null
