@@ -20,6 +20,13 @@
 (add-to-list 'load-path "~/src/emacs-filter-results") (require 'filter-results)
 (add-to-list 'load-path "~/src/emacs-search-files") (require 'search-files)
 (add-to-list 'load-path "~/src/facet/emacs") (require 'facet)
+
+
+(use-package f)
+(use-package company
+  :bind (([meta tab] . company-complete)))
+
+
 ;; (add-to-list 'load-path "~/src/3p/penrose-modes") (require 'penrose-modes)
 
 
@@ -228,7 +235,7 @@
 (setq org-src-fontify-natively t)
 (setq org-edit-src-persistent-message nil)
 (setq org-src-window-setup 'current-window)
-(setq org-todo-keywords '((sequence "TODO" "DEFERRED" "DONE")))
+(setq org-todo-keywords '((sequence "TODO" "DEFER" "DONE")))
 
 (setq org-confirm-babel-evaluate nil)
 (require 'ob-haskell)
@@ -728,6 +735,7 @@
 
 
 ;;; Mode hooks
+(setq pulse-iterations 50)
 (defun dan/on-jump-into-buffer ()
   (delete-other-windows)
   (outline-show-all)
@@ -741,7 +749,7 @@
 
 (defun dan/before-save-hook-fn ()
   (dan/query-delete-trailing-whitespace)
-  (when (eq major-mode 'org-mode)
+  (when (or (eq major-mode 'org-mode) (eq major-mode 'markdown-mode))
     (dan/org-table-to-markdown)))
 (add-hook 'before-save-hook 'dan/before-save-hook-fn)
 
@@ -789,11 +797,6 @@
   (paredit-mode t)
   (dan/pretty-lambdas))
 (add-hook 'eshell-mode-hook 'dan/eshell-mode-hook-fn)
-
-(defun dan/r-mode-hook-fn ()
-  (paredit-c-mode))
-(add-hook 'ess-mode-hook 'dan/r-mode-hook-fn)
-(add-hook 'inferior-ess-mode-hook 'dan/r-mode-hook-fn)
 
 (defun dan/find-function-after-hook-fn ()
   (dan/on-jump-into-buffer))
@@ -891,8 +894,15 @@
   (dan/python-set-virtualenv
    (format "%s/%s"
            (getenv "WORKON_HOME")
-           (file-name-nondirectory (directory-file-name (dan/git-get-git-dir))))))
+           (file-name-nondirectory (directory-file-name (dan/git-get-git-dir)))))
+  (company-mode)
+  (add-to-list 'company-backends 'company-jedi))
 (add-hook 'python-mode-hook 'dan/python-mode-hook-fn)
+
+(defun dan/r-mode-hook-fn ()
+  (paredit-c-mode))
+(add-hook 'ess-mode-hook 'dan/r-mode-hook-fn)
+(add-hook 'inferior-ess-mode-hook 'dan/r-mode-hook-fn)
 
 (defun dan/scheme-mode-hook-fn ()
   (scheme-mode))
@@ -940,23 +950,25 @@
    '("4e5e58e42f6f37920b95a8502f488928b3dab9b6cc03d864e38101ce36ecb968" "72759f4e42617df7a07d0a4f4b08982314aa97fbd495a5405c9b11f48bd6b839" "9e6ac467fa1e5eb09e2ac477f61c56b2e172815b4a6a43cf48def62f9d3e5bf9" "b9183de9666c3a16a7ffa7faaa8e9941b8d0ab50f9aaba1ca49f2f3aec7e3be9" "0e8c264f24f11501d3f0cabcd05e5f9811213f07149e4904ed751ffdcdc44739" "780c67d3b58b524aa485a146ad9e837051918b722fd32fd1b7e50ec36d413e70" "a11043406c7c4233bfd66498e83600f4109c83420714a2bd0cd131f81cbbacea" "45482e7ddf47ab1f30fe05f75e5f2d2118635f5797687e88571842ff6f18b4d5" "a3821772b5051fa49cf567af79cc4dabfcfd37a1b9236492ae4724a77f42d70d" "3b4800ea72984641068f45e8d1911405b910f1406b83650cbd747a831295c911" default))
  '(magit-diff-arguments '("--ignore-all-space" "--no-ext-diff"))
  '(package-selected-packages
-   '(emmet-mode modalka visual-fill-column sql-indent sqlite hindent haskell-mode htmlize pony-mode dot-mode applescript-mode railscasts-reloaded-theme plantuml-mode multiple-cursors ivy counsel use-package sublimity avy auctex-latexmk smooth-scroll soothe-theme debbugs fzf helm-swoop elpy transpose-frame helm-themes graphviz-dot-mode helm-projectile flycheck color-theme-modern zones py-isort jira-markup-mode inf-clojure auto-overlays aumix-mode buffer-move confluence ess zencoding-mode yasnippet-bundle yasnippet yaml-mode smartparens rust-mode railscasts-theme paredit-everywhere minimal-theme markdown-mode latex-pretty-symbols flx-ido fill-column-indicator eyuml evil dockerfile-mode dired-details+ color-theme-railscasts coffee-mode clojure-mode auctex ag))
+   '(counsel-projectile emmet-mode modalka visual-fill-column sql-indent sqlite hindent haskell-mode htmlize pony-mode dot-mode applescript-mode railscasts-reloaded-theme plantuml-mode multiple-cursors ivy counsel use-package sublimity avy auctex-latexmk smooth-scroll soothe-theme debbugs fzf helm-swoop elpy transpose-frame helm-themes graphviz-dot-mode helm-projectile flycheck color-theme-modern zones py-isort jira-markup-mode inf-clojure auto-overlays aumix-mode buffer-move confluence ess zencoding-mode yasnippet-bundle yasnippet yaml-mode smartparens rust-mode railscasts-theme paredit-everywhere minimal-theme markdown-mode latex-pretty-symbols flx-ido fill-column-indicator eyuml evil dockerfile-mode dired-details+ color-theme-railscasts coffee-mode clojure-mode auctex ag))
  '(safe-local-variable-values '((bug-reference-bug-regexp . "#\\(?2:[0-9]+\\)"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won`t work right.
- `(bold ((t (:weight bold))))
- `(font-latex-math-face ((t (:foreground "red"))))
- `(font-latex-verbatim-face ((t (:inherit nil))))
- `(help-argument-name ((t (:inherit nil))))
- `(minibuffer-prompt ((t (:background ,(face-attribute 'default :background) :foreground "#FFD798" :weight bold))))
- `(org-block ((t (:background ,(face-attribute 'default :background) :foreground "#000088"))))
- `(org-block-begin-line ((t (:background ,(face-attribute 'default :background) :foreground "lightgrey" :underline nil))))
- `(org-block-end-line ((t (:background ,(face-attribute 'default :background) :foreground "lightgrey" :overline nil))))
- `(org-level-1 ((t (:background ,(face-attribute 'default :background) :foreground "#CC7733" :overline nil :weight bold :height 120))))
- `(org-level-2 ((t (:background ,(face-attribute 'default :background) :foreground "#FFC66D" :weight bold :height 140)))))
+ ;; If there is more than one, they won't work right.
+ '(bold ((t (:weight bold))))
+ '(font-latex-math-face ((t (:foreground "red"))))
+ '(font-latex-verbatim-face ((t (:inherit nil))))
+ '(help-argument-name ((t (:inherit nil))))
+ '(minibuffer-prompt ((t (:background "#FFFFFF" :foreground "#FFD798" :weight bold))))
+ '(org-block ((t (:background "#FFFFFF" :foreground "#000088"))))
+ '(org-block-begin-line ((t (:background "#FFFFFF" :foreground "lightgrey" :underline nil))))
+ '(org-block-end-line ((t (:background "#FFFFFF" :foreground "lightgrey" :overline nil))))
+ '(org-done ((t (:background "palegreen" :foreground "darkgrey" :box (:line-width 1 :color "grey") :weight normal))))
+ '(org-level-1 ((t (:background "#FFFFFF" :foreground "#CC7733" :overline nil :weight bold :height 120))))
+ '(org-level-2 ((t (:background "#FFFFFF" :foreground "dark red" :overline nil :weight bold :height 120))))
+ '(org-todo ((t (:foreground "darkgrey" :box (:line-width 1 :color "grey") :weight normal)))))
 
 (message "⚡")
 (put 'upcase-region 'disabled nil)
