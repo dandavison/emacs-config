@@ -1314,6 +1314,74 @@ returns the value of `python-shell-buffer-name'."
     (comint-truncate-buffer)))
 
 
+;;; Company
+
+(require 'cl-lib)
+
+(defun dan/company-python-django-model-manager-backend (command &optional arg &rest ignored)
+  (interactive (list 'interactive))
+
+  (message "%s %s %s" command arg ignored)
+
+  (cl-case command
+    (interactive (company-begin-backend 'dan/company-python-django-model-manager-backend))
+    (prefix (and (eq major-mode 'python-mode)
+                 (looking-back "objects\\.")
+                 (match-string 0)))
+    (candidates
+     (mapcar (lambda (method) (concat "objects." method))
+             '("aggregate"
+               "all"
+               "annotate"
+               "auto_created"
+               "bulk_create"
+               "check"
+               "complex_filter"
+               "contribute_to_class"
+               "count"
+               "create"
+               "creation_counter"
+               "dates"
+               "datetimes"
+               "db"
+               "db_manager"
+               "deconstruct"
+               "defer"
+               "difference"
+               "distinct"
+               "earliest"
+               "exclude"
+               "exists"
+               "extra"
+               "filter"
+               "first"
+               "from_queryset"
+               "get"
+               "get_or_create"
+               "get_queryset"
+               "intersection"
+               "in_bulk"
+               "iterator"
+               "last"
+               "latest"
+               "none"
+               "only"
+               "order_by"
+               "prefetch_related"
+               "raw"
+               "reverse"
+               "select_for_update"
+               "select_related"
+               "union"
+               "update"
+               "update_or_create"
+               "use_in_migrations"
+               "using"
+               "values"
+               "values_list")))))
+
+
+
 ;;; Projectile
 
 (defvar dan/projectile-root-parent-directories

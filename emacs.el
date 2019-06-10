@@ -406,6 +406,11 @@
 
 ;; (setq ivy-display-function 'ivy-display-function-popup)
 
+;;; Company
+
+(add-to-list 'company-backends 'dan/company-python-django-model-manager-backend)
+
+
 ;;; Yasnippet
 (require 'yasnippet)
 (define-key yas/keymap [tab] 'yas/next-field)
