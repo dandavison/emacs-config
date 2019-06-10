@@ -349,10 +349,10 @@
                  ((region-active-p) (buffer-substring (region-beginning) (region-end)))
                  (t (thing-at-point 'symbol)))))
       (when word
-	(if (member word dan/highlighted)
-	    (unhighlight word)
-	  (highlight word))
-    (when (region-active-p) (deactivate-mark))))))
+	    (if (member word dan/highlighted)
+	        (unhighlight word)
+	      (highlight word))
+        (when (region-active-p) (deactivate-mark))))))
 
 (defun dan/pulse-momentary-highlight-current-line ()
   (pulse-momentary-highlight-one-line (point) 'diff-refine-changed))
@@ -647,10 +647,10 @@ With C-u prefix argument copy URL to clipboard only."
            (save-excursion (beginning-of-line)
                            (and (looking-at ".+&=\\(.+\\)")
                                 (match-string 1))))))
-  (latex-indent)
-  (insert "&= ")
-  (when copied-line (insert copied-line))
-  (latex-indent)))
+    (latex-indent)
+    (insert "&= ")
+    (when copied-line (insert copied-line))
+    (latex-indent)))
 
 
 (defun dan/latex-yank-clipboard-image-maybe ()
@@ -731,7 +731,7 @@ With C-u prefix argument copy URL to clipboard only."
   (save-excursion
     (goto-char beg)
     (while (re-search-forward "\\\\frac{\\([^}]+\\)}{\\([^}]+\\)}" end t)
-     (replace-match "\\1/\\2"))))
+      (replace-match "\\1/\\2"))))
 
 (defun dan/latex-frac-back ()
   (when (looking-back " \\([^/ ]+\\) */ *\\([^/ ]+\\)")
@@ -863,7 +863,7 @@ With C-u prefix argument copy URL to clipboard only."
 
 
 (fset 'x
-   (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item '([3 5 104 111 up down] 0 "%d") arg)))
+      (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item '([3 5 104 111 up down] 0 "%d") arg)))
 
 
 (defun dan/org-html-export-to-html ()
@@ -1127,11 +1127,11 @@ With C-u prefix argument copy URL to clipboard only."
   "Return alist of directory items
   Each element is (formatted-item . item)"
   (mapcar
-     (lambda (file)
-       `(,(file-name-nondirectory file)
-         .
-         ,file))
-     (directory-files directory 'full)))
+   (lambda (file)
+     `(,(file-name-nondirectory file)
+       .
+       ,file))
+   (directory-files directory 'full)))
 
 
 (defun dan/python-site-packages ()
@@ -1219,7 +1219,7 @@ With C-u prefix argument copy URL to clipboard only."
       (when (looking-at "[ \t]")
         (while (looking-at "[ \t]")
           (setq name (funcall get-name)))
-          (push name names))
+        (push name names))
       ;; (push (dan/python-current-module-name) names)
       (setq name (mapconcat #'identity names "."))
       (dan/save-value-to-kill-ring name)
