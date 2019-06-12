@@ -52,8 +52,8 @@
 (setq minimal-mode-line-inactive-background "dim grey")
 
 (defalias 'color-theme 'load-theme)
-;; (load-theme 'railscasts-reloaded t)
-(load-theme 'leuven t)
+(color-theme 'railscasts-reloaded t)
+;; (color-theme 'leuven t)
 (minimal-mode)
 
 (defun dan/set-appearance ()
@@ -212,12 +212,17 @@
 (setq flycheck-flake8-maximum-line-length 99)
 
 (flycheck-add-next-checker 'python-flake8 '(t . python-mypy))
-;; (flycheck-add-next-checker 'python-mypy '(t . python-flake8))
+
+(when nil
+  (setf (flycheck-checker-get 'python-flake8 'next-checkers) '((t . python-mypy)))
+  (setf (flycheck-checker-get 'python-mypy 'next-checkers) nil))
+
+
 
 (defun dan/flycheck-configure (&optional virtualenv)
   (interactive "Dvirtualenv: ")
-  (setq flycheck-python-flake8-executable (f-join virtualenv "/bin/flake8")
-        flycheck-python-mypy-executable (f-join virtualenv "/bin/mypy")))
+  (setq flycheck-python-flake8-executable (f-join virtualenv "bin/flake8")
+        flycheck-python-mypy-executable (f-join virtualenv "bin/mypy")))
 
 ;; Haskell
 (setq hindent-extra-args '("--line-length" "100"))
@@ -410,7 +415,6 @@
 
 (add-to-list 'company-backends 'dan/company-python-django-model-manager-backend)
 
-
 ;;; Yasnippet
 (require 'yasnippet)
 (define-key yas/keymap [tab] 'yas/next-field)
@@ -559,8 +563,7 @@
     ([(super right)] . winner-redo)
     ([(super down)] . (lambda () (interactive) (set-mark-command t)))
     ([(super return)] . dan/maximize)
-    ([(super |)] . dan/shell-command-on-region-and-replace)
-    ([(super mouse-1)] . (lambda (event) (interactive "e") (mouse-set-point event) (dan/iterm2-dwim))))))
+    ([(super |)] . dan/shell-command-on-region-and-replace))))
 
 (global-set-key (kbd "s-,") 'dan/show-buffer-file-name)
 
@@ -586,7 +589,8 @@
 (dan/register-key-bindings
  '("compilation" .
    (([(return)] . compile-goto-error)
-    ("\C-cd" . dan/delete-matching-lines))))
+    ("\C-cd" . dan/delete-matching-lines)
+    ([(super mouse-1)] . (lambda (event) (interactive "e") (mouse-set-point event) (dan/iterm2-dwim))))))
 
 
 (dan/register-key-bindings
@@ -667,10 +671,12 @@
  '("python" .
    (("\C-cd" . dan/python-insert-ipdb-set-trace)
     ("\C-c\C-c" . dan/save-even-if-not-modified)
+    ([tab] . dan/company-indent-or-complete)
     ([(super ?')] . flycheck-mode)
     ([(super i)] . dan/python-where-am-i)
     ([(meta shift right)] . python-indent-shift-right)
-    ([(meta shift left)] . python-indent-shift-left))))
+    ([(meta shift left)] . python-indent-shift-left)
+    ([(super mouse-1)] . (lambda (event) (interactive "e") (mouse-set-point event) (jedi:goto-definition))))))
 
 
 (require 'sql)
@@ -680,7 +686,7 @@
 
 
 ;;; Mode hooks
-(setq pulse-iterations 50)
+(setq pulse-iterations 20)
 (defun dan/on-jump-into-buffer ()
   (delete-other-windows)
   (outline-show-all)

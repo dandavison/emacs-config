@@ -280,12 +280,23 @@
 
 
 ;;; Completion
-(defun dan/indent-or-complete ()
+(defun dan/company-indent-or-complete ()
   (interactive)
-  (if (and (looking-at "[ \n)]")
-           (looking-back "[^ \n]"))
-      (complete-symbol nil)
+  (if (or
+       (and (looking-at "[ \n)]")
+            (looking-back "[^ \n]"))
+       (equal (point) (point-max)))
+      (company-complete)
     (indent-for-tab-command)))
+
+(when nil
+  (defun dan/company-complete-or-indent ()
+    (interactive)
+    (if (company-manual-begin)
+        (company-complete-common)
+      (indent-according-to-mode))))
+
+
 
 ;;; Comment
 (defun comment-or-uncomment-region-or-line ()
@@ -1447,7 +1458,7 @@ If LIST is nil use `projectile-project-root-parent-directories'"
 
 (defun dan/grep-thing-at-point (&optional arg)
   (interactive "P")
-  (if (equal arg '(16))
+  (if (equal arg '(4))
       (if (equal major-mode 'python-mode)
           (jedi:goto-definition)
         (search-files-thing-at-point 'search-for-definition))
