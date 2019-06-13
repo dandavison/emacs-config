@@ -34,7 +34,7 @@
      (cond
       ((and (not arg)
             (projectile-project-p))
-       'projectile-find-file) ;; counsel- version seemed to have hopeless performance
+       'counsel-projectile-find-file)
       ((not arg) 'ido-find-file)
       ((equal arg '(4))
        'counsel-recentf)

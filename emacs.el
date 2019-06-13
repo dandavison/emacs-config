@@ -43,6 +43,8 @@
   (setq projectile-globally-ignored-file-suffixes '("pyc" "~" "#")
         projectile-buffers-filter-function 'projectile-buffers-with-file
         projectile-use-git-grep t
+        projectile-git-command "git ls-files -zc --exclude-standard"  ;; remove -o
+        projectile-enable-caching t
         projectile-completion-system 'ivy)
   (add-to-list 'projectile-globally-ignored-modes "dired-mode"))
 
