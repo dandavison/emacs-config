@@ -35,7 +35,7 @@
       ((and (not arg)
             (projectile-project-p))
        'counsel-projectile-find-file)
-      ((not arg) 'ido-find-file)
+      ((not arg) 'counsel-find-file)
       ((equal arg '(4))
        'counsel-recentf)
       ((equal arg '(16))
