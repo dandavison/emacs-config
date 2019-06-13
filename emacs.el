@@ -231,24 +231,6 @@
 (advice-add 'mc/edit-lines :before (lambda (&rest args) (previous-logical-line 1 nil)))
 
 
-;;; Flycheck
-(require 'flycheck);;; Flycheck
-(setq flycheck-highlighting-mode 'lines)
-(setq flycheck-flake8-maximum-line-length 99)
-
-(flycheck-add-next-checker 'python-flake8 '(t . python-mypy))
-
-(when nil
-  (setf (flycheck-checker-get 'python-flake8 'next-checkers) '((t . python-mypy)))
-  (setf (flycheck-checker-get 'python-mypy 'next-checkers) nil))
-
-
-
-(defun dan/flycheck-configure (&optional virtualenv)
-  (interactive "Dvirtualenv: ")
-  (setq flycheck-python-flake8-executable (f-join virtualenv "bin/flake8")
-        flycheck-python-mypy-executable (f-join virtualenv "bin/mypy")))
-
 ;; Haskell
 (setq hindent-extra-args '("--line-length" "100"))
 
@@ -276,9 +258,67 @@
 
 
 ;;; Python
-(setq python-shell-interpreter "/Users/dan/tmp/virtualenvs/python3/bin/ipython"
-      python-shell-interpreter-args "-i"
-      python-fill-docstring-style 'django)
+(use-package jedi-core)
+(use-package python-environment
+  :config
+  (setq python-environment-directory (expand-file-name "~/tmp/virtualenvs")))
+
+
+(defun dan/configure-python-buffer ()
+  (interactive)
+
+  (let* ((config
+          '(
+            ;; virtualenv
+            (dan/python-virtualenv . (f-join python-environment-directory (projectile-project-name)))
+            (python-environment-virtualenv . (list (f-join dan/python-virtualenv "bin/python") "-m" "venv"))
+
+            ;; flycheck
+            (flycheck-flake8-maximum-line-length . 99)
+            (flycheck-highlighting-mode . 'lines)
+            (flycheck-python-flake8-executable . (f-join dan/python-virtualenv "bin/flake8"))
+            (flycheck-python-mypy-executable . (f-join dan/python-virtualenv "bin/mypy"))
+            (flycheck-flake8rc . (f-join (projectile-project-root) "tox.ini"))
+            (flycheck-python-mypy-ini . (f-join (projectile-project-root) "tox.ini"))
+
+            ;; *.py
+            (python-fill-docstring-style . 'django)
+
+            ;; shell
+            (python-shell-virtualenv-root . dan/python-virtualenv)
+            (python-shell-interpreter . (f-join dan/python-virtualenv "bin/ipython"))
+            (python-shell-interpreter-args . "-i"))))
+
+    (dan/set-buffer-local-variables config)
+    (set (make-variable-buffer-local 'dan/python-buffer-config-variables) (mapcar 'car config))
+
+    (assert (f-directory? dan/python-virtualenv))
+    (assert (f-executable? (car python-environment-virtualenv)))
+    (assert (f-executable? flycheck-python-flake8-executable))
+    (assert (f-executable? flycheck-python-mypy-executable))
+    (assert (f-file? flycheck-flake8rc))
+    (assert (f-file? flycheck-python-mypy-ini))
+    (assert (f-directory? python-shell-virtualenv-root))
+    (assert (f-executable? python-shell-interpreter))
+
+    (setf (flycheck-checker-get 'python-flake8 'next-checkers) '((t . python-mypy)))
+    (flycheck-select-checker 'python-flake8)
+    (jedi:setup)))
+
+
+(defun dan/python-show-buffer-config ()
+  (interactive)
+  (with-temp-buffer-window
+   "*Python Buffer Config*"
+   nil nil
+   (princ
+    (format
+     "Python buffer-local config\n--------------------------\n\n%s\n"
+     (mapconcat (lambda (sym) (format "%-40s %s" (symbol-name sym) (eval sym)))
+                dan/python-buffer-config-variables
+                "\n")))))
+
+
 
 (defun dan/get-default-directory-from-python-shell-maybe ()
   (let ((process (python-shell-get-process)))
