@@ -584,7 +584,8 @@
    (("\C-cd" . edebug-defun)
     ("\C-c," . find-function)
     ("\C-c\C-r" . (lambda () (interactive) (call-interactively 'eval-region) (deactivate-mark)))
-    ([tab] . dan/company-indent-or-complete))))
+    ([tab] . dan/company-indent-or-complete)
+    ([(super x)] . eval-defun))))
 
 
 (require 'haskell)
