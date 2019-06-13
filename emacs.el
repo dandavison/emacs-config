@@ -258,20 +258,32 @@
 
 
 ;;; Python
-(use-package jedi-core)
+(use-package pyenv-mode
+  ;; :init
+  ;; (add-to-list 'exec-path "~/.pyenv/shims")
+  :ensure t
+  :config
+  (pyenv-mode))
+
 (use-package python-environment
   :config
   (setq python-environment-directory (expand-file-name "~/tmp/virtualenvs")))
 
+(use-package jedi-core
+  :config
+  (setq jedi:environment-root "emacs-jedi"))
 
-(defun dan/configure-python-buffer ()
+(use-package flycheck)
+
+(defun dan/python-mode-hook-fn ()
   (interactive)
+
+  (pyenv-mode-set "3.6.8")
 
   (let* ((config
           '(
             ;; virtualenv
             (dan/python-virtualenv . (f-join python-environment-directory (projectile-project-name)))
-            (python-environment-virtualenv . (list (f-join dan/python-virtualenv "bin/python") "-m" "venv"))
 
             ;; flycheck
             (flycheck-flake8-maximum-line-length . 99)
@@ -290,20 +302,37 @@
             (python-shell-interpreter-args . "-i"))))
 
     (dan/set-buffer-local-variables config)
-    (set (make-variable-buffer-local 'dan/python-buffer-config-variables) (mapcar 'car config))
+    (set (make-variable-buffer-local 'dan/python-buffer-config-variables) (mapcar 'car config)))
 
-    (assert (f-directory? dan/python-virtualenv))
-    (assert (f-executable? (car python-environment-virtualenv)))
-    (assert (f-executable? flycheck-python-flake8-executable))
-    (assert (f-executable? flycheck-python-mypy-executable))
-    (assert (f-file? flycheck-flake8rc))
-    (assert (f-file? flycheck-python-mypy-ini))
-    (assert (f-directory? python-shell-virtualenv-root))
-    (assert (f-executable? python-shell-interpreter))
+  (assert (f-directory? dan/python-virtualenv))
+  (assert (f-executable? flycheck-python-flake8-executable))
+  (assert (f-executable? flycheck-python-mypy-executable))
+  (assert (f-file? flycheck-flake8rc))
+  (assert (f-file? flycheck-python-mypy-ini))
+  (assert (f-directory? python-shell-virtualenv-root))
+  (assert (f-executable? python-shell-interpreter))
 
-    (setf (flycheck-checker-get 'python-flake8 'next-checkers) '((t . python-mypy)))
-    (flycheck-select-checker 'python-flake8)
-    (jedi:setup)))
+  (setf (flycheck-checker-get 'python-flake8 'next-checkers) '((t . python-mypy)))
+  (flycheck-select-checker 'python-flake8)
+
+  (jedi:setup)
+
+  (company-mode)
+  (add-to-list 'company-backends 'company-jedi)
+
+  (paredit-c-mode)
+
+  (set (make-variable-buffer-local 'prettify-symbols-alist)
+       '(("lambda" . 955)))
+  (prettify-symbols-mode)
+
+  (eldoc-mode -1)
+
+  (dan/set-up-outline-minor-mode "[ \t]*\\(def .+\\|class .+\\|##\\)"))
+
+
+(add-hook 'python-mode-hook 'dan/python-mode-hook-fn)
+
 
 
 (defun dan/python-show-buffer-config ()
@@ -860,21 +889,6 @@
   (add-hook 'penrose-substance-mode-hook 'dan/penrose-hook-fn)
   (add-hook 'penrose-style-mode-hook 'dan/penrose-hook-fn)
   (add-hook 'penrose-dsl-mode-hook 'dan/penrose-hook-fn))
-
-(defun dan/python-mode-hook-fn ()
-  (paredit-c-mode)
-  (setq prettify-symbols-alist
-        '(("lambda" . 955)))
-  (prettify-symbols-mode)
-  (eldoc-mode -1)
-  (dan/set-up-outline-minor-mode "[ \t]*\\(def .+\\|class .+\\|##\\)")
-  (dan/python-set-virtualenv
-   (format "%s/%s"
-           (getenv "WORKON_HOME")
-           (file-name-nondirectory (directory-file-name (dan/git-get-git-dir)))))
-  (company-mode)
-  (add-to-list 'company-backends 'company-jedi))
-(add-hook 'python-mode-hook 'dan/python-mode-hook-fn)
 
 (defun dan/r-mode-hook-fn ()
   (paredit-c-mode))
