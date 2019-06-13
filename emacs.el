@@ -28,7 +28,10 @@
   :ensure t)
 
 (use-package ivy
-  :ensure t)
+  :ensure t
+  :config
+  (setq ivy-fixed-height-minibuffer t
+        ivy-height #xFFFFFFFF))
 
 (use-package company
   :ensure t)
