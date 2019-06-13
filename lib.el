@@ -1033,13 +1033,6 @@ With C-u prefix argument copy URL to clipboard only."
 
 ;;; Python
 
-(defun dan/set-buffer-local-variables (name-value-pairs)
-  (mapcar
-   (lambda (pair) (set (make-variable-buffer-local (car pair)) (eval (cdr pair))))
-   name-value-pairs))
-
-
-
 (defun dan/python-set-virtualenv (path)
   (interactive (list (read-directory-name "" (getenv "WORKON_HOME"))))
   (unless (file-exists-p path)

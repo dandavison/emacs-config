@@ -270,20 +270,44 @@
   (setq python-environment-directory (expand-file-name "~/tmp/virtualenvs")))
 
 (use-package jedi-core
+  :ensure t
   :config
-  (setq jedi:environment-root "emacs-jedi"))
+  (setq jedi:environment-root "emacs-jedi")
+  (pyenv-mode-set "3.6.8")
+  (setq jedi:server-args '("--log" "/tmp/jediepcserver.log"
+                           "--log-level" "DEBUG"))
+  (jedi:install-server))
 
 (use-package flycheck)
 
+
+(defun dan/multi-set-default (name-value-pairs)
+  (mapcar
+   (lambda (pair) (set-default (make-variable-buffer-local (car pair)) (eval (cdr pair))))
+   name-value-pairs))
+
+
+(defvar-local dan/python-virtualenv nil
+  "Absolute path to python virtualenv")
+
+(defun dan/python-get-virtualenv ()
+  "Infer absolute path to python virtualenv for current buffer.
+
+If the file is in a virtualenv, then return the absolute path to the virtualenv.
+Otherwise, use `projectile-project-name' to construct the path to the virtualenv."
+  (let* ((file-name (buffer-file-name))
+         (virtualenv-name
+          (if (string-prefix-p python-environment-directory file-name)
+              (second (f-split (string-remove-prefix python-environment-directory file-name)))
+            (projectile-project-name))))
+    (f-join python-environment-directory virtualenv-name)))
+
 (defun dan/python-mode-hook-fn ()
   (interactive)
-
-  (pyenv-mode-set "3.6.8")
-
   (let* ((config
           '(
             ;; virtualenv
-            (dan/python-virtualenv . (f-join python-environment-directory (projectile-project-name)))
+            (dan/python-virtualenv . (dan/python-get-virtualenv))
 
             ;; flycheck
             (flycheck-flake8-maximum-line-length . 99)
@@ -301,37 +325,37 @@
             (python-shell-interpreter . (f-join dan/python-virtualenv "bin/ipython"))
             (python-shell-interpreter-args . "-i"))))
 
-    (dan/set-buffer-local-variables config)
+    (dan/multi-set-default config)
     (set (make-variable-buffer-local 'dan/python-buffer-config-variables) (mapcar 'car config)))
 
-  (assert (f-directory? dan/python-virtualenv))
-  (assert (f-executable? flycheck-python-flake8-executable))
-  (assert (f-executable? flycheck-python-mypy-executable))
-  (assert (f-file? flycheck-flake8rc))
-  (assert (f-file? flycheck-python-mypy-ini))
-  (assert (f-directory? python-shell-virtualenv-root))
-  (assert (f-executable? python-shell-interpreter))
+  (assert (f-directory? dan/python-virtualenv) t)
+
+  (when nil
+    (assert (f-executable? flycheck-python-flake8-executable) t)
+    (assert (f-executable? flycheck-python-mypy-executable) t)
+    (assert (f-file? flycheck-flake8rc) t)
+    (assert (f-file? flycheck-python-mypy-ini) t)
+    (assert (f-directory? python-shell-virtualenv-root) t)
+    (assert (f-executable? python-shell-interpreter) t))
+
 
   (setf (flycheck-checker-get 'python-flake8 'next-checkers) '((t . python-mypy)))
+  (setf (flycheck-checker-get 'python-mypy 'next-checkers) nil)
   (flycheck-select-checker 'python-flake8)
 
-  (jedi:setup)
-
   (company-mode)
+  (jedi:setup)
   (add-to-list 'company-backends 'company-jedi)
 
+  (eldoc-mode -1)
   (paredit-c-mode)
-
   (set (make-variable-buffer-local 'prettify-symbols-alist)
        '(("lambda" . 955)))
   (prettify-symbols-mode)
-
-  (eldoc-mode -1)
-
   (dan/set-up-outline-minor-mode "[ \t]*\\(def .+\\|class .+\\|##\\)"))
 
 
-(add-hook 'python-mode-hook 'dan/python-mode-hook-fn)
+(add-hook 'python-mode-hook 'dan/python-mode-hook-fn 'append)
 
 
 
