@@ -31,7 +31,8 @@
   :ensure t)
 
 (use-package company
-  :bind (([meta tab] . company-complete)))
+  :ensure t)
+
 
 (use-package projectile
   :ensure t
@@ -589,7 +590,7 @@
    (("\C-cd" . edebug-defun)
     ("\C-c," . find-function)
     ("\C-c\C-r" . (lambda () (interactive) (call-interactively 'eval-region) (deactivate-mark)))
-    ([tab] . dan/indent-or-complete))))
+    ([tab] . dan/company-indent-or-complete))))
 
 
 (require 'haskell)
@@ -730,6 +731,7 @@
 
 (defun dan/emacs-lisp-mode-hook-fn ()
   (paredit-mode t)
+  (company-mode)
   (setq prettify-symbols-alist '(("lambda" . 955)))
   (prettify-symbols-mode)
   (dan/set-up-outline-minor-mode "\\((\\|;;;\\)"))

@@ -284,20 +284,12 @@
 ;;; Completion
 (defun dan/company-indent-or-complete ()
   (interactive)
-  (if (or
-       (and (looking-at "[ \n)]")
-            (looking-back "[^ \n]"))
-       (equal (point) (point-max)))
+  (if (and (or (looking-at "[ \n)]")
+               (equal (point) (point-max)))
+           (not (looking-back " "))
+           (> (current-column) 0))
       (company-complete)
     (indent-for-tab-command)))
-
-(when nil
-  (defun dan/company-complete-or-indent ()
-    (interactive)
-    (if (company-manual-begin)
-        (company-complete-common)
-      (indent-according-to-mode))))
-
 
 
 ;;; Comment
