@@ -72,22 +72,24 @@
   (interactive)
   (let* ((bn (buffer-name (current-buffer)))
          (bfn (copy-sequence (buffer-file-name)))
-         (fn (file-name-nondirectory bfn)))
-    (add-text-properties
-     (- (length bfn) (length fn)) (length bfn) (list 'face 'org-warning) bfn)
-    (when bfn (dan/save-value-to-kill-ring bfn))
-    (let ((website (counsyl/current-website-repo)))
-      (message
-       "%s(%s) %s %s"
-       (if website (dan/add-face-to-string
-                    (format "website-%s" website) 'org-warning)
-         "")
-       (if website (dan/git-get-branch) "")
-       (if bfn
-           (replace-regexp-in-string
-            (concat "^" (dan/git-get-git-dir)) "" bfn)
-         "")
-       (dan/git-get-git-dir)))))
+         (fn (and bfn (file-name-nondirectory bfn))))
+    (if (not bfn)
+        (message bn)
+      (add-text-properties
+       (- (length bfn) (length fn)) (length bfn) (list 'face 'org-warning) bfn)
+      (dan/save-value-to-kill-ring bfn)
+      (let ((website (counsyl/current-website-repo)))
+        (message
+         "%s(%s) %s %s"
+         (if website (dan/add-face-to-string
+                      (format "website-%s" website) 'org-warning)
+           "")
+         (if website (dan/git-get-branch) "")
+         (if bfn
+             (replace-regexp-in-string
+              (concat "^" (dan/git-get-git-dir)) "" bfn)
+           "")
+         (dan/git-get-git-dir))))))
 
 (defun dan/show-buffer-file-name-complex ()
   (interactive)
