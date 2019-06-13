@@ -404,7 +404,7 @@
         ))
 
 (fset 'dan/magit-diff-master
-   [?\C-c ?g ?d ?r ?m ?a ?s ?t ?e ?r ?. ?. ?. return])
+      [?\C-c ?g ?d ?r ?m ?a ?s ?t ?e ?r ?. ?. ?. return])
 
 ;;; Yasnippet
 (require 'yasnippet)
@@ -473,7 +473,7 @@
 
 (dan/register-key-bindings
  '(modalka-mode-map .
-   ((" " . modalka-mode))))
+                    ((" " . modalka-mode))))
 
 
 (define-key dired-mode-map [(left)] 'dired-up-directory)
@@ -601,7 +601,7 @@
 (require 'mhtml-mode)
 (dan/register-key-bindings
  '(mhtml-mode-map .
-   (("\C-c\C-c" . emmet-expand-line))))
+                  (("\C-c\C-c" . emmet-expand-line))))
 
 (require 'js)
 (dan/register-key-bindings
