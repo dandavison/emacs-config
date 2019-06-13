@@ -762,7 +762,7 @@ With C-u prefix argument copy URL to clipboard only."
   (call-interactively
    (if arg 'dan/latex-unfrac-region 'dan/latex-frac)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; latex-focus
 
 (defvar dan/latex-focus-comment-beg "\\begin{comment}  % latex-focus")
@@ -845,7 +845,7 @@ With C-u prefix argument copy URL to clipboard only."
     (point-at-bol 2)))
 
 ;; end latex-focus
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Org
 (defun dan/org-babel-execute-non-native-src-block ()
@@ -1039,6 +1039,19 @@ With C-u prefix argument copy URL to clipboard only."
 
 ;;; Python
 
+(defun dan/python-set-virtualenv (path)
+  (interactive (list (read-directory-name "" (getenv "WORKON_HOME"))))
+  (unless (file-exists-p path)
+    (error "Invalid path: %s" path))
+  (let ((flake8 (expand-file-name "bin/flake8" path)))
+    (when (file-exists-p flake8)
+      (set (make-variable-buffer-local 'flycheck-python-flake8-executable)
+           flake8)))
+  (set (make-variable-buffer-local 'python-shell-virtualenv-root)
+       path))
+
+
+
 (defun dan/blacken ()
   (interactive)
   (unless (boundp 'dan/blacken-this-file)
@@ -1080,17 +1093,6 @@ With C-u prefix argument copy URL to clipboard only."
 
 
 (setenv "WORKON_HOME" "~/tmp/virtualenvs")  ;; FIXME
-
-(defun dan/python-set-virtualenv (path)
-  (interactive (list (read-directory-name "" (getenv "WORKON_HOME"))))
-  (unless (file-exists-p path)
-    (error "Invalid path: %s" path))
-  (let ((flake8 (expand-file-name "bin/flake8" path)))
-    (when (file-exists-p flake8)
-      (set (make-variable-buffer-local 'flycheck-python-flake8-executable)
-           flake8)))
-  (set (make-variable-buffer-local 'python-shell-virtualenv-root)
-       path))
 
 (defun dan/python-django-shell-plus ()
   (interactive)
@@ -1432,11 +1434,6 @@ If LIST is nil use `projectile-project-root-parent-directories'"
     (puthash (dan/projectile-root-custom-hash-key default-directory)
              dir
              projectile-project-root-cache)))
-
-(defun dan/project-scratch-buffer ()
-  (interactive)
-  (find-file "/Users/dan/src/counsyl/misc/GEN-341-evidence-from-annotations.org"))
-
 
 (defun dan/projectile-add-to-project ()
   (interactive)

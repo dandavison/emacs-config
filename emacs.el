@@ -1,14 +1,16 @@
+;;; Init
+(setq debug-on-error t)
+
 ;;; Packages
 (require 'cl)
 (require 'dired-x)
+(load-file "~/src/emacs-config/lib.el")
+
 
 (unless (equal emacs-version "27.0.50") (package-initialize))
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
-(add-to-list 'load-path "~/src/3p/emacs-async")
-(add-to-list 'load-path "~/src/3p/projectile") (require 'projectile)
-(add-to-list 'load-path "~/src/3p/magit/lisp") (require 'magit)
-(add-to-list 'load-path "~/src/3p/tla-mode") (require 'tla-mode)
 
+(add-to-list 'load-path "~/src/3p/tla-mode") (require 'tla-mode)
 (add-to-list 'load-path "~/src/3p/ESS/lisp") (require 'ess)
 
 (add-to-list 'load-path "~/src/minimal") (require 'minimal)
@@ -18,12 +20,18 @@
 (add-to-list 'load-path "~/src/facet/emacs") (require 'facet)
 
 
-(use-package f)
+(add-to-list 'load-path "~/src/3p/emacs-async")
+(add-to-list 'load-path "~/src/3p/projectile") (require 'projectile)
+(add-to-list 'load-path "~/src/3p/magit/lisp") (require 'magit)
+
+(use-package f
+  :ensure t)
+
+(use-package ivy
+  :ensure t)
 
 (use-package company
   :bind (([meta tab] . company-complete)))
-
-(use-package ivy)
 
 (use-package projectile
   :ensure t
@@ -45,6 +53,9 @@
                'dan/projectile-root-custom)
   (add-to-list 'projectile-globally-ignored-modes "dired-mode"))
 
+(use-package magit
+  :ensure t)
+
 
 
 ;; (add-to-list 'load-path "~/src/3p/penrose-modes") (require 'penrose-modes)
@@ -59,7 +70,6 @@
 ;; (add-to-list 'custom-theme-load-path (expand-file-name
 ;;                                       "~/src/3p/emacs-themes-site/root/assets/local-src"))
 
-(load-file "~/src/emacs-config/lib.el")
 (when (file-exists-p "~/src/emacs-config/extra.el")
   (load-file "~/src/emacs-config/extra.el"))
 
@@ -217,10 +227,6 @@
 (setq scroll-step 1) ;; keyboard scroll one line at a time
 (setq linum-delay t)
 
-;; (require 'sublimity)
-;; (require 'sublimity-scroll)
-;; (sublimity-mode 1)
-
 ;;; Comint
 
 (advice-add 'comint-previous-matching-input-from-input :after (lambda (&rest args) (goto-char (point-at-eol))))
@@ -323,7 +329,7 @@
 ;; (add-function :before (symbol-function 'run-python) 'dan/python-set-virtualenv)
 ;; (remove-function (symbol-function 'run-python) 'dan/python-set-virtualenv)
 
-;;;; Python comint history
+;; Python comint history
 (defvar dan/python-comint-history-file "~/.ipython/history")
 (defvar dan/python-comint-history-max 1000)
 
@@ -399,10 +405,6 @@
 
 (fset 'dan/magit-diff-master
    [?\C-c ?g ?d ?r ?m ?a ?s ?t ?e ?r ?. ?. ?. return])
-
-;;; Company
-
-(add-to-list 'company-backends 'dan/company-python-django-model-manager-backend)
 
 ;;; Yasnippet
 (require 'yasnippet)
