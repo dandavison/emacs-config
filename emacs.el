@@ -979,7 +979,7 @@ Otherwise, use `projectile-project-name' to construct the path to the virtualenv
  '(font-latex-math-face ((t (:foreground "red"))))
  '(font-latex-verbatim-face ((t (:inherit nil))))
  '(help-argument-name ((t (:inherit nil))))
- '(minibuffer-prompt ((t (:background "#FFFFFF" :foreground "#FFD798" :weight bold))))
+ '(minibuffer-prompt ((t (:foreground "#FFD798" :weight bold))))
  '(org-block ((t (:background "#FFFFFF" :foreground "#000088"))))
  '(org-block-begin-line ((t (:background "#FFFFFF" :foreground "lightgrey" :underline nil))))
  '(org-block-end-line ((t (:background "#FFFFFF" :foreground "lightgrey" :overline nil))))
