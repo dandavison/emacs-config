@@ -19,8 +19,30 @@
 
 
 (use-package f)
+
 (use-package company
   :bind (([meta tab] . company-complete)))
+
+(use-package projectile
+  :ensure t
+  :config
+  (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
+  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+  (projectile-mode +1)
+  (setq projectile-globally-ignored-file-suffixes '("pyc" "~" "#")
+        projectile-buffers-filter-function 'projectile-buffers-with-file
+        projectile-use-git-grep t
+        projectile-completion-system 'ivy)
+  (add-to-list 'projectile-project-root-files-functions
+               'dan/projectile-root-by-parent-directory
+               'append)
+  (add-to-list 'projectile-project-root-files-functions
+               'dan/projectile-root-default
+               'append)
+  (add-to-list 'projectile-project-root-files-functions
+               'dan/projectile-root-custom)
+  (add-to-list 'projectile-globally-ignored-modes "dired-mode"))
+
 
 
 ;; (add-to-list 'load-path "~/src/3p/penrose-modes") (require 'penrose-modes)
@@ -375,24 +397,6 @@
 
 (fset 'dan/magit-diff-master
    [?\C-c ?g ?d ?r ?m ?a ?s ?t ?e ?r ?. ?. ?. return])
-
-;;; Projectile
-(setq projectile-globally-ignored-file-suffixes '("pyc" "~" "#"))
-(setq projectile-buffers-filter-function 'projectile-buffers-with-file)
-(setq projectile-use-git-grep t)
-(add-to-list 'projectile-project-root-files-functions
-             'dan/projectile-root-by-parent-directory
-             'append)
-(add-to-list 'projectile-project-root-files-functions
-             'dan/projectile-root-default
-             'append)
-(add-to-list 'projectile-project-root-files-functions
-             'dan/projectile-root-custom)
-
-(add-to-list 'projectile-globally-ignored-modes "dired-mode")
-
-(setq projectile-completion-system 'ivy)
-
 
 ;;; Ivy
 (setq ivy-height #xFFFFFFFF)
