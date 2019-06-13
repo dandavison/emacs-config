@@ -23,6 +23,8 @@
 (use-package company
   :bind (([meta tab] . company-complete)))
 
+(use-package ivy)
+
 (use-package projectile
   :ensure t
   :config
@@ -397,23 +399,6 @@
 
 (fset 'dan/magit-diff-master
    [?\C-c ?g ?d ?r ?m ?a ?s ?t ?e ?r ?. ?. ?. return])
-
-;;; Ivy
-(setq ivy-height #xFFFFFFFF)
-;; (setq ivy-fixed-height-minibuffer t)
-
-(setq counsel-git-grep-skip-counting-lines t)
-
-(require 'popup)
-
-(defun ivy-display-function-popup (text)
-  (with-ivy-window
-    (popup-tip
-     (setq ivy-insert-debug
-           (substring text 1))
-     :nostrip t)))
-
-;; (setq ivy-display-function 'ivy-display-function-popup)
 
 ;;; Company
 
