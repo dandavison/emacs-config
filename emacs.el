@@ -19,10 +19,12 @@
 (add-to-list 'load-path "~/src/emacs-search-files") (require 'search-files)
 (add-to-list 'load-path "~/src/facet/emacs") (require 'facet)
 
+(use-package amx
+  :config
+  (amx-mode))
 
-(add-to-list 'load-path "~/src/3p/emacs-async")
-(add-to-list 'load-path "~/src/3p/projectile") (require 'projectile)
-(add-to-list 'load-path "~/src/3p/magit/lisp") (require 'magit)
+(use-package company
+  :ensure t)
 
 (use-package f
   :ensure t)
@@ -33,9 +35,8 @@
   (setq ivy-fixed-height-minibuffer t
         ivy-height #xFFFFFFFF))
 
-(use-package company
+(use-package magit
   :ensure t)
-
 
 (use-package projectile
   :ensure t
@@ -50,9 +51,6 @@
         projectile-enable-caching t
         projectile-completion-system 'ivy)
   (add-to-list 'projectile-globally-ignored-modes "dired-mode"))
-
-(use-package magit
-  :ensure t)
 
 
 
@@ -246,7 +244,7 @@
 (setq org-src-fontify-natively t)
 (setq org-edit-src-persistent-message nil)
 (setq org-src-window-setup 'current-window)
-(setq org-todo-keywords '((sequence "TODO" "DEFER" "DONE")))
+(setq org-todo-keywords '((sequence "TODO" "DEFER" "WONTDO" "DONE")))
 
 (setq org-confirm-babel-evaluate nil)
 (require 'ob-haskell)
@@ -454,7 +452,7 @@ Otherwise, use `projectile-project-name' to construct the path to the virtualenv
 
 (add-hook 'kill-buffer-hook
           (lambda () (when (eq major-mode 'inferior-python-mode)
-                  (dan/dump-comint-history dan/python-comint-history-file))))
+                       (dan/dump-comint-history dan/python-comint-history-file))))
 
 (add-hook 'inferior-python-mode-hook
           (lambda () (dan/load-comint-history dan/python-comint-history-file)))
@@ -644,6 +642,7 @@ Otherwise, use `projectile-project-name' to construct the path to the virtualenv
     ([(super left)] . winner-undo)
     ([(super right)] . winner-redo)
     ([(super down)] . (lambda () (interactive) (set-mark-command t)))
+    ([(shift super left)] . ivy-resume)
     ([(super return)] . dan/maximize)
     ([(super |)] . dan/shell-command-on-region-and-replace))))
 
@@ -830,7 +829,8 @@ Otherwise, use `projectile-project-name' to construct the path to the virtualenv
 
 (defun dan/eshell-mode-hook-fn ()
   (paredit-mode t)
-  (dan/pretty-lambdas))
+  (setq prettify-symbols-alist '(("lambda" . 955)))
+  (prettify-symbols-mode))
 (add-hook 'eshell-mode-hook 'dan/eshell-mode-hook-fn)
 
 (defun dan/find-function-after-hook-fn ()
@@ -968,7 +968,7 @@ Otherwise, use `projectile-project-name' to construct the path to the virtualenv
    '("4e5e58e42f6f37920b95a8502f488928b3dab9b6cc03d864e38101ce36ecb968" "72759f4e42617df7a07d0a4f4b08982314aa97fbd495a5405c9b11f48bd6b839" "9e6ac467fa1e5eb09e2ac477f61c56b2e172815b4a6a43cf48def62f9d3e5bf9" "b9183de9666c3a16a7ffa7faaa8e9941b8d0ab50f9aaba1ca49f2f3aec7e3be9" "0e8c264f24f11501d3f0cabcd05e5f9811213f07149e4904ed751ffdcdc44739" "780c67d3b58b524aa485a146ad9e837051918b722fd32fd1b7e50ec36d413e70" "a11043406c7c4233bfd66498e83600f4109c83420714a2bd0cd131f81cbbacea" "45482e7ddf47ab1f30fe05f75e5f2d2118635f5797687e88571842ff6f18b4d5" "a3821772b5051fa49cf567af79cc4dabfcfd37a1b9236492ae4724a77f42d70d" "3b4800ea72984641068f45e8d1911405b910f1406b83650cbd747a831295c911" default))
  '(magit-diff-arguments '("--ignore-all-space" "--no-ext-diff"))
  '(package-selected-packages
-   '(pyenv-mode counsel-projectile emmet-mode modalka visual-fill-column sql-indent sqlite hindent haskell-mode htmlize pony-mode dot-mode applescript-mode railscasts-reloaded-theme plantuml-mode multiple-cursors ivy counsel use-package sublimity avy auctex-latexmk smooth-scroll soothe-theme debbugs fzf elpy transpose-frame graphviz-dot-mode flycheck color-theme-modern zones py-isort jira-markup-mode inf-clojure auto-overlays aumix-mode buffer-move confluence ess zencoding-mode yasnippet-bundle yasnippet yaml-mode smartparens rust-mode railscasts-theme paredit-everywhere minimal-theme markdown-mode latex-pretty-symbols flx-ido fill-column-indicator eyuml evil dockerfile-mode dired-details+ color-theme-railscasts coffee-mode clojure-mode auctex ag))
+   '(helm ripgrep pyenv-mode counsel-projectile emmet-mode modalka visual-fill-column sql-indent sqlite hindent haskell-mode htmlize pony-mode dot-mode applescript-mode railscasts-reloaded-theme plantuml-mode multiple-cursors ivy counsel use-package sublimity avy auctex-latexmk smooth-scroll soothe-theme debbugs fzf elpy transpose-frame graphviz-dot-mode flycheck color-theme-modern zones py-isort jira-markup-mode inf-clojure auto-overlays aumix-mode buffer-move confluence ess zencoding-mode yasnippet-bundle yasnippet yaml-mode smartparens rust-mode railscasts-theme paredit-everywhere minimal-theme markdown-mode latex-pretty-symbols flx-ido fill-column-indicator eyuml evil dockerfile-mode dired-details+ color-theme-railscasts coffee-mode clojure-mode auctex ag))
  '(safe-local-variable-values '((bug-reference-bug-regexp . "#\\(?2:[0-9]+\\)"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -979,6 +979,7 @@ Otherwise, use `projectile-project-name' to construct the path to the virtualenv
  '(font-latex-math-face ((t (:foreground "red"))))
  '(font-latex-verbatim-face ((t (:inherit nil))))
  '(help-argument-name ((t (:inherit nil))))
+ '(highlight ((t (:background "yellow" :foreground "black"))))
  '(minibuffer-prompt ((t (:foreground "#FFD798" :weight bold))))
  '(org-block ((t (:background "#FFFFFF" :foreground "#000088"))))
  '(org-block-begin-line ((t (:background "#FFFFFF" :foreground "lightgrey" :underline nil))))
