@@ -610,7 +610,6 @@ Otherwise, use `projectile-project-name' to construct the path to the virtualenv
     ;; ("\M-;" . comment-or-uncomment-region-or-line)
     ("\M-i" . dan/highlight)
     ("\M-q" . fill-paragraph)
-    ("\M-x" . counsel-M-x)
     ("\C-c\M-f" . search-files-thing-at-point)
     ("\C-z" . (lambda () (interactive)))
     ("\M-o" . swiper-thing-at-point)
