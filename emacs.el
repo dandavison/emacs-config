@@ -160,7 +160,7 @@
 (dan/set-exec-path-from-shell)
 (dan/set-exec-path-from-shell "PYTHONPATH")
 
-(setq-default fill-column 99)
+(setq-default fill-column 80)
 (setq fci-rule-column fill-column)
 (setq fci-rule-color "#A5BAF1")
 
@@ -347,6 +347,9 @@ Otherwise, use `projectile-project-name' to construct the path to the virtualenv
   (company-mode)
   (jedi:setup)
   (add-to-list 'company-backends 'company-jedi)
+
+  (setq fill-column 99)
+  (set (make-variable-buffer-local 'fci-rule-column) fill-column)
 
   (eldoc-mode -1)
   (paredit-c-mode)
