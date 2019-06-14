@@ -1,14 +1,13 @@
 ;;; Init
 (setq debug-on-error t)
 
-;;; Packages
-(use-package cl)
-
-(use-package dired-x)
+;;; Native packages
 
 (use-package bookmark
   :bind (:map bookmark-bmenu-mode-map
               ("\C-x\C-s" . bookmark-save)))
+
+(use-package cl)
 
 (use-package comint
   :bind (:map comint-mode-map
@@ -18,13 +17,14 @@
               ([(control down)] . comint-next-matching-input-from-input)
               ("\C-l" . dan/comint-clear-buffer)))
 
-
 (use-package compilation
   :bind (:map compilation-mode-map
               ([(return)] . compile-goto-error)
               ("\C-cd" . dan/delete-matching-lines)
               ([(super mouse-1)] . (lambda (event) (interactive "e") (mouse-set-point event) (dan/iterm2-dwim)))))
 
+
+(use-package dired-x)
 
 (use-package elisp-mode
   :bind (:map emacs-lisp-mode-map
@@ -43,6 +43,11 @@
               ([(meta left)] . backward-word)
               ([(meta right)] . forward-word)))
 
+(use-package outline
+  :bind (:map outline-minor-mode-map
+              ([(control tab)] . org-cycle)
+              ([(backtab)] . org-global-cycle)))
+
 (use-package python
   :bind (:map python-mode-map
               ("\C-cd" . dan/python-insert-ipdb-set-trace)
@@ -55,14 +60,10 @@
               ([(super mouse-1)] . (lambda (event) (interactive "e") (mouse-set-point event) (jedi:goto-definition)))))
 
 
-(use-package outline
-  :bind (:map outline-minor-mode-map
-              ([(control tab)] . org-cycle)
-              ([(backtab)] . org-global-cycle)))
-
-
 (load-file "~/src/emacs-config/lib.el")
 
+
+;;; External Packages
 (unless (equal emacs-version "27.0.50") (package-initialize))
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 
@@ -127,10 +128,44 @@
 
 (use-package mhtml-mode
   :bind (:map mhtml-mode-ma
-         ("\C-c\C-c" . emmet-expand-line)))
+              ("\C-c\C-c" . emmet-expand-line)))
 
 (use-package minimal
   :load-path "~/src/minimal")
+
+(use-package modalka
+  :bind (:map modalka-mode-map
+              ((" " . modalka-mode)))
+  :config
+  (modalka-define-kbd "1" "C-x 1")
+  (modalka-define-kbd "a" "C-a")
+  (modalka-define-kbd "b" "C-x b")
+  (modalka-define-kbd "d" "M-d")
+  (modalka-define-kbd "^" "C-x d")
+  (modalka-define-kbd "e" "C-e")
+  (modalka-define-kbd "f" "C-x C-f")
+  (modalka-define-kbd "g" "C-c g")
+  (modalka-define-kbd "i" "M-i")
+  (modalka-define-kbd "k" "C-k")
+  (modalka-define-kbd "o" "M-o")
+  (modalka-define-kbd "s" "C-s")
+  (modalka-define-kbd "t" "C-c C-t")
+  (modalka-define-kbd "u" "C-u")
+  (modalka-define-kbd "x" "C-M-x")
+  (modalka-define-kbd "y" "C-y")
+  (modalka-define-kbd "z" "C-z")
+  (modalka-define-kbd "," "s-,")
+  (modalka-define-kbd "." "s-.")
+  (modalka-define-kbd "[" "C-x o")
+  (modalka-define-kbd "]" "C-x o")
+
+  (modalka-global-mode -1)
+  (add-to-list 'modalka-excluded-modes 'magit-status-mode)
+  (add-to-list 'modalka-excluded-modes 'magit-popup-mode)
+  (add-to-list 'modalka-excluded-modes 'text-mode)  ;; magit commit edit buffer
+  (add-to-list 'modalka-excluded-modes 'magit-log-select-mode)
+  (add-to-list 'modalka-excluded-modes 'git-rebase-mode))
+
 
 (use-package ob-mathematica
   :load-path "~/src/3p/org-mode/contrib/lisp")
@@ -159,6 +194,107 @@
 
 (when (file-exists-p "~/src/emacs-config/extra.el")
   (load-file "~/src/emacs-config/extra.el"))
+
+
+
+;;; TODO Keys
+(define-key global-map (kbd "C-x n n") 'dan/narrow-to-region)
+(define-key global-map (kbd "C-x n w") 'dan/widen)
+
+(define-key paredit-mode-map "\\" nil)
+(define-key paredit-mode-map ";" nil)
+(define-key paredit-mode-map "\"" 'paredit-c/doublequote)
+
+
+(global-set-key (kbd "M-\\") (lambda () (interactive) (insert "\\")))
+(global-set-key [(kp-delete)] #'modalka-mode)
+(global-set-key [f12] #'modalka-mode)
+
+(define-key dired-mode-map [(left)] 'dired-up-directory)
+(define-key dired-mode-map [(right)] 'dired-find-file)
+
+
+
+(dan/register-key-bindings
+ '(global-map
+   .
+   (("\C-\M-\\" . dan/indent-region)
+    ("\C-b" . backward-sexp)
+    ("\C-f" . forward-sexp)
+    ([(right)] . forward-char)
+    ([(left)] . backward-char)
+    ("\C-s" . swiper)
+    ([(control >)] . mc/mark-next-like-this)
+    ([(super d)] . mc/mark-next-like-this)
+    ([(control <)] . mc/mark-previous-like-this)
+    ([(control c) (control <)] . mc/mark-all-like-this)
+    ("\C-cm" . mc/edit-lines)
+    ("\C-xb" . dan/switch-to-buffer)
+    ("\C-x\C-f" . dan/find-file)
+    ("\C-xd" . dan/dired-no-ask)
+    ("\C-xp" . projectile-switch-project)
+    ("\C-cb" . magit-blame)
+    ("\C-cc" . (lambda () (interactive) (magit-show-commit "HEAD")))
+    ("\C-c\M-d" . dan/magit-diff)
+    ("\C-ce" . outline-show-all)
+    ("\C-cf" . search-files-by-name)
+    ("\C-cg" . magit-status)
+    ("\C-cl" . linum-mode)
+    ("\C-co" . dan/scratch-buffer)
+    ("\C-cr" . replace-regexp)
+    ("\C-c\C-c" . dan/save-even-if-not-modified)
+    ("\C-c\C-r" . magit-file-rename)
+    ("\C-cs" . (lambda () (interactive)
+                 (shell-command-on-region
+                  (region-beginning) (region-end) "sort -V" nil 'replace)))
+    ("\C-cw" . dan/list-window-configurations)
+    ("\C-c\C-l" . eval-buffer)
+    ("\C-c\C-z" . python-shell-switch-to-shell)
+    ("\C-c1" . flycheck-mode)
+    ;; ("\M-;" . comment-or-uncomment-region-or-line)
+    ("\M-i" . dan/highlight)
+    ("\M-q" . fill-paragraph)
+    ("\C-c\M-f" . search-files-thing-at-point)
+    ("\C-z" . (lambda () (interactive)))
+    ("\M-o" . swiper-thing-at-point)
+
+    ([f1] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?1 arg)))
+    ([f2] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?2 arg)))
+    ([f3] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?3 arg)))
+    ([f4] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?4 arg)))
+    ([f5] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?5 arg)))
+    ([f6] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?6 arg)))
+    ([f7] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?7 arg)))
+    ([f8] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?8 arg)))
+    ([f9] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?9 arg)))
+    ([f10] . dan/list-window-configurations)
+    ([f11] . dan/find-dot-emacs)
+    ([(control down)] . scroll-up-command)
+    ([(control up)] . scroll-down-command)
+    ([(meta up)] . dan/transpose-line-up)
+    ([(meta down)] . dan/transpose-line-down)
+    ([(meta shift left)] . dan/indent-shift-left)
+    ([(meta shift right)] . dan/indent-shift-right)
+    ([(super ?\])] . fci-mode)
+    ;; ([(super d)] . dan/bookmark-set)
+    ([(super k)] . dan/bookmark-set)
+    ;; ([(super k)] . (lambda (&optional arg) (interactive "P") (if arg (dan/bookmark-set) (dan/where-am-i))))
+    ([(super G)] . isearch-repeat-backward)
+    ([(super l)] . bookmark-bmenu-list)
+    ([(super ?,)] . counsel-projectile-git-grep)
+    ([(super ?.)] . dan/grep-thing-at-point)
+    ([(super ?\;)] . dan/show-buffer-file-name)
+    ([(super ?&)] . (lambda () (interactive) (let ((kill-buffer-query-functions nil)) (kill-buffer))))
+    ([(super left)] . winner-undo)
+    ([(super right)] . winner-redo)
+    ([(super down)] . (lambda () (interactive) (set-mark-command t)))
+    ([(shift super left)] . ivy-resume)
+    ([(super return)] . dan/maximize)
+    ([(super |)] . dan/shell-command-on-region-and-replace))))
+
+(global-set-key (kbd "s-,") 'dan/show-buffer-file-name)
+
+
 
 
 ;;; Appearance
@@ -543,7 +679,7 @@ Otherwise, use `projectile-project-name' to construct the path to the virtualenv
 
 (add-hook 'kill-buffer-hook
           (lambda () (when (eq major-mode 'inferior-python-mode)
-                       (dan/dump-comint-history dan/python-comint-history-file))))
+                  (dan/dump-comint-history dan/python-comint-history-file))))
 
 (add-hook 'inferior-python-mode-hook
           (lambda () (dan/load-comint-history dan/python-comint-history-file)))
@@ -594,153 +730,6 @@ Otherwise, use `projectile-project-name' to construct the path to the virtualenv
   (interactive)
   (yas/load-directory "/Users/dan/src/emacs-config/snippets"))
 (dan/yas-load)
-
-
-
-;;; Keys
-
-;; http://endlessparentheses.com/multiple-cursors-keybinds.html
-;; (define-prefix-command 'endless/mc-map)
-;; ;; C-x m is usually `compose-mail'. Bind it to something
-;; ;; else if you use this command.
-;; (define-key ctl-x-map "m" 'endless/mc-map)
-
-;; ;;; Really really nice!
-;; (define-key endless/mc-map "i" #'mc/insert-numbers)
-;; (define-key ctl-x-)
-;;     ("\C-xnn" . dan/narrow-to-region)
-;;     ("\C-xnw" . dan/widen)
-
-(define-key global-map (kbd "C-x n n") 'dan/narrow-to-region)
-(define-key global-map (kbd "C-x n w") 'dan/widen)
-
-(define-key paredit-mode-map "\\" nil)
-(define-key paredit-mode-map ";" nil)
-(define-key paredit-mode-map "\"" 'paredit-c/doublequote)
-
-(modalka-define-kbd "1" "C-x 1")
-(modalka-define-kbd "a" "C-a")
-(modalka-define-kbd "b" "C-x b")
-(modalka-define-kbd "d" "M-d")
-(modalka-define-kbd "^" "C-x d")
-(modalka-define-kbd "e" "C-e")
-(modalka-define-kbd "f" "C-x C-f")
-(modalka-define-kbd "g" "C-c g")
-(modalka-define-kbd "i" "M-i")
-(modalka-define-kbd "k" "C-k")
-(modalka-define-kbd "o" "M-o")
-(modalka-define-kbd "s" "C-s")
-(modalka-define-kbd "t" "C-c C-t")
-(modalka-define-kbd "u" "C-u")
-(modalka-define-kbd "x" "C-M-x")
-(modalka-define-kbd "y" "C-y")
-(modalka-define-kbd "z" "C-z")
-(modalka-define-kbd "," "s-,")
-(modalka-define-kbd "." "s-.")
-(modalka-define-kbd "[" "C-x o")
-(modalka-define-kbd "]" "C-x o")
-
-(modalka-global-mode -1)
-(add-to-list 'modalka-excluded-modes 'magit-status-mode)
-(add-to-list 'modalka-excluded-modes 'magit-popup-mode)
-(add-to-list 'modalka-excluded-modes 'text-mode)  ;; magit commit edit buffer
-(add-to-list 'modalka-excluded-modes 'magit-log-select-mode)
-(add-to-list 'modalka-excluded-modes 'git-rebase-mode)
-
-(global-set-key (kbd "M-\\") (lambda () (interactive) (insert "\\")))
-(global-set-key [(kp-delete)] #'modalka-mode)
-(global-set-key [f12] #'modalka-mode)
-
-(dan/register-key-bindings
- '(modalka-mode-map .
-                    ((" " . modalka-mode))))
-
-
-(define-key dired-mode-map [(left)] 'dired-up-directory)
-(define-key dired-mode-map [(right)] 'dired-find-file)
-
-(dan/register-key-bindings
- '(global-map
-   .
-   (("\C-\M-\\" . dan/indent-region)
-    ("\C-b" . backward-sexp)
-    ("\C-f" . forward-sexp)
-    ([(right)] . forward-char)
-    ([(left)] . backward-char)
-    ("\C-s" . swiper)
-    ([(control >)] . mc/mark-next-like-this)
-    ([(super d)] . mc/mark-next-like-this)
-    ([(control <)] . mc/mark-previous-like-this)
-    ([(control c) (control <)] . mc/mark-all-like-this)
-    ("\C-cm" . mc/edit-lines)
-    ("\C-xb" . dan/switch-to-buffer)
-    ("\C-x\C-f" . dan/find-file)
-    ("\C-xd" . dan/dired-no-ask)
-    ("\C-xp" . projectile-switch-project)
-    ("\C-cb" . magit-blame)
-    ("\C-cc" . (lambda () (interactive) (magit-show-commit "HEAD")))
-    ("\C-c\M-d" . dan/magit-diff)
-    ("\C-ce" . outline-show-all)
-    ("\C-cf" . search-files-by-name)
-    ("\C-cg" . magit-status)
-    ("\C-cl" . linum-mode)
-    ("\C-co" . dan/scratch-buffer)
-    ("\C-cr" . replace-regexp)
-    ("\C-c\C-c" . dan/save-even-if-not-modified)
-    ("\C-c\C-r" . magit-file-rename)
-    ("\C-cs" . (lambda () (interactive)
-                 (shell-command-on-region
-                  (region-beginning) (region-end) "sort -V" nil 'replace)))
-    ("\C-cw" . dan/list-window-configurations)
-    ("\C-c\C-l" . eval-buffer)
-    ("\C-c\C-z" . python-shell-switch-to-shell)
-    ("\C-c1" . flycheck-mode)
-    ;; ("\M-;" . comment-or-uncomment-region-or-line)
-    ("\M-i" . dan/highlight)
-    ("\M-q" . fill-paragraph)
-    ("\C-c\M-f" . search-files-thing-at-point)
-    ("\C-z" . (lambda () (interactive)))
-    ("\M-o" . swiper-thing-at-point)
-
-    ([f1] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?1 arg)))
-    ([f2] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?2 arg)))
-    ([f3] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?3 arg)))
-    ([f4] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?4 arg)))
-    ([f5] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?5 arg)))
-    ([f6] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?6 arg)))
-    ([f7] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?7 arg)))
-    ([f8] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?8 arg)))
-    ([f9] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?9 arg)))
-    ([f10] . dan/list-window-configurations)
-    ([f11] . dan/find-dot-emacs)
-    ([(control down)] . scroll-up-command)
-    ([(control up)] . scroll-down-command)
-    ([(meta up)] . dan/transpose-line-up)
-    ([(meta down)] . dan/transpose-line-down)
-    ([(meta shift left)] . dan/indent-shift-left)
-    ([(meta shift right)] . dan/indent-shift-right)
-    ([(super ?\])] . fci-mode)
-    ;; ([(super d)] . dan/bookmark-set)
-    ([(super k)] . dan/bookmark-set)
-    ;; ([(super k)] . (lambda (&optional arg) (interactive "P") (if arg (dan/bookmark-set) (dan/where-am-i))))
-    ([(super G)] . isearch-repeat-backward)
-    ([(super l)] . bookmark-bmenu-list)
-    ([(super ?,)] . counsel-projectile-git-grep)
-    ([(super ?.)] . dan/grep-thing-at-point)
-    ([(super ?\;)] . dan/show-buffer-file-name)
-    ([(super ?&)] . (lambda () (interactive) (let ((kill-buffer-query-functions nil)) (kill-buffer))))
-    ([(super left)] . winner-undo)
-    ([(super right)] . winner-redo)
-    ([(super down)] . (lambda () (interactive) (set-mark-command t)))
-    ([(shift super left)] . ivy-resume)
-    ([(super return)] . dan/maximize)
-    ([(super |)] . dan/shell-command-on-region-and-replace))))
-
-(global-set-key (kbd "s-,") 'dan/show-buffer-file-name)
-
-
-
-
 
 
 ;;; Mode hooks
