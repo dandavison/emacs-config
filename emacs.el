@@ -6,11 +6,70 @@
 
 (use-package dired-x)
 
+(use-package bookmark
+  :bind (:map bookmark-bmenu-mode-map
+              ("\C-x\C-s" . bookmark-save)))
+
+(use-package comint
+  :bind (:map comint-mode-map
+              ([(meta up)] . comint-previous-matching-input-from-input)
+              ([(meta down)] . comint-next-matching-input-from-input)
+              ([(control up)] . comint-previous-matching-input-from-input)
+              ([(control down)] . comint-next-matching-input-from-input)
+              ("\C-l" . dan/comint-clear-buffer)))
+
+
+(use-package compilation
+  :bind (:map compilation-mode-map
+              ([(return)] . compile-goto-error)
+              ("\C-cd" . dan/delete-matching-lines)
+              ([(super mouse-1)] . (lambda (event) (interactive "e") (mouse-set-point event) (dan/iterm2-dwim)))))
+
+
+(use-package elisp-mode
+  :bind (:map emacs-lisp-mode-map
+              ("\C-cd" . edebug-defun)
+              ("\C-c," . find-function)
+              ("\C-c\C-r" . (lambda () (interactive) (call-interactively 'eval-region) (deactivate-mark)))
+              ([tab] . dan/company-indent-or-complete)
+              ([(super x)] . eval-defun)))
+
+(use-package org
+  :bind (:map org-mode-map
+              ([(shift left)] . windmove-left)
+              ([(shift right)] . windmove-right)
+              ([(shift up)] . windmove-up)
+              ([(shift down)] . windmove-down)
+              ([(meta left)] . backward-word)
+              ([(meta right)] . forward-word)))
+
+(use-package python
+  :bind (:map python-mode-map
+              ("\C-cd" . dan/python-insert-ipdb-set-trace)
+              ("\C-c\C-c" . dan/save-even-if-not-modified)
+              ([tab] . dan/company-indent-or-complete)
+              ([(super ?')] . flycheck-mode)
+              ([(super i)] . dan/python-where-am-i)
+              ([(meta shift right)] . python-indent-shift-right)
+              ([(meta shift left)] . python-indent-shift-left)
+              ([(super mouse-1)] . (lambda (event) (interactive "e") (mouse-set-point event) (jedi:goto-definition)))))
+
+
+(use-package outline
+  :bind (:map outline-minor-mode-map
+              ([(control tab)] . org-cycle)
+              ([(backtab)] . org-global-cycle)))
+
+
 (load-file "~/src/emacs-config/lib.el")
 
 (unless (equal emacs-version "27.0.50") (package-initialize))
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
-(setq use-package-always-ensure t)
+
+(use-package clojure-mode
+  :bind (:map clojure-mode-map
+              ("\C-x\C-e" . inf-clojure-eval-last-sexp)
+              ("\C-c\C-z" . inf-clojure)))
 
 (use-package company)
 
@@ -25,12 +84,50 @@
 (use-package flycheck
   :load-path "~/src/3p/flycheck")
 
+(use-package haskell
+  :bind (:map haskell-mode-map
+              ("'" . self-insert-command)))
+
 (use-package ivy
   :config
   (setq ivy-fixed-height-minibuffer t
         ivy-height #xFFFFFFFF))
 
+(use-package js
+  :bind (:map js-mode-map
+              ("\C-cd" . (lambda () (interactive) (insert "debugger;")))))
+
+(use-package latex
+  :bind (:map latex-mode-map
+              ("\C-c\C-c" . (lambda () (interactive)
+                              (condition-case nil
+                                  (dan/org-babel-execute-non-native-src-block)
+                                (error nil))
+                              (dan/save-even-if-not-modified)))
+              ("\C-xni" . dan/latex-focus-insert-comment-delimiters)
+              ("\C-xnf" . dan/latex-focus)
+              ("\C-xnu" . dan/latex-unfocus)
+              ("\C-c|" . dan/latex-set-builder-pipe)
+              ("\C-c/" . dan/latex-frac-or-unfrac)
+              ([(super b)] . dan/latex-bold)
+              ([(super d)] . dan/latex-definition)
+              ([(super i)] . dan/latex-italic)
+              ([(super t)] . dan/latex-fixed-width)))
+
 (use-package magit)
+
+(use-package markdown-mode
+  :bind (:map markdown-mode-map
+              ("$" . dan/paired-dollar)
+              ("\M-q" . fill-paragraph)
+              ;; force file write to force pelican reload
+              ("\C-X\C-s" . (lambda () (interactive) (set-buffer-modified-p t) (save-buffer)))
+              ([(meta left)] . left-word)
+              ([(meta right)] . right-word)))
+
+(use-package mhtml-mode
+  :bind (:map mhtml-mode-ma
+         ("\C-c\C-c" . emmet-expand-line)))
 
 (use-package minimal
   :load-path "~/src/minimal")
@@ -45,9 +142,9 @@
   :load-path "~/src/3p/penrose-modes")
 
 (use-package projectile
+  :bind-keymap
+  ([(super p)] . projectile-command-map)
   :config
-  (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
-  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
   (projectile-mode +1)
   (setq projectile-globally-ignored-file-suffixes '("pyc" "~" "#")
         projectile-buffers-filter-function 'projectile-buffers-with-file
@@ -65,9 +162,6 @@
 
 
 ;;; Appearance
-(setq ns-use-native-fullscreen nil)
-;; Doesn't respect ns-use-native-fullscreen if called now
-;; (toggle-frame-fullscreen)
 
 (setq ring-bell-function (lambda nil nil))
 
@@ -644,123 +738,9 @@ Otherwise, use `projectile-project-name' to construct the path to the virtualenv
 
 (global-set-key (kbd "s-,") 'dan/show-buffer-file-name)
 
-(require 'bookmark)
-(dan/register-key-bindings
- '("bookmark-bmenu" .
-   (("\C-x\C-s" . bookmark-save))))
-
-(require 'clojure-mode)
-(dan/register-key-bindings
- '("clojure" .
-   (("\C-x\C-e" . inf-clojure-eval-last-sexp)
-    ("\C-c\C-z" . inf-clojure))))
-
-(dan/register-key-bindings
- '("comint" .
-   (([(meta up)] . comint-previous-matching-input-from-input)
-    ([(meta down)] . comint-next-matching-input-from-input)
-    ([(control up)] . comint-previous-matching-input-from-input)
-    ([(control down)] . comint-next-matching-input-from-input)
-    ("\C-l" . dan/comint-clear-buffer))))
-
-(dan/register-key-bindings
- '("compilation" .
-   (([(return)] . compile-goto-error)
-    ("\C-cd" . dan/delete-matching-lines)
-    ([(super mouse-1)] . (lambda (event) (interactive "e") (mouse-set-point event) (dan/iterm2-dwim))))))
 
 
-(dan/register-key-bindings
- '("emacs-lisp" .
-   (("\C-cd" . edebug-defun)
-    ("\C-c," . find-function)
-    ("\C-c\C-r" . (lambda () (interactive) (call-interactively 'eval-region) (deactivate-mark)))
-    ([tab] . dan/company-indent-or-complete)
-    ([(super x)] . eval-defun))))
 
-
-(require 'haskell)
-(dan/register-key-bindings
- '("haskell" .
-   (("'" . self-insert-command))))
-
-
-(require 'mhtml-mode)
-(dan/register-key-bindings
- '(mhtml-mode-map .
-                  (("\C-c\C-c" . emmet-expand-line))))
-
-(require 'js)
-(dan/register-key-bindings
- '("js" .
-   (("\C-cd" . (lambda () (interactive) (insert "debugger;"))))))
-
-
-(require 'markdown-mode)
-(dan/register-key-bindings
- '("markdown" .
-   (("$" . dan/paired-dollar)
-    ("\M-q" . fill-paragraph)
-    ;; force file write to force pelican reload
-    ("\C-X\C-s" . (lambda () (interactive) (set-buffer-modified-p t) (save-buffer)))
-    ([(meta left)] . left-word)
-    ([(meta right)] . right-word))))
-
-
-(require 'latex)
-(dan/register-key-bindings
- '("LaTeX" .
-   (("\C-c\C-c" . (lambda () (interactive)
-                    (condition-case nil
-                        (dan/org-babel-execute-non-native-src-block)
-                      (error nil))
-                    (dan/save-even-if-not-modified)))
-    ("\C-xni" . dan/latex-focus-insert-comment-delimiters)
-    ("\C-xnf" . dan/latex-focus)
-    ("\C-xnu" . dan/latex-unfocus)
-    ("\C-c|" . dan/latex-set-builder-pipe)
-    ("\C-c/" . dan/latex-frac-or-unfrac)
-    ([(super b)] . dan/latex-bold)
-    ([(super d)] . dan/latex-definition)
-    ([(super i)] . dan/latex-italic)
-    ([(super t)] . dan/latex-fixed-width))))
-
-
-(require 'org)
-(dan/register-key-bindings
- '("org" .
-   (([(shift left)] . windmove-left)
-    ([(shift right)] . windmove-right)
-    ([(shift up)] . windmove-up)
-    ([(shift down)] . windmove-down)
-    ([(meta left)] . backward-word)
-    ([(meta right)] . forward-word))))
-
-
-(dan/register-key-bindings
- '(outline-minor-mode-map
-   .
-   (([(control tab)] . org-cycle)
-    ([(backtab)] . org-global-cycle))))
-
-
-(require 'python)
-(dan/register-key-bindings
- '("python" .
-   (("\C-cd" . dan/python-insert-ipdb-set-trace)
-    ("\C-c\C-c" . dan/save-even-if-not-modified)
-    ([tab] . dan/company-indent-or-complete)
-    ([(super ?')] . flycheck-mode)
-    ([(super i)] . dan/python-where-am-i)
-    ([(meta shift right)] . python-indent-shift-right)
-    ([(meta shift left)] . python-indent-shift-left)
-    ([(super mouse-1)] . (lambda (event) (interactive "e") (mouse-set-point event) (jedi:goto-definition))))))
-
-
-(require 'sql)
-(dan/register-key-bindings
- '("sql" .
-   ()))
 
 
 ;;; Mode hooks
@@ -984,6 +964,10 @@ Otherwise, use `projectile-project-name' to construct the path to the virtualenv
  '(org-level-1 ((t (:background "#FFFFFF" :foreground "#CC7733" :overline nil :weight bold :height 120))))
  '(org-level-2 ((t (:background "#FFFFFF" :foreground "dark red" :overline nil :weight bold :height 120))))
  '(org-todo ((t (:foreground "darkgrey" :box (:line-width 1 :color "grey") :weight normal)))))
+(put 'upcase-region 'disabled nil)
+
+
+(setq ns-use-native-fullscreen nil)
+;; (toggle-frame-fullscreen) doesn't honor ns-use-native-fullscreen if called now
 
 (message "⚡")
-(put 'upcase-region 'disabled nil)
