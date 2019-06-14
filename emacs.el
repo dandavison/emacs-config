@@ -2,44 +2,49 @@
 (setq debug-on-error t)
 
 ;;; Packages
-(require 'cl)
-(require 'dired-x)
-(load-file "~/src/emacs-config/lib.el")
+(use-package cl)
 
+(use-package dired-x)
+
+(load-file "~/src/emacs-config/lib.el")
 
 (unless (equal emacs-version "27.0.50") (package-initialize))
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+(setq use-package-always-ensure t)
 
-(add-to-list 'load-path "~/src/3p/tla-mode") (require 'tla-mode)
-(add-to-list 'load-path "~/src/3p/ESS/lisp") (require 'ess)
+(use-package company)
 
-(add-to-list 'load-path "~/src/minimal") (require 'minimal)
-(add-to-list 'load-path "~/src/paredit-c") (require 'paredit-c)
-(add-to-list 'load-path "~/src/emacs-filter-results") (require 'filter-results)
-(add-to-list 'load-path "~/src/emacs-search-files") (require 'search-files)
-(add-to-list 'load-path "~/src/facet/emacs") (require 'facet)
+(use-package ess
+  :load-path "~/src/3p/ESS/lisp")
 
-(use-package amx
-  :config
-  (amx-mode))
+(use-package f)
 
-(use-package company
-  :ensure t)
+(use-package facet
+  :load-path "~/src/facet/emacs")
 
-(use-package f
-  :ensure t)
+(use-package flycheck
+  :load-path "~/src/3p/flycheck")
 
 (use-package ivy
-  :ensure t
   :config
   (setq ivy-fixed-height-minibuffer t
         ivy-height #xFFFFFFFF))
 
-(use-package magit
-  :ensure t)
+(use-package magit)
+
+(use-package minimal
+  :load-path "~/src/minimal")
+
+(use-package ob-mathematica
+  :load-path "~/src/3p/org-mode/contrib/lisp")
+
+(use-package paredit-c
+  :load-path "~/src/paredit-c")
+
+(use-package penrose-modes
+  :load-path "~/src/3p/penrose-modes")
 
 (use-package projectile
-  :ensure t
   :config
   (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
@@ -52,19 +57,8 @@
         projectile-completion-system 'ivy)
   (add-to-list 'projectile-globally-ignored-modes "dired-mode"))
 
-
-
-;; (add-to-list 'load-path "~/src/3p/penrose-modes") (require 'penrose-modes)
-
-
-;; (add-to-list 'load-path "~/src/3p/mma-mode") (require 'mma)
-;; (setq auto-mode-alist
-;;       (cons '("\.m\'" . mma-mode) auto-mode-alist))
-
-(add-to-list 'load-path "~/src/3p/org-mode/contrib/lisp") (require 'ob-mathematica)
-
-;; (add-to-list 'custom-theme-load-path (expand-file-name
-;;                                       "~/src/3p/emacs-themes-site/root/assets/local-src"))
+(use-package tla-mode
+  :load-path "~/src/3p/tla-mode")
 
 (when (file-exists-p "~/src/emacs-config/extra.el")
   (load-file "~/src/emacs-config/extra.el"))
@@ -970,7 +964,7 @@ Otherwise, use `projectile-project-name' to construct the path to the virtualenv
    '("4e5e58e42f6f37920b95a8502f488928b3dab9b6cc03d864e38101ce36ecb968" "72759f4e42617df7a07d0a4f4b08982314aa97fbd495a5405c9b11f48bd6b839" "9e6ac467fa1e5eb09e2ac477f61c56b2e172815b4a6a43cf48def62f9d3e5bf9" "b9183de9666c3a16a7ffa7faaa8e9941b8d0ab50f9aaba1ca49f2f3aec7e3be9" "0e8c264f24f11501d3f0cabcd05e5f9811213f07149e4904ed751ffdcdc44739" "780c67d3b58b524aa485a146ad9e837051918b722fd32fd1b7e50ec36d413e70" "a11043406c7c4233bfd66498e83600f4109c83420714a2bd0cd131f81cbbacea" "45482e7ddf47ab1f30fe05f75e5f2d2118635f5797687e88571842ff6f18b4d5" "a3821772b5051fa49cf567af79cc4dabfcfd37a1b9236492ae4724a77f42d70d" "3b4800ea72984641068f45e8d1911405b910f1406b83650cbd747a831295c911" default))
  '(magit-diff-arguments '("--ignore-all-space" "--no-ext-diff"))
  '(package-selected-packages
-   '(helm ripgrep pyenv-mode counsel-projectile emmet-mode modalka visual-fill-column sql-indent sqlite hindent haskell-mode htmlize pony-mode dot-mode applescript-mode railscasts-reloaded-theme plantuml-mode multiple-cursors ivy counsel use-package sublimity avy auctex-latexmk smooth-scroll soothe-theme debbugs fzf elpy transpose-frame graphviz-dot-mode flycheck color-theme-modern zones py-isort jira-markup-mode inf-clojure auto-overlays aumix-mode buffer-move confluence ess zencoding-mode yasnippet-bundle yasnippet yaml-mode smartparens rust-mode railscasts-theme paredit-everywhere minimal-theme markdown-mode latex-pretty-symbols flx-ido fill-column-indicator eyuml evil dockerfile-mode dired-details+ color-theme-railscasts coffee-mode clojure-mode auctex ag))
+   '(applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move coffee-mode color-theme-modern color-theme-railscasts company company-jedi confluence counsel counsel-projectile debbugs dired-details+ dockerfile-mode dot-mode emmet-mode ess eyuml f fill-column-indicator flycheck fzf graphviz-dot-mode haskell-mode hindent htmlize ivy jedi-core jira-markup-mode latex-pretty-symbols magit markdown-mode minimal-theme modalka multiple-cursors paredit paredit-everywhere plantuml-mode pony-mode projectile pyenv-mode py-isort railscasts-reloaded-theme railscasts-theme ripgrep rust-mode smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity transpose-frame use-package visual-fill-column yaml-mode yasnippet yasnippet-bundle zencoding-mode zones))
  '(safe-local-variable-values '((bug-reference-bug-regexp . "#\\(?2:[0-9]+\\)"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
