@@ -167,7 +167,11 @@
 (use-package ivy
   :config
   (setq ivy-fixed-height-minibuffer t
-        ivy-height #xFFFFFFFF))
+        ivy-height #xFFFFFFFF)
+  (defun -dan/swiper-around-advice (orig-fun &rest args)
+    (let ((ivy-height 20))
+      (apply orig-fun args)))
+  (advice-add 'swiper :around '-dan/swiper-around-advice))
 
 (use-package js
   :defer t
