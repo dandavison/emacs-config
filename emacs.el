@@ -1,7 +1,88 @@
 ;;; Init
 (setq debug-on-error t)
+(unless (equal emacs-version "27.0.50") (package-initialize))
+(setq use-package-always-demand t)
 
 ;;; Native packages
+
+(use-package emacs
+  :bind (("C-M-\\" . dan/indent-region)
+         ("C-b" . backward-sexp)
+         ("C-f" . forward-sexp)
+         ([right] . forward-char)
+         ([left] . backward-char)
+         ("C-s" . swiper)
+
+         ("C-c m" . mc/edit-lines)
+         ("C-x b" . dan/switch-to-buffer)
+         ("C-x C-f" . dan/find-file)
+         ("C-x d" . dan/dired-no-ask)
+         ("C-x p" . projectile-switch-project)
+         ("C-x n n" . dan/narrow-to-region)
+         ("C-x n w" . dan/widen)
+
+         ("C-c b" . magit-blame)
+
+         ("C-c c" . (lambda () (interactive) (magit-show-commit "HEAD")))
+         ("C-c M-d" . dan/magit-diff)
+         ("C-c e" . outline-show-all)
+         ("C-c f" . search-files-by-name)
+         ("C-c g" . magit-status)
+         ("C-c l" . linum-mode)
+
+         ("C-c o" . dan/scratch-buffer)
+         ("C-c r" . replace-regexp)
+         ("C-c C-c" . dan/save-even-if-not-modified)
+         ("C-c C-r" . magit-file-rename)
+         ("C-c s" . (lambda () (interactive)
+                      (shell-command-on-region
+                       (region-beginning) (region-end) "sort -V" nil 'replace)))
+
+         ("C-c w" . dan/list-window-configurations)
+         ("C-c C-l" . eval-buffer)
+
+         ("C-c C-z" . python-shell-switch-to-shell)
+         ("C-c 1" . flycheck-mode)
+         ("M-i" . dan/highlight)
+         ("M-q" . fill-paragraph)
+         ("C-c M-f" . search-files-thing-at-point)
+         ("M-o" . swiper-thing-at-point)
+
+         ([f1] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?1 arg)))
+         ([f2] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?2 arg)))
+         ([f3] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?3 arg)))
+         ([f4] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?4 arg)))
+         ([f5] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?5 arg)))
+         ([f6] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?6 arg)))
+         ([f7] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?7 arg)))
+         ([f8] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?8 arg)))
+         ([f9] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?9 arg)))
+         ([f10] . dan/list-window-configurations)
+         ([f11] . dan/find-dot-emacs)
+         ([f12] . modalka-mode)
+         ([(control down)] . scroll-up-command)
+         ([(control up)] . scroll-down-command)
+         ([(meta up)] . dan/transpose-line-up)
+         ([(meta down)] . dan/transpose-line-down)
+         ([(meta shift left)] . dan/indent-shift-left)
+         ([(meta shift right)] . dan/indent-shift-right)
+         ([(super ?\])] . fci-mode)
+         ([(super d)] . dan/bookmark-set)
+         ([(super k)] . dan/bookmark-set)
+         ([(super G)] . isearch-repeat-backward)
+         ([(super l)] . bookmark-bmenu-list)
+         ([(super ?,)] . counsel-projectile-git-grep)
+         ([(super ?.)] . dan/grep-thing-at-point)
+         ([(super ?\;)] . dan/show-buffer-file-name)
+         ([(super ?&)] . (lambda () (interactive) (let ((kill-buffer-query-functions nil)) (kill-buffer))))
+         ([(super left)] . winner-undo)
+         ([(super right)] . winner-redo)
+         ([(super down)] . (lambda () (interactive) (set-mark-command t)))
+         ([(shift super left)] . ivy-resume)
+         ([(super return)] . dan/maximize)
+         ([(super |)] . dan/shell-command-on-region-and-replace)
+         ([(super \\)] . dan/indent-region)
+         ([(kp-delete)] . modalka-mode)))
 
 (use-package bookmark
   :bind (:map bookmark-bmenu-mode-map
@@ -18,12 +99,16 @@
               ("\C-l" . dan/comint-clear-buffer)))
 
 (use-package compilation
+  :defer t
   :bind (:map compilation-mode-map
               ([(return)] . compile-goto-error)
               ("\C-cd" . dan/delete-matching-lines)
               ([(super mouse-1)] . (lambda (event) (interactive "e") (mouse-set-point event) (dan/iterm2-dwim)))))
 
-
+(use-package dired
+  :bind (:map dired-mode-map
+              ([left] . dired-up-directory)
+              ([right] . dired-find-file)))
 (use-package dired-x)
 
 (use-package elisp-mode
@@ -64,10 +149,10 @@
 
 
 ;;; External Packages
-(unless (equal emacs-version "27.0.50") (package-initialize))
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 
 (use-package clojure-mode
+  :defer t
   :bind (:map clojure-mode-map
               ("\C-x\C-e" . inf-clojure-eval-last-sexp)
               ("\C-c\C-z" . inf-clojure)))
@@ -86,6 +171,7 @@
   :load-path "~/src/3p/flycheck")
 
 (use-package haskell
+  :defer t
   :bind (:map haskell-mode-map
               ("'" . self-insert-command)))
 
@@ -95,10 +181,12 @@
         ivy-height #xFFFFFFFF))
 
 (use-package js
+  :defer t
   :bind (:map js-mode-map
               ("\C-cd" . (lambda () (interactive) (insert "debugger;")))))
 
 (use-package latex
+  :defer t
   :bind (:map latex-mode-map
               ("\C-c\C-c" . (lambda () (interactive)
                               (condition-case nil
@@ -127,6 +215,7 @@
               ([(meta right)] . right-word)))
 
 (use-package mhtml-mode
+  :defer t
   :bind (:map mhtml-mode-ma
               ("\C-c\C-c" . emmet-expand-line)))
 
@@ -134,6 +223,7 @@
   :load-path "~/src/minimal")
 
 (use-package modalka
+  :defer t
   :bind (:map modalka-mode-map
               ((" " . modalka-mode)))
   :config
@@ -168,12 +258,20 @@
 
 
 (use-package ob-mathematica
+  :defer t
   :load-path "~/src/3p/org-mode/contrib/lisp")
+
+(use-package paredit
+  :bind (:map paredit-mode-map
+              ("\\" . nil)
+              (";" . nil)
+              ("\"" . paredit-c/doublequote)))
 
 (use-package paredit-c
   :load-path "~/src/paredit-c")
 
 (use-package penrose-modes
+  :defer t
   :load-path "~/src/3p/penrose-modes")
 
 (use-package projectile
@@ -190,110 +288,11 @@
   (add-to-list 'projectile-globally-ignored-modes "dired-mode"))
 
 (use-package tla-mode
+  :defer t
   :load-path "~/src/3p/tla-mode")
 
 (when (file-exists-p "~/src/emacs-config/extra.el")
   (load-file "~/src/emacs-config/extra.el"))
-
-
-
-;;; TODO Keys
-(define-key global-map (kbd "C-x n n") 'dan/narrow-to-region)
-(define-key global-map (kbd "C-x n w") 'dan/widen)
-
-(define-key paredit-mode-map "\\" nil)
-(define-key paredit-mode-map ";" nil)
-(define-key paredit-mode-map "\"" 'paredit-c/doublequote)
-
-
-(global-set-key (kbd "M-\\") (lambda () (interactive) (insert "\\")))
-(global-set-key [(kp-delete)] #'modalka-mode)
-(global-set-key [f12] #'modalka-mode)
-
-(define-key dired-mode-map [(left)] 'dired-up-directory)
-(define-key dired-mode-map [(right)] 'dired-find-file)
-
-
-
-(dan/register-key-bindings
- '(global-map
-   .
-   (("\C-\M-\\" . dan/indent-region)
-    ("\C-b" . backward-sexp)
-    ("\C-f" . forward-sexp)
-    ([(right)] . forward-char)
-    ([(left)] . backward-char)
-    ("\C-s" . swiper)
-    ([(control >)] . mc/mark-next-like-this)
-    ([(super d)] . mc/mark-next-like-this)
-    ([(control <)] . mc/mark-previous-like-this)
-    ([(control c) (control <)] . mc/mark-all-like-this)
-    ("\C-cm" . mc/edit-lines)
-    ("\C-xb" . dan/switch-to-buffer)
-    ("\C-x\C-f" . dan/find-file)
-    ("\C-xd" . dan/dired-no-ask)
-    ("\C-xp" . projectile-switch-project)
-    ("\C-cb" . magit-blame)
-    ("\C-cc" . (lambda () (interactive) (magit-show-commit "HEAD")))
-    ("\C-c\M-d" . dan/magit-diff)
-    ("\C-ce" . outline-show-all)
-    ("\C-cf" . search-files-by-name)
-    ("\C-cg" . magit-status)
-    ("\C-cl" . linum-mode)
-    ("\C-co" . dan/scratch-buffer)
-    ("\C-cr" . replace-regexp)
-    ("\C-c\C-c" . dan/save-even-if-not-modified)
-    ("\C-c\C-r" . magit-file-rename)
-    ("\C-cs" . (lambda () (interactive)
-                 (shell-command-on-region
-                  (region-beginning) (region-end) "sort -V" nil 'replace)))
-    ("\C-cw" . dan/list-window-configurations)
-    ("\C-c\C-l" . eval-buffer)
-    ("\C-c\C-z" . python-shell-switch-to-shell)
-    ("\C-c1" . flycheck-mode)
-    ;; ("\M-;" . comment-or-uncomment-region-or-line)
-    ("\M-i" . dan/highlight)
-    ("\M-q" . fill-paragraph)
-    ("\C-c\M-f" . search-files-thing-at-point)
-    ("\C-z" . (lambda () (interactive)))
-    ("\M-o" . swiper-thing-at-point)
-
-    ([f1] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?1 arg)))
-    ([f2] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?2 arg)))
-    ([f3] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?3 arg)))
-    ([f4] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?4 arg)))
-    ([f5] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?5 arg)))
-    ([f6] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?6 arg)))
-    ([f7] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?7 arg)))
-    ([f8] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?8 arg)))
-    ([f9] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?9 arg)))
-    ([f10] . dan/list-window-configurations)
-    ([f11] . dan/find-dot-emacs)
-    ([(control down)] . scroll-up-command)
-    ([(control up)] . scroll-down-command)
-    ([(meta up)] . dan/transpose-line-up)
-    ([(meta down)] . dan/transpose-line-down)
-    ([(meta shift left)] . dan/indent-shift-left)
-    ([(meta shift right)] . dan/indent-shift-right)
-    ([(super ?\])] . fci-mode)
-    ;; ([(super d)] . dan/bookmark-set)
-    ([(super k)] . dan/bookmark-set)
-    ;; ([(super k)] . (lambda (&optional arg) (interactive "P") (if arg (dan/bookmark-set) (dan/where-am-i))))
-    ([(super G)] . isearch-repeat-backward)
-    ([(super l)] . bookmark-bmenu-list)
-    ([(super ?,)] . counsel-projectile-git-grep)
-    ([(super ?.)] . dan/grep-thing-at-point)
-    ([(super ?\;)] . dan/show-buffer-file-name)
-    ([(super ?&)] . (lambda () (interactive) (let ((kill-buffer-query-functions nil)) (kill-buffer))))
-    ([(super left)] . winner-undo)
-    ([(super right)] . winner-redo)
-    ([(super down)] . (lambda () (interactive) (set-mark-command t)))
-    ([(shift super left)] . ivy-resume)
-    ([(super return)] . dan/maximize)
-    ([(super |)] . dan/shell-command-on-region-and-replace))))
-
-(global-set-key (kbd "s-,") 'dan/show-buffer-file-name)
-
 
 
 
