@@ -287,6 +287,10 @@
 
 ;;; Appearance
 
+(setq ns-use-native-fullscreen nil)
+;; doesn't honor ns-use-native-fullscreen if called immediately
+(run-with-timer 1 nil 'toggle-frame-fullscreen)
+
 (setq ring-bell-function (lambda nil nil))
 
 (setq inhibit-startup-message t)
@@ -945,8 +949,5 @@ Otherwise, use `projectile-project-name' to construct the path to the virtualenv
  '(org-todo ((t (:foreground "darkgrey" :box (:line-width 1 :color "grey") :weight normal)))))
 (put 'upcase-region 'disabled nil)
 
-
-(setq ns-use-native-fullscreen nil)
-;; (toggle-frame-fullscreen) doesn't honor ns-use-native-fullscreen if called now
 
 (message "⚡")
