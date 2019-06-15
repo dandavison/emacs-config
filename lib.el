@@ -551,68 +551,6 @@
     (set-window-buffer nil buffer-name)))
 
 
-;;; Key bindings
-
-;; Example:
-;;
-;; Add code like the following to your .emacs file to specify key
-;; bindings in different major modes:
-;;
-;; (dan/register-key-bindings
-;;  '(global-map .
-;;               (("\C-c\M-g" . dan/grep))))
-;; (require 'python)
-;; (dan/register-key-bindings
-;;  '("python" .
-;;    (("\C-ci" . dan/python-import)
-;;     ([f5] . dan/open-in-github))))
-;;
-;; More examples of key sequences:
-;; [delete], [(super o)], [(control next)], [f4], [(meta up)]
-;; super is OS X cmd key; binding some modifier keys may not be
-;; possible if you are using emacs in a terminal.
-;; See http://www.gnu.org/software/emacs/manual/html_node/emacs/Init-Rebinding.html
-
-(defvar dan/key-bindings nil
-  "List of all key bindings.
-This is an alist of alists. The key of the top level alist
-references a key map. If the key is a string, the string
-\"-mode-map\" is appended to it when finding the mode-map. If it
-is a symbol, it is used as is.")
-
-
-(defun dan/register-key-bindings (bindings-alist)
-  "Add bindings in dan/key-bindings"
-  (setq
-   dan/key-bindings
-   (cons
-    bindings-alist
-    (dan/assoc-delete-all (car bindings-alist) dan/key-bindings)))
-  (dan/set-key-bindings)
-  nil)
-
-
-(defun dan/set-key-bindings (&optional mode-map in-mode-map)
-  "Set custom key bindings
-Optional argument MODE-MAP sets bindings in that mode only
-Optional argument IN-MODE-MAP sets MODE-MAP bindings in IN-MODE-MAP
-"
-  (interactive)
-  (mapc (lambda (pair)
-          (let* ((map (or in-mode-map (car pair)))
-                 (bindings (cdr pair)))
-            (if (stringp map) (setq map (intern (concat map "-mode-map"))))
-            (if (symbolp map) (setq map (eval map)))
-            (mapc (lambda (binding)
-                    (define-key map (car binding) (cdr binding)))
-                  bindings)))
-        (or (and mode-map `(,(assoc mode-map dan/key-bindings)))
-            dan/key-bindings)))
-
-(defun dan/key-disabled ()
-  (interactive)
-  (message "key binding disabled!"))
-
 ;;; Images
 
 (defun dan/image-insert-cliboard-image ()
