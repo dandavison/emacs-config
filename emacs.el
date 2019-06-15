@@ -525,48 +525,50 @@ Otherwise, use `projectile-project-name' to construct the path to the virtualenv
           (if (string-prefix-p python-environment-directory file-name)
               (second (f-split (string-remove-prefix python-environment-directory file-name)))
             (projectile-project-name))))
-    (f-join python-environment-directory virtualenv-name)))
+    (and virtualenv-name
+         (f-join python-environment-directory virtualenv-name))))
 
 (defun dan/python-mode-hook-fn ()
   (interactive)
-  (let* ((config
-          '(
-            ;; virtualenv
-            (dan/python-virtualenv . (dan/python-get-virtualenv))
-
-            ;; flycheck
-            (flycheck-flake8-maximum-line-length . 99)
-            (flycheck-highlighting-mode . 'lines)
-            (flycheck-python-flake8-executable . (f-join dan/python-virtualenv "bin/flake8"))
-            (flycheck-python-mypy-executable . (f-join dan/python-virtualenv "bin/mypy"))
-            (flycheck-flake8rc . (f-join (projectile-project-root) "tox.ini"))
-            (flycheck-python-mypy-ini . (f-join (projectile-project-root) "tox.ini"))
-
-            ;; *.py
-            (python-fill-docstring-style . 'django)
-
-            ;; shell
-            (python-shell-virtualenv-root . dan/python-virtualenv)
-            (python-shell-interpreter . (f-join dan/python-virtualenv "bin/ipython"))
-            (python-shell-interpreter-args . "-i"))))
-
-    (dan/multi-set-default config)
-    (set (make-variable-buffer-local 'dan/python-buffer-config-variables) (mapcar 'car config)))
-
-  (assert (f-directory? dan/python-virtualenv) t)
 
   (when nil
+    (let* ((config
+            '(
+              ;; virtualenv
+              (dan/python-virtualenv . (dan/python-get-virtualenv))
+
+              ;; flycheck
+              (flycheck-flake8-maximum-line-length . 99)
+              (flycheck-highlighting-mode . 'lines)
+              (flycheck-python-flake8-executable . (f-join dan/python-virtualenv "bin/flake8"))
+              (flycheck-python-mypy-executable . (f-join dan/python-virtualenv "bin/mypy"))
+              (flycheck-flake8rc . (f-join (projectile-project-root) "tox.ini"))
+              (flycheck-python-mypy-ini . (f-join (projectile-project-root) "tox.ini"))
+
+              ;; *.py
+              (python-fill-docstring-style . 'django)
+
+              ;; shell
+              (python-shell-virtualenv-root . dan/python-virtualenv)
+              (python-shell-interpreter . (f-join dan/python-virtualenv "bin/ipython"))
+              (python-shell-interpreter-args . "-i"))))
+
+      (dan/multi-set-default config)
+      (set (make-variable-buffer-local 'dan/python-buffer-config-variables) (mapcar 'car config)))
+
+    (assert (f-directory? dan/python-virtualenv) t)
     (assert (f-executable? flycheck-python-flake8-executable) t)
     (assert (f-executable? flycheck-python-mypy-executable) t)
     (assert (f-file? flycheck-flake8rc) t)
     (assert (f-file? flycheck-python-mypy-ini) t)
     (assert (f-directory? python-shell-virtualenv-root) t)
-    (assert (f-executable? python-shell-interpreter) t))
+    (assert (f-executable? python-shell-interpreter) t)
 
 
-  (setf (flycheck-checker-get 'python-flake8 'next-checkers) '((t . python-mypy)))
-  (setf (flycheck-checker-get 'python-mypy 'next-checkers) nil)
-  (flycheck-select-checker 'python-flake8)
+    (setf (flycheck-checker-get 'python-flake8 'next-checkers) '((t . python-mypy)))
+    (setf (flycheck-checker-get 'python-mypy 'next-checkers) nil)
+    (flycheck-select-checker 'python-flake8))
+
 
   (company-mode)
   (jedi:setup)
