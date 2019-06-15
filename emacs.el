@@ -374,7 +374,6 @@
 (setq compilation-save-buffers-predicate (lambda () nil))
 
 (dan/set-exec-path-from-shell)
-(dan/set-exec-path-from-shell "PYTHONPATH")
 
 (setq-default fill-column 80)
 (setq fci-rule-column fill-column)

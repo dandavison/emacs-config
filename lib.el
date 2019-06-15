@@ -52,9 +52,8 @@
   (interactive)
   (let* ((pathvar (or pathvar "PATH"))
          (path-from-shell
-          (or "/Users/dan/.pyenv/shims:/Users/dan/bin:/Users/dan/src/emacs-config/bin:/Users/dan/src/misc:/Users/dan/go/bin:/usr/local/opt/postgresql@9.6/bin:/usr/local/opt/coreutils/libexec/gnubin:/usr/local/bin:/usr/local/texlive/2018/bin/x86_64-darwin:/Users/dan/.pyenv/shims:/usr/bin:/bin:/usr/sbin:/sbin:/Library/TeX/texbin:/Users/dan/src/counsyl/bin:/Users/dan/src/counsyl/bin"
-              (shell-command-to-string
-               (format "/bin/bash -c '. ~/.bashrc && echo -n $%s'" pathvar)))))
+          (shell-command-to-string
+           (format "/bin/bash -c '. ~/src/shell-config/path.sh && echo -n $%s'" pathvar))))
     (setenv pathvar path-from-shell)
     (when (string-equal pathvar "PATH")
       (setq exec-path (split-string path-from-shell path-separator)))))
