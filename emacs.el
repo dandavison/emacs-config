@@ -356,6 +356,7 @@
 (setq async-shell-command-buffer 'rename-buffer)
 (setq shell-command-default-error-buffer "*Shell Command Error*")
 (setq scroll-conservatively 101)
+(setq enable-recursive-minibuffers t)
 
 (setq electric-indent-mode nil)
 (setq-default indent-tabs-mode nil)
