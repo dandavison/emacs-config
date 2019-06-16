@@ -179,6 +179,10 @@
       (remove-hook 'after-save-hook 'dan/compile-jfdi t)
     (add-hook 'after-save-hook 'dan/compile-jfdi nil t)))
 
+(defun dan/log (format-string value &optional formatter)
+  (message (format format-string (funcall (or formatter 'identity) value)))
+  value)
+
 ;;; Indentation
 
 (defun dan/indent-shift-left (&rest args)
