@@ -183,6 +183,12 @@
   (message (format format-string (funcall (or formatter 'identity) value)))
   value)
 
+(defun dan/multi-set-default (name-value-pairs)
+  (mapcar
+   (lambda (pair) (set-default (make-variable-buffer-local (car pair)) (eval (cdr pair))))
+   name-value-pairs))
+
+
 ;;; Indentation
 
 (defun dan/indent-shift-left (&rest args)
@@ -974,18 +980,67 @@ With C-u prefix argument copy URL to clipboard only."
 
 ;;; Python
 
-(defun dan/python-set-virtualenv (path)
-  (interactive (list (read-directory-name "" (getenv "WORKON_HOME"))))
-  (unless (file-exists-p path)
-    (error "Invalid path: %s" path))
-  (let ((flake8 (expand-file-name "bin/flake8" path)))
-    (when (file-exists-p flake8)
-      (set (make-variable-buffer-local 'flycheck-python-flake8-executable)
-           flake8)))
-  (set (make-variable-buffer-local 'python-shell-virtualenv-root)
-       path))
+(defun dan/python-infer-project-name ()
+  "The name of the current python project.
 
+Suppose the name is $name. The following statements are true:
+1. The project is held in a git repository at a path like .../$name/.git.
+2. The full path is known to projectile.
+3. The project virtualenv is a directory also named $name. Its
+   parent directory is python-environment-directory."
+  (let* ((file-name (buffer-file-name)))
+    (if (string-match
+         (format "%s/\\([^/]+\\)/" (directory-file-name python-environment-directory))
+         file-name)
+        ;; We're in the virtualenv.
+        (match-string 1 file-name)
+      ;; We're in the project directory. Note: this will give
+      ;; an incorrect answer if we are in a projectile project
+      ;; directory nested within the desired project directory.
+      (and (projectile-project-p) (projectile-project-name)))))
 
+(defun dan/python-infer-virtualenv (&optional project-name)
+  "Infer absolute path to python virtualenv for current buffer."
+  (let* ((project-name (or project-name (dan/python-infer-project-name)))
+         (virtualenv (and project-name
+                          (f-join python-environment-directory project-name))))
+    (and virtualenv
+         (f-directory-p virtualenv)
+         (file-name-as-directory virtualenv))))
+
+(defun dan/python-infer-project-root (&optional project-name)
+  "Infer absolute path to project root.
+
+The project root is the place where you might find tox.ini, setup.py, Makefile, etc."
+  (let* ((project-name (or project-name (dan/python-infer-project-name)))
+         (project-root (and project-name
+                            (-first (lambda (path) (equal (f-filename path) project-name))
+                                    (mapcar 'expand-file-name projectile-known-projects)))))
+    (and project-root
+         (f-directory-p project-root)
+         (file-name-as-directory project-root))))
+
+(defun dan/python-cd-site-packages ()
+  (interactive)
+  (let ((virtualenv (dan/python-infer-virtualenv)))
+    (dired
+     (-first
+      'f-directory-p
+      (mapcar
+       (lambda (version) (f-join dan/python-virtualenv (format "lib/python%s/site-packages" version)))
+       '("3.6" "3.7" "2.7"))))))
+
+(defun dan/python-show-buffer-config ()
+  (interactive)
+  (with-temp-buffer-window
+   "*Python Buffer Config*"
+   nil nil
+   (princ
+    (format
+     "Python buffer-local config\n--------------------------\n\n%s\n"
+     (mapconcat (lambda (sym) (format "%-40s %s" (symbol-name sym) (eval sym)))
+                dan/python-buffer-config-keys
+                "\n")))))
 
 (defun dan/blacken ()
   (interactive)
@@ -1027,8 +1082,6 @@ With C-u prefix argument copy URL to clipboard only."
       debugger debugger))))
 
 
-(setenv "WORKON_HOME" "~/tmp/virtualenvs")  ;; FIXME
-
 (defun dan/python-django-shell-plus ()
   (interactive)
   (let ((cmd (format "%s/bin/python %s/counsyl/product/manage.py shell_plus"
@@ -1050,11 +1103,6 @@ With C-u prefix argument copy URL to clipboard only."
          (cmd (format "%s console --existing %s" jupyter (or kernel ""))))
     (message cmd)
     (run-python cmd)))
-
-
-(defun dan/python-cd-site-packages ()
-  (interactive)
-  (dired directory (f-join dan/python-virtualenv "site-packages")))
 
 
 (defvar dan/python-shell-function #'run-python)

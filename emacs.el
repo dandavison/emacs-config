@@ -506,69 +506,71 @@
 (use-package flycheck)
 
 
-(defun dan/multi-set-default (name-value-pairs)
-  (mapcar
-   (lambda (pair) (set-default (make-variable-buffer-local (car pair)) (eval (cdr pair))))
-   name-value-pairs))
+(defvar-local dan/python-project-name nil
+  "The name of the current python project.
 
+Suppose the name is $name. The following statements are true:
+1. The project is held in a git repository at a path like .../$name/.git.
+2. The full path is known to projectile.
+3. The project virtualenv is a directory also named $name. Its
+   parent directory is python-environment-directory.")
 
 (defvar-local dan/python-virtualenv nil
-  "Absolute path to python virtualenv")
+  "Absolute path to python virtualenv for current buffer.")
 
-(defun dan/python-get-virtualenv ()
-  "Infer absolute path to python virtualenv for current buffer.
 
-If the file is in a virtualenv, then return the absolute path to the virtualenv.
-Otherwise, use `projectile-project-name' to construct the path to the virtualenv."
-  (let* ((file-name (buffer-file-name))
-         (virtualenv-name
-          (if (string-prefix-p python-environment-directory file-name)
-              (second (f-split (string-remove-prefix python-environment-directory file-name)))
-            (projectile-project-name))))
-    (and virtualenv-name
-         (f-join python-environment-directory virtualenv-name))))
+(defvar-local dan/python-project-root nil
+  "Absolute path to project root.
+The project root is the place where you might find tox.ini, setup.py, Makefile, etc.")
+
 
 (defun dan/python-mode-hook-fn ()
   (interactive)
 
-  (when nil
-    (let* ((config
-            '(
-              ;; virtualenv
-              (dan/python-virtualenv . (dan/python-get-virtualenv))
+  (setq dan/python-project-name (dan/python-infer-project-name)
+        dan/python-virtualenv (dan/python-infer-virtualenv dan/python-project-name)
+        dan/python-project-root (dan/python-infer-project-root dan/python-project-name))
 
-              ;; flycheck
-              (flycheck-flake8-maximum-line-length . 99)
-              (flycheck-highlighting-mode . 'lines)
-              (flycheck-python-flake8-executable . (f-join dan/python-virtualenv "bin/flake8"))
-              (flycheck-python-mypy-executable . (f-join dan/python-virtualenv "bin/mypy"))
-              (flycheck-flake8rc . (f-join (projectile-project-root) "tox.ini"))
-              (flycheck-python-mypy-ini . (f-join (projectile-project-root) "tox.ini"))
+  (if (and dan/python-virtualenv
+           dan/python-project-root)
+      (progn
+        (let* ((config
+                '(;; Project
+                  (dan/python-project-name . dan/python-project-name)
+                  (dan/python-virtualenv . dan/python-virtualenv)
+                  (dan/python-project-root . dan/python-project-root)
 
-              ;; *.py
-              (python-fill-docstring-style . 'django)
+                  ;; Flycheck
+                  (flycheck-flake8-maximum-line-length . 99)
+                  (flycheck-highlighting-mode . 'lines)
+                  (flycheck-python-flake8-executable . (f-join dan/python-virtualenv "bin/flake8"))
+                  (flycheck-python-mypy-executable . (f-join dan/python-virtualenv "bin/mypy"))
+                  (flycheck-flake8rc . (f-join dan/python-project-root "tox.ini"))
+                  (flycheck-python-mypy-ini . (f-join dan/python-project-root "tox.ini"))
 
-              ;; shell
-              (python-shell-virtualenv-root . dan/python-virtualenv)
-              (python-shell-interpreter . (f-join dan/python-virtualenv "bin/ipython"))
-              (python-shell-interpreter-args . "-i"))))
+                  ;; Shell
+                  (python-shell-virtualenv-root . dan/python-virtualenv)
+                  (python-shell-interpreter . (f-join dan/python-virtualenv "bin/ipython"))
+                  (python-shell-interpreter-args . "-i"))))
 
-      (dan/multi-set-default config)
-      (set (make-variable-buffer-local 'dan/python-buffer-config-variables) (mapcar 'car config)))
+          (dan/multi-set-default config)
+          (set (make-variable-buffer-local 'dan/python-buffer-config-keys)
+               (mapcar 'car config)))
 
-    (assert (f-directory? dan/python-virtualenv) t)
-    (assert (f-executable? flycheck-python-flake8-executable) t)
-    (assert (f-executable? flycheck-python-mypy-executable) t)
-    (assert (f-file? flycheck-flake8rc) t)
-    (assert (f-file? flycheck-python-mypy-ini) t)
-    (assert (f-directory? python-shell-virtualenv-root) t)
-    (assert (f-executable? python-shell-interpreter) t)
+        (assert (f-directory? dan/python-virtualenv) t)
+        (assert (f-directory? dan/python-project-root) t)
+        (assert (f-executable? flycheck-python-flake8-executable) t)
+        (assert (f-executable? flycheck-python-mypy-executable) t)
+        (assert (f-file? flycheck-flake8rc) t)
+        (assert (f-file? flycheck-python-mypy-ini) t)
+        (assert (f-directory? python-shell-virtualenv-root) t)
+        (assert (f-executable? python-shell-interpreter) t)
 
+        (setf (flycheck-checker-get 'python-flake8 'next-checkers) '((t . python-mypy)))
+        (setf (flycheck-checker-get 'python-mypy 'next-checkers) nil)
 
-    (setf (flycheck-checker-get 'python-flake8 'next-checkers) '((t . python-mypy)))
-    (setf (flycheck-checker-get 'python-mypy 'next-checkers) nil)
-    (flycheck-select-checker 'python-flake8))
-
+        (flycheck-select-checker 'python-flake8))
+    (message "Python virtualenv / project root are unknown"))
 
   (company-mode)
   (jedi:setup)
@@ -576,6 +578,8 @@ Otherwise, use `projectile-project-name' to construct the path to the virtualenv
 
   (setq fill-column 99)
   (set (make-variable-buffer-local 'fci-rule-column) fill-column)
+
+  (setq python-fill-docstring-style 'django)
 
   (eldoc-mode -1)
   (paredit-c-mode)
@@ -589,17 +593,7 @@ Otherwise, use `projectile-project-name' to construct the path to the virtualenv
 
 
 
-(defun dan/python-show-buffer-config ()
-  (interactive)
-  (with-temp-buffer-window
-   "*Python Buffer Config*"
-   nil nil
-   (princ
-    (format
-     "Python buffer-local config\n--------------------------\n\n%s\n"
-     (mapconcat (lambda (sym) (format "%-40s %s" (symbol-name sym) (eval sym)))
-                dan/python-buffer-config-variables
-                "\n")))))
+
 
 
 
