@@ -1349,14 +1349,21 @@ If LIST is nil use `projectile-project-root-parent-directories'"
     (message link-in-project)))
 
 
-(defun dan/grep-thing-at-point (&optional arg)
+(defun dan/grep (&optional arg)
   (interactive "P")
-  (if (equal arg '(4))
-      (if (equal major-mode 'python-mode)
-          (jedi:goto-definition)
-        (search-files-thing-at-point 'search-for-definition))
+  (cond
+   ((not arg)
+    (counsel-projectile-git-grep))
+   ((equal arg '(4))
     (let ((counsel-projectile-grep-initial-input (ivy-thing-at-point)))
-      (call-interactively 'counsel-projectile-git-grep))))
+      (call-interactively 'counsel-projectile-git-grep)))))
+
+
+(defun dan/goto-definition (&optional arg)
+  (interactive "P")
+  (if (equal major-mode 'python-mode)
+      (jedi:goto-definition)
+    (find-function (function-called-at-point))))
 
 
 ;;; Utilities
