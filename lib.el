@@ -1355,12 +1355,10 @@ If LIST is nil use `projectile-project-root-parent-directories'"
 
 (defun dan/grep (&optional arg)
   (interactive "P")
-  (cond
-   ((not arg)
-    (counsel-projectile-git-grep))
-   ((equal arg '(4))
-    (let ((counsel-projectile-grep-initial-input (ivy-thing-at-point)))
-      (call-interactively 'counsel-projectile-git-grep)))))
+  (let ((counsel-projectile-grep-initial-input
+         (and (equal arg '(4)) (ivy-thing-at-point)))
+        (current-prefix-arg nil))
+    (counsel-projectile-git-grep nil)))
 
 
 (defun dan/goto-definition (&optional arg)

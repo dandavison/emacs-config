@@ -28,8 +28,7 @@
          ("C-c w" . dan/list-window-configurations)
          ("C-f" . forward-sexp)
          ("C-s" . swiper)
-         ("C-x C-f" . projectile-find-file)
-         ("C-x C-g" . dan/find-file)
+         ("C-x C-f" . dan/find-file)
          ("C-x b" . dan/switch-to-buffer)
          ("C-x d" . dan/dired-no-ask)
          ("C-x n n" . dan/narrow-to-region)
@@ -172,7 +171,8 @@
   (defun -dan/swiper-around-advice (orig-fun &rest args)
     (let ((ivy-height 20))
       (apply orig-fun args)))
-  (advice-add 'swiper :around '-dan/swiper-around-advice))
+  (advice-add 'swiper :around '-dan/swiper-around-advice)
+  (add-hook 'counsel-grep-post-action-hook 'dan/on-jump-into-buffer))
 
 (use-package js
   :defer t
