@@ -496,7 +496,7 @@
   (setq jedi:environment-root "emacs-jedi")
   (pyenv-mode-set "3.6.8")
   (setq jedi:server-args '("--log" "/tmp/jediepcserver.log"
-                           "--log-level" "DEBUG"))
+                           "--log-level" "INFO"))
   (jedi:install-server))
 
 (use-package flycheck)
