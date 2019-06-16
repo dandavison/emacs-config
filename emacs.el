@@ -353,6 +353,10 @@
 (set-default 'truncate-lines t)
 (setq vc-follow-symlinks t)
 (setq save-silently t)
+(setq auto-save-default nil)
+(global-auto-revert-mode t)
+(setq auto-revert-interval 0.1)
+(setq global-auto-revert-non-file-buffers t)
 (setq async-shell-command-buffer 'rename-buffer)
 (setq shell-command-default-error-buffer "*Shell Command Error*")
 (setq scroll-conservatively 101)
@@ -361,15 +365,10 @@
 (setq electric-indent-mode nil)
 (setq-default indent-tabs-mode nil)
 (setq tab-always-indent 'complete)
-
 (set-default 'tab-width 4)
 
-(setq auto-save-default nil)
 
 (global-eldoc-mode nil)
-(global-auto-revert-mode t)
-(setq auto-revert-interval 0.1)
-(setq global-auto-revert-non-file-buffers t)
 (setq dired-auto-revert-buffer t)
 (setq-default dired-omit-files-p t)
 (setq dired-omit-size-limit nil)
@@ -382,8 +381,11 @@
 (dan/set-exec-path-from-shell)
 
 (setq-default fill-column 80)
-(setq fci-rule-column fill-column)
-(setq fci-rule-color "#A5BAF1")
+
+(use-package fill-column-indicator
+  :config
+  (setq fci-rule-column fill-column
+        fci-rule-color "#A5BAF1"))
 
 (put 'downcase-region 'disabled nil)
 (put 'narrow-to-region 'disabled nil)
