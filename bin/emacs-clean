@@ -1,0 +1,1 @@
+emacs -Q -l /Users/dan/src/emacs-config/bin/emacs-clean.el $@
