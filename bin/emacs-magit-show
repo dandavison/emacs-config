@@ -1,0 +1,7 @@
+#!/bin/bash
+
+commit=${1:-HEAD}
+
+emacsclient --no-wait \
+    --eval "(magit-show-commit \"$commit\")" \
+    --eval "(progn (select-frame-set-input-focus (selected-frame)) (delete-other-windows))" > /dev/null
