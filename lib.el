@@ -183,12 +183,6 @@
   (message (format format-string (funcall (or formatter 'identity) value)))
   value)
 
-(defun dan/multi-set-default (name-value-pairs)
-  (mapcar
-   (lambda (pair) (set-default (make-variable-buffer-local (car pair)) (eval (cdr pair))))
-   name-value-pairs))
-
-
 ;;; Indentation
 
 (defun dan/indent-shift-left (&rest args)

@@ -148,6 +148,11 @@
 
 (use-package company)
 
+(use-package company-jedi
+  :after company
+  :config
+  (add-to-list 'company-backends 'company-jedi))
+
 (use-package ess
   :load-path "~/src/3p/ESS/lisp")
 
@@ -173,6 +178,19 @@
       (apply orig-fun args)))
   (advice-add 'swiper :around '-dan/swiper-around-advice)
   (add-hook 'counsel-grep-post-action-hook 'dan/on-jump-into-buffer))
+
+(use-package jedi-core
+  :after (python-environment)
+  :config
+  (pyenv-mode-set "3.6.8")
+  ;; TODO: set these in (use-package python-environment ...) ?
+  (setq python-environment-directory (expand-file-name "~/tmp/virtualenvs")
+        python-environment-virtualenv '("python" "-m" "venv"))
+  (setq jedi:environment-root "emacs-jedi")
+  (setq jedi:server-args '("--log" "/tmp/jediepcserver.log"
+                           "--log-level" "INFO"))
+  (jedi:install-server)
+  (add-hook 'jedi:goto-definition-hook 'dan/on-jump-into-buffer))
 
 (use-package js
   :defer t
@@ -281,6 +299,15 @@
         projectile-completion-system 'ivy
         projectile-current-project-on-switch 'keep)
   (add-to-list 'projectile-globally-ignored-modes "dired-mode"))
+
+(use-package pyenv-mode
+  ;; :init
+  ;; (add-to-list 'exec-path "~/.pyenv/shims")
+  :ensure t
+  :config
+  (pyenv-mode))
+
+(use-package python-environment)
 
 (use-package tla-mode
   :defer t
@@ -483,29 +510,6 @@
 
 
 ;;; Python
-(use-package pyenv-mode
-  ;; :init
-  ;; (add-to-list 'exec-path "~/.pyenv/shims")
-  :ensure t
-  :config
-  (pyenv-mode))
-
-(use-package python-environment
-  :config
-  (setq python-environment-directory (expand-file-name "~/tmp/virtualenvs")))
-
-(use-package jedi-core
-  :ensure t
-  :config
-  (setq jedi:environment-root "emacs-jedi")
-  (pyenv-mode-set "3.6.8")
-  (setq jedi:server-args '("--log" "/tmp/jediepcserver.log"
-                           "--log-level" "INFO"))
-  (jedi:install-server))
-
-(use-package flycheck)
-
-
 (defvar-local dan/python-project-name nil
   "The name of the current python project.
 
@@ -553,7 +557,8 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
                   (python-shell-interpreter . (f-join dan/python-virtualenv "bin/ipython"))
                   (python-shell-interpreter-args . "-i"))))
 
-          (dan/multi-set-default config)
+          (mapcar (lambda (pair) (set (make-variable-buffer-local (car pair)) (eval (cdr pair))))
+                  config)
           (set (make-variable-buffer-local 'dan/python-buffer-config-keys)
                (mapcar 'car config)))
 
@@ -574,7 +579,6 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
 
   (company-mode)
   (jedi:setup)
-  (add-to-list 'company-backends 'company-jedi)
 
   (setq fill-column 99)
   (set (make-variable-buffer-local 'fci-rule-column) fill-column)
