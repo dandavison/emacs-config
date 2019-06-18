@@ -592,6 +592,10 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
         (setf (flycheck-checker-get 'python-flake8 'next-checkers) '((t . python-mypy)))
         (setf (flycheck-checker-get 'python-mypy 'next-checkers) nil)
 
+        ;; Not sure this is a good idea but it should be fast
+        (setf (cdr (flycheck-checker-get 'python-mypy 'command))
+              (cons "--follow-imports=skip" (cdr (flycheck-checker-get 'python-mypy 'command))))
+
         (flycheck-select-checker 'python-flake8))
     (message "Python virtualenv / project root are unknown"))
 
