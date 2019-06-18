@@ -304,7 +304,7 @@
   (setq projectile-globally-ignored-file-suffixes '("pyc" "~" "#")
         projectile-buffers-filter-function 'projectile-buffers-with-file
         projectile-use-git-grep t
-        projectile-git-command "git ls-files -zc --exclude-standard"  ;; remove -o
+        projectile-git-command "git ls-files -zc --exclude-standard '**/*.py'"  ;; remove -o
         projectile-enable-caching t
         projectile-completion-system 'ivy
         projectile-current-project-on-switch 'keep)

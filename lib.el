@@ -34,7 +34,7 @@
      (cond
       ((and (not arg)
             (projectile-project-p))
-       'counsel-projectile-find-file)
+       'projectile-find-file)
       ((not arg) 'counsel-find-file)
       ((equal arg '(4))
        'counsel-recentf)
@@ -1398,7 +1398,7 @@ If LIST is nil use `projectile-project-root-parent-directories'"
 (defun dan/grep (&optional arg)
   (interactive "P")
   (let ((counsel-projectile-grep-initial-input
-         (and (equal arg '(4)) (ivy-thing-at-point)))
+         (if (equal arg '(4)) "" (ivy-thing-at-point)))
         (current-prefix-arg nil))
     (counsel-projectile-git-grep nil)))
 
