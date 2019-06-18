@@ -154,6 +154,7 @@
   (add-to-list 'company-backends 'company-jedi))
 
 (use-package ess
+  :defer t
   :load-path "~/src/3p/ESS/lisp")
 
 (use-package f)
