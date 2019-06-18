@@ -605,6 +605,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
 
   (eldoc-mode -1)
   (paredit-c-mode)
+  (electric-indent-mode)
   (set (make-variable-buffer-local 'prettify-symbols-alist)
        '(("lambda" . 955)))
   (prettify-symbols-mode)
