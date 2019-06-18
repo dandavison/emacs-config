@@ -183,6 +183,11 @@
   (message (format format-string (funcall (or formatter 'identity) value)))
   value)
 
+
+(defun dan/message (&rest args)
+  (apply 'message args)
+  (message nil))
+
 ;;; Indentation
 
 (defun dan/indent-shift-left (&rest args)
