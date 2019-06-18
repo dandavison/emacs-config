@@ -191,6 +191,15 @@
   (setq jedi:server-args '("--log" "/tmp/jediepcserver.log"
                            "--log-level" "INFO"))
   (jedi:install-server)
+  (setq jedi:goto-definition-config
+        '((nil definition nil)
+          (t   definition nil)
+          (nil nil        nil)
+          (t   nil        nil)
+          (nil definition t  )
+          (t   definition t  )
+          (nil nil        t  )
+          (t   nil        t  )))
   (add-hook 'jedi:goto-definition-hook 'dan/on-jump-into-buffer))
 
 (use-package js

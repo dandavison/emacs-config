@@ -1406,7 +1406,7 @@ If LIST is nil use `projectile-project-root-parent-directories'"
 (defun dan/goto-definition (&optional arg)
   (interactive "P")
   (if (equal major-mode 'python-mode)
-      (jedi:goto-definition)
+      (call-interactively 'jedi:goto-definition)
     (find-function (function-called-at-point))))
 
 
