@@ -292,6 +292,7 @@
 
 (use-package paredit
   :bind (:map paredit-mode-map
+              ("M-[" . paredit-wrap-square)
               ("\\" . nil)
               (";" . nil)
               ("\"" . paredit-c/doublequote)))
