@@ -5,6 +5,6 @@ commit2=${2:-HEAD}
 
 emacsclient --no-wait \
     --eval "(magit-status \"$PWD\")" \
-    --eval "(magit-diff \"$commit1...$commit2\")" \
+    --eval "(magit-diff-range \"$commit1...$commit2\")" \
     --eval "(dan/magit-hide-all-sections)" \
     --eval "(progn (select-frame-set-input-focus (selected-frame)) (delete-other-windows))" > /dev/null
