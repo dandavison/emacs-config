@@ -75,7 +75,7 @@
 
 (use-package bookmark
   :bind (:map bookmark-bmenu-mode-map
-              ("\C-x\C-s" . bookmark-save)))
+              ("C-x C-s" . bookmark-save)))
 
 (use-package cl)
 
@@ -85,13 +85,13 @@
               ([(meta down)] . comint-next-matching-input-from-input)
               ([(control up)] . comint-previous-matching-input-from-input)
               ([(control down)] . comint-next-matching-input-from-input)
-              ("\C-l" . dan/comint-clear-buffer)))
+              ("C-l" . dan/comint-clear-buffer)))
 
 (use-package compilation
   :defer t
   :bind (:map compilation-mode-map
               ([(return)] . compile-goto-error)
-              ("\C-cd" . dan/delete-matching-lines)
+              ("C-c d" . dan/delete-matching-lines)
               ([(super mouse-1)] . (lambda (event) (interactive "e") (mouse-set-point event) (dan/iterm2-dwim)))))
 
 (use-package dired
@@ -102,9 +102,9 @@
 
 (use-package elisp-mode
   :bind (:map emacs-lisp-mode-map
-              ("\C-cd" . edebug-defun)
-              ("\C-c," . find-function)
-              ("\C-c\C-r" . (lambda () (interactive) (call-interactively 'eval-region) (deactivate-mark)))
+              ("C-c d" . edebug-defun)
+              ("C-c ," . find-function)
+              ("C-c C-r" . (lambda () (interactive) (call-interactively 'eval-region) (deactivate-mark)))
               ([tab] . dan/company-indent-or-complete)
               ([(super x)] . eval-defun)))
 
@@ -115,7 +115,10 @@
               ([(shift up)] . windmove-up)
               ([(shift down)] . windmove-down)
               ([(meta left)] . backward-word)
-              ([(meta right)] . forward-word)))
+              ([(meta right)] . forward-word)
+              :map orgtbl-mode-map
+              ([(meta left)] . nil)
+              ([(meta right)] . nil)))
 
 (use-package outline
   :bind (:map outline-minor-mode-map
@@ -124,8 +127,8 @@
 
 (use-package python
   :bind (:map python-mode-map
-              ("\C-cd" . dan/python-insert-ipdb-set-trace)
-              ("\C-c\C-c" . dan/save-even-if-not-modified)
+              ("C-c d" . dan/python-insert-ipdb-set-trace)
+              ("C-c C-c" . dan/save-even-if-not-modified)
               ([tab] . dan/company-indent-or-complete)
               ([(super ?')] . flycheck-mode)
               ([(super i)] . dan/python-where-am-i)
@@ -143,8 +146,8 @@
 (use-package clojure-mode
   :defer t
   :bind (:map clojure-mode-map
-              ("\C-x\C-e" . inf-clojure-eval-last-sexp)
-              ("\C-c\C-z" . inf-clojure)))
+              ("C-x C-e" . inf-clojure-eval-last-sexp)
+              ("C-c C-z" . inf-clojure)))
 
 (use-package company)
 
@@ -212,41 +215,44 @@
 (use-package js
   :defer t
   :bind (:map js-mode-map
-              ("\C-cd" . (lambda () (interactive) (insert "debugger;")))))
+              ("C-c d" . (lambda () (interactive) (insert "debugger;")))))
 
 (use-package latex
   :defer t
   :bind (:map latex-mode-map
-              ("\C-c\C-c" . (lambda () (interactive)
-                              (condition-case nil
-                                  (dan/org-babel-execute-non-native-src-block)
-                                (error nil))
-                              (dan/save-even-if-not-modified)))
-              ("\C-xni" . dan/latex-focus-insert-comment-delimiters)
-              ("\C-xnf" . dan/latex-focus)
-              ("\C-xnu" . dan/latex-unfocus)
-              ("\C-c|" . dan/latex-set-builder-pipe)
-              ("\C-c/" . dan/latex-frac-or-unfrac)
+              ("C-c C-c" . (lambda () (interactive)
+                             (condition-case nil
+                                 (dan/org-babel-execute-non-native-src-block)
+                               (error nil))
+                             (dan/save-even-if-not-modified)))
+              ("C-x n i" . dan/latex-focus-insert-comment-delimiters)
+              ("C-x n f" . dan/latex-focus)
+              ("C-x n u" . dan/latex-unfocus)
+              ("C-c |" . dan/latex-set-builder-pipe)
+              ("C-c /" . dan/latex-frac-or-unfrac)
               ([(super b)] . dan/latex-bold)
               ([(super d)] . dan/latex-definition)
               ([(super i)] . dan/latex-italic)
               ([(super t)] . dan/latex-fixed-width)))
 
-(use-package magit)
+(use-package magit
+  :bind (:map magit-diff-mode-map
+              ([down] . nil)
+              ([up] . nil)))
 
 (use-package markdown-mode
   :bind (:map markdown-mode-map
               ("$" . dan/paired-dollar)
               ("\M-q" . fill-paragraph)
               ;; force file write to force pelican reload
-              ("\C-X\C-s" . (lambda () (interactive) (set-buffer-modified-p t) (save-buffer)))
+              ("C-X C-s" . (lambda () (interactive) (set-buffer-modified-p t) (save-buffer)))
               ([(meta left)] . left-word)
               ([(meta right)] . right-word)))
 
 (use-package mhtml-mode
   :defer t
   :bind (:map mhtml-mode-ma
-              ("\C-c\C-c" . emmet-expand-line)))
+              ("C-c C-c" . emmet-expand-line)))
 
 (use-package minimal
   :load-path "~/src/minimal")
