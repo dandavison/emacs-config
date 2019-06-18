@@ -318,6 +318,13 @@
         projectile-current-project-on-switch 'keep)
   (add-to-list 'projectile-globally-ignored-modes "dired-mode"))
 
+(use-package py-isort
+  :config
+  (setq py-isort-options
+        '("--lines=9999999"
+          "--force_single_line_imports"
+          "--dont-skip=__init__.py")))
+
 (use-package pyenv-mode
   ;; :init
   ;; (add-to-list 'exec-path "~/.pyenv/shims")
@@ -656,12 +663,6 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
                 (when (or import input)
                   (apply orig-func (list process import input))))))
 
-
-(require 'py-isort)
-(setq py-isort-options
-      '("--lines=9999999"
-        "--force_single_line_imports"
-        "--dont-skip=__init__.py"))
 
 (defvar dan/python-misc-dir "~/src/misc")
 
