@@ -246,7 +246,9 @@
 (use-package magit
   :bind (:map magit-diff-mode-map
               ([down] . nil)
-              ([up] . nil)))
+              ([up] . nil))
+  :config
+  (setq magit-completing-read-function 'ivy-completing-read))
 
 (use-package markdown-mode
   :bind (:map markdown-mode-map
