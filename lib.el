@@ -1342,6 +1342,30 @@ returns the value of `python-shell-buffer-name'."
 
 
 
+
+;;; Counsel
+(defun counsel-git-grep-cmd-function-with-pathspec (str)
+  "If there are multiple input patterns, interpret the first as a
+git pathspec constraining the files searched by `git grep`.
+See `man gitglossary` or
+https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddefpathspecapathspec
+
+A simple example is:
+**/somedir/* regex1 regex2 ...
+
+A more complex example is:
+':(exclude)*/tests/*' regex1 regex2 ...
+"
+  (let* ((parts (split-string str " " t))
+         (pathspec (if (> (length parts) 1)
+                       (car parts) ""))
+         (regex (ivy--regex (if (> (length parts) 1)
+                                (string-join (cdr parts) " ") (car parts)) t)))
+    (setq ivy--old-re regex)
+    (format "%s %s" (format counsel-git-grep-cmd regex) pathspec)))
+
+(setq counsel-git-grep-cmd-function #'counsel-git-grep-cmd-function-with-pathspec)
+
 ;;; Projectile
 
 (defvar dan/projectile-root-parent-directories
