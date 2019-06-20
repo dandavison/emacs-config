@@ -1424,16 +1424,19 @@ If LIST is nil use `projectile-project-root-parent-directories'"
     (message link-in-project)))
 
 
-(defun dan/grep (&optional arg)
-  (interactive "P")
-  (let ((counsel-projectile-grep-initial-input
-         (if (equal arg '(4)) "" (ivy-thing-at-point)))
-        (current-prefix-arg nil))
-    (counsel-projectile-git-grep nil)))
+(defun dan/grep ()
+  (interactive)
+  (call-interactively 'counsel-projectile-git-grep))
 
 
-(defun dan/goto-definition (&optional arg)
-  (interactive "P")
+(defun dan/grep-thing-at-point ()
+  (interactive)
+  (let ((counsel-projectile-grep-initial-input (ivy-thing-at-point)))
+    (call-interactively 'counsel-projectile-git-grep)))
+
+
+(defun dan/goto-definition ()
+  (interactive)
   (if (equal major-mode 'python-mode)
       (call-interactively 'jedi:goto-definition)
     (find-function (function-called-at-point))))
