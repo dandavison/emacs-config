@@ -32,7 +32,7 @@
   (interactive "P")
   (call-interactively
    (if (and (not arg) (projectile-project-p))
-       'counsel-projectile-switch-to-buffer
+       'projectile-switch-to-buffer
      'switch-to-buffer)))
 
 (defun dan/find-file (&optional arg)
