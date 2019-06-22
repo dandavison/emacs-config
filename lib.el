@@ -6,6 +6,12 @@
     (set-window-point win (buffer-size buf))))
 
 
+(defun dan/keyboard-quit ()
+  (interactive)
+  (keyboard-quit)
+  (with-current-buffer (window-buffer (minibuffer-window)) (keyboard-quit)))
+
+
 (defun dan/transpose-line-up ()
   (interactive)
   (save-excursion (transpose-lines 1))

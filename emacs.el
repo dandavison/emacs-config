@@ -27,6 +27,7 @@
          ("C-c s" . (lambda () (interactive) (shell-command-on-region (region-beginning) (region-end) "sort -V" nil 'replace)))
          ("C-c w" . dan/list-window-configurations)
          ("C-f" . forward-sexp)
+         ("C-g" . dan/keyboard-quit)
          ("C-s" . swiper)
          ("C-x C-f" . dan/find-file)
          ("C-x b" . dan/switch-to-buffer)
