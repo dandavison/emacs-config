@@ -28,21 +28,14 @@
          (append projectile-globally-ignored-file-suffixes '("png" "pdf"))))
     (call-interactively
      (cond
-      ((and (not arg)
+      ((not arg)
+       'counsel-recentf)
+      ((and (equal arg '(4))
             (projectile-project-p))
        'projectile-find-file)
-      ((not arg) 'counsel-find-file)
-      ((equal arg '(4))
-       'counsel-recentf)
+      ((equal arg '(4)) 'counsel-find-file)
       ((equal arg '(16))
-       'counsel-find-file)))))
-
-;; Is this useful?
-(defun dan/find-file-maybe-in-project (file)
-  (find-file
-   (if (projectile-project-p)
-       (expand-file-name file (projectile-project-root))
-     file)))
+       'find-file)))))
 
 (defun dan/set-exec-path-from-shell (&optional pathvar)
   (interactive)
@@ -1436,13 +1429,12 @@ If LIST is nil use `projectile-project-root-parent-directories'"
 
 (defun dan/grep ()
   (interactive)
-  (call-interactively 'counsel-projectile-git-grep))
+  (call-interactively 'counsel-git-grep))
 
 
 (defun dan/grep-thing-at-point ()
   (interactive)
-  (let ((counsel-projectile-grep-initial-input (ivy-thing-at-point)))
-    (call-interactively 'counsel-projectile-git-grep)))
+  (counsel-git-grep nil (ivy-thing-at-point)))
 
 
 (defun dan/goto-definition ()
