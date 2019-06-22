@@ -1441,7 +1441,14 @@ If LIST is nil use `projectile-project-root-parent-directories'"
   (interactive)
   (if (equal major-mode 'python-mode)
       (call-interactively 'jedi:goto-definition)
-    (find-function (function-called-at-point))))
+    (find-function (or (function-called-at-point)
+                       (intern (completing-read
+                                "Function: "
+                                #'help--symbol-completion-table
+                                (lambda (f) (or (fboundp f) (get f 'function-documentation)))
+                                t nil nil nil))))))
+
+
 
 
 ;;; Utilities
