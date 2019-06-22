@@ -1,9 +1,10 @@
 ;;; Etc
 
 (defun dan/message-buffer-goto-end-of-buffer (&rest args)
-  (let* ((buf (get-buffer "*Messages*"))
-         (win (display-buffer buf)))
-    (set-window-point win (buffer-size buf))))
+  (let* ((win (get-buffer-window "*Messages*")))
+    (if win
+        (set-window-point
+         win (with-current-buffer (window-buffer win) (point-max))))))
 
 
 (defun dan/keyboard-quit ()
