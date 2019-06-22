@@ -1199,6 +1199,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
     (buffer-file-name)))
 
 (defun dan/python-where-am-i (&optional arg)
+  ;; TODO: use jedi for this?
   (interactive "P")
   (message
    (dan/save-value-to-kill-ring

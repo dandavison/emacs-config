@@ -47,26 +47,32 @@
          ([f8] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?8 arg)))
          ([f9] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?9 arg)))
          ([f10] . dan/list-window-configurations)
-         ([f11] . dan/find-dot-emacs)
+         ([f11] . dan/goto-emacs-config)
          ([f12] . modalka-mode)
          ([(control down)] . scroll-up-command)
          ([(control up)] . scroll-down-command)
          ([(kp-delete)] . modalka-mode)
          ([(meta down)] . dan/transpose-line-down)
+         ([(meta left)] . backward-word)
+         ([(meta right)] . forward-word)
          ([(meta shift left)] . dan/indent-shift-left)
          ([(meta shift right)] . dan/indent-shift-right)
          ([(meta up)] . dan/transpose-line-up)
+         ([(meta ?,)] . ace-jump-mode)
+         ([(meta ?.)] . dan/goto-definition)
          ([(shift super left)] . ivy-resume)
          ([(super G)] . isearch-repeat-backward)
          ([(super down)] . (lambda () (interactive) (set-mark-command t)))
          ([(super d)] . dan/bookmark-set)
+         ([(super f)] . dan/find-file)
          ([(super k)] . dan/bookmark-set)
          ([(super left)] . winner-undo)
          ([(super l)] . bookmark-bmenu-list)
+         ([(super m)] . dan/goto-definition)
+         ([(super o)] . dan/find-file)
          ([(super return)] . dan/maximize)
          ([(super right)] . winner-redo)
          ([(super ?&)] . (lambda () (interactive) (let ((kill-buffer-query-functions nil)) (kill-buffer))))
-         ([(super m)] . dan/goto-definition)
          ([(super ?,)] . counsel-projectile-git-grep)
          ([(super ?.)] . dan/grep-thing-at-point)
          ([(super ?\;)] . dan/show-buffer-file-name)
@@ -107,16 +113,17 @@
               ("C-c ," . find-function)
               ("C-c C-r" . (lambda () (interactive) (call-interactively 'eval-region) (deactivate-mark)))
               ([tab] . dan/company-indent-or-complete)
-              ([(super x)] . eval-defun)))
+              ([(super x)] . eval-defun)
+              ([(meta left)] . nil)
+              ([(meta right)] . nil)))
 
 (use-package org
+  :after org-table
   :bind (:map org-mode-map
               ([(shift left)] . windmove-left)
               ([(shift right)] . windmove-right)
               ([(shift up)] . windmove-up)
               ([(shift down)] . windmove-down)
-              ([(meta left)] . backward-word)
-              ([(meta right)] . forward-word)
               :map orgtbl-mode-map
               ([(meta left)] . nil)
               ([(meta right)] . nil)))
@@ -154,7 +161,9 @@
               ("C-x C-e" . inf-clojure-eval-last-sexp)
               ("C-c C-z" . inf-clojure)))
 
-(use-package company)
+(use-package company
+  :config
+  (setq company-selection-wrap-around t))
 
 (use-package company-jedi
   :after company
@@ -244,10 +253,18 @@
               ([(super i)] . dan/latex-italic)
               ([(super t)] . dan/latex-fixed-width)))
 
+(use-package lispy
+  :bind (:map lispy-mode-map
+              ("M-." . nil)
+              ([(meta left)] . nil)
+              ([(meta right)] . nil)))
+
 (use-package magit
   :bind (:map magit-diff-mode-map
               ([down] . nil)
-              ([up] . nil))
+              ([up] . nil)
+              ([return] . magit-diff-visit-file-worktree)
+              ([control return] . magit-diff-visit-file))
   :config
   (setq magit-completing-read-function 'ivy-completing-read))
 
@@ -332,7 +349,8 @@
         projectile-git-command "git ls-files -zc --exclude-standard '**/*.py'"  ;; remove -o
         projectile-enable-caching t
         projectile-completion-system 'ivy
-        projectile-current-project-on-switch 'keep)
+        projectile-current-project-on-switch 'keep
+        projectile-switch-project-action 'projectile-dired)
   (add-to-list 'projectile-globally-ignored-modes "dired-mode"))
 
 (use-package py-isort
@@ -432,7 +450,6 @@
 (setq scroll-conservatively 101)
 (setq enable-recursive-minibuffers t)
 
-(setq electric-indent-mode nil)
 (setq-default indent-tabs-mode nil)
 (setq tab-always-indent 'complete)
 (set-default 'tab-width 4)
@@ -629,7 +646,6 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
 
   (eldoc-mode -1)
   (paredit-c-mode)
-  (electric-indent-mode)
   (set (make-variable-buffer-local 'prettify-symbols-alist)
        '(("lambda" . 955)))
   (prettify-symbols-mode)
@@ -772,7 +788,6 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
 ;;; Mode hooks
 (setq pulse-iterations 20)
 (defun dan/on-jump-into-buffer ()
-  (delete-other-windows)
   (outline-show-all)
   (dan/pulse-momentary-highlight-current-line)
   (when (eq major-mode 'python-mode)
@@ -789,17 +804,17 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
 (add-hook 'before-save-hook 'dan/before-save-hook-fn)
 
 (defun dan/awk-mode-hook-fn ()
-  (paredit-c-mode))
+  (dan/enable-sexp-editing-modes))
 (add-hook 'awk-mode-hook 'dan/awk-mode-hook-fn)
 
 
 (defun dan/c-mode-hook-fn ()
   (setq c-basic-offset 4)
-  (paredit-c-mode))
+  (dan/enable-sexp-editing-modes))
 (add-hook 'c-mode-hook 'dan/c-mode-hook-fn)
 
 (defun dan/clojure-mode-hook-fn ()
-  (paredit-mode)
+  (dan/enable-sexp-editing-modes)
   (inf-clojure-minor-mode))
 (add-hook 'clojure-mode-hook 'dan/clojure-mode-hook-fn)
 (add-hook 'clojurescript-mode-hook 'dan/clojure-mode-hook-fn)
@@ -970,7 +985,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
    '("4e5e58e42f6f37920b95a8502f488928b3dab9b6cc03d864e38101ce36ecb968" "72759f4e42617df7a07d0a4f4b08982314aa97fbd495a5405c9b11f48bd6b839" "9e6ac467fa1e5eb09e2ac477f61c56b2e172815b4a6a43cf48def62f9d3e5bf9" "b9183de9666c3a16a7ffa7faaa8e9941b8d0ab50f9aaba1ca49f2f3aec7e3be9" "0e8c264f24f11501d3f0cabcd05e5f9811213f07149e4904ed751ffdcdc44739" "780c67d3b58b524aa485a146ad9e837051918b722fd32fd1b7e50ec36d413e70" "a11043406c7c4233bfd66498e83600f4109c83420714a2bd0cd131f81cbbacea" "45482e7ddf47ab1f30fe05f75e5f2d2118635f5797687e88571842ff6f18b4d5" "a3821772b5051fa49cf567af79cc4dabfcfd37a1b9236492ae4724a77f42d70d" "3b4800ea72984641068f45e8d1911405b910f1406b83650cbd747a831295c911" default))
  '(magit-diff-arguments '("--ignore-all-space" "--no-ext-diff"))
  '(package-selected-packages
-   '(ace-window forge applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move coffee-mode color-theme-modern color-theme-railscasts company company-jedi confluence counsel counsel-projectile debbugs dired-details+ dockerfile-mode dot-mode emmet-mode ess eyuml f fill-column-indicator fzf graphviz-dot-mode haskell-mode hindent htmlize ivy jira-markup-mode latex-pretty-symbols magit markdown-mode minimal-theme modalka multiple-cursors paredit paredit-everywhere plantuml-mode pony-mode projectile pyenv-mode py-isort railscasts-reloaded-theme railscasts-theme ripgrep rust-mode smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity transpose-frame use-package visual-fill-column yaml-mode yasnippet yasnippet-bundle zencoding-mode zones))
+   '(lispy ace-jump-mode ace-window forge applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move coffee-mode color-theme-modern color-theme-railscasts company company-jedi confluence counsel counsel-projectile debbugs dired-details+ dockerfile-mode dot-mode emmet-mode ess eyuml f fill-column-indicator fzf graphviz-dot-mode haskell-mode hindent htmlize ivy jira-markup-mode latex-pretty-symbols magit markdown-mode minimal-theme modalka multiple-cursors paredit paredit-everywhere plantuml-mode pony-mode projectile pyenv-mode py-isort railscasts-reloaded-theme railscasts-theme ripgrep rust-mode smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity transpose-frame use-package visual-fill-column yaml-mode yasnippet yasnippet-bundle zencoding-mode zones))
  '(safe-local-variable-values '((bug-reference-bug-regexp . "#\\(?2:[0-9]+\\)"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -987,8 +1002,8 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
  '(org-block-begin-line ((t (:background "#FFFFFF" :foreground "lightgrey" :underline nil))))
  '(org-block-end-line ((t (:background "#FFFFFF" :foreground "lightgrey" :overline nil))))
  '(org-done ((t (:background "palegreen" :foreground "darkgrey" :box (:line-width 1 :color "grey") :weight normal))))
- '(org-level-1 ((t (:background "#FFFFFF" :foreground "#CC7733" :overline nil :weight bold :height 120))))
- '(org-level-2 ((t (:background "#FFFFFF" :foreground "dark red" :overline nil :weight bold :height 120))))
+ '(org-level-1 ((t (:background nil :foreground "#CC7733" :overline nil :weight bold :height 120))))
+ '(org-level-2 ((t (:background nil :foreground "dark red" :overline nil :weight bold :height 120))))
  '(org-todo ((t (:foreground "darkgrey" :box (:line-width 1 :color "grey") :weight normal)))))
 (put 'upcase-region 'disabled nil)
 
