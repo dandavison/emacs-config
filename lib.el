@@ -1,9 +1,5 @@
 ;;; Etc
 
-(defun dan/find-dot-emacs (&optional arg)
-  (interactive "P")
-  (find-file (if arg "~/src/emacs-config/lib.el" (file-chase-links "~/.emacs.d/init.el"))))
-
 (defun dan/transpose-line-up ()
   (interactive)
   (save-excursion (transpose-lines 1))
@@ -325,13 +321,27 @@
 
 
 ;;; Hot files
+
+(defun dan/goto-emacs-config (&optional arg)
+  (interactive "P")
+  (if arg (find-file "~/src/emacs-config/lib.el") (dan/goto-use-package)))
+
+(defun dan/find-dot-emacs (&optional arg)
+  (interactive "P")
+  (find-file (if arg "~/src/emacs-config/lib.el" (file-chase-links "~/.emacs.d/init.el"))))
+
+(defun dan/goto-use-package ()
+  (interactive)
+  (dan/find-dot-emacs)
+  (swiper "(use-package "))
+
 (defun dan/projects-file ()
   (interactive)
-  (find-file (file-chase-links "~/GoogleDrive/Projects/projects.org")))
+  (find-file (file-chase-links "~/dandavison7@gmail.com/Projects/projects.org")))
 
 (defun dan/info-file ()
   (interactive)
-  (find-file (file-chase-links "~/GoogleDrive/Legal/info.txt")))
+  (find-file (file-chase-links "~/dandavison7@gmail.com/Legal/info.txt")))
 
 (defun dan/alias-file ()
   (interactive)
