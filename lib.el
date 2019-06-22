@@ -1454,11 +1454,11 @@ If LIST is nil use `projectile-project-root-parent-directories'"
   (counsel-git-grep nil (ivy-thing-at-point)))
 
 
-(defun dan/goto-definition ()
-  (interactive)
+(defun dan/goto-definition (&optional arg)
+  (interactive "P")
   (if (equal major-mode 'python-mode)
       (call-interactively 'jedi:goto-definition)
-    (find-function (or (function-called-at-point)
+    (find-function (or (and (not arg) (function-called-at-point))
                        (intern (completing-read
                                 "Function: "
                                 #'help--symbol-completion-table
