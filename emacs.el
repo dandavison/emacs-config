@@ -342,6 +342,8 @@
 (use-package projectile
   :bind-keymap
   ([(super p)] . projectile-command-map)
+  :bind (:map projectile-command-map
+              ("m" . dan/switch-to-messages-buffer))
   :config
   (projectile-mode +1)
   (setq projectile-globally-ignored-file-suffixes '("pyc" "~" "#")

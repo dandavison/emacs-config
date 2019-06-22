@@ -336,6 +336,11 @@
   (interactive "P")
   (find-file (if arg "~/src/emacs-config/lib.el" (file-chase-links "~/.emacs.d/init.el"))))
 
+(defun dan/switch-to-messages-buffer ()
+  (interactive)
+  (switch-to-buffer "*Messages*")
+  (goto-char (point-max)))
+
 (defun dan/goto-use-package ()
   (interactive)
   (dan/find-dot-emacs)
