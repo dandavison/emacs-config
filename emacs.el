@@ -455,7 +455,6 @@
 (set-default 'tab-width 4)
 
 
-(global-eldoc-mode nil)
 (setq dired-auto-revert-buffer t)
 (setq-default dired-omit-files-p t)
 (setq dired-omit-size-limit nil)
@@ -646,7 +645,6 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
 
   (setq python-fill-docstring-style 'django)
 
-  (eldoc-mode -1)
   (dan/activate-sexp-editing-modes)
   (set (make-variable-buffer-local 'prettify-symbols-alist)
        '(("lambda" . 955)))
