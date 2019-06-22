@@ -1,5 +1,11 @@
 ;;; Etc
 
+(defun dan/message-buffer-goto-end-of-buffer (&rest args)
+  (let* ((buf (get-buffer "*Messages*"))
+         (win (display-buffer buf)))
+    (set-window-point win (buffer-size buf))))
+
+
 (defun dan/transpose-line-up ()
   (interactive)
   (save-excursion (transpose-lines 1))

@@ -466,6 +466,8 @@
 (setq compilation-save-buffers-predicate (lambda () nil))
 
 (dan/set-exec-path-from-shell)
+(advice-add 'message :after 'dan/message-buffer-goto-end-of-buffer)
+
 
 (setq-default fill-column 80)
 
