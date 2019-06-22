@@ -1361,12 +1361,16 @@ A more complex example is:
 ':(exclude)*/tests/*' regex1 regex2 ...
 "
   (let* ((parts (split-string str " " t))
-         (pathspec (if (> (length parts) 1)
-                       (car parts) ""))
-         (regex (ivy--regex (if (> (length parts) 1)
-                                (string-join (cdr parts) " ") (car parts)) t)))
+         (separator-pos (position ":" parts :test #'equal))
+         (before-sep (subseq parts 0 (or separator-pos 0)))
+         (after-sep (subseq parts (if separator-pos (1+ separator-pos) 0)))
+         (pathspec (string-join before-sep " "))
+         (regex (ivy--regex (string-join after-sep " ") t))
+         (git-grep-cmd-without-pathspec (format counsel-git-grep-cmd regex)))
     (setq ivy--old-re regex)
-    (format "%s %s" (format counsel-git-grep-cmd regex) pathspec)))
+    (if (> (length pathspec) 0)
+        (format "%s \"%s\"" git-grep-cmd-without-pathspec pathspec)
+      git-grep-cmd-without-pathspec)))
 
 (setq counsel-git-grep-cmd-function #'counsel-git-grep-cmd-function-with-pathspec)
 
