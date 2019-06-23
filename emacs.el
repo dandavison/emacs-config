@@ -100,12 +100,22 @@
   :bind (:map compilation-mode-map
               ([(return)] . compile-goto-error)
               ("C-c d" . dan/delete-matching-lines)
-              ([(super mouse-1)] . (lambda (event) (interactive "e") (mouse-set-point event) (dan/iterm2-dwim)))))
+              ([(super mouse-1)] . (lambda (event) (interactive "e") (mouse-set-point event) (dan/iterm2-dwim))))
+  :config
+  (setq compilation-ask-about-save nil
+        compilation-save-buffers-predicate (lambda () nil)))
 
 (use-package dired
   :bind (:map dired-mode-map
               ([left] . dired-up-directory)
-              ([right] . dired-find-file)))
+              ([right] . dired-find-file))
+  :config
+  (setq dired-auto-revert-buffer t
+        dired-omit-size-limit nil
+        dired-omit-files "^\\.\\|__pycache__\\|\\.pyc")
+  (put 'dired-find-alternate-file 'disabled nil)
+  (setq-default dired-omit-files-p t))
+
 (use-package dired-x)
 
 (use-package elisp-mode
@@ -194,12 +204,19 @@
   :bind (:map haskell-mode-map
               ("'" . self-insert-command)))
 
+(use-package ido
+  :config
+  (ido-mode t)
+  (ido-everywhere t)
+  (setq ido-enable-flex-matching t))
+
+
 (use-package ivy
   :config
   (setq ivy-use-virtual-buffers t
         ivy-fixed-height-minibuffer t
         ivy-height #xFFFFFFFF)
-        ;; counsel-rg-base-command "rg -i -M 120 --no-heading --line-number --color never %s ."
+  ;; counsel-rg-base-command "rg -i -M 120 --no-heading --line-number --color never %s ."
 
   (defun -dan/swiper-around-advice (orig-fun &rest args)
     (let ((ivy-height 20))
@@ -256,6 +273,7 @@
               ([(super t)] . dan/latex-fixed-width)))
 
 (use-package lispy
+  :defer t
   :bind (:map lispy-mode-map
               ("M-." . nil)
               ([(meta left)] . nil)
@@ -268,7 +286,30 @@
               ([return] . magit-diff-visit-file-worktree)
               ([control return] . magit-diff-visit-file))
   :config
-  (setq magit-completing-read-function 'ivy-completing-read))
+  (setq
+   magit-completing-read-function 'ivy-completing-read
+   magit-log-arguments '("--graph" "--decorate" "-n20")
+   magit-push-always-verify nil
+   magit-revision-insert-related-refs nil
+   magit-save-repository-buffers nil
+   magit-status-sections-hook '(
+                                ;; magit-insert-status-headers
+                                magit-insert-merge-log
+                                magit-insert-rebase-sequence
+                                magit-insert-am-sequence
+                                magit-insert-sequencer-sequence
+                                magit-insert-bisect-output
+                                magit-insert-bisect-rest
+                                magit-insert-bisect-log
+                                ;; magit-insert-untracked-files
+                                magit-insert-unstaged-changes
+                                magit-insert-staged-changes
+                                ;; magit-insert-stashes
+                                ;; magit-insert-unpulled-commits
+                                ;; magit-insert-unpushed-commits
+                                ))
+  (fset 'dan/magit-diff-master
+        [?\C-c ?g ?d ?r ?m ?a ?s ?t ?e ?r ?. ?. ?. return]))
 
 (use-package markdown-mode
   :bind (:map markdown-mode-map
@@ -281,7 +322,7 @@
 
 (use-package mhtml-mode
   :defer t
-  :bind (:map mhtml-mode-ma
+  :bind (:map mhtml-mode-map
               ("C-c C-c" . emmet-expand-line)))
 
 (use-package minimal
@@ -377,6 +418,14 @@
   :defer t
   :load-path "~/src/3p/tla-mode")
 
+(use-package yasnippet
+  :bind (:map yas/keymap
+              ([tab] . yas/next-field))
+  :config
+  (yas/initialize)
+  (yas/load-directory (expand-file-name "~/src/emacs-config/snippets")))
+
+
 (when (file-exists-p "~/src/emacs-config/extra.el")
   (load-file "~/src/emacs-config/extra.el"))
 
@@ -437,45 +486,39 @@
 
 
 ;;; Etc
-(setq make-backup-files nil)
-(setq create-lockfiles nil)
-(setq kill-read-only-ok t)
-(setq initial-scratch-message nil)
+(setq
+ async-shell-command-buffer 'rename-buffer
+ auto-save-default nil
+ create-lockfiles nil
+ enable-recursive-minibuffers t
+ initial-scratch-message nil
+ kill-read-only-ok t
+ make-backup-files nil
+ save-silently t
+ shell-command-default-error-buffer "*Shell Command Error*"
+ vc-follow-symlinks t)
+
 (fset 'yes-or-no-p 'y-or-n-p)
 (set-default 'truncate-lines t)
-(setq vc-follow-symlinks t)
-(setq save-silently t)
-(setq auto-save-default nil)
-(global-auto-revert-mode t)
-(setq auto-revert-interval 0.1)
-(setq global-auto-revert-non-file-buffers t)
-(setq async-shell-command-buffer 'rename-buffer)
-(setq shell-command-default-error-buffer "*Shell Command Error*")
-(setq scroll-conservatively 101)
-(setq enable-recursive-minibuffers t)
+
+
+(use-package autorevert
+  :config
+  (global-auto-revert-mode t)
+  (setq auto-revert-interval 0.1
+        global-auto-revert-non-file-buffers t))
 
 (setq-default indent-tabs-mode nil)
 (setq tab-always-indent 'complete)
 (set-default 'tab-width 4)
 
-
-(setq dired-auto-revert-buffer t)
-(setq-default dired-omit-files-p t)
-(setq dired-omit-size-limit nil)
-(setq dired-omit-files "^\\.\\|__pycache__\\|\\.pyc")  ;; "^\\.?#\\|^\\.$\\|^\\.\\.$" "\\.log\\|\\.aux\\|\\.out"
-(put 'dired-find-alternate-file 'disabled nil)
-
-(setq compilation-ask-about-save nil)
-(setq compilation-save-buffers-predicate (lambda () nil))
-
 (dan/set-exec-path-from-shell)
 (advice-add 'message :after 'dan/message-buffer-goto-end-of-buffer)
 
 
-(setq-default fill-column 80)
-
 (use-package fill-column-indicator
   :config
+  (setq-default fill-column 80)
   (setq fci-rule-column fill-column
         fci-rule-color "#A5BAF1"))
 
@@ -532,6 +575,7 @@
 
 
 ;;; scrolling
+(setq scroll-conservatively 101)
 (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; one line at a time
 (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
 (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
@@ -626,14 +670,14 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
           (set (make-variable-buffer-local 'dan/python-buffer-config-keys)
                (mapcar 'car config)))
 
-        (assert (f-directory? dan/python-virtualenv) t)
-        (assert (f-directory? dan/python-project-root) t)
-        (assert (f-executable? flycheck-python-flake8-executable) t)
-        (assert (f-executable? flycheck-python-mypy-executable) t)
-        (assert (f-file? flycheck-flake8rc) t)
-        (assert (f-file? flycheck-python-mypy-ini) t)
-        (assert (f-directory? python-shell-virtualenv-root) t)
-        (assert (f-executable? python-shell-interpreter) t)
+        ;; (assert (f-directory? dan/python-virtualenv) t)
+        ;; (assert (f-directory? dan/python-project-root) t)
+        ;; (assert (f-executable? flycheck-python-flake8-executable) t)
+        ;; (assert (f-executable? flycheck-python-mypy-executable) t)
+        ;; (assert (f-file? flycheck-flake8rc) t)
+        ;; (assert (f-file? flycheck-python-mypy-ini) t)
+        ;; (assert (f-directory? python-shell-virtualenv-root) t)
+        ;; (assert (f-executable? python-shell-interpreter) t)
 
         (setf (flycheck-checker-get 'python-flake8 'next-checkers) '((t . python-mypy)))
         (setf (flycheck-checker-get 'python-mypy 'next-checkers) nil)
@@ -740,56 +784,9 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
 (add-hook 'inferior-python-mode-hook
           (lambda () (dan/load-comint-history dan/python-comint-history-file)))
 
-;;; Elpy
-;; (add-to-list 'package-archives
-;;              '("elpy" . "http://jorgenschaefer.github.io/packages/"))
-;; (elpy-enable)
-
-;;; Ido
-(ido-mode t)
-(ido-everywhere t)
-(setq ido-enable-flex-matching t)
-
-
-;;; Magit
-(setq magit-save-repository-buffers nil)
-;; (setq magit-revert-buffers nil)
-(setq magit-push-always-verify nil)
-(setq magit-revision-insert-related-refs nil)
-(setq magit-log-arguments '("--graph" "--decorate" "-n20"))
-(setq magit-status-sections-hook
-      '(
-        ;; magit-insert-status-headers
-        magit-insert-merge-log
-        magit-insert-rebase-sequence
-        magit-insert-am-sequence
-        magit-insert-sequencer-sequence
-        magit-insert-bisect-output
-        magit-insert-bisect-rest
-        magit-insert-bisect-log
-        ;; magit-insert-untracked-files
-        magit-insert-unstaged-changes
-        magit-insert-staged-changes
-        ;; magit-insert-stashes
-        ;; magit-insert-unpulled-commits
-        ;; magit-insert-unpushed-commits
-        ))
-
-(fset 'dan/magit-diff-master
-      [?\C-c ?g ?d ?r ?m ?a ?s ?t ?e ?r ?. ?. ?. return])
-
-;;; Yasnippet
-(require 'yasnippet)
-(define-key yas/keymap [tab] 'yas/next-field)
-(yas/initialize)
-(defun dan/yas-load ()
-  (interactive)
-  (yas/load-directory "/Users/dan/src/emacs-config/snippets"))
-(dan/yas-load)
-
-
 ;;; Mode hooks
 (setq pulse-iterations 20)
+
 (defun dan/on-jump-into-buffer ()
   (outline-show-all)
   (dan/pulse-momentary-highlight-current-line)
@@ -988,7 +985,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
    '("4e5e58e42f6f37920b95a8502f488928b3dab9b6cc03d864e38101ce36ecb968" "72759f4e42617df7a07d0a4f4b08982314aa97fbd495a5405c9b11f48bd6b839" "9e6ac467fa1e5eb09e2ac477f61c56b2e172815b4a6a43cf48def62f9d3e5bf9" "b9183de9666c3a16a7ffa7faaa8e9941b8d0ab50f9aaba1ca49f2f3aec7e3be9" "0e8c264f24f11501d3f0cabcd05e5f9811213f07149e4904ed751ffdcdc44739" "780c67d3b58b524aa485a146ad9e837051918b722fd32fd1b7e50ec36d413e70" "a11043406c7c4233bfd66498e83600f4109c83420714a2bd0cd131f81cbbacea" "45482e7ddf47ab1f30fe05f75e5f2d2118635f5797687e88571842ff6f18b4d5" "a3821772b5051fa49cf567af79cc4dabfcfd37a1b9236492ae4724a77f42d70d" "3b4800ea72984641068f45e8d1911405b910f1406b83650cbd747a831295c911" default))
  '(magit-diff-arguments '("--ignore-all-space" "--no-ext-diff"))
  '(package-selected-packages
-   '(lispy ace-jump-mode ace-window forge applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move coffee-mode color-theme-modern color-theme-railscasts company company-jedi confluence counsel debbugs dired-details+ dockerfile-mode dot-mode emmet-mode ess eyuml f fill-column-indicator fzf graphviz-dot-mode haskell-mode hindent htmlize ivy jira-markup-mode latex-pretty-symbols magit markdown-mode minimal-theme modalka multiple-cursors paredit paredit-everywhere plantuml-mode pony-mode projectile pyenv-mode py-isort railscasts-reloaded-theme railscasts-theme ripgrep rust-mode smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity transpose-frame use-package visual-fill-column yaml-mode yasnippet yasnippet-bundle zencoding-mode zones))
+   '(ace-jump-mode ace-window forge applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move coffee-mode color-theme-modern color-theme-railscasts company company-jedi confluence counsel debbugs dired-details+ dockerfile-mode dot-mode emmet-mode ess eyuml f fill-column-indicator fzf graphviz-dot-mode haskell-mode hindent htmlize ivy jira-markup-mode latex-pretty-symbols magit markdown-mode minimal-theme modalka multiple-cursors paredit paredit-everywhere plantuml-mode pony-mode projectile pyenv-mode py-isort railscasts-reloaded-theme railscasts-theme ripgrep rust-mode smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity transpose-frame use-package visual-fill-column yaml-mode yasnippet yasnippet-bundle zencoding-mode zones))
  '(safe-local-variable-values '((bug-reference-bug-regexp . "#\\(?2:[0-9]+\\)"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
