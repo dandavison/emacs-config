@@ -199,6 +199,7 @@
   (setq ivy-use-virtual-buffers t
         ivy-fixed-height-minibuffer t
         ivy-height #xFFFFFFFF)
+        ;; counsel-rg-base-command "rg -i -M 120 --no-heading --line-number --color never %s ."
 
   (defun -dan/swiper-around-advice (orig-fun &rest args)
     (let ((ivy-height 20))
