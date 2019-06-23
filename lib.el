@@ -1367,31 +1367,36 @@ returns the value of `python-shell-buffer-name'."
 
 
 ;;; Counsel
-(defun counsel-git-grep-cmd-function-with-pathspec (str)
-  "If there are multiple input patterns, interpret the first as a
-git pathspec constraining the files searched by `git grep`.
-See `man gitglossary` or
+(defun counsel-git-grep-cmd-with-pathspec-function (str)
+  "Git grep with control over file paths searched.
+
+To use, set `counsel-git-grep-cmd-function' equal to this function.
+
+The behaviour is the same as default `counsel-git-grep', but you
+may optionally use a single ':' character, surrounded by spaces,
+to separate the pathspec (to the left) from the regular
+expressions (to the right).
+
+For pathspec syntax see `man gitglossary` or
 https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddefpathspecapathspec
 
 A simple example is:
-**/somedir/* regex1 regex2 ...
+**/somedir/* : regex1 regex2 ...
 
 A more complex example is:
-':(exclude)*/tests/*' regex1 regex2 ...
+**/somedir/* :(exclude)*/tests/* : regex1 regex2 ...
 "
-  (let* ((parts (split-string str " " t))
+  (let* ((cmd "git --no-pager grep --full-name -n --no-color -i -I -e %s")
+         (parts (split-string str " " t))
          (separator-pos (position ":" parts :test #'equal))
-         (before-sep (subseq parts 0 (or separator-pos 0)))
-         (after-sep (subseq parts (if separator-pos (1+ separator-pos) 0)))
-         (pathspec (string-join before-sep " "))
-         (regex (ivy--regex (string-join after-sep " ") t))
-         (git-grep-cmd-without-pathspec (format counsel-git-grep-cmd regex)))
+         (pathspec (subseq parts 0 (or separator-pos 0)))
+         (regexes (subseq parts (if separator-pos (1+ separator-pos) 0)))
+         (regex (ivy--regex (string-join regexes " ") t))
+         (git-grep-cmd-without-pathspec (split-string (format cmd regex) " " t)))
     (setq ivy--old-re regex)
-    (if (> (length pathspec) 0)
-        (format "%s \"%s\"" git-grep-cmd-without-pathspec pathspec)
-      git-grep-cmd-without-pathspec)))
+    (append git-grep-cmd-without-pathspec pathspec)))
 
-(setq counsel-git-grep-cmd-function #'counsel-git-grep-cmd-function-with-pathspec)
+(setq counsel-git-grep-cmd-function #'counsel-git-grep-cmd-with-pathspec-function)
 
 ;;; Projectile
 
