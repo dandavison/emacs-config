@@ -123,7 +123,6 @@
               ("C-c d" . edebug-defun)
               ("C-c ," . find-function)
               ("C-c C-r" . (lambda () (interactive) (call-interactively 'eval-region) (deactivate-mark)))
-              ([tab] . dan/company-indent-or-complete)
               ([(super x)] . eval-defun)
               ([(meta left)] . nil)
               ([(meta right)] . nil)))
@@ -148,7 +147,6 @@
   :bind (:map python-mode-map
               ("C-c d" . dan/python-insert-ipdb-set-trace)
               ("C-c C-c" . dan/save-even-if-not-modified)
-              ([tab] . dan/company-indent-or-complete)
               ([(super ?')] . flycheck-mode)
               ([(super i)] . dan/python-where-am-i)
               ([(meta shift right)] . python-indent-shift-right)
@@ -173,6 +171,9 @@
               ("C-c C-z" . inf-clojure)))
 
 (use-package company
+  :bind (:map prog-mode-map
+         ([tab] . dan/company-indent-or-complete))
+  :hook (prog-mode . company-mode)
   :config
   (setq company-selection-wrap-around t))
 
@@ -197,6 +198,7 @@
                               "github.counsyl.com" forge-github-repository)))
 
 (use-package flycheck
+  :hook (prog-mode . flycheck-mode)
   :load-path "~/src/3p/flycheck")
 
 (use-package haskell
@@ -278,6 +280,12 @@
               ("M-." . nil)
               ([(meta left)] . nil)
               ([(meta right)] . nil)))
+
+(use-package lsp-mode
+  :commands lsp
+  :config (require 'lsp-clients))
+
+(use-package lsp-ui)
 
 (use-package magit
   :bind (:map magit-diff-mode-map
