@@ -647,8 +647,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
   (set (make-variable-buffer-local 'fci-rule-column) fill-column)
 
   (setq python-fill-docstring-style 'django)
-
-  (dan/activate-sexp-editing-modes)
+  (paredit-c-mode)
   (set (make-variable-buffer-local 'prettify-symbols-alist)
        '(("lambda" . 955)))
   (prettify-symbols-mode)
@@ -796,16 +795,6 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
   (when (eq major-mode 'python-mode)
     (dan/python-current-defun-name)))
 
-
-(defun dan/activate-sexp-editing-modes ()
-  (let ((lisp? (memq major-mode '(emacs-lisp-mode
-                                  eshell-mode
-                                  clojure-mode
-                                  minibuffer-inactive-mode))))
-    (if lisp? (paredit-mode) (paredit-c-mode))
-    (when nil (lispy-mode))))
-
-
 (defun dan/after-change-major-mode-hook-fn ()
   (dan/set-appearance))
 (add-hook 'after-change-major-mode-hook 'dan/after-change-major-mode-hook-fn)
@@ -817,17 +806,17 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
 (add-hook 'before-save-hook 'dan/before-save-hook-fn)
 
 (defun dan/awk-mode-hook-fn ()
-  (dan/activate-sexp-editing-modes))
+  (dan/enable-sexp-editing-modes))
 (add-hook 'awk-mode-hook 'dan/awk-mode-hook-fn)
 
 
 (defun dan/c-mode-hook-fn ()
   (setq c-basic-offset 4)
-  (dan/activate-sexp-editing-modes))
+  (dan/enable-sexp-editing-modes))
 (add-hook 'c-mode-hook 'dan/c-mode-hook-fn)
 
 (defun dan/clojure-mode-hook-fn ()
-  (dan/activate-sexp-editing-modes)
+  (dan/enable-sexp-editing-modes)
   (inf-clojure-minor-mode))
 (add-hook 'clojure-mode-hook 'dan/clojure-mode-hook-fn)
 (add-hook 'clojurescript-mode-hook 'dan/clojure-mode-hook-fn)
@@ -839,16 +828,18 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
 
 
 (defun dan/inf-clojure-mode-hook-fn ()
-  (dan/activate-sexp-editing-modes))
+  (paredit-mode))
 (add-hook 'inf-clojure-mode-hook 'dan/inf-clojure-mode-hook-fn)
 
 (defun dan/coffee-mode-hook-fn ()
-  (dan/activate-sexp-editing-modes)
+  (paredit-c-mode)
   (setq coffee-tab-width 2))
 (add-hook 'coffee-mode-hook 'dan/coffee-mode-hook-fn)
 
+(add-hook 'compilation-finish-functions 'filter-results-clean-up-compilation-buffer)
+
 (defun dan/emacs-lisp-mode-hook-fn ()
-  (dan/activate-sexp-editing-modes)
+  (paredit-mode t)
   (company-mode)
   (setq prettify-symbols-alist '(("lambda" . 955)))
   (prettify-symbols-mode)
@@ -856,7 +847,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
 (add-hook 'emacs-lisp-mode-hook 'dan/emacs-lisp-mode-hook-fn)
 
 (defun dan/eshell-mode-hook-fn ()
-  (dan/activate-sexp-editing-modes)
+  (paredit-mode t)
   (setq prettify-symbols-alist '(("lambda" . 955)))
   (prettify-symbols-mode))
 (add-hook 'eshell-mode-hook 'dan/eshell-mode-hook-fn)
@@ -868,7 +859,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
 (defun dan/haskell-mode-fn ()
   (hindent-mode)
   ;; (add-hook 'after-save-hook 'hindent-reformat-buffer nil t)
-  (dan/activate-sexp-editing-modes)
+  (paredit-c-mode)
   (local-set-key "'" 'self-insert-command))
 (add-hook 'haskell-mode-hook 'dan/haskell-mode-fn)
 
@@ -877,11 +868,11 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
 (add-hook 'html-mode-hook 'dan/html-mode-hook-fn)
 
 (defun dan/inferior-python-mode-hook-fn ()
-  (dan/activate-sexp-editing-modes))
+  (paredit-c-mode))
 (add-hook 'inferior-python-mode-hook 'dan/inferior-python-mode-hook-fn)
 
 (defun dan/js-mode-hook-fn ()
-  (dan/activate-sexp-editing-modes)
+  (paredit-c-mode)
   (setq js-indent-level 2))
 (add-hook 'js-mode-hook 'dan/js-mode-hook-fn)
 
@@ -910,7 +901,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
 (add-hook 'magit-diff-visit-file-hook 'dan/on-jump-into-buffer)
 
 (defun dan/makefile-mode-hook-fn ()
-  (dan/activate-sexp-editing-modes))
+  (paredit-c-mode))
 (add-hook 'makefile-mode-hook 'dan/makefile-mode-hook-fn)
 
 (defun dan/minibuffer-setup-hook-fn ()
@@ -918,7 +909,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
     (setq completion-at-point-functions '(lisp-completion-at-point t))
     (local-set-key [tab] 'complete-symbol)
     (local-set-key "/" 'self-insert-command)
-    (dan/activate-sexp-editing-modes)))
+    (paredit-mode 1)))
 (add-hook 'minibuffer-setup-hook 'dan/minibuffer-setup-hook-fn)
 
 (defun dan/next-error-hook-fn ()
@@ -939,14 +930,14 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
 (when nil
   (add-to-list 'load-path "~/src/3p/penrose-modes") (require 'penrose-modes)
   (defun dan/penrose-hook-fn ()
-    (dan/activate-sexp-editing-modes))
+    (paredit-c-mode))
 
   (add-hook 'penrose-substance-mode-hook 'dan/penrose-hook-fn)
   (add-hook 'penrose-style-mode-hook 'dan/penrose-hook-fn)
   (add-hook 'penrose-dsl-mode-hook 'dan/penrose-hook-fn))
 
 (defun dan/r-mode-hook-fn ()
-  (dan/activate-sexp-editing-modes))
+  (paredit-c-mode))
 (add-hook 'ess-mode-hook 'dan/r-mode-hook-fn)
 (add-hook 'inferior-ess-mode-hook 'dan/r-mode-hook-fn)
 
@@ -958,7 +949,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
   (setq sh-indentation 4)
   (setq sh-basic-offset nil)
   (dan/set-up-outline-minor-mode "[a-zA-Z_-]+[ \t]*(")
-  (dan/activate-sexp-editing-modes))
+  (paredit-c-mode))
 (add-hook 'sh-mode-hook 'dan/sh-mode-hook-fn)
 
 
@@ -971,7 +962,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
     ,@sqlind-default-indentation-offsets-alist))
 
 (defun dan/sql-mode-hook-fn ()
-  (dan/activate-sexp-editing-modes)
+  (paredit-c-mode)
   (sqlind-minor-mode)
   (setq sqlind-indentation-offsets-alist dan/sqlind-offsets-alist))
 
