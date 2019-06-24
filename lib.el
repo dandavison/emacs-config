@@ -32,9 +32,13 @@
 (defun dan/switch-to-buffer (&optional arg)
   (interactive "P")
   (call-interactively
-   (if (and (not arg) (projectile-project-p))
-       'projectile-switch-to-buffer
-     'switch-to-buffer)))
+     (cond
+      ((equal arg '(4))
+       'counsel-switch-buffer)
+      ((and (not arg)
+            (projectile-project-p))
+       'projectile-switch-to-buffer)
+      (t 'switch-to-buffer))))
 
 (defun dan/find-file (&optional arg)
   (interactive "P")
@@ -361,6 +365,13 @@
 
 
 ;;; Search
+
+(defun dan/search (beg end)
+  (interactive "r")
+  (cond
+   ((eq major-mode 'rust-mode)
+    (ffap "https://doc.rust-lang.org/std/?search=%s" (buffer-substring beg end)))
+     (t (error "No search backend for major-mode %s" major-mode))))
 
 ;;; Highlight
 (require 'ring)
