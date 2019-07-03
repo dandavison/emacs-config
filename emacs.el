@@ -443,6 +443,16 @@
 
 (use-package python-environment)
 
+(use-package reformatter
+  :config
+  (reformatter-define blacken
+    :program "/Users/dan/bin/black"
+    :args '("-l" "99" "-"))
+  (reformatter-define rustfmt
+    :program "/Users/dan/.cargo/bin/rustfmt")
+  :hook ((rust-mode . (lambda () (add-hook 'before-save-hook
+                                      (lambda () (rustfmt-buffer 'display-errors)) nil t)))))
+
 (use-package rust-mode
   :load-path "~/src/3p/rust-mode"
   :after lsp-mode
