@@ -1,5 +1,5 @@
 ;;; Init
-(setq debug-on-error t)
+(setq debug-on-error nil)
 (unless (equal emacs-version "27.0.50") (package-initialize))
 (setq use-package-always-demand t)
 
@@ -32,6 +32,7 @@
          ("C-x C-f" . dan/find-file)
          ("C-x b" . dan/switch-to-buffer)
          ("C-x d" . dan/dired-no-ask)
+         ("C-x C-l" . find-library)
          ("C-x n n" . dan/narrow-to-region)
          ("C-x n w" . dan/widen)
          ("C-x p" . projectile-switch-project)
@@ -134,9 +135,14 @@
               ([(shift right)] . windmove-right)
               ([(shift up)] . windmove-up)
               ([(shift down)] . windmove-down)
+              ([(meta left)] . backward-word)
+              ([(meta right)] . forward-word)
               :map orgtbl-mode-map
               ([(meta left)] . nil)
-              ([(meta right)] . nil)))
+              ([(meta right)] . nil))
+  :config
+  (local-set-key [(meta left)] 'backward-word)
+  (local-set-key [(meta right)] 'forward-word))
 
 (use-package outline
   :bind (:map outline-minor-mode-map
@@ -386,9 +392,12 @@
 
 (use-package paredit
   :bind (:map paredit-mode-map
+              ;; TODO: move into paredit-c config
+              ("(" . paredit-open-round)
               ("M-[" . paredit-wrap-square)
               ("\\" . nil)
               (";" . nil)
+              ;; TODO: move into paredit-c config
               ("\"" . paredit-c/doublequote)))
 
 (use-package paredit-c
@@ -402,7 +411,10 @@
   :bind-keymap
   ([(super p)] . projectile-command-map)
   :bind (:map projectile-command-map
-              ("m" . dan/switch-to-messages-buffer))
+              ("a" . dan/goto-alias-file)
+              ("g" . dan/goto-gitconfig)
+              ("m" . dan/goto-messages-buffer)
+              ("r" . dan/goto-rustfmt-buffer))
   :config
   (projectile-mode +1)
   (setq projectile-globally-ignored-file-suffixes '("pyc" "~" "#")
@@ -412,7 +424,7 @@
         projectile-enable-caching t
         projectile-completion-system 'ivy
         projectile-current-project-on-switch 'keep
-        projectile-switch-project-action 'projectile-dired)
+        projectile-switch-project-action 'projectile-find-file)
   (add-to-list 'projectile-globally-ignored-modes "dired-mode"))
 
 (use-package py-isort
@@ -432,11 +444,18 @@
 (use-package python-environment)
 
 (use-package rust-mode
+  :load-path "~/src/3p/rust-mode"
   :after lsp-mode
+  :bind (:map rust-mode-map
+              ("C-c C-c" . dan/save-even-if-not-modified))
   :hook (
          ;; (rust-mode . lsp)
+         (rust-mode . (lambda () (flycheck-mode -1)))
          (rust-mode . paredit-c-mode)
-         (rust-after-save . (lambda () (flycheck-mode -1) (compile "cargo build")))))
+         (rust-after-save . (lambda () (flycheck-mode -1) (compile "cargo build"))))
+  :config
+  (setq fill-column 100
+        fci-rule-column fill-column))
 
 ;; (add-hook 'after-save-hook (lambda () (flycheck-mode -1) (compile "cargo build")))
 
@@ -519,6 +538,7 @@
  async-shell-command-buffer 'rename-buffer
  auto-save-default nil
  create-lockfiles nil
+ electric-indent-mode nil
  enable-recursive-minibuffers t
  initial-scratch-message nil
  kill-read-only-ok t
@@ -544,10 +564,8 @@
 (dan/set-exec-path-from-shell)
 (advice-add 'message :after 'dan/message-buffer-goto-end-of-buffer)
 
-
 (use-package fill-column-indicator
   :config
-  (setq-default fill-column 80)
   (setq fci-rule-column fill-column
         fci-rule-color "#A5BAF1"))
 
@@ -814,7 +832,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
           (lambda () (dan/load-comint-history dan/python-comint-history-file)))
 
 ;;; Mode hooks
-(setq pulse-iterations 20)
+(setq pulse-iterations 40)
 
 (defun dan/on-jump-into-buffer ()
   (outline-show-all)
@@ -1014,7 +1032,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
  '(magit-diff-arguments (quote ("--ignore-all-space" "--no-ext-diff")))
  '(package-selected-packages
    (quote
-    (flycheck-rust cargo toml-mode lsp-ui lsp-rust wgrep ace-jump-mode ace-window forge applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move coffee-mode color-theme-modern color-theme-railscasts company company-jedi confluence counsel debbugs dired-details+ dockerfile-mode dot-mode emmet-mode ess eyuml f fill-column-indicator fzf graphviz-dot-mode haskell-mode hindent htmlize ivy jira-markup-mode latex-pretty-symbols magit markdown-mode minimal-theme modalka multiple-cursors paredit paredit-everywhere plantuml-mode pony-mode projectile pyenv-mode py-isort railscasts-reloaded-theme railscasts-theme ripgrep rust-mode smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity transpose-frame use-package visual-fill-column yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
+    (reformatter lsp-rust cargo flycheck-rust toml-mode lsp-ui wgrep ace-jump-mode ace-window forge applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move coffee-mode color-theme-modern color-theme-railscasts company company-jedi confluence counsel debbugs dired-details+ dockerfile-mode dot-mode emmet-mode ess eyuml f fill-column-indicator fzf graphviz-dot-mode haskell-mode hindent htmlize ivy jira-markup-mode latex-pretty-symbols magit markdown-mode minimal-theme modalka multiple-cursors paredit paredit-everywhere plantuml-mode pony-mode projectile pyenv-mode py-isort railscasts-reloaded-theme railscasts-theme ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity transpose-frame use-package visual-fill-column yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
  '(safe-local-variable-values (quote ((bug-reference-bug-regexp . "#\\(?2:[0-9]+\\)")))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

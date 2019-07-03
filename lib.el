@@ -42,16 +42,13 @@
 
 (defun dan/find-file (&optional arg)
   (interactive "P")
-  (let ((projectile-globally-ignored-file-suffixes
-         (append projectile-globally-ignored-file-suffixes '("png" "pdf"))))
+  (let ((current-prefix-arg nil))
     (call-interactively
      (cond
-      ((not arg)
-       'counsel-recentf)
-      ((and (equal arg '(4))
-            (projectile-project-p))
+      ((and (not arg) (projectile-project-p))
        'projectile-find-file)
-      ((equal arg '(4)) 'counsel-find-file)
+      ((equal arg '(4))
+       'counsel-recentf)
       ((equal arg '(16))
        'find-file)))))
 
@@ -337,31 +334,39 @@
   (interactive "P")
   (if arg (find-file "~/src/emacs-config/lib.el") (dan/goto-use-package)))
 
-(defun dan/find-dot-emacs (&optional arg)
+(defun dan/goto-dot-emacs (&optional arg)
   (interactive "P")
   (find-file (if arg "~/src/emacs-config/lib.el" (file-chase-links "~/.emacs.d/init.el"))))
 
-(defun dan/switch-to-messages-buffer ()
+(defun dan/goto-messages-buffer ()
   (interactive)
   (switch-to-buffer "*Messages*")
   (goto-char (point-max)))
 
+(defun dan/goto-rustfmt-buffer ()
+  (interactive)
+  (switch-to-buffer "*rustfmt*"))
+
 (defun dan/goto-use-package ()
   (interactive)
-  (dan/find-dot-emacs)
+  (dan/goto-dot-emacs)
   (swiper "(use-package "))
 
-(defun dan/projects-file ()
+(defun dan/goto-projects-file ()
   (interactive)
   (find-file (file-chase-links "~/dandavison7@gmail.com/Projects/projects.org")))
 
-(defun dan/info-file ()
+(defun dan/goto-info-file ()
   (interactive)
   (find-file (file-chase-links "~/dandavison7@gmail.com/Legal/info.txt")))
 
-(defun dan/alias-file ()
+(defun dan/goto-alias-file ()
   (interactive)
   (find-file (file-chase-links "~/src/shell-config/alias.sh")))
+
+(defun dan/goto-gitconfig ()
+  (interactive)
+  (find-file (file-chase-links "~/src/config/git/gitconfig")))
 
 
 ;;; Search
@@ -370,7 +375,7 @@
   (interactive "r")
   (cond
    ((eq major-mode 'rust-mode)
-    (ffap "https://doc.rust-lang.org/std/?search=%s" (buffer-substring beg end)))
+    (ffap (format "https://doc.rust-lang.org/std/?search=%s" (buffer-substring beg end))))
      (t (error "No search backend for major-mode %s" major-mode))))
 
 ;;; Highlight
