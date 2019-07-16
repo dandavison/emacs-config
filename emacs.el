@@ -238,6 +238,7 @@
       (apply orig-fun args)))
   (advice-add 'swiper :around '-dan/swiper-around-advice)
 
+  (advice-add 'swiper :before (lambda (&rest args) (outline-show-all)))
   (advice-add 'swiper--ensure-visible :after 'dan/on-jump-into-buffer)
   (add-hook 'counsel-grep-post-action-hook 'dan/on-jump-into-buffer))
 
