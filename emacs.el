@@ -113,7 +113,7 @@
   :config
   (setq dired-auto-revert-buffer t
         dired-omit-size-limit nil
-        dired-omit-files "^\\.\\|__pycache__\\|\\.pyc")
+        dired-omit-files "^__pycache__\\|^.mypy_cache\\|^\\.\\.?\\|\\.pyc")
   (put 'dired-find-alternate-file 'disabled nil)
   (setq-default dired-omit-files-p t))
 
@@ -126,7 +126,8 @@
               ("C-c C-r" . (lambda () (interactive) (call-interactively 'eval-region) (deactivate-mark)))
               ([(super x)] . eval-defun)
               ([(meta left)] . nil)
-              ([(meta right)] . nil)))
+              ([(meta right)] . nil))
+  :hook (emacs-lisp-mode . (lambda () (flycheck-mode -1))))
 
 (use-package org
   :after org-table
@@ -135,14 +136,17 @@
               ([(shift right)] . windmove-right)
               ([(shift up)] . windmove-up)
               ([(shift down)] . windmove-down)
-              ([(meta left)] . backward-word)
-              ([(meta right)] . forward-word)
+              ([(meta left)] . nil)
+              ([(meta right)] . nil)
               :map orgtbl-mode-map
               ([(meta left)] . nil)
               ([(meta right)] . nil))
-  :config
-  (local-set-key [(meta left)] 'backward-word)
-  (local-set-key [(meta right)] 'forward-word))
+  :hook
+  (org-mode . (lambda ()
+                (local-set-key [(meta left)] 'backward-word)
+                (local-set-key [(meta right)] 'forward-word)
+                (local-set-key [(shift left)] ' windmove-left)
+                (local-set-key [(shift right)] 'windmove-right))))
 
 (use-package outline
   :bind (:map outline-minor-mode-map
@@ -153,11 +157,13 @@
   :bind (:map python-mode-map
               ("C-c d" . dan/python-insert-ipdb-set-trace)
               ("C-c C-c" . dan/save-even-if-not-modified)
+              ([(super ?b)] . dan/blacken-region)
               ([(super ?')] . flycheck-mode)
               ([(super i)] . dan/python-where-am-i)
               ([(meta shift right)] . python-indent-shift-right)
               ([(meta shift left)] . python-indent-shift-left)
-              ([(super mouse-1)] . (lambda (event) (interactive "e") (mouse-set-point event) (jedi:goto-definition)))))
+              ([(super mouse-1)] . (lambda (event) (interactive "e") (mouse-set-point event) (jedi:goto-definition))))
+  :hook (python-mode . blacken-on-save-mode))
 
 
 (load-file "~/src/emacs-config/lib.el")
@@ -214,6 +220,11 @@
   :config (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
 
 
+(use-package graphql-mode
+  :hook (graphql-mode . (lambda ()
+                          (paredit-c-mode)
+                          (prettier-graphql-on-save-mode))))
+
 (use-package haskell
   :defer t
   :bind (:map haskell-mode-map
@@ -241,6 +252,7 @@
   (advice-add 'swiper :before (lambda (&rest args) (outline-show-all)))
   (advice-add 'swiper--ensure-visible :after 'dan/on-jump-into-buffer)
   (add-hook 'counsel-grep-post-action-hook 'dan/on-jump-into-buffer))
+
 
 (use-package jedi-core
   :after (python-environment)
@@ -272,7 +284,7 @@
 
 (use-package latex
   :defer t
-  :bind (:map latex-mode-map
+  :bind (:map LaTeX-mode-map
               ("C-c C-c" . (lambda () (interactive)
                              (condition-case nil
                                  (dan/org-babel-execute-non-native-src-block)
@@ -353,7 +365,8 @@
 (use-package mhtml-mode
   :defer t
   :bind (:map mhtml-mode-map
-              ("C-c C-c" . emmet-expand-line)))
+              ("C-c C-c" . emmet-expand-line))
+  :hook (mhtml-mode . (lambda () (flycheck-mode -1))))
 
 (use-package minimal
   :load-path "~/src/minimal")
@@ -427,11 +440,11 @@
   (setq projectile-globally-ignored-file-suffixes '("pyc" "~" "#")
         projectile-buffers-filter-function 'projectile-buffers-with-file
         projectile-use-git-grep t
-        projectile-git-command "git ls-files -zc --exclude-standard '**/*.py'"  ;; remove -o
+        projectile-git-command "git ls-files -zc --exclude-standard"  ;; '**/*.py' remove -o
         projectile-enable-caching t
         projectile-completion-system 'ivy
         projectile-current-project-on-switch 'keep
-        projectile-switch-project-action 'projectile-find-file)
+        projectile-switch-project-action 'projectile-find-file) ;; counsel-git-grep
   (add-to-list 'projectile-globally-ignored-modes "dired-mode"))
 
 (use-package py-isort
@@ -457,6 +470,15 @@
     :args '("-l" "99" "-"))
   (reformatter-define rustfmt
     :program "/Users/dan/.cargo/bin/rustfmt")
+  (reformatter-define prettier-graphql
+    :program "/usr/local/bin/prettier"
+    :args '("--parser" "graphql"))
+  (reformatter-define prettier-html
+    :program "/usr/local/bin/prettier"
+    :args '("--parser" "html"))
+  (reformatter-define prettier-js
+    :program "/usr/local/bin/prettier"
+    :args '("--parser" "babel"))
   :hook ((rust-mode . (lambda () (add-hook 'before-save-hook
                                       (lambda () (rustfmt-buffer 'display-errors)) nil t)))))
 
@@ -464,15 +486,18 @@
   :load-path "~/src/3p/rust-mode"
   :after lsp-mode
   :bind (:map rust-mode-map
-              ("C-c C-c" . dan/save-even-if-not-modified))
+              ("C-c C-c" . dan/save-even-if-not-modified)
+              ("<" . dan/paired-angle-bracket)
+              ("|" . dan/paired-pipe))
   :hook (
          ;; (rust-mode . lsp)
-         (rust-mode . (lambda () (flycheck-mode -1)))
-         (rust-mode . paredit-c-mode)
-         (rust-after-save . (lambda () (flycheck-mode -1) (compile "cargo build"))))
-  :config
-  (setq fill-column 100
-        fci-rule-column fill-column))
+         (rust-mode . (lambda ()
+                        (flycheck-mode -1)
+                        (paredit-c-mode)
+                        (setq fill-column 100
+                              fci-rule-column fill-column)
+                        (dan/set-up-outline-minor-mode "[ \t]*\\(pub .+\\|fn .+\\|impl .+\\|struct .+\\|enum .+\\|##\\)")))
+         (rust-after-save . (lambda () (flycheck-mode -1) (compile "cargo build")))))
 
 ;; (add-hook 'after-save-hook (lambda () (flycheck-mode -1) (compile "cargo build")))
 
@@ -556,7 +581,7 @@
  auto-save-default nil
  create-lockfiles nil
  electric-indent-mode nil
- enable-recursive-minibuffers t
+ enable-recursive-minibuffers nil
  initial-scratch-message nil
  kill-read-only-ok t
  make-backup-files nil
@@ -852,7 +877,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
 (setq pulse-iterations 40)
 
 (defun dan/on-jump-into-buffer ()
-  (outline-show-all)
+  (outline-show-all) ;; with swiper--ensure-visible this leaves point in the wrong place
   (dan/pulse-momentary-highlight-current-line)
   (when (eq major-mode 'python-mode)
     (dan/python-current-defun-name)))
@@ -868,17 +893,17 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
 (add-hook 'before-save-hook 'dan/before-save-hook-fn)
 
 (defun dan/awk-mode-hook-fn ()
-  (dan/enable-sexp-editing-modes))
+  (paredit-c-mode))
 (add-hook 'awk-mode-hook 'dan/awk-mode-hook-fn)
 
 
 (defun dan/c-mode-hook-fn ()
   (setq c-basic-offset 4)
-  (dan/enable-sexp-editing-modes))
+  (paredit-c-mode))
 (add-hook 'c-mode-hook 'dan/c-mode-hook-fn)
 
 (defun dan/clojure-mode-hook-fn ()
-  (dan/enable-sexp-editing-modes)
+  (paredit-c-mode)
   (inf-clojure-minor-mode))
 (add-hook 'clojure-mode-hook 'dan/clojure-mode-hook-fn)
 (add-hook 'clojurescript-mode-hook 'dan/clojure-mode-hook-fn)
@@ -938,7 +963,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
 
 (defun dan/LaTeX-mode-hook-fn ()
   (interactive)
-  (dan/setup-paired-characters)
+  (dan/latex-paired-characters)
 
   ;; The following DNW for \begin for some reason. Try evaluating
   ;; (set (make-local-variable 'outline-regexp) "\\(\\\\sub\\|\\\\section\\|\\\\begin\\)")
@@ -1024,7 +1049,8 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
 (defun dan/sql-mode-hook-fn ()
   (paredit-c-mode)
   (sqlind-minor-mode)
-  (setq sqlind-indentation-offsets-alist dan/sqlind-offsets-alist))
+  (setq sqlind-indentation-offsets-alist dan/sqlind-offsets-alist)
+  (add-hook 'before-save-hook 'dan/indent-region nil t))
 
 
 (add-hook 'sql-mode-hook 'dan/sql-mode-hook-fn)
@@ -1045,11 +1071,12 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
  '(bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks")
  '(custom-safe-themes
    (quote
-    ("4e5e58e42f6f37920b95a8502f488928b3dab9b6cc03d864e38101ce36ecb968" "72759f4e42617df7a07d0a4f4b08982314aa97fbd495a5405c9b11f48bd6b839" "9e6ac467fa1e5eb09e2ac477f61c56b2e172815b4a6a43cf48def62f9d3e5bf9" "b9183de9666c3a16a7ffa7faaa8e9941b8d0ab50f9aaba1ca49f2f3aec7e3be9" "0e8c264f24f11501d3f0cabcd05e5f9811213f07149e4904ed751ffdcdc44739" "780c67d3b58b524aa485a146ad9e837051918b722fd32fd1b7e50ec36d413e70" "a11043406c7c4233bfd66498e83600f4109c83420714a2bd0cd131f81cbbacea" "45482e7ddf47ab1f30fe05f75e5f2d2118635f5797687e88571842ff6f18b4d5" "a3821772b5051fa49cf567af79cc4dabfcfd37a1b9236492ae4724a77f42d70d" "3b4800ea72984641068f45e8d1911405b910f1406b83650cbd747a831295c911" default)))
+    ("732b807b0543855541743429c9979ebfb363e27ec91e82f463c91e68c772f6e3" "4e5e58e42f6f37920b95a8502f488928b3dab9b6cc03d864e38101ce36ecb968" "72759f4e42617df7a07d0a4f4b08982314aa97fbd495a5405c9b11f48bd6b839" "9e6ac467fa1e5eb09e2ac477f61c56b2e172815b4a6a43cf48def62f9d3e5bf9" "b9183de9666c3a16a7ffa7faaa8e9941b8d0ab50f9aaba1ca49f2f3aec7e3be9" "0e8c264f24f11501d3f0cabcd05e5f9811213f07149e4904ed751ffdcdc44739" "780c67d3b58b524aa485a146ad9e837051918b722fd32fd1b7e50ec36d413e70" "a11043406c7c4233bfd66498e83600f4109c83420714a2bd0cd131f81cbbacea" "45482e7ddf47ab1f30fe05f75e5f2d2118635f5797687e88571842ff6f18b4d5" "a3821772b5051fa49cf567af79cc4dabfcfd37a1b9236492ae4724a77f42d70d" "3b4800ea72984641068f45e8d1911405b910f1406b83650cbd747a831295c911" default)))
+ '(default-input-method "latin-1-prefix")
  '(magit-diff-arguments (quote ("--ignore-all-space" "--no-ext-diff")))
  '(package-selected-packages
    (quote
-    (reformatter lsp-rust cargo flycheck-rust toml-mode lsp-ui wgrep ace-jump-mode ace-window forge applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move coffee-mode color-theme-modern color-theme-railscasts company company-jedi confluence counsel debbugs dired-details+ dockerfile-mode dot-mode emmet-mode ess eyuml f fill-column-indicator fzf graphviz-dot-mode haskell-mode hindent htmlize ivy jira-markup-mode latex-pretty-symbols magit markdown-mode minimal-theme modalka multiple-cursors paredit paredit-everywhere plantuml-mode pony-mode projectile pyenv-mode py-isort railscasts-reloaded-theme railscasts-theme ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity transpose-frame use-package visual-fill-column yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
+    (sql-indent material-theme graphql-mode typescript-mode reformatter lsp-rust cargo flycheck-rust toml-mode lsp-ui wgrep ace-jump-mode ace-window forge applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move coffee-mode color-theme-modern color-theme-railscasts company company-jedi confluence counsel debbugs dired-details+ dockerfile-mode dot-mode emmet-mode ess eyuml f fill-column-indicator fzf graphviz-dot-mode haskell-mode hindent htmlize ivy jira-markup-mode latex-pretty-symbols magit markdown-mode minimal-theme modalka multiple-cursors paredit paredit-everywhere plantuml-mode pony-mode projectile pyenv-mode py-isort railscasts-reloaded-theme railscasts-theme ripgrep smartparens smooth-scroll soothe-theme sqlite sublimity transpose-frame use-package visual-fill-column yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
  '(safe-local-variable-values (quote ((bug-reference-bug-regexp . "#\\(?2:[0-9]+\\)")))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -1061,10 +1088,10 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
  '(font-latex-verbatim-face ((t (:inherit nil))))
  '(help-argument-name ((t (:inherit nil))))
  '(highlight ((t (:background "yellow" :foreground "black"))))
- '(minibuffer-prompt ((t (:foreground "#FFD798" :weight bold))))
- '(org-block ((t (:background "#FFFFFF" :foreground "#000088"))))
- '(org-block-begin-line ((t (:background "#FFFFFF" :foreground "lightgrey" :underline nil))))
- '(org-block-end-line ((t (:background "#FFFFFF" :foreground "lightgrey" :overline nil))))
+ '(minibuffer-prompt ((t (:background "gray99" :foreground "gray35" :weight bold))))
+ '(org-block ((t (:foreground "#000088"))))
+ '(org-block-begin-line ((t (:foreground "lightgrey" :underline nil))))
+ '(org-block-end-line ((t (:foreground "lightgrey" :overline nil))))
  '(org-done ((t (:background "palegreen" :foreground "darkgrey" :box (:line-width 1 :color "grey") :weight normal))))
  '(org-level-1 ((t (:background nil :foreground "#CC7733" :overline nil :weight bold :height 120))))
  '(org-level-2 ((t (:background nil :foreground "dark red" :overline nil :weight bold :height 120))))

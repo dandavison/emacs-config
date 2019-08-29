@@ -485,7 +485,8 @@
 
 ;; hack: use one of the many pairing modes
 (defun dan/paired-character (open close)
-  (if (region-active-p)
+  (if current-prefix-arg (insert open)
+    (if (region-active-p)
       (progn
         (save-excursion
           (goto-char (region-beginning))
@@ -494,7 +495,7 @@
           (goto-char (region-end))
           (insert close)))
     (insert open close)
-    (backward-char (length close))))
+    (backward-char (length close)))))
 
 (defun dan/paired-dollar ()
   (interactive)
@@ -532,7 +533,11 @@
   (interactive)
   (dan/paired-character "[" "]"))
 
-(defun dan/setup-paired-characters ()
+(defun dan/paired-angle-bracket ()
+  (interactive)
+  (dan/paired-character "<" ">"))
+
+(defun dan/latex-paired-characters ()
   (interactive)
   (local-set-key "{" 'dan/paired-brace)
   (local-set-key "(" 'dan/paired-paren)
@@ -1095,16 +1100,10 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
                 dan/python-buffer-config-keys
                 "\n")))))
 
-(defun dan/blacken ()
-  (interactive)
-  (unless (boundp 'dan/blacken-this-file)
-    (set (make-local-variable 'dan/blacken-this-file)
-         (equal (ido-completing-read "Blacken this file?: " '("no" "yes")) "yes")))
-  (when dan/blacken-this-file
-    (let ((cmd (format "~/bin/black -l 99 %s" (buffer-file-name))))
-      (message cmd)
-      (save-window-excursion
-        (async-shell-command cmd)))))
+;; pip install black-macchiato
+(defun dan/blacken-region (start end)
+  (interactive "r")
+  (shell-command-on-region start end "black-macchiato --line-length 99" nil 'replace))
 
 (defun dan/insert-ipdb-set-trace ()
   (interactive)
