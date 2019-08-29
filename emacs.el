@@ -286,7 +286,13 @@
               ([(super b)] . dan/latex-bold)
               ([(super d)] . dan/latex-definition)
               ([(super i)] . dan/latex-italic)
-              ([(super t)] . dan/latex-fixed-width)))
+              ([(super t)] . dan/latex-fixed-width))
+  :hook
+  (LaTeX-mode . (lambda ()
+                  (setq fill-column 100
+                        fci-rule-column fill-column)
+                  (setq-local indent-line-function 'dan/latex-indent-line-function)
+                  (dan/indent-buffer-on-save))))
 
 (use-package lispy
   :defer t

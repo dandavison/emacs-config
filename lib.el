@@ -211,6 +211,14 @@
     (save-excursion
       (indent-region (point-min) (point-max)))))
 
+(defun dan/latex-indent-line-function ()
+  (if (and (eq major-mode 'latex-mode)
+           (org-between-regexps-p "\\\\begin{\\(verbatim\\|minted\\)}"
+                                  "\\\\end{\\(verbatim\\|minted\\)}"))
+      'noindent
+    ;; TODO: call whatever original value of indent-line-function was
+    (LaTeX-indent-line)))
+
 ;;; After-save hook
 
 (defun dan/set-after-save-command (cmd)
@@ -228,6 +236,14 @@
       (async-shell-command dan/after-save-command))))
 
 (add-hook 'after-save-hook 'dan/do-after-save-command)
+
+(defun dan/indent-buffer ()
+  (interactive)
+  (indent-region (point-min) (point-max)))
+
+(defun dan/indent-buffer-on-save ()
+  (interactive)
+  (add-hook 'before-save-hook 'dan/indent-buffer nil 'local))
 
 (defun dan/show-shell-output-buffer ()
   (interactive)
