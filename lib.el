@@ -213,8 +213,10 @@
 
 (defun dan/latex-indent-line-function ()
   (if (and (eq major-mode 'latex-mode)
-           (org-between-regexps-p "\\\\begin{\\(verbatim\\|minted\\)}"
-                                  "\\\\end{\\(verbatim\\|minted\\)}"))
+           (or
+            (org-between-regexps-p "\\\\begin{\\(verbatim\\|align\\|minted\\)"
+                                   "\\\\end{\\(verbatim\\|align\\|minted\\)")
+            (save-excursion (beginning-of-line) (looking-at "%"))))
       'noindent
     ;; TODO: call whatever original value of indent-line-function was
     (LaTeX-indent-line)))

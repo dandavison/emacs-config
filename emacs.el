@@ -302,7 +302,8 @@
   :hook
   (LaTeX-mode . (lambda ()
                   (setq fill-column 100
-                        fci-rule-column fill-column)
+                        fci-rule-column fill-column
+                        tab-width 2)
                   (setq-local indent-line-function 'dan/latex-indent-line-function)
                   (dan/indent-buffer-on-save))))
 
