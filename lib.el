@@ -211,16 +211,6 @@
     (save-excursion
       (indent-region (point-min) (point-max)))))
 
-(defun dan/latex-indent-line-function ()
-  (if (and (eq major-mode 'latex-mode)
-           (or
-            (org-between-regexps-p "\\\\begin{\\(verbatim\\|align\\|minted\\)"
-                                   "\\\\end{\\(verbatim\\|align\\|minted\\)")
-            (save-excursion (beginning-of-line) (looking-at "%"))))
-      'noindent
-    ;; TODO: call whatever original value of indent-line-function was
-    (LaTeX-indent-line)))
-
 ;;; After-save hook
 
 (defun dan/set-after-save-command (cmd)
@@ -269,7 +259,7 @@
                  (file-name-sans-extension
                   (file-name-nondirectory (buffer-file-name))))))
     (dan/set-after-save-command
-     (format "make %s > /dev/null" (if (file-exists-p pdf) pdf "mathematics.pdf"))))
+     (format "make %s" (if (file-exists-p pdf) pdf "mathematics.pdf"))))
   (dan/show-shell-output-buffer))
 
 (defun dan/save-even-if-not-modified ()
@@ -652,6 +642,23 @@ With C-u prefix argument copy URL to clipboard only."
 
 
 ;;; LaTeX
+
+(defun dan/latex-indent-line-function ()
+  (if (and (eq major-mode 'latex-mode)
+           (or
+            ;; comment often contains the others, so cannot be included in the same regexp.
+            (org-between-regexps-p "\\\\begin{comment}"
+                                   "\\\\end{comment}" (point-min) (point-max))
+            ;; These usually do not contain each other. If that
+            ;; assumption is violated, break them all out into
+            ;; independent checks.
+            (org-between-regexps-p "\\\\begin{\\(verbatim\\|align\\|minted\\)"
+                                   "\\\\end{\\(verbatim\\|align\\|minted\\)" (point-min) (point-max))
+            (save-excursion (beginning-of-line) (looking-at "%"))))
+      'noindent
+    ;; TODO: call whatever original value of indent-line-function was
+    (LaTeX-indent-line)))
+
 
 (defun dan/latex-insert-item-in-align-environment ()
   (let ((copied-line
