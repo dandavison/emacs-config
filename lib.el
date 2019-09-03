@@ -795,13 +795,15 @@ With C-u prefix argument copy URL to clipboard only."
   (dan/latex-focus-remove-comment-delimiters))
 
 (defun dan/latex-focus-get-document-coordinates (beg end)
-  (list
-   (dan/point-at-bol-after (or (search-backward "\\begin{document}" nil t)
-                               (point-min)))
-   (dan/point-at-bol-before beg)
-   (dan/point-at-bol-after end)
-   (dan/point-at-bol-before (or (search-forward "\\end{document}" nil t)
-                                (point-max)))))
+  (let ((begin-document (search-backward "\\begin{document}" nil t))
+        (end-document (search-forward "\\end{document}" nil t)))
+    (list
+     (or (and begin-document (dan/point-at-bol-after begin-document))
+         (point-min))
+     (dan/point-at-bol-before beg)
+     (dan/point-at-bol-after end)
+     (or (and end-document (dan/point-at-bol-before end-document))
+         (point-max)))))
 
 (defun dan/latex-focus-narrow-to-region ()
   (interactive)

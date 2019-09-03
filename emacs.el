@@ -291,6 +291,7 @@
                                (error nil))
                              (dan/save-even-if-not-modified)))
               ("C-x n i" . dan/latex-focus-insert-comment-delimiters)
+              ("C-x n r" . dan/latex-focus-remove-comment-delimiters)
               ("C-x n f" . dan/latex-focus)
               ("C-x n u" . dan/latex-unfocus)
               ("C-c |" . dan/latex-set-builder-pipe)
