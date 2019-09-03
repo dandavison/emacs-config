@@ -57,6 +57,7 @@
   (let* ((pathvar (or pathvar "PATH"))
          (path-from-shell
           (shell-command-to-string
+           ;; && . ~/src/shell-config/pyenv.sh
            (format "/bin/bash -c '. ~/src/shell-config/path.sh && echo -n $%s'" pathvar))))
     (setenv pathvar path-from-shell)
     (when (string-equal pathvar "PATH")
