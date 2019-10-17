@@ -312,6 +312,25 @@
                             (lambda () (unless (string-match ".+\\.sty" (buffer-file-name)))
                               (dan/indent-buffer)) nil 'local))))
 
+(use-package latex-unicode-math-mode
+  :config
+  (setq latex-unicode-math-mode-rules-extra
+        '(("\\R" "ℝ")
+          ("\\N" "ℕ")
+          ("\\C" "ℂ")
+          ("\\Q" "ℚ")))
+  (setq dan/latex-prettify-symbols-alist
+        (mapcar
+         (lambda (item) (apply #'cons item))
+         (append
+          latex-unicode-math-mode-rules-arrows
+          latex-unicode-math-mode-rules-doublestruck
+          latex-unicode-math-mode-rules-emacs
+          latex-unicode-math-mode-rules-extra
+          latex-unicode-math-mode-rules-generic
+          latex-unicode-math-mode-rules-greek))))
+
+
 (use-package lispy
   :defer t
   :bind (:map lispy-mode-map
@@ -985,7 +1004,9 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
                '("align" . dan/latex-insert-item-in-align-environment))
   (add-to-list 'LaTeX-item-list
                '("align*" . dan/latex-insert-item-in-align-environment))
-  (local-set-key [(super v)] 'dan/latex-yank-clipboard-image-maybe))
+  (local-set-key [(super v)] 'dan/latex-yank-clipboard-image-maybe)
+  (setq prettify-symbols-alist dan/latex-prettify-symbols-alist)
+  (prettify-symbols-mode))
 (add-hook 'LaTeX-mode-hook 'dan/latex-mode-hook-fn)
 
 (defun dan/magit-diff-mode-hook-fn ()
