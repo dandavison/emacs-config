@@ -796,6 +796,11 @@ With C-u prefix argument copy URL to clipboard only."
   (dan/latex-focus-remove-comment-delimiters))
 
 (defun dan/latex-focus-get-document-coordinates (beg end)
+  ;; TODO
+  ;; 1. If there are macros like newcommand at the beginning of the
+  ;;    document, the first begin-comment marker should come after
+  ;;    them.
+  ;; 2. This needs unit tests.
   (let ((begin-document (search-backward "\\begin{document}" nil t))
         (end-document (search-forward "\\end{document}" nil t)))
     (list
@@ -1332,6 +1337,12 @@ returns the value of `python-shell-buffer-name'."
   (interactive)
   (dan/set-after-save-command "export PATH=/Users/dan/.nvm/versions/node/v10.11.0/bin:$PATH && cd /Users/dan/src/t && make js"))
 
+;;; Scheme
+(defun dan/sicm ()
+  (interactive)
+  (run-scheme
+    "/Users/dan/src/3p/scmutils-20150821-x86-64-OSX/scmutils/mit-scheme/bin/scheme --library /Users/dan/src/3p/scmutils-20150821-x86-64-OSX/scmutils/mit-scheme/lib"))
+
 ;;; Comint
 
 (defun dan/comint-clear-buffer (&optional arg)
@@ -1437,6 +1448,10 @@ A more complex example is:
          (regex (ivy--regex (string-join regexes " ") t))
          (git-grep-cmd-without-pathspec (split-string (format cmd regex) " " t)))
     (setq ivy--old-re regex)
+    ;; (when (and current-prefix-arg (not pathspec))
+    ;;   ;;(setq pathspec (list (format "%s* %s**/*" default-directory default-directory)))
+    ;;   ;; (setq pathspec (list (format "%s*" (file-name-directory (buffer-file-name)))))
+    ;;   (setq pathspec (list (format "%s*" default-directory))))
     (append git-grep-cmd-without-pathspec pathspec)))
 
 (setq counsel-git-grep-cmd-function #'counsel-git-grep-cmd-with-pathspec-function)

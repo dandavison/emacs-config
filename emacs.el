@@ -242,6 +242,7 @@
   (setq ivy-use-virtual-buffers t
         ivy-fixed-height-minibuffer t
         ivy-height #xFFFFFFFF)
+  ;; https://oremacs.com/2018/03/05/grep-exclude/
   ;; counsel-rg-base-command "rg -i -M 120 --no-heading --line-number --color never %s ."
 
   (defun -dan/swiper-around-advice (orig-fun &rest args)
@@ -292,7 +293,7 @@
                              (dan/save-even-if-not-modified)))
               ("C-x n i" . dan/latex-focus-insert-comment-delimiters)
               ("C-x n r" . dan/latex-focus-remove-comment-delimiters)
-              ("C-x n f" . dan/latex-focus)
+              ("C-x n f" . dan/latex-focus-narrow-to-region)
               ("C-x n u" . dan/latex-unfocus)
               ("C-c |" . dan/latex-set-builder-pipe)
               ("C-c /" . dan/latex-frac-or-unfrac)
@@ -306,7 +307,10 @@
                         fci-rule-column fill-column
                         tab-width 2)
                   (setq-local indent-line-function 'dan/latex-indent-line-function)
-                  (dan/indent-buffer-on-save))))
+                  (setq LaTeX-indent-environment-list (cons '("minted" . nil) LaTeX-indent-environment-list))
+                  (add-hook 'before-save-hook
+                            (lambda () (unless (string-match ".+\\.sty" (buffer-file-name)))
+                              (dan/indent-buffer)) nil 'local))))
 
 (use-package lispy
   :defer t
@@ -409,7 +413,6 @@
 
 
 (use-package ob-mathematica
-  :defer t
   :load-path "~/src/3p/org-mode/contrib/lisp")
 
 (use-package paredit
@@ -963,7 +966,11 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
   (setq js-indent-level 2))
 (add-hook 'js-mode-hook 'dan/js-mode-hook-fn)
 
-(defun dan/LaTeX-mode-hook-fn ()
+
+
+
+
+(defun dan/latex-mode-hook-fn ()
   (interactive)
   (dan/latex-paired-characters)
 
@@ -979,7 +986,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
   (add-to-list 'LaTeX-item-list
                '("align*" . dan/latex-insert-item-in-align-environment))
   (local-set-key [(super v)] 'dan/latex-yank-clipboard-image-maybe))
-(add-hook 'LaTeX-mode-hook 'dan/LaTeX-mode-hook-fn)
+(add-hook 'LaTeX-mode-hook 'dan/latex-mode-hook-fn)
 
 (defun dan/magit-diff-mode-hook-fn ()
   (dan/magit-hide-all-sections))
@@ -1029,7 +1036,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
 (add-hook 'inferior-ess-mode-hook 'dan/r-mode-hook-fn)
 
 (defun dan/scheme-mode-hook-fn ()
-  (scheme-mode))
+  (paredit-mode))
 (add-hook 'scheme-mode-hook 'dan/scheme-mode-hook-fn)
 
 (defun dan/sh-mode-hook-fn ()
@@ -1078,7 +1085,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
  '(magit-diff-arguments (quote ("--ignore-all-space" "--no-ext-diff")))
  '(package-selected-packages
    (quote
-    (sql-indent material-theme graphql-mode typescript-mode reformatter lsp-rust cargo flycheck-rust toml-mode lsp-ui wgrep ace-jump-mode ace-window forge applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move coffee-mode color-theme-modern color-theme-railscasts company company-jedi confluence counsel debbugs dired-details+ dockerfile-mode dot-mode emmet-mode ess eyuml f fill-column-indicator fzf graphviz-dot-mode haskell-mode hindent htmlize ivy jira-markup-mode latex-pretty-symbols magit markdown-mode minimal-theme modalka multiple-cursors paredit paredit-everywhere plantuml-mode pony-mode projectile pyenv-mode py-isort railscasts-reloaded-theme railscasts-theme ripgrep smartparens smooth-scroll soothe-theme sqlite sublimity transpose-frame use-package visual-fill-column yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
+    (latex-unicode-math-mode company-lean lean-mode sql-indent material-theme graphql-mode typescript-mode reformatter lsp-rust cargo flycheck-rust toml-mode lsp-ui wgrep ace-jump-mode ace-window forge applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move coffee-mode color-theme-modern color-theme-railscasts company company-jedi confluence counsel debbugs dired-details+ dockerfile-mode dot-mode emmet-mode ess eyuml f fill-column-indicator fzf graphviz-dot-mode haskell-mode hindent htmlize ivy jira-markup-mode latex-pretty-symbols magit markdown-mode minimal-theme modalka multiple-cursors paredit paredit-everywhere plantuml-mode pony-mode projectile pyenv-mode py-isort railscasts-reloaded-theme railscasts-theme ripgrep smartparens smooth-scroll soothe-theme sqlite sublimity transpose-frame use-package visual-fill-column yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
  '(safe-local-variable-values (quote ((bug-reference-bug-regexp . "#\\(?2:[0-9]+\\)")))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
