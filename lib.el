@@ -644,6 +644,64 @@ With C-u prefix argument copy URL to clipboard only."
 
 ;;; LaTeX
 
+(defun dan/latex-prettify-symbols ()
+  (setq latex-unicode-math-mode-rules-extra
+        '(("\\R" "ℝ")
+          ("\\N" "ℕ")
+          ("\\C" "ℂ")
+          ("\\Q" "ℚ")
+          ("\\grad" "∇")))
+  (setq dan/latex-prettify-symbols-string-replacements
+        '(("\\begin{definition*}" "Definition.")
+          ("\\end{definition*}" "┘")
+          ("\\begin{theorem*}" "Theorem.")
+          ("\\end{theorem*}" "┘")
+          ("\\begin{claim*}" "Claim.")
+          ("\\end{claim*}" "┘")
+          ("\\begin{proof}" "Proof.")
+          ("\\end{proof}" "□")
+          ("\\begin{align*}" "⚡")
+          ("\\end{align*}" "⚡")
+          ("\\begin{enumerate}" "┌")
+          ("\\end{enumerate}" "┘")
+          ("\\begin{quote}" "“")
+          ("\\end{quote}" "”")
+          ("\\item" "⁃")
+          ("\\section" "§")
+          ("\\subsection" "§§")
+          ("\\subsubsection" "§§§")))
+  (setq prettify-symbols-alist
+        (mapcar
+         (lambda (item) (apply #'cons item))
+         (append
+          latex-unicode-math-mode-rules-arrows
+          latex-unicode-math-mode-rules-doublestruck
+          latex-unicode-math-mode-rules-emacs
+          latex-unicode-math-mode-rules-extra
+          latex-unicode-math-mode-rules-generic
+          latex-unicode-math-mode-rules-greek)))
+  (mapc (-cut apply #'dan/prettify-symbols-add-string-replacement <>)
+        dan/latex-prettify-symbols-string-replacements)
+  (prettify-symbols-mode))
+
+;; https://emacs.stackexchange.com/a/34882/9007
+(defun dan/prettify-symbols-add-string-replacement (from to)
+  "Make `prettify-symbols-mode' replace string FROM with string TO.
+
+Updates `prettify-symbols-alist'.  You may need to toggle
+`prettify-symbols-mode' to make the changes take effect.
+
+Each character of TO is vertically aligned using the baseline,
+such that base-left of the character is aligned with base-right
+of the preceding character.  Refer to `reference-point-alist'
+for more information."
+  (push (cons from (let ((composition nil))
+                     (dolist (char (string-to-list to)
+                                   (nreverse (cdr composition)))
+                       (push char composition)
+                       (push '(Br . Bl) composition))))
+        prettify-symbols-alist))
+
 (defun dan/latex-indent-line-function ()
   (if (and (eq major-mode 'latex-mode)
            (or
