@@ -645,6 +645,11 @@ With C-u prefix argument copy URL to clipboard only."
 ;;; LaTeX
 
 (defun dan/latex-prettify-symbols ()
+  ;; TODO
+  ;;
+  ;; - Can we make \Delta consume the post-space? So that "\Delta r"
+  ;;   has no space between them?
+  ;; - Order of precedence? Sort longest (most specific) first?
   (setq latex-unicode-math-mode-rules-extra
         '(("\\R" "ℝ")
           ("\\N" "ℕ")
@@ -662,14 +667,41 @@ With C-u prefix argument copy URL to clipboard only."
           ("\\end{proof}" "□")
           ("\\begin{align*}" "⚡")
           ("\\end{align*}" "⚡")
-          ("\\begin{enumerate}" "┌")
+          ("\\begin{enumerate}" "┐")
           ("\\end{enumerate}" "┘")
+
+          ("\\begin{mdframed}" "┐")
+          ("\\end{mdframed}" "┘")
+
+          ;; TODO: why doesn't the begin work here?
+          ;; ("\\begin{verbatim}" "verbatim")
+          ;; ("\\end{verbatim}" "┘")
+
+          ("#+begin_src mathematica" "mathematica")
+          ("#+end_src" "┘")
+
           ("\\begin{quote}" "“")
           ("\\end{quote}" "”")
           ("\\item" "⁃")
           ("\\section" "§")
           ("\\subsection" "§§")
-          ("\\subsubsection" "§§§")))
+          ("\\subsubsection" "§§§")
+
+          ("\\correct" "☑")
+          ("\\includegraphics" "img")
+
+          ;; post-spacing is incorrect for these when using
+          ;; prettify-symbols-mode with the latex-unicode-math-mode
+          ;; symbols. So using a string replacement with explicit
+          ;; space.
+          ;; TODO: combine string and single-character replacements cleanly.
+          ("\\to " "→ ")
+          ("\\in " "∈ ")
+
+          ("&=" "=")
+
+          ;; TODO: dangerous, will this clash with anything starting with \r?
+          ("\\r" "r")))
   (setq prettify-symbols-alist
         (mapcar
          (lambda (item) (apply #'cons item))
@@ -680,6 +712,9 @@ With C-u prefix argument copy URL to clipboard only."
           latex-unicode-math-mode-rules-extra
           latex-unicode-math-mode-rules-generic
           latex-unicode-math-mode-rules-greek)))
+  (setq prettify-symbols-alist
+        (-remove (lambda (pair) (or (equal (car pair) "\\to ") (equal (car pair) "\\in ")))
+                 prettify-symbols-alist))
   (mapc (-cut apply #'dan/prettify-symbols-add-string-replacement <>)
         dan/latex-prettify-symbols-string-replacements)
   (prettify-symbols-mode))
