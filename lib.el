@@ -644,7 +644,9 @@ With C-u prefix argument copy URL to clipboard only."
 
 ;;; LaTeX
 
+(require 'dash)
 (defun dan/latex-prettify-symbols ()
+  (interactive)
   ;; TODO
   ;;
   ;; - Can we make \Delta consume the post-space? So that "\Delta r"
@@ -673,6 +675,14 @@ With C-u prefix argument copy URL to clipboard only."
           ("\\begin{mdframed}" "┐")
           ("\\end{mdframed}" "┘")
 
+          ("\\begin{comment}  % latex-focus"
+"\\begin{comment}  % latex-focus ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯")
+          ("\\end{comment}  % latex-focus"
+"\\end{comment}  % latex-focus ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯")
+
+          ("\\newpage"
+"-------------------------------------------------------------------------------------------------------------------")
+
           ;; TODO: why doesn't the begin work here?
           ;; ("\\begin{verbatim}" "verbatim")
           ;; ("\\end{verbatim}" "┘")
@@ -688,7 +698,17 @@ With C-u prefix argument copy URL to clipboard only."
           ("\\subsubsection" "§§§")
 
           ("\\correct" "☑")
+          ("\\todo" "TODO")
           ("\\includegraphics" "img")
+
+          ("\\vecMMM" "\\vec")
+          ("\\bvecMMM" "\\vec")
+
+          ;; TODO: DNW?
+          ("\\Bigg[" "[")
+          ("\\Bigg]" "]")
+          ("\\Bigg(" "(")
+          ("\\Bigg)" ")")
 
           ;; post-spacing is incorrect for these when using
           ;; prettify-symbols-mode with the latex-unicode-math-mode
@@ -701,7 +721,10 @@ With C-u prefix argument copy URL to clipboard only."
           ("&=" "=")
 
           ;; TODO: dangerous, will this clash with anything starting with \r?
-          ("\\r" "r")))
+          ("\\d\\r" "dr")
+          ("\\r" "r")
+          ("\\dt" "dt")
+          ("\\F" "F")))
   (setq prettify-symbols-alist
         (mapcar
          (lambda (item) (apply #'cons item))
@@ -712,9 +735,11 @@ With C-u prefix argument copy URL to clipboard only."
           latex-unicode-math-mode-rules-extra
           latex-unicode-math-mode-rules-generic
           latex-unicode-math-mode-rules-greek)))
-  (setq prettify-symbols-alist
-        (-remove (lambda (pair) (or (equal (car pair) "\\to ") (equal (car pair) "\\in ")))
-                 prettify-symbols-alist))
+
+  (let ((-compare-fn (lambda (pair1 pair2) (equal (car pair1) (car pair2)))))
+    (setq prettify-symbols-alist-2
+          (-difference prettify-symbols-alist
+                       dan/latex-prettify-symbols-string-replacements)))
   (mapc (-cut apply #'dan/prettify-symbols-add-string-replacement <>)
         dan/latex-prettify-symbols-string-replacements)
   (prettify-symbols-mode))
