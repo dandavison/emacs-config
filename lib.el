@@ -645,107 +645,117 @@ With C-u prefix argument copy URL to clipboard only."
 ;;; LaTeX
 
 (require 'dash)
-(defun dan/latex-prettify-symbols ()
+
+(setq dan/latex-prettify-symbols-alist-extra
+      '(("\\R" . "ℝ")
+        ("\\N" . "ℕ")
+        ("\\C" . "ℂ")
+        ("\\Q" . "ℚ")
+        ("\\grad" . "∇")
+        ("\\ddot{\\r}" . "r̈")
+        ("\\dot{\\r}" . "ṙ")
+        ("\\dot{\\v}" . "v̇")))
+
+(setq dan/latex-prettify-symbols-string-replacements
+      '(("\\begin{definition*}" . "Definition.")
+        ("\\end{definition*}" . "┘")
+        ("\\begin{theorem*}" . "Theorem.")
+        ("\\end{theorem*}" . "┘")
+        ("\\begin{claim*}" . "Claim.")
+        ("\\end{claim*}" . "┘")
+        ("\\begin{proof}" . "Proof.")
+        ("\\end{proof}" . "□")
+        ("\\begin{align*}" . "⚡")
+        ("\\end{align*}" . "⚡")
+        ("\\begin{enumerate}" . "┐")
+        ("\\end{enumerate}" . "┘")
+
+        ("\\begin{mdframed}" . "┐")
+        ("\\end{mdframed}" . "┘")
+
+        ("\\begin{comment}  % latex-focus" .
+         "\\begin{comment}  % latex-focus ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯")
+        ("\\end{comment}  % latex-focus" .
+         "\\end{comment}  % latex-focus ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯")
+
+        ("\\newpage" .
+         "-------------------------------------------------------------------------------------------------------------------")
+
+        ;; TODO: why doesn't the begin work here?
+        ;; ("\\begin{verbatim}" "verbatim")
+        ;; ("\\end{verbatim}" "┘")
+
+        ("#+begin_src mathematica" . "mathematica")
+        ("#+end_src" . "┘")
+
+        ("\\begin{quote}" . "“")
+        ("\\end{quote}" . "”")
+        ("\\item" . "⁃")
+        ("\\section" . "§")
+        ("\\subsection" . "§§")
+        ("\\subsubsection" . "§§§")
+
+        ("\\correct" . "☑")
+        ("\\todo" . "TODO")
+        ("\\includegraphics" . "img")
+
+        ("\\vecMMM" . "\\vec")
+        ("\\bvecMMM" . "\\vec")
+
+        ;; TODO: DNW?
+        ("\\Bigg[" . "[")
+        ("\\Bigg]" . "]")
+        ("\\Bigg(" . "(")
+        ("\\Bigg)" . ")")
+
+        ;; post-spacing is incorrect for these when using
+        ;; prettify-symbols-mode with the latex-unicode-math-mode
+        ;; symbols. So using a string replacement with explicit
+        ;; space.
+        ;; TODO: combine string and single-character replacements cleanly.
+        ("\\to " . "→ ")
+        ("\\in " . "∈ ")
+
+        ("&=" . "=")
+
+        ;; TODO: dangerous, will this clash with anything starting with \r?
+        ("\\d\\r" . "dr")
+        ("\\r" . "r")
+        ("\\v" . "v")
+        ("\\dt" . "dt")
+        ("\\F" . "F")))
+
+
+(defun dan/latex-prettify-symbols-mode ()
   (interactive)
+
   ;; TODO
   ;;
   ;; - Can we make \Delta consume the post-space? So that "\Delta r"
   ;;   has no space between them?
   ;; - Order of precedence? Sort longest (most specific) first?
-  (setq latex-unicode-math-mode-rules-extra
-        '(("\\R" "ℝ")
-          ("\\N" "ℕ")
-          ("\\C" "ℂ")
-          ("\\Q" "ℚ")
-          ("\\grad" "∇")))
-  (setq dan/latex-prettify-symbols-string-replacements
-        '(("\\begin{definition*}" "Definition.")
-          ("\\end{definition*}" "┘")
-          ("\\begin{theorem*}" "Theorem.")
-          ("\\end{theorem*}" "┘")
-          ("\\begin{claim*}" "Claim.")
-          ("\\end{claim*}" "┘")
-          ("\\begin{proof}" "Proof.")
-          ("\\end{proof}" "□")
-          ("\\begin{align*}" "⚡")
-          ("\\end{align*}" "⚡")
-          ("\\begin{enumerate}" "┐")
-          ("\\end{enumerate}" "┘")
-
-          ("\\begin{mdframed}" "┐")
-          ("\\end{mdframed}" "┘")
-
-          ("\\begin{comment}  % latex-focus"
-"\\begin{comment}  % latex-focus ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯")
-          ("\\end{comment}  % latex-focus"
-"\\end{comment}  % latex-focus ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯")
-
-          ("\\newpage"
-"-------------------------------------------------------------------------------------------------------------------")
-
-          ;; TODO: why doesn't the begin work here?
-          ;; ("\\begin{verbatim}" "verbatim")
-          ;; ("\\end{verbatim}" "┘")
-
-          ("#+begin_src mathematica" "mathematica")
-          ("#+end_src" "┘")
-
-          ("\\begin{quote}" "“")
-          ("\\end{quote}" "”")
-          ("\\item" "⁃")
-          ("\\section" "§")
-          ("\\subsection" "§§")
-          ("\\subsubsection" "§§§")
-
-          ("\\correct" "☑")
-          ("\\todo" "TODO")
-          ("\\includegraphics" "img")
-
-          ("\\vecMMM" "\\vec")
-          ("\\bvecMMM" "\\vec")
-
-          ;; TODO: DNW?
-          ("\\Bigg[" "[")
-          ("\\Bigg]" "]")
-          ("\\Bigg(" "(")
-          ("\\Bigg)" ")")
-
-          ;; post-spacing is incorrect for these when using
-          ;; prettify-symbols-mode with the latex-unicode-math-mode
-          ;; symbols. So using a string replacement with explicit
-          ;; space.
-          ;; TODO: combine string and single-character replacements cleanly.
-          ("\\to " "→ ")
-          ("\\in " "∈ ")
-
-          ("&=" "=")
-
-          ;; TODO: dangerous, will this clash with anything starting with \r?
-          ("\\d\\r" "dr")
-          ("\\r" "r")
-          ("\\dt" "dt")
-          ("\\F" "F")))
-  (setq prettify-symbols-alist
-        (mapcar
-         (lambda (item) (apply #'cons item))
-         (append
-          latex-unicode-math-mode-rules-arrows
-          latex-unicode-math-mode-rules-doublestruck
-          latex-unicode-math-mode-rules-emacs
-          latex-unicode-math-mode-rules-extra
-          latex-unicode-math-mode-rules-generic
-          latex-unicode-math-mode-rules-greek)))
 
   (let ((-compare-fn (lambda (pair1 pair2) (equal (car pair1) (car pair2)))))
-    (setq prettify-symbols-alist-2
+
+    ;; Add custom single-character entries to default latex-mode entries.
+    (setq prettify-symbols-alist
+          (-union prettify-symbols-alist dan/latex-prettify-symbols-alist-extra))
+
+    ;; Remove entries that will be overridden by string replacements
+    (setq prettify-symbols-alist
           (-difference prettify-symbols-alist
                        dan/latex-prettify-symbols-string-replacements)))
-  (mapc (-cut apply #'dan/prettify-symbols-add-string-replacement <>)
+
+  ;; Add string replacements.
+  (mapc #'dan/prettify-symbols-add-string-replacement
         dan/latex-prettify-symbols-string-replacements)
+
+  ;; Activate.
   (prettify-symbols-mode))
 
+
 ;; https://emacs.stackexchange.com/a/34882/9007
-(defun dan/prettify-symbols-add-string-replacement (from to)
+(defun dan/prettify-symbols-add-string-replacement (pair)
   "Make `prettify-symbols-mode' replace string FROM with string TO.
 
 Updates `prettify-symbols-alist'.  You may need to toggle
@@ -755,12 +765,14 @@ Each character of TO is vertically aligned using the baseline,
 such that base-left of the character is aligned with base-right
 of the preceding character.  Refer to `reference-point-alist'
 for more information."
-  (push (cons from (let ((composition nil))
-                     (dolist (char (string-to-list to)
-                                   (nreverse (cdr composition)))
-                       (push char composition)
-                       (push '(Br . Bl) composition))))
+  (push (cons (car pair)
+              (let ((composition nil))
+                (dolist (char (string-to-list (cdr pair))
+                              (nreverse (cdr composition)))
+                  (push char composition)
+                  (push '(Br . Bl) composition))))
         prettify-symbols-alist))
+
 
 (defun dan/latex-indent-line-function ()
   (if (and (eq major-mode 'latex-mode)

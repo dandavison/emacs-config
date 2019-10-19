@@ -989,7 +989,8 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
   (add-to-list 'LaTeX-item-list
                '("align*" . dan/latex-insert-item-in-align-environment))
   (local-set-key [(super v)] 'dan/latex-yank-clipboard-image-maybe)
-  (dan/latex-prettify-symbols))
+  (dan/latex-prettify-symbols-mode))
+
 (add-hook 'LaTeX-mode-hook 'dan/latex-mode-hook-fn)
 
 (defun dan/magit-diff-mode-hook-fn ()
