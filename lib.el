@@ -654,24 +654,44 @@ With C-u prefix argument copy URL to clipboard only."
         ("\\grad" . "∇")
         ("\\ddot{\\r}" . "r̈")
         ("\\dot{\\r}" . "ṙ")
-        ("\\dot{\\v}" . "v̇")))
+        ("\\dot{\\v}" . "v̇")
+        ("$" . " ")))
 
 (setq dan/latex-prettify-symbols-string-replacements
       '(("\\begin{definition*}" . "Definition.")
         ("\\end{definition*}" . "┘")
+
         ("\\begin{theorem*}" . "Theorem.")
         ("\\end{theorem*}" . "┘")
+
         ("\\begin{claim*}" . "Claim.")
         ("\\end{claim*}" . "┘")
+
+        ("\\begin{question*}" . "Question.")
+        ("\\end{question*}" . "┘")
+
         ("\\begin{proof}" . "Proof.")
         ("\\end{proof}" . "□")
+
         ("\\begin{align*}" . "⚡")
         ("\\end{align*}" . "⚡")
+
+        ("\\begin{align}" . "⚡")
+        ("\\end{align}" . "⚡")
+
         ("\\begin{enumerate}" . "┐")
         ("\\end{enumerate}" . "┘")
 
+        ("\\begin{itemize}" . "┐")
+        ("\\end{itemize}" . "┘")
+
         ("\\begin{mdframed}" . "┐")
         ("\\end{mdframed}" . "┘")
+
+        ("\\end{minted}" . "┘")
+        ("\\end{verbatim}" . "┘")
+        ("\\end{tabular}" . "┘")
+        ("\\end{tabular*}" . "┘")
 
         ("\\begin{comment}  % latex-focus" .
          "\\begin{comment}  % latex-focus ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯")
@@ -680,10 +700,6 @@ With C-u prefix argument copy URL to clipboard only."
 
         ("\\newpage" .
          "-------------------------------------------------------------------------------------------------------------------")
-
-        ;; TODO: why doesn't the begin work here?
-        ;; ("\\begin{verbatim}" "verbatim")
-        ;; ("\\end{verbatim}" "┘")
 
         ("#+begin_src mathematica" . "mathematica")
         ("#+end_src" . "┘")
