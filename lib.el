@@ -655,7 +655,7 @@ With C-u prefix argument copy URL to clipboard only."
         ("\\ddot{\\r}" . "r̈")
         ("\\dot{\\r}" . "ṙ")
         ("\\dot{\\v}" . "v̇")
-        ("$" . " ")))
+        ("$" . "​")))
 
 (setq dan/latex-prettify-symbols-string-replacements
       '(("\\begin{definition*}" . "Definition.")
@@ -664,11 +664,17 @@ With C-u prefix argument copy URL to clipboard only."
         ("\\begin{theorem*}" . "Theorem.")
         ("\\end{theorem*}" . "┘")
 
+        ("\\begin{theorem}" . "Theorem.")
+        ("\\end{theorem}" . "┘")
+
         ("\\begin{claim*}" . "Claim.")
         ("\\end{claim*}" . "┘")
 
         ("\\begin{question*}" . "Question.")
         ("\\end{question*}" . "┘")
+
+        ("\\begin{example*}" . "Example.")
+        ("\\end{example*}" . "┘")
 
         ("\\begin{proof}" . "Proof.")
         ("\\end{proof}" . "□")
