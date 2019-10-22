@@ -75,7 +75,7 @@
          ([(super return)] . dan/maximize)
          ([(super right)] . winner-redo)
          ([(super ?&)] . (lambda () (interactive) (let ((kill-buffer-query-functions nil)) (kill-buffer))))
-         ([(super ?,)] . counsel-git-grep)
+         ([(super ?,)] . counsel-rg)
          ([(super ?.)] . dan/grep-thing-at-point)
          ([(super ?\;)] . dan/show-buffer-file-name)
          ([(super ?\])] . fci-mode)
@@ -243,7 +243,8 @@
         ivy-fixed-height-minibuffer t
         ivy-height #xFFFFFFFF)
   ;; https://oremacs.com/2018/03/05/grep-exclude/
-  ;; counsel-rg-base-command "rg -i -M 120 --no-heading --line-number --color never %s ."
+  (setq counsel-git-cmd "rg --files"
+        counsel-rg-base-command "rg -i -M 120 --no-heading --line-number --color never %s .")
 
   (defun -dan/swiper-around-advice (orig-fun &rest args)
     (let ((ivy-height 20))

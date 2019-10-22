@@ -45,8 +45,8 @@
   (let ((current-prefix-arg nil))
     (call-interactively
      (cond
-      ((and (not arg) (projectile-project-p))
-       'projectile-find-file)
+      ((not arg)
+       'counsel-git)
       ((equal arg '(4))
        'counsel-recentf)
       ((equal arg '(16))
