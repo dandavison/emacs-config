@@ -796,6 +796,58 @@ for more information."
         prettify-symbols-alist))
 
 
+(defun dan/preview-latex (&optional arg)
+  (interactive "P")
+  (if arg (dan/preview-latex-remove-previews)
+    (dan/preview-latex-add-previews)))
+
+
+(defun dan/preview-latex-add-previews ()
+  "Create all latex previews in buffer"
+  (cl-flet ((next-match-pos (regexp)
+                            (save-excursion
+                              (or (and (re-search-forward regexp nil t) (point))
+                                  (point-max)))))
+    (let ((dan/latex-math-delimiters
+           '(("\\$" . "\\$")
+             ("^[ \t]*\\\\begin{align\\*?}" . "^[ \t]*\\\\end{align\\*?}")))
+          beg end)
+      (catch 'exit
+        (while t
+          (let* ((regexp-pair (-min-by (lambda (pair1 pair2) (> (next-match-pos (car pair1))
+                                                           (next-match-pos (car pair2))))
+                                       dan/latex-math-delimiters)))
+            (unless (re-search-forward (car regexp-pair) nil t)
+              (throw 'exit nil))
+            (setq beg (match-beginning 0))
+            (re-search-forward (cdr regexp-pair))
+            (setq end (match-end 0))
+            (message "(dan--org-format-latex %s %s)" beg end)
+            (dan/org-format-latex beg end)
+            ;; TODO: This shouldn't be necessary but currently it
+            ;; sometimes gets stuck attempting to process the same
+            ;; block repeatedly.
+            (goto-char end)))))))
+
+(defun dan/preview-latex-remove-previews ()
+  (org-preview-latex-fragment '(16)))
+
+
+(defun dan/org-format-latex (beg end)
+  (flet ((org-element-context ()
+                              `(latex-fragment
+                                (:begin ,beg :end ,end :value ,(buffer-substring beg end)))))
+    (condition-case nil
+        (org-format-latex "preview-latex-svg/"
+                      beg end
+                      default-directory
+                      'overlays
+                      "preview-latex-svg: creating image"
+                      'forbuffer org-preview-latex-default-process)
+      (error nil))))
+
+
+
 (defun dan/latex-indent-line-function ()
   (if (and (eq major-mode 'latex-mode)
            (or

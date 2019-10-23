@@ -141,6 +141,11 @@
               :map orgtbl-mode-map
               ([(meta left)] . nil)
               ([(meta right)] . nil))
+
+  :config
+  (setq org-latex-packages-alist '(("" "mathematics" t))
+        org-preview-latex-default-process 'dvisvgm)
+
   :hook
   (org-mode . (lambda ()
                 (local-set-key [(meta left)] 'backward-word)
