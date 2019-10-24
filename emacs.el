@@ -3,6 +3,11 @@
 (unless (equal emacs-version "27.0.50") (package-initialize))
 (setq use-package-always-demand t)
 
+;;; MacOS
+;; https://github.com/railwaycat/homebrew-emacsmacport/
+(setq mac-command-modifier 'super)
+(setq mac-option-modifier 'meta)
+
 ;;; Native packages
 
 (use-package emacs
@@ -72,6 +77,12 @@
          ([(super l)] . bookmark-bmenu-list)
          ([(super m)] . dan/goto-definition)
          ([(super o)] . dan/find-file)
+
+         ;; These don't seem to be bound in MacOS port
+         ([super n] . make-frame)
+         ([(super u)] . revert-buffer)
+         ([(super v)] . yank)
+
          ([(super return)] . dan/maximize)
          ([(super right)] . winner-redo)
          ([(super ?&)] . (lambda () (interactive) (let ((kill-buffer-query-functions nil)) (kill-buffer))))
