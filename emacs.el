@@ -82,6 +82,8 @@
          ([(super \\)] . dan/indent-region)
          ([(super |)] . dan/shell-command-on-region-and-replace)))
 
+(use-package dash)
+
 (use-package bookmark
   :bind (:map bookmark-bmenu-mode-map
               ("C-x C-s" . bookmark-save)))
@@ -1096,7 +1098,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
  '(magit-diff-arguments (quote ("--ignore-all-space" "--no-ext-diff")))
  '(package-selected-packages
    (quote
-    (company-lean lean-mode sql-indent material-theme graphql-mode typescript-mode reformatter lsp-rust cargo flycheck-rust toml-mode lsp-ui wgrep ace-jump-mode ace-window forge applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move coffee-mode color-theme-modern color-theme-railscasts company company-jedi confluence counsel debbugs dired-details+ dockerfile-mode dot-mode emmet-mode ess eyuml f fill-column-indicator fzf graphviz-dot-mode haskell-mode hindent htmlize ivy jira-markup-mode latex-pretty-symbols magit markdown-mode minimal-theme modalka multiple-cursors paredit paredit-everywhere plantuml-mode pony-mode projectile pyenv-mode py-isort railscasts-reloaded-theme railscasts-theme ripgrep smartparens smooth-scroll soothe-theme sqlite sublimity transpose-frame use-package visual-fill-column yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
+    (elisp-format company-lean lean-mode sql-indent material-theme graphql-mode typescript-mode reformatter lsp-rust cargo flycheck-rust toml-mode lsp-ui wgrep ace-jump-mode ace-window forge applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move coffee-mode color-theme-modern color-theme-railscasts company company-jedi confluence counsel debbugs dired-details+ dockerfile-mode dot-mode emmet-mode ess eyuml f fill-column-indicator fzf graphviz-dot-mode haskell-mode hindent htmlize ivy jira-markup-mode latex-pretty-symbols magit markdown-mode minimal-theme modalka multiple-cursors paredit paredit-everywhere plantuml-mode pony-mode projectile pyenv-mode py-isort railscasts-reloaded-theme railscasts-theme ripgrep smartparens smooth-scroll soothe-theme sqlite sublimity transpose-frame use-package visual-fill-column yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
  '(safe-local-variable-values (quote ((bug-reference-bug-regexp . "#\\(?2:[0-9]+\\)")))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
