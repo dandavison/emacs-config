@@ -838,18 +838,17 @@ for more information."
   (interactive)
   (let ((coords (dan/preview-latex-preview-at-point-coords)))
        (when coords (progn
-                      (dan/preview-latex-org-format-latex (car coords)
-                                            (cdr coords))
+                      (dan/preview-latex-org-format-latex coords)
                       (forward-line)))))
 
 
 (defun dan/preview-latex-remove-previews-dwim ()
   (interactive)
   (let ((coords (or (and (use-region-p)
-                         `(,(region-beginning) . ,(region-end)))
+                         `(:begin ,(region-beginning) :end ,(region-end)))
                     (dan/preview-latex-preview-at-point-coords))))
-    (if coords (progn (org-remove-latex-fragment-image-overlays (car coords)
-                                                                (cdr coords))
+    (if coords (progn (org-remove-latex-fragment-image-overlays (plist-get coords :begin)
+                                                                (plist-get coords :end))
                       (when (use-region-p)
                         (deactivate-mark)))
       (org-remove-latex-fragment-image-overlays))))
@@ -865,10 +864,10 @@ for more information."
                (let ((entered (and (not was-in) now-in))
                      (exited (and was-in (not now-in))))
                  (cond
-                  (entered (if (org--list-latex-overlays (car now-in) (cdr now-in))
+                  (entered (if (org--list-latex-overlays (plist-get now-in :begin)
+                                                         (plist-get now-in :end))
                                (dan/preview-latex-remove-previews-dwim)))
-                  (exited (dan/preview-latex-org-format-latex (car was-in)
-                                                              (cdr was-in))))))))))
+                  (exited (dan/preview-latex-org-format-latex was-in)))))))))
 
 
 (defun dan/preview-latex-add-previews ()
@@ -893,18 +892,18 @@ for more information."
         (let ((delimiters (-min-by (lambda (pair1 pair2) (> (next-match-pos (car pair1))
                                                         (next-match-pos (car pair2))))
                                     dan/preview-latex-delimiters))
-              beg end)
+              coords)
+          (setq coords (plist-put coords :delimiters delimiters))
           (unless (re-search-forward (car delimiters) nil t)
             (throw 'exit nil))
-          (setq beg (match-beginning 0))
+          (setq coords (plist-put coords :begin (match-beginning 0)))
           (re-search-forward (cdr delimiters))
-          (setq end (match-end 0))
-          (dan/set-org-preview-latex-process-alist! delimiters)
-          (dan/preview-latex-org-format-latex beg end)
+          (setq coords (plist-put coords :end (match-end 0)))
+          (dan/preview-latex-org-format-latex coords)
           ;; TODO: This shouldn't be necessary but currently it
           ;; sometimes gets stuck attempting to process the same
           ;; block repeatedly.
-          (goto-char end))))))
+          (goto-char (plist-get coords :end)))))))
 
 
 (defun dan/preview-latex-preview-at-point-coords ()
@@ -930,14 +929,19 @@ for more information."
 
 
 (defun dan/preview-latex-org-between-regexps-p (start-re end-re lim-up lim-down)
-  (if (looking-at end-re)
-      ;; This function will return nil if point is between delimiters
-      ;; separated by zero characters.
-      (save-excursion (left-char)
-                      (org-between-regexps-p start-re end-re lim-up lim-down))
-    (org-between-regexps-p start-re end-re lim-up lim-down)))
-(defun dan/set-org-preview-latex-process-alist! (inline-p)
-  (let* ((bounding-box (if inline-p "1" "10"))
+  "If point is between regexps, return plist describing match"
+  (let ((coords (if (looking-at end-re)
+                    ;; This function will return nil if point is between delimiters
+                    ;; separated by zero characters.
+                    (save-excursion (left-char)
+                                    (org-between-regexps-p start-re end-re lim-up lim-down))
+                  (org-between-regexps-p start-re end-re lim-up lim-down))))
+    (when coords `(:begin ,(car coords) :end ,(cdr coords) :delimiters (,start-re . ,end-re)))))
+
+
+(defun dan/set-org-preview-latex-process-alist! (coords)
+  (let* ((inline-p (dan/preview-latex-delimiters-inline-p (plist-get coords :delimiters)))
+         (bounding-box (if inline-p "1" "10"))
          (dvisvgm-process-plist (cdr (assoc 'dvisvgm org-preview-latex-process-alist)))
          (dvisvgm-image-converter (car (plist-get dvisvgm-process-plist
                                                   :image-converter))))
@@ -948,18 +952,20 @@ for more information."
                                                                dvisvgm-image-converter 1)))))))
 
 
-(defun dan/preview-latex-org-format-latex (beg end)
-  (flet ((org-element-context ()
-                              `(latex-fragment
-                                (:begin ,beg :end ,end :value ,(buffer-substring beg end)))))
-    (condition-case nil
-        (org-format-latex "/tmp/preview-latex/"
-                      beg end
-                      default-directory
-                      'overlays
-                      nil
-                      'forbuffer org-preview-latex-default-process)
-      (error nil))))
+(defun dan/preview-latex-org-format-latex (coords)
+  (dan/set-org-preview-latex-process-alist! coords)
+  (let ((beg (plist-get coords :begin)) (end (plist-get coords :end)))
+    (flet ((org-element-context ()
+                                `(latex-fragment
+                                  (:begin ,beg :end ,end :value ,(buffer-substring beg end)))))
+            (condition-case nil
+                (org-format-latex "/tmp/preview-latex/"
+                                  beg end
+                                  default-directory
+                                  'overlays
+                                  nil
+                                  'forbuffer org-preview-latex-default-process)
+              (error nil)))))
 
 
 (defun dan/latex-indent-line-function ()
