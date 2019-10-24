@@ -649,6 +649,14 @@ With C-u prefix argument copy URL to clipboard only."
 
 ;;; LaTeX
 
+(defun dan/latex-dwim (&optional arg)
+  (interactive "P")
+  (if arg (progn (condition-case nil (dan/org-babel-execute-non-native-src-block)
+                   (error
+                    nil))
+                 (dan/save-even-if-not-modified))
+    (dan/preview-latex-dwim)))
+
 (setq dan/latex-prettify-symbols-alist-extra
       '(("\\R" . "ℝ")
         ("\\N" . "ℕ")
@@ -799,41 +807,51 @@ for more information."
         prettify-symbols-alist))
 
 
-(setq dan/preview-latex-delimiters
+;;; Preview-latex
+
+(defvar dan/preview-latex-delimiters
   '(
     ("\\$" . "\\$")
     ("^[ \t]*\\\\begin{align\\*?}" . "^[ \t]*\\\\end{align\\*?}")))
 
-(defun dan/preview-latex (&optional arg)
-  (interactive "P")
-  (if arg (dan/preview-latex-remove-previews)
-    (dan/preview-latex-add-previews)))
+(defun dan/preview-latex-dwim ()
+  (interactive)
+  (save-window-excursion
+    (save-excursion
+      (or (dan/preview-latex-add-preview-at-point)
+          (dan/preview-latex-add-previews)))))
 
 
 (defun dan/preview-latex-add-preview-at-point ()
   (interactive)
-  (let ((match (dan/preview-latex-preview-at-point)))
-       (when match (dan/org-format-latex (car match)
-                                         (cdr match)))))
+  (let ((coords (dan/preview-latex-preview-at-point-coords)))
+       (when coords (progn
+                      (dan/org-format-latex (car coords)
+                                            (cdr coords))
+                      (forward-line)))))
 
 
-(defun dan/preview-latex-preview-at-point ()
-  "If point is in previewable block, return (beg . end)."
-  (let ((dollar-delimiter (car dan/preview-latex-delimiters)))
-    (assert (equal dollar-delimiter '("\\$" . "\\$")))
-    (or (org-between-regexps-p (car dollar-delimiter)
-                               (cdr dollar-delimiter)
-                               (point-at-bol)
-                               (point-at-eol))
-        (-any #'identity (mapcar
-                          (lambda (pair)
-                            (org-between-regexps-p (car pair)
-                                                   (cdr pair)
-                                                   (point-min)
-                                                   (point-max)))
-                          (cdr dan/preview-latex-delimiters))))))
+(defun dan/preview-latex-remove-previews ()
+  (interactive)
+  (if (use-region-p)
+      (progn (org-remove-latex-fragment-image-overlays (region-beginning)
+                                                       (region-end))
+             (deactivate-mark))
+    (org-remove-latex-fragment-image-overlays)))
+
 
 (defun dan/preview-latex-add-previews ()
+  (if (use-region-p)
+      (progn
+        (save-restriction (narrow-to-region (region-beginning)
+                                            (region-end))
+                          (goto-char (point-min))
+                          (dan/preview-latex-add-previews-))
+        (deactivate-mark))
+    (dan/preview-latex-add-previews-)))
+
+
+(defun dan/preview-latex-add-previews- ()
   "Create all latex previews in buffer"
   (cl-flet ((next-match-pos (regexp)
                             (save-excursion
@@ -857,9 +875,21 @@ for more information."
           ;; block repeatedly.
           (goto-char end))))))
 
-(defun dan/preview-latex-remove-previews ()
-  (org-preview-latex-fragment '(16)))
-
+(defun dan/preview-latex-preview-at-point-coords ()
+  "If point is in previewable block, return (beg . end)."
+  (let ((dollar-delimiter (car dan/preview-latex-delimiters)))
+    (assert (equal dollar-delimiter '("\\$" . "\\$")))
+    (or (org-between-regexps-p (car dollar-delimiter)
+                               (cdr dollar-delimiter)
+                               (point-at-bol)
+                               (point-at-eol))
+        (-any #'identity (mapcar
+                          (lambda (pair)
+                            (org-between-regexps-p (car pair)
+                                                   (cdr pair)
+                                                   (point-min)
+                                                   (point-max)))
+                          (cdr dan/preview-latex-delimiters))))))
 
 (defun dan/org-format-latex (beg end)
   (flet ((org-element-context ()
