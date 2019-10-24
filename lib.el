@@ -644,8 +644,6 @@ With C-u prefix argument copy URL to clipboard only."
 
 ;;; LaTeX
 
-(require 'dash)
-
 (setq dan/latex-prettify-symbols-alist-extra
       '(("\\R" . "ℝ")
         ("\\N" . "ℕ")
@@ -796,11 +794,39 @@ for more information."
         prettify-symbols-alist))
 
 
+(setq dan/preview-latex-delimiters
+  '(
+    ("\\$" . "\\$")
+    ("^[ \t]*\\\\begin{align\\*?}" . "^[ \t]*\\\\end{align\\*?}")))
+
 (defun dan/preview-latex (&optional arg)
   (interactive "P")
   (if arg (dan/preview-latex-remove-previews)
     (dan/preview-latex-add-previews)))
 
+
+(defun dan/preview-latex-add-preview-at-point ()
+  (interactive)
+  (let ((match (dan/preview-latex-preview-at-point)))
+       (when match (dan/org-format-latex (car match)
+                                         (cdr match)))))
+
+
+(defun dan/preview-latex-preview-at-point ()
+  "If point is in previewable block, return (beg . end)."
+  (let ((dollar-delimiter (car dan/preview-latex-delimiters)))
+    (assert (equal dollar-delimiter '("\\$" . "\\$")))
+    (or (org-between-regexps-p (car dollar-delimiter)
+                               (cdr dollar-delimiter)
+                               (point-at-bol)
+                               (point-at-eol))
+        (-any #'identity (mapcar
+                          (lambda (pair)
+                            (org-between-regexps-p (car pair)
+                                                   (cdr pair)
+                                                   (point-min)
+                                                   (point-max)))
+                          (cdr dan/preview-latex-delimiters))))))
 
 (defun dan/preview-latex-add-previews ()
   "Create all latex previews in buffer"
@@ -808,26 +834,23 @@ for more information."
                             (save-excursion
                               (or (and (re-search-forward regexp nil t) (point))
                                   (point-max)))))
-    (let ((dan/latex-math-delimiters
-           '(("\\$" . "\\$")
-             ("^[ \t]*\\\\begin{align\\*?}" . "^[ \t]*\\\\end{align\\*?}")))
-          beg end)
-      (catch 'exit
-        (while t
-          (let* ((regexp-pair (-min-by (lambda (pair1 pair2) (> (next-match-pos (car pair1))
-                                                           (next-match-pos (car pair2))))
-                                       dan/latex-math-delimiters)))
-            (unless (re-search-forward (car regexp-pair) nil t)
-              (throw 'exit nil))
-            (setq beg (match-beginning 0))
-            (re-search-forward (cdr regexp-pair))
-            (setq end (match-end 0))
-            (message "(dan--org-format-latex %s %s)" beg end)
-            (dan/org-format-latex beg end)
-            ;; TODO: This shouldn't be necessary but currently it
-            ;; sometimes gets stuck attempting to process the same
-            ;; block repeatedly.
-            (goto-char end)))))))
+    (catch 'exit
+      (while t
+        (let ((regexp-pair (-min-by (lambda (pair1 pair2) (> (next-match-pos (car pair1))
+                                                        (next-match-pos (car pair2))))
+                                    dan/preview-latex-delimiters))
+              beg end)
+          (unless (re-search-forward (car regexp-pair) nil t)
+            (throw 'exit nil))
+          (setq beg (match-beginning 0))
+          (re-search-forward (cdr regexp-pair))
+          (setq end (match-end 0))
+          ;; (princ (format "%s:%s-%s\n" (file-name-nondirectory (buffer-file-name)) beg end))
+          (dan/org-format-latex beg end)
+          ;; TODO: This shouldn't be necessary but currently it
+          ;; sometimes gets stuck attempting to process the same
+          ;; block repeatedly.
+          (goto-char end))))))
 
 (defun dan/preview-latex-remove-previews ()
   (org-preview-latex-fragment '(16)))
@@ -838,11 +861,11 @@ for more information."
                               `(latex-fragment
                                 (:begin ,beg :end ,end :value ,(buffer-substring beg end)))))
     (condition-case nil
-        (org-format-latex "preview-latex-svg/"
+        (org-format-latex "/tmp/preview-latex/"
                       beg end
                       default-directory
                       'overlays
-                      "preview-latex-svg: creating image"
+                      nil
                       'forbuffer org-preview-latex-default-process)
       (error nil))))
 
