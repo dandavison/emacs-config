@@ -849,18 +849,19 @@ for more information."
 
 
 (defun dan/preview-latex-toggle-on-entry (move-point-command)
-  (let ((was-in (dan/preview-latex-preview-at-point-coords)))
-    (funcall move-point-command)
-    (save-excursion
-      (let ((now-in (dan/preview-latex-preview-at-point-coords)))
-       (message "was-in: %s, now-in: %s" was-in now-in)
-       (let ((entered (and (not was-in) now-in))
-             (exited (and was-in (not now-in))))
-         (cond
-          (entered (if (org--list-latex-overlays (car now-in) (cdr now-in))
-                       (dan/preview-latex-remove-previews-dwim)))
-          (exited (dan/preview-latex-org-format-latex (car was-in)
-                                                      (cdr was-in)))))))))
+  (if (region-active-p)
+      (funcall move-point-command)
+    (let ((was-in (dan/preview-latex-preview-at-point-coords)))
+      (funcall move-point-command)
+           (save-excursion
+             (let ((now-in (dan/preview-latex-preview-at-point-coords)))
+               (let ((entered (and (not was-in) now-in))
+                     (exited (and was-in (not now-in))))
+                 (cond
+                  (entered (if (org--list-latex-overlays (car now-in) (cdr now-in))
+                               (dan/preview-latex-remove-previews-dwim)))
+                  (exited (dan/preview-latex-org-format-latex (car was-in)
+                                                              (cdr was-in))))))))))
 
 
 (defun dan/preview-latex-add-previews ()
@@ -882,16 +883,16 @@ for more information."
                                   (point-max)))))
     (catch 'exit
       (while t
-        (let ((regexp-pair (-min-by (lambda (pair1 pair2) (> (next-match-pos (car pair1))
+        (let ((delimiters (-min-by (lambda (pair1 pair2) (> (next-match-pos (car pair1))
                                                         (next-match-pos (car pair2))))
                                     dan/preview-latex-delimiters))
               beg end)
-          (unless (re-search-forward (car regexp-pair) nil t)
+          (unless (re-search-forward (car delimiters) nil t)
             (throw 'exit nil))
           (setq beg (match-beginning 0))
-          (re-search-forward (cdr regexp-pair))
+          (re-search-forward (cdr delimiters))
           (setq end (match-end 0))
-          ;; (princ (format "%s:%s-%s\n" (file-name-nondirectory (buffer-file-name)) beg end))
+          (dan/set-org-preview-latex-process-alist! delimiters)
           (dan/preview-latex-org-format-latex beg end)
           ;; TODO: This shouldn't be necessary but currently it
           ;; sometimes gets stuck attempting to process the same
@@ -900,22 +901,25 @@ for more information."
 
 
 (defun dan/preview-latex-preview-at-point-coords ()
-  "If point is in previewable block, return (beg . end)."
-  (let ((dollar-delimiter (car dan/preview-latex-delimiters)))
-    (assert (equal dollar-delimiter '("\\$" . "\\$")))
-    (or (and (oddp (count-matches "\\$" (point-at-bol)
+  "If point is in previewable block, return plist describing match"
+  (let ((inline-delimiter (car dan/preview-latex-delimiters)))
+    (assert (dan/preview-latex-delimiters-inline-p inline-delimiter))
+    (or (and (oddp (count-matches (car inline-delimiter) (point-at-bol)
                                   (point)))
-             (dan/preview-latex-org-between-regexps-p (car dollar-delimiter)
-                                                      (cdr dollar-delimiter)
+             (dan/preview-latex-org-between-regexps-p (car inline-delimiter)
+                                                      (cdr inline-delimiter)
                                                       (point-at-bol)
                                                       (point-at-eol)))
         (-any #'identity (mapcar
                           (lambda (pair)
-                            (org-between-regexps-p (car pair)
-                                                   (cdr pair)
-                                                   (point-min)
-                                                   (point-max)))
+                            (dan/preview-latex-org-between-regexps-p (car pair)
+                                                                     (cdr pair)
+                                                                     (point-min)
+                                                                     (point-max)))
                           (cdr dan/preview-latex-delimiters))))))
+
+(defun dan/preview-latex-delimiters-inline-p (delimiters)
+  (equal delimiters '("\\$" . "\\$")))
 
 
 (defun dan/preview-latex-org-between-regexps-p (start-re end-re lim-up lim-down)
@@ -925,6 +929,16 @@ for more information."
       (save-excursion (left-char)
                       (org-between-regexps-p start-re end-re lim-up lim-down))
     (org-between-regexps-p start-re end-re lim-up lim-down)))
+(defun dan/set-org-preview-latex-process-alist! (inline-p)
+  (let* ((bounding-box (if inline-p "1" "10"))
+         (dvisvgm-process-plist (cdr (assoc 'dvisvgm org-preview-latex-process-alist)))
+         (dvisvgm-image-converter (car (plist-get dvisvgm-process-plist
+                                                  :image-converter))))
+    ;; TODO: this mutates the global variable!
+    (assert (and (string-match " -b \\([^ ]+\\) " dvisvgm-image-converter)
+                 (plist-put dvisvgm-process-plist
+                            :image-converter `(,(replace-match bounding-box t t
+                                                               dvisvgm-image-converter 1)))))))
 
 
 (defun dan/preview-latex-org-format-latex (beg end)
