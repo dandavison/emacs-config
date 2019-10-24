@@ -269,7 +269,12 @@
   (save-buffer))
 
 
-;;; Trailing whitespace
+;;; Autoformatting
+
+(defun dan/elisp-format-defun ()
+  (interactive)
+  (mark-defun)
+  (elisp-format-region))
 
 (defvar dan/no-delete-trailing-whitespace-major-modes nil)
 
