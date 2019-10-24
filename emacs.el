@@ -28,6 +28,7 @@
          ("C-c l" . linum-mode)
          ("C-c m" . mc/edit-lines)
          ("C-c o" . dan/scratch-buffer)
+         ("C-p" . prettify-symbols-mode)
          ("C-c r" . replace-regexp)
          ("C-c s" . (lambda () (interactive) (shell-command-on-region (region-beginning) (region-end) "sort -V" nil 'replace)))
          ("C-c w" . dan/list-window-configurations)
@@ -157,7 +158,10 @@
 
   :config
   (setq org-latex-packages-alist '(("" "mathematics" t))
+        ;; let mathematics.sty specify all packages
+        org-latex-default-packages-alist nil
         org-preview-latex-default-process 'dvisvgm)
+  (plist-put org-format-latex-options :scale 0.8)
 
   :hook
   (org-mode . (lambda ()
@@ -306,11 +310,7 @@
 (use-package latex
   :defer t
   :bind (:map LaTeX-mode-map
-              ("C-c C-c" . (lambda () (interactive)
-                             (condition-case nil
-                                 (dan/org-babel-execute-non-native-src-block)
-                               (error nil))
-                             (dan/save-even-if-not-modified)))
+              ("C-c C-c" . dan/latex-dwim)
               ("C-x n i" . dan/latex-focus-insert-comment-delimiters)
               ("C-x n r" . dan/latex-focus-remove-comment-delimiters)
               ("C-x n f" . dan/latex-focus-narrow-to-region)
@@ -330,9 +330,9 @@
                   (setq LaTeX-indent-environment-list (cons '("minted" . nil) LaTeX-indent-environment-list))
                   (add-hook 'before-save-hook
                             (lambda () (unless (string-match ".+\\.sty" (buffer-file-name)))
-                              (dan/indent-buffer)) nil 'local))))
-
-
+                              (dan/indent-buffer)) nil 'local)))
+  :config
+  (setq preview-image-type 'dvipng))
 
 (use-package lispy
   :defer t
