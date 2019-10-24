@@ -246,9 +246,10 @@
   :config
   (setq ivy-use-virtual-buffers t
         ivy-fixed-height-minibuffer t
-        ivy-height #xFFFFFFFF)
+        ivy-height #xFFFFFFFF
+        ivy-dynamic-exhibit-delay-ms 250)
   ;; https://oremacs.com/2018/03/05/grep-exclude/
-  (setq counsel-git-cmd "rg --files"
+  (setq counsel-git-cmd "rg --files"  ;;  --type py
         counsel-rg-base-command "rg -i -M 120 --no-heading --line-number --color never %s .")
 
   (defun -dan/swiper-around-advice (orig-fun &rest args)
@@ -457,7 +458,7 @@
         projectile-enable-caching t
         projectile-completion-system 'ivy
         projectile-current-project-on-switch 'keep
-        projectile-switch-project-action 'projectile-find-file) ;; counsel-git-grep
+        projectile-switch-project-action 'counsel-git)
   (add-to-list 'projectile-globally-ignored-modes "dired-mode"))
 
 (use-package py-isort
