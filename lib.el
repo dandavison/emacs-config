@@ -651,11 +651,16 @@ With C-u prefix argument copy URL to clipboard only."
 
 (defun dan/latex-dwim (&optional arg)
   (interactive "P")
-  (if arg (progn (condition-case nil (dan/org-babel-execute-non-native-src-block)
-                   (error
-                    nil))
-                 (dan/save-even-if-not-modified))
-    (dan/preview-latex-dwim)))
+  (cond
+    ((equal arg '(16))
+     (progn (condition-case nil (dan/org-babel-execute-non-native-src-block)
+              (error
+               nil))
+            (dan/save-even-if-not-modified)))
+    ((equal arg '(4))
+     (dan/preview-latex-remove-previews-dwim))
+    (t (dan/preview-latex-add-previews-dwim))))
+
 
 (setq dan/latex-prettify-symbols-alist-extra
       '(("\\R" . "ℝ")
@@ -814,7 +819,7 @@ for more information."
     ("\\$" . "\\$")
     ("^[ \t]*\\\\begin{align\\*?}" . "^[ \t]*\\\\end{align\\*?}")))
 
-(defun dan/preview-latex-dwim ()
+(defun dan/preview-latex-add-previews-dwim ()
   (interactive)
   (save-window-excursion
     (save-excursion
@@ -826,18 +831,36 @@ for more information."
   (interactive)
   (let ((coords (dan/preview-latex-preview-at-point-coords)))
        (when coords (progn
-                      (dan/org-format-latex (car coords)
+                      (dan/preview-latex-org-format-latex (car coords)
                                             (cdr coords))
                       (forward-line)))))
 
 
-(defun dan/preview-latex-remove-previews ()
+(defun dan/preview-latex-remove-previews-dwim ()
   (interactive)
-  (if (use-region-p)
-      (progn (org-remove-latex-fragment-image-overlays (region-beginning)
-                                                       (region-end))
-             (deactivate-mark))
-    (org-remove-latex-fragment-image-overlays)))
+  (let ((coords (or (and (use-region-p)
+                         `(,(region-beginning) . ,(region-end)))
+                    (dan/preview-latex-preview-at-point-coords))))
+    (if coords (progn (org-remove-latex-fragment-image-overlays (car coords)
+                                                                (cdr coords))
+                      (when (use-region-p)
+                        (deactivate-mark)))
+      (org-remove-latex-fragment-image-overlays))))
+
+
+(defun dan/preview-latex-toggle-on-entry (move-point-command)
+  (let ((was-in (dan/preview-latex-preview-at-point-coords)))
+    (funcall move-point-command)
+    (save-excursion
+      (let ((now-in (dan/preview-latex-preview-at-point-coords)))
+       (message "was-in: %s, now-in: %s" was-in now-in)
+       (let ((entered (and (not was-in) now-in))
+             (exited (and was-in (not now-in))))
+         (cond
+          (entered (if (org--list-latex-overlays (car now-in) (cdr now-in))
+                       (dan/preview-latex-remove-previews-dwim)))
+          (exited (dan/preview-latex-org-format-latex (car was-in)
+                                                      (cdr was-in)))))))))
 
 
 (defun dan/preview-latex-add-previews ()
@@ -869,20 +892,23 @@ for more information."
           (re-search-forward (cdr regexp-pair))
           (setq end (match-end 0))
           ;; (princ (format "%s:%s-%s\n" (file-name-nondirectory (buffer-file-name)) beg end))
-          (dan/org-format-latex beg end)
+          (dan/preview-latex-org-format-latex beg end)
           ;; TODO: This shouldn't be necessary but currently it
           ;; sometimes gets stuck attempting to process the same
           ;; block repeatedly.
           (goto-char end))))))
 
+
 (defun dan/preview-latex-preview-at-point-coords ()
   "If point is in previewable block, return (beg . end)."
   (let ((dollar-delimiter (car dan/preview-latex-delimiters)))
     (assert (equal dollar-delimiter '("\\$" . "\\$")))
-    (or (org-between-regexps-p (car dollar-delimiter)
-                               (cdr dollar-delimiter)
-                               (point-at-bol)
-                               (point-at-eol))
+    (or (and (oddp (count-matches "\\$" (point-at-bol)
+                                  (point)))
+             (dan/preview-latex-org-between-regexps-p (car dollar-delimiter)
+                                                      (cdr dollar-delimiter)
+                                                      (point-at-bol)
+                                                      (point-at-eol)))
         (-any #'identity (mapcar
                           (lambda (pair)
                             (org-between-regexps-p (car pair)
@@ -891,7 +917,17 @@ for more information."
                                                    (point-max)))
                           (cdr dan/preview-latex-delimiters))))))
 
-(defun dan/org-format-latex (beg end)
+
+(defun dan/preview-latex-org-between-regexps-p (start-re end-re lim-up lim-down)
+  (if (looking-at end-re)
+      ;; This function will return nil if point is between delimiters
+      ;; separated by zero characters.
+      (save-excursion (left-char)
+                      (org-between-regexps-p start-re end-re lim-up lim-down))
+    (org-between-regexps-p start-re end-re lim-up lim-down)))
+
+
+(defun dan/preview-latex-org-format-latex (beg end)
   (flet ((org-element-context ()
                               `(latex-fragment
                                 (:begin ,beg :end ,end :value ,(buffer-substring beg end)))))
@@ -903,7 +939,6 @@ for more information."
                       nil
                       'forbuffer org-preview-latex-default-process)
       (error nil))))
-
 
 
 (defun dan/latex-indent-line-function ()
