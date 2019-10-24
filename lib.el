@@ -668,9 +668,16 @@ With C-u prefix argument copy URL to clipboard only."
         ("\\C" . "ℂ")
         ("\\Q" . "ℚ")
         ("\\grad" . "∇")
+        ;; https://unicode-table.com/en/0307/
+        ;; U+0307 Combining Dot Above
         ("\\ddot{\\r}" . "r̈")
         ("\\dot{\\r}" . "ṙ")
         ("\\dot{\\v}" . "v̇")
+        ("\\dot{x}" . "ẋ")
+        ("\\dot{y}" . "ẏ")
+        ("\\\\" . "")  ;; "⏎"
+        ("``" . "\"")
+        ("''" . "\"")
         ("$" . "​")))
 
 (setq dan/latex-prettify-symbols-string-replacements

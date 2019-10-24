@@ -57,8 +57,8 @@
          ([f10] . dan/list-window-configurations)
          ([f11] . dan/goto-emacs-config)
          ([f12] . modalka-mode)
-         ([(control down)] . scroll-up-command)
-         ([(control up)] . scroll-down-command)
+         ([(control down)] . avy-goto-line)
+         ([(control up)] . avy-goto-line)
          ([(kp-delete)] . modalka-mode)
          ([(meta down)] . dan/transpose-line-down)
          ([(meta left)] . backward-word)
@@ -161,6 +161,9 @@
         ;; let mathematics.sty specify all packages
         org-latex-default-packages-alist nil
         org-preview-latex-default-process 'dvisvgm)
+  (plist-put (cdr (assoc 'dvisvgm org-preview-latex-process-alist))
+             ;; increase bounding box: -b 1 instead of -b min
+             :image-converter '("dvisvgm %f -n -b 1 -c %S -o %O"))
   (plist-put org-format-latex-options :scale 0.8)
 
   :hook
@@ -227,12 +230,6 @@
 
 (use-package facet
   :load-path "~/src/facet/emacs")
-
-(use-package forge
-  :after magit
-  :config
-  (add-to-list 'forge-alist '("github.counsyl.com" "github.counsyl.com/api"
-                              "github.counsyl.com" forge-github-repository)))
 
 (use-package flycheck
   :hook (prog-mode . flycheck-mode)
@@ -1006,7 +1003,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
   (dan/set-up-outline-minor-mode "\\(\\\\sub\\|\\\\section\\|\\\\begin\\)")
 
   (dan/set-up-outline-minor-mode "\\\\section")
-  (dan/watch-mathematics)
+  ;; (dan/watch-mathematics)
   (add-to-list 'LaTeX-item-list
                '("align" . dan/latex-insert-item-in-align-environment))
   (add-to-list 'LaTeX-item-list
@@ -1122,6 +1119,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
  ;; If there is more than one, they won't work right.
  '(bold ((t (:weight bold))))
  '(font-latex-math-face ((t (:foreground "red"))))
+ '(font-latex-string-face ((t (:foreground "black"))))
  '(font-latex-verbatim-face ((t (:inherit nil))))
  '(help-argument-name ((t (:inherit nil))))
  '(highlight ((t (:background "yellow" :foreground "black"))))
