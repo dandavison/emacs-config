@@ -668,6 +668,7 @@ With C-u prefix argument copy URL to clipboard only."
         ("\\C" . "ℂ")
         ("\\Q" . "ℚ")
         ("\\grad" . "∇")
+        ("\\sqrt" . "√")
         ;; https://unicode-table.com/en/0307/
         ;; U+0307 Combining Dot Above
         ("\\ddot{\\r}" . "r̈")
@@ -675,10 +676,15 @@ With C-u prefix argument copy URL to clipboard only."
         ("\\dot{\\v}" . "v̇")
         ("\\dot{x}" . "ẋ")
         ("\\dot{y}" . "ẏ")
+        ("\\xdot" . "ẋ")
+        ("\\ydot" . "ẏ")
         ("\\\\" . "")  ;; "⏎"
         ("``" . "\"")
         ("''" . "\"")
-        ("$" . "​")))
+        ("^2" . "²")
+        ("^3" . "³")
+        ("$" . "​")  ;; zero-width space
+        (" ~ " . " ")))
 
 (setq dan/latex-prettify-symbols-string-replacements
       '(("\\begin{definition*}" . "Definition.")
@@ -762,12 +768,14 @@ With C-u prefix argument copy URL to clipboard only."
         ("\\in " . "∈ ")
 
         ("&=" . "=")
+        ("\\dt" . "dt")
+        ("\\dx" . "dx")
+        ("\\dy" . "dy")
 
-        ;; TODO: dangerous, will this clash with anything starting with \r?
         ("\\d\\r" . "dr")
+        ;; TODO: dangerous?, will this clash with anything starting with \r?
         ("\\r" . "r")
         ("\\v" . "v")
-        ("\\dt" . "dt")
         ("\\F" . "F")))
 
 
