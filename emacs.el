@@ -93,8 +93,6 @@
          ([(super \\)] . dan/indent-region)
          ([(super |)] . dan/shell-command-on-region-and-replace)))
 
-(use-package dash)
-
 (use-package bookmark
   :bind (:map bookmark-bmenu-mode-map
               ("C-x C-s" . bookmark-save)))
@@ -220,6 +218,8 @@
   :after company
   :config
   (add-to-list 'company-backends 'company-jedi))
+
+(use-package dash)
 
 (use-package ess
   :defer t
