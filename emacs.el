@@ -156,12 +156,7 @@
   :config
   (setq org-latex-packages-alist '(("" "mathematics" t))
         ;; let mathematics.sty specify all packages
-        org-latex-default-packages-alist nil
-        org-preview-latex-default-process 'dvisvgm)
-  (plist-put (cdr (assoc 'dvisvgm org-preview-latex-process-alist))
-             ;; increase bounding box: -b 1 instead of -b min
-             :image-converter '("dvisvgm %f -n -b 1 -c %S -o %O"))
-  (plist-put org-format-latex-options :scale 0.8)
+        org-latex-default-packages-alist nil)
 
   :hook
   (org-mode . (lambda ()
@@ -220,6 +215,9 @@
   (add-to-list 'company-backends 'company-jedi))
 
 (use-package dash)
+
+(use-package xenops
+  :load-path "~/src/xenops")
 
 (use-package ess
   :defer t
@@ -313,10 +311,10 @@
               ("C-x n u" . dan/latex-unfocus)
               ("C-c |" . dan/latex-set-builder-pipe)
               ("C-c /" . dan/latex-frac-or-unfrac)
-              ([(left)] . (lambda () (interactive) (dan/preview-latex-toggle-on-entry #'left-char)))
-              ([(right)] . (lambda () (interactive) (dan/preview-latex-toggle-on-entry #'right-char)))
-              ([(down)] . (lambda () (interactive) (dan/preview-latex-toggle-on-entry #'next-line)))
-              ([(up)] . (lambda () (interactive) (dan/preview-latex-toggle-on-entry #'previous-line)))
+              ([(left)] . (lambda () (interactive) (xenops-preview-latex-toggle-on-entry #'left-char)))
+              ([(right)] . (lambda () (interactive) (xenops-preview-latex-toggle-on-entry #'right-char)))
+              ([(down)] . (lambda () (interactive) (xenops-preview-latex-toggle-on-entry #'next-line)))
+              ([(up)] . (lambda () (interactive) (xenops-preview-latex-toggle-on-entry #'previous-line)))
               ([(control down)] . next-line)
               ([(control up)] . previous-line)
               ([(super b)] . dan/latex-bold)
