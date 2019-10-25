@@ -965,7 +965,8 @@ for more information."
   (let ((beg (plist-get coords :begin)) (end (plist-get coords :end)))
     (flet ((org-element-context ()
                                 `(latex-fragment
-                                  (:begin ,beg :end ,end :value ,(buffer-substring-no-properties beg end)))))
+                                  (:begin ,beg :end ,end :value ,(buffer-substring-no-properties beg end))))
+           (clear-image-cache ()))
             (condition-case nil
                 (org-format-latex "/tmp/preview-latex/"
                                   beg end
