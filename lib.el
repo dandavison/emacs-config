@@ -649,19 +649,6 @@ With C-u prefix argument copy URL to clipboard only."
 
 ;;; LaTeX
 
-(defun dan/latex-dwim (&optional arg)
-  (interactive "P")
-  (cond
-    ((equal arg '(16))
-     (progn (condition-case nil (dan/org-babel-execute-non-native-src-block)
-              (error
-               nil))
-            (dan/save-even-if-not-modified)))
-    ((equal arg '(4))
-     (xenops-preview-latex-remove-previews-dwim))
-    (t (xenops-preview-latex-add-previews-dwim))))
-
-
 (defun dan/latex-indent-line-function ()
   (if (and (eq major-mode 'latex-mode)
            (or
@@ -689,24 +676,6 @@ With C-u prefix argument copy URL to clipboard only."
     (insert "&= ")
     (when copied-line (insert copied-line))
     (latex-indent)))
-
-
-(defun dan/latex-yank-clipboard-image-maybe ()
-  (interactive)
-  (let ((output-file)
-        (temp-file "/tmp/dan--latex-yank-clipboard-image-maybe.png"))
-    (with-temp-buffer
-      (let ((exit-status (call-process "pngpaste" nil `(:file ,temp-file) nil "-")))
-        (if (= exit-status 0)
-            (progn
-              (setq output-file
-                    (read-file-name "File to save image: " (format "%s/img" default-directory)))
-              (when (file-exists-p output-file) (error "File exists: %s" output-file))
-              (copy-file temp-file output-file t)))))
-    (if output-file
-        (insert (format "\\begin{mdframed}\n\\includegraphics[width=400pt]{%s}\n\\end{mdframed}"
-                        (file-relative-name output-file)))
-      (call-interactively 'yank))))
 
 
 (defun dan/latex-fill-paragraph ()

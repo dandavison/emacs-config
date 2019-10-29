@@ -300,17 +300,12 @@
 (use-package latex
   :defer t
   :bind (:map LaTeX-mode-map
-              ("C-c C-c" . dan/latex-dwim)
               ("C-x n i" . dan/latex-focus-insert-comment-delimiters)
               ("C-x n r" . dan/latex-focus-remove-comment-delimiters)
               ("C-x n f" . dan/latex-focus-narrow-to-region)
               ("C-x n u" . dan/latex-unfocus)
               ("C-c |" . dan/latex-set-builder-pipe)
               ("C-c /" . dan/latex-frac-or-unfrac)
-              ([(left)] . (lambda () (interactive) (xenops-preview-latex-toggle-on-entry #'left-char)))
-              ([(right)] . (lambda () (interactive) (xenops-preview-latex-toggle-on-entry #'right-char)))
-              ([(down)] . (lambda () (interactive) (xenops-preview-latex-toggle-on-entry #'next-line)))
-              ([(up)] . (lambda () (interactive) (xenops-preview-latex-toggle-on-entry #'previous-line)))
               ([(control down)] . next-line)
               ([(control up)] . previous-line)
               ([(super b)] . dan/latex-bold)
@@ -1004,7 +999,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
   (add-to-list 'LaTeX-item-list
                '("align*" . dan/latex-insert-item-in-align-environment))
   (local-set-key [(super v)] 'dan/latex-yank-clipboard-image-maybe)
-  (dan/latex-prettify-symbols-mode))
+  (xenops-mode))
 
 (add-hook 'LaTeX-mode-hook 'dan/latex-mode-hook-fn)
 
