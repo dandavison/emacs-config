@@ -1,0 +1,6 @@
+# name : a
+# expand-env: ((yas-indent-line 'fixed))
+# --
+\begin{align*}
+  $1
+\end{align*}
