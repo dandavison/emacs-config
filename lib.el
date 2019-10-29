@@ -1539,11 +1539,11 @@ If LIST is nil use `projectile-project-root-parent-directories'"
 
 (defun dan/grep-thing-at-point ()
   (interactive)
-  (counsel-rg (if t
-                  (ivy-thing-at-point)
+  (counsel-rg (if (string-match "counsyl" default-directory)
                   (format "-g *%s* -g !.mypy_cache -- %s"
                           (file-name-base (directory-file-name default-directory))
-                          (ivy-thing-at-point)))))
+                          (ivy-thing-at-point))
+                (ivy-thing-at-point))))
 
 
 (defun dan/goto-definition (&optional arg)

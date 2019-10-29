@@ -162,7 +162,7 @@
   (org-mode . (lambda ()
                 (local-set-key [(meta left)] 'backward-word)
                 (local-set-key [(meta right)] 'forward-word)
-                (local-set-key [(shift left)] ' windmove-left)
+                (local-set-key [(shift left)] 'windmove-left)
                 (local-set-key [(shift right)] 'windmove-right))))
 
 (use-package outline
@@ -218,10 +218,6 @@
 
 (use-package xenops
   :load-path "~/src/xenops")
-
-(use-package ess
-  :defer t
-  :load-path "~/src/3p/ESS/lisp")
 
 (use-package f)
 
@@ -329,8 +325,8 @@
                   (setq-local indent-line-function 'dan/latex-indent-line-function)
                   (setq LaTeX-indent-environment-list (cons '("minted" . nil) LaTeX-indent-environment-list))
                   (add-hook 'before-save-hook
-                            (lambda () (unless (string-match ".+\\.sty" (buffer-file-name)))
-                              (dan/indent-buffer)) nil 'local)))
+                            (lambda () (unless (string-match ".+\\.sty" (buffer-file-name)) (dan/indent-buffer)))
+                            nil 'local)))
   :config
   (setq preview-image-type 'dvipng))
 
