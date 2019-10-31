@@ -1,5 +1,3 @@
-#name : h
-# --
 \begin{minted}[escapeinside=\\\\`\\\\`]{haskell}
   $1
 \end{minted}

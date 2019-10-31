@@ -1,5 +1,3 @@
-#name : hn
-# --
 \begin{normalfont}
   \begin{minted}[escapeinside=\\\\`\\\\`]{haskell}
     $1
