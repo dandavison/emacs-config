@@ -15,7 +15,7 @@
          ("C-b" . backward-sexp)
          ("C-c 1" . flycheck-mode)
          ("C-c C-c" . dan/save-even-if-not-modified)
-         ("C-c C-l" . eval-buffer)
+         ("C-c C-l" . (lambda () (interactive) (eval-buffer) (message "eval-buffer: %s" (buffer-file-name))))
          ("C-c C-r" . magit-file-rename)
          ("C-c C-z" . python-shell-switch-to-shell)
          ("C-c M-d" . dan/magit-diff)
@@ -26,7 +26,7 @@
          ("C-c f" . search-files-by-name)
          ("C-c g" . magit-status)
          ("C-c l" . linum-mode)
-         ("C-c m" . mc/edit-lines)
+         ("C-c m" . dan/goto-messages-buffer)
          ("C-c o" . dan/scratch-buffer)
          ("C-p" . prettify-symbols-mode)
          ("C-c r" . replace-regexp)
@@ -56,7 +56,7 @@
          ([f9] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?9 arg)))
          ([f10] . dan/list-window-configurations)
          ([f11] . dan/goto-emacs-config)
-         ([f12] . modalka-mode)
+         ([f12] . dan/goto-erc-emacs)
          ([(super down)] . avy-goto-line)
          ([(super up)] . avy-goto-line)
          ([(kp-delete)] . modalka-mode)
@@ -140,7 +140,13 @@
               ([(meta right)] . nil))
   :hook (emacs-lisp-mode . (lambda () (flycheck-mode -1))))
 
+(use-package erc
+  :config
+  (setq erc-nick "dd7"
+        erc-hide-list '("JOIN" "PART" "QUIT")))
+
 (use-package org
+  :load-path "~/src/3p/org-mode/lisp"
   :after org-table
   :bind (:map org-mode-map
               ([(shift left)] . windmove-left)
@@ -153,17 +159,13 @@
               ([(meta left)] . nil)
               ([(meta right)] . nil))
 
-  :config
-  (setq org-latex-packages-alist '(("" "mathematics" t))
-        ;; let mathematics.sty specify all packages
-        org-latex-default-packages-alist nil)
-
   :hook
   (org-mode . (lambda ()
                 (local-set-key [(meta left)] 'backward-word)
                 (local-set-key [(meta right)] 'forward-word)
                 (local-set-key [(shift left)] 'windmove-left)
-                (local-set-key [(shift right)] 'windmove-right))))
+                (local-set-key [(shift right)] 'windmove-right)
+                )))
 
 (use-package outline
   :bind (:map outline-minor-mode-map
@@ -204,7 +206,7 @@
 
 (use-package company
   :bind (:map prog-mode-map
-         ([tab] . dan/company-indent-or-complete))
+              ([tab] . dan/company-indent-or-complete))
   :hook (prog-mode . company-mode)
   :config
   (setq company-selection-wrap-around t))
@@ -217,7 +219,83 @@
 (use-package dash)
 
 (use-package xenops
-  :load-path "~/src/xenops")
+  :load-path "~/src/xenops"
+  :bind (:map xenops-mode-map
+              ("C-x c" . xenops-avy-copy-math)
+              ("C-x x" . xenops-org-babel-execute-src-block))
+  :config
+  (dan/alist-update!
+   xenops-text-prettify-symbols
+   '(("\\R" . "ℝ")
+     ("\\N" . "ℕ")
+     ("\\C" . "ℂ")
+     ("\\Q" . "ℚ")
+     ;; https://unicode-table.com/en/0307/
+     ;; U+0307 Combining Dot Above
+     ("\\ddot{\\r}" . "r̈")
+     ("\\dot{\\r}" . "ṙ")
+     ("\\dot{\\v}" . "v̇")
+     ("\\dot{x}" . "ẋ")
+     ("\\dot{y}" . "ẏ")
+     ("\\xdot" . "ẋ")
+     ("\\ydot" . "ẏ")
+     ("\\\\" . "⏎")
+     ("``" . "\"")
+     ("''" . "\"")
+     ("$" . "⚡" ) ;; "​" zero-width space
+     (" ~ " . " ")))
+  (dan/alist-update!
+   xenops-text-prettify-symbols-string-replacements
+   '(("\\begin{question*}" . "Question.")
+     ("\\end{question*}" . "┘")
+
+     ("\\begin{example*}" . "Example.")
+     ("\\end{example*}" . "┘")
+
+     ("\\begin{example}" . "Example.")
+     ("\\end{example}" . "┘")
+
+     ("\\begin{claim*}" . "Claim.")
+     ("\\end{claim*}" . "┘")
+
+     ("\\begin{intuition*}" . "Intuition.")
+     ("\\end{intuition*}" . "┘")
+
+     ("\\begin{intuition*}" . "Intuition.")
+     ("\\end{intuition*}" . "┘")
+
+     ("\\begin{intuition}" . "Intuition.")
+     ("\\end{intuition}" . "┘")
+
+     ("\\begin{comment}  % latex-focus" .
+      "\\begin{comment}  % latex-focus ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯")
+     ("\\end{comment}  % latex-focus" .
+      "\\end{comment}  % latex-focus ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯")
+
+     ("\\begin{enumerate}[label=(\\alph*)]" . "┐")
+
+     ("\\correct" . "☑")
+     ("\\todo" . "TODO")
+
+     ("\\vecMMM" . "\\vec")
+     ("\\bvecMMM" . "\\vec")
+
+     ;; TODO: DNW?
+     ("\\Bigg[" . "[")
+     ("\\Bigg]" . "]")
+     ("\\Bigg(" . "(")
+     ("\\Bigg)" . ")")
+
+     ;; ("&=" . "&=")
+     ("\\dt" . "dt")
+     ("\\dx" . "dx")
+     ("\\dy" . "dy")
+
+     ("\\d\\r" . "dr")
+     ;; TODO: dangerous?, will this clash with anything starting with \r?
+     ("\\r" . "r")
+     ("\\v" . "v")
+     ("\\F" . "F"))))
 
 (use-package f)
 
@@ -319,9 +397,10 @@
                         tab-width 2)
                   (setq-local indent-line-function 'dan/latex-indent-line-function)
                   (setq LaTeX-indent-environment-list (cons '("minted" . nil) LaTeX-indent-environment-list))
-                  (add-hook 'before-save-hook
-                            (lambda () (unless (string-match ".+\\.sty" (buffer-file-name)) (dan/indent-buffer)))
-                            nil 'local)))
+                  (when nil
+                    (add-hook 'before-save-hook
+                              (lambda () (unless (string-match ".+\\.sty" (buffer-file-name)) (dan/indent-buffer)))
+                              nil 'local))))
   :config
   (setq preview-image-type 'dvipng))
 
@@ -702,8 +781,10 @@
 (setq hindent-extra-args '("--line-length" "100"))
 
 ;; Agda
-(load-file (let ((coding-system-for-read 'utf-8))
-             (shell-command-to-string "agda-mode locate")))
+(when nil
+  (load-file (let ((coding-system-for-read 'utf-8))
+               (shell-command-to-string "agda-mode locate")))
+  ((setq agda2-highlight-level 'non-interactive)))
 
 
 ;;; Org
@@ -719,7 +800,7 @@
 
 
 ;;; Erc
-(setq erc-nick "dd7")
+
 ;;; Plantuml
 (setq plantuml-jar-path "/usr/local/Cellar/plantuml/1.2018.11/libexec/plantuml.jar")
 
@@ -946,7 +1027,8 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
   (company-mode)
   (setq prettify-symbols-alist '(("lambda" . 955)))
   (prettify-symbols-mode)
-  (dan/set-up-outline-minor-mode "\\((\\|;;;\\)"))
+  (dan/set-up-outline-minor-mode "\\((\\|;;;\\)")
+  (add-hook 'before-save-hook (lambda () (indent-region (point-min) (point-max))) nil t))
 (add-hook 'emacs-lisp-mode-hook 'dan/emacs-lisp-mode-hook-fn)
 
 (defun dan/eshell-mode-hook-fn ()
@@ -987,19 +1069,20 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
   (interactive)
   (dan/latex-paired-characters)
 
-  ;; The following DNW for \begin for some reason. Try evaluating
-  ;; (set (make-local-variable 'outline-regexp) "\\(\\\\sub\\|\\\\section\\|\\\\begin\\)")
-  ;; in the buffer instead
   (dan/set-up-outline-minor-mode "\\(\\\\sub\\|\\\\section\\|\\\\begin\\)")
 
-  (dan/set-up-outline-minor-mode "\\\\section")
   ;; (dan/watch-mathematics)
   (add-to-list 'LaTeX-item-list
                '("align" . dan/latex-insert-item-in-align-environment))
   (add-to-list 'LaTeX-item-list
                '("align*" . dan/latex-insert-item-in-align-environment))
-  (local-set-key [(super v)] 'dan/latex-yank-clipboard-image-maybe)
-  (xenops-mode))
+
+  (setq org-latex-packages-alist '(("" "mathematics" t))
+        ;; let mathematics.sty specify all packages
+        org-latex-default-packages-alist nil)
+  (xenops-mode)
+  (setq xenops-image-latex-template
+        "\\begin{mdframed}\n\\includegraphics[width=400pt]{%s}\n\\end{mdframed}"))
 
 (add-hook 'LaTeX-mode-hook 'dan/latex-mode-hook-fn)
 
@@ -1028,6 +1111,13 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
 (defun dan/occur-mode-find-occurrence-hook-fn ()
   (dan/on-jump-into-buffer))
 (add-hook 'occur-mode-find-occurrence-hook 'dan/occur-mode-find-occurrence-hook-fn)
+
+(defun dan/org-mode-hook-fn ()
+  (local-set-key [(meta left)] 'backward-word)
+  (local-set-key [(meta right)] 'forward-word)
+  (local-set-key [(shift left)] 'windmove-left)
+  (local-set-key [(shift right)] 'windmove-right))
+(add-hook 'org-mode-hook 'dan/org-mode-hook-fn)
 
 (defun dan/paredit-c-mode-hook-fn ()
   (local-set-key [(meta up)] 'dan/transpose-line-up)
@@ -1091,7 +1181,6 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(agda2-highlight-level (quote non-interactive))
  '(bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks")
  '(custom-safe-themes
    (quote
@@ -1125,3 +1214,4 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
 
 
 (message "⚡")
+(put 'LaTeX-narrow-to-environment 'disabled nil)

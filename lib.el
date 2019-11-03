@@ -32,13 +32,13 @@
 (defun dan/switch-to-buffer (&optional arg)
   (interactive "P")
   (call-interactively
-     (cond
-      ((equal arg '(4))
-       'counsel-switch-buffer)
-      ((and (not arg)
-            (projectile-project-p))
-       'projectile-switch-to-buffer)
-      (t 'switch-to-buffer))))
+   (cond
+    ((equal arg '(4))
+     'counsel-switch-buffer)
+    ((and (not arg)
+          (projectile-project-p))
+     'projectile-switch-to-buffer)
+    (t 'switch-to-buffer))))
 
 (defun dan/find-file (&optional arg)
   (interactive "P")
@@ -361,6 +361,10 @@
   (interactive)
   (switch-to-buffer "*rustfmt*"))
 
+(defun dan/goto-erc-emacs ()
+  (interactive)
+  (switch-to-buffer "#emacs"))
+
 (defun dan/goto-use-package ()
   (interactive)
   (dan/goto-dot-emacs)
@@ -390,7 +394,7 @@
   (cond
    ((eq major-mode 'rust-mode)
     (ffap (format "https://doc.rust-lang.org/std/?search=%s" (buffer-substring beg end))))
-     (t (error "No search backend for major-mode %s" major-mode))))
+   (t (error "No search backend for major-mode %s" major-mode))))
 
 ;;; Highlight
 (require 'ring)
@@ -485,15 +489,15 @@
 (defun dan/paired-character (open close)
   (if current-prefix-arg (insert open)
     (if (region-active-p)
-      (progn
-        (save-excursion
-          (goto-char (region-beginning))
-          (insert open))
-        (save-excursion
-          (goto-char (region-end))
-          (insert close)))
-    (insert open close)
-    (backward-char (length close)))))
+        (progn
+          (save-excursion
+            (goto-char (region-beginning))
+            (insert open))
+          (save-excursion
+            (goto-char (region-end))
+            (insert close)))
+      (insert open close)
+      (backward-char (length close)))))
 
 (defun dan/paired-dollar ()
   (interactive)
@@ -582,7 +586,7 @@
         (buffer-name "*window-configurations*"))
     (setq list
           (-filter (lambda (elt) (and (window-configuration-p (second elt))
-                                 (number-or-marker-p (first elt))))
+                                      (number-or-marker-p (first elt))))
                    list))
     (setq list (sort list (lambda (a b) (< (car a) (car b)))))
     (with-current-buffer  (get-buffer-create buffer-name)
@@ -851,24 +855,6 @@ With C-u prefix argument copy URL to clipboard only."
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Org
-(defun dan/org-babel-execute-non-native-src-block ()
-  (interactive)
-  (let ((mode major-mode)
-        (heading "* \n"))
-    (org-narrow-to-block)
-    (org-mode)
-    ;; hack: org requires a heading in file
-    (save-excursion
-      (goto-char (point-min))
-      (insert heading))
-    (forward-char (length heading))
-    (org-babel-execute-src-block-maybe)
-    (save-excursion
-      (goto-char (point-min))
-      (delete-char (length heading)))
-    (widen)
-    (funcall mode)))
-
 (defun dan/org-insert-clipboard-image (&optional file)
   (interactive "F")
   (shell-command (concat "pngpaste " file))
@@ -1328,7 +1314,7 @@ returns the value of `python-shell-buffer-name'."
 (defun dan/sicm ()
   (interactive)
   (run-scheme
-    "/Users/dan/src/3p/scmutils-20150821-x86-64-OSX/scmutils/mit-scheme/bin/scheme --library /Users/dan/src/3p/scmutils-20150821-x86-64-OSX/scmutils/mit-scheme/lib"))
+   "/Users/dan/src/3p/scmutils-20150821-x86-64-OSX/scmutils/mit-scheme/bin/scheme --library /Users/dan/src/3p/scmutils-20150821-x86-64-OSX/scmutils/mit-scheme/lib"))
 
 ;;; Comint
 
@@ -1528,8 +1514,23 @@ If LIST is nil use `projectile-project-root-parent-directories'"
 
 
 
+;;; Xenops
+
+(defun dan/xenops-reload ()
+  (interactive)
+  (let (files)
+    (dolist (file (directory-files "~/src/xenops/" 'absolute))
+      (when (s-ends-with? ".el" file)
+        (load-file file)
+        (push (file-name-nondirectory file) files)))
+    (message "loaded files: %s" (s-join ", " files))))
 
 ;;; Utilities
+
+(defmacro dan/alist-update! (alist1 alist2)
+  `(setq ,alist1
+         (let ((-compare-fn (lambda (x y) (equal (car x) (car y)))))
+           (-distinct (-union ,alist2 ,alist1)))))
 
 (defun dan/assoc-delete-all (key alist)
   "Like `assq-delete-all' but using `equal' for comparison"
