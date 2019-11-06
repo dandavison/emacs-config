@@ -392,7 +392,7 @@
               ([(super t)] . dan/latex-fixed-width))
   :hook
   (LaTeX-mode . (lambda ()
-                  (setq fill-column 100
+                  (setq fill-column dan/fill-column
                         fci-rule-column fill-column
                         tab-width 2)
                   (setq-local indent-line-function 'dan/latex-indent-line-function)
@@ -591,7 +591,7 @@
          (rust-mode . (lambda ()
                         (flycheck-mode -1)
                         (paredit-c-mode)
-                        (setq fill-column 100
+                        (setq fill-column dan/fill-column
                               fci-rule-column fill-column)
                         (dan/set-up-outline-minor-mode "[ \t]*\\(pub .+\\|fn .+\\|impl .+\\|struct .+\\|enum .+\\|##\\)")))
          (rust-after-save . (lambda () (flycheck-mode -1) (compile "cargo build")))))
@@ -703,9 +703,11 @@
 (dan/set-exec-path-from-shell)
 (advice-add 'message :after 'dan/message-buffer-goto-end-of-buffer)
 
+
+(setq dan/fill-column 99)
 (use-package fill-column-indicator
   :config
-  (setq fci-rule-column fill-column
+  (setq fci-rule-column dan/fill-column
         fci-rule-color "#A5BAF1"))
 
 (put 'downcase-region 'disabled nil)
@@ -1025,6 +1027,8 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
 (defun dan/emacs-lisp-mode-hook-fn ()
   (paredit-mode t)
   (company-mode)
+  (setq fill-column dan/fill-column)
+  (set (make-variable-buffer-local 'fci-rule-column) fill-column)
   (setq prettify-symbols-alist '(("lambda" . 955)))
   (prettify-symbols-mode)
   (dan/set-up-outline-minor-mode "\\((\\|;;;\\)")
