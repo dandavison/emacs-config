@@ -1,6 +1,7 @@
 ;;; Init
 (setq debug-on-error nil)
 (unless (equal emacs-version "27.0.50") (package-initialize))
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 (setq use-package-always-demand t)
 
 ;;; MacOS
@@ -54,7 +55,7 @@
          ([f7] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?7 arg)))
          ([f8] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?8 arg)))
          ([f9] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?9 arg)))
-         ([f10] . dan/list-window-configurations)
+         ([f10] . (lambda () (interactive) (find-file "~/dandavison7@gmail.com/Projects/xenops.org")))
          ([f11] . dan/goto-emacs-config)
          ([f12] . dan/goto-erc-emacs)
          ([(super down)] . avy-goto-line)
@@ -164,8 +165,9 @@
                 (local-set-key [(meta left)] 'backward-word)
                 (local-set-key [(meta right)] 'forward-word)
                 (local-set-key [(shift left)] 'windmove-left)
-                (local-set-key [(shift right)] 'windmove-right)
-                )))
+                (local-set-key [(shift right)] 'windmove-right)))
+  :config
+  (setq org-support-shift-select 'always))
 
 (use-package outline
   :bind (:map outline-minor-mode-map
@@ -189,7 +191,6 @@
 
 
 ;;; External Packages
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 
 (use-package ace-window
   :defer t
@@ -221,7 +222,7 @@
 (use-package xenops
   :load-path "~/src/xenops"
   :bind (:map xenops-mode-map
-              ("C-x c" . xenops-avy-copy-math)
+              ("C-x c" . xenops-avy-copy-math-and-paste)
               ("C-x x" . xenops-org-babel-execute-src-block))
   :config
   (dan/alist-update!
@@ -230,19 +231,15 @@
      ("\\N" . "ℕ")
      ("\\C" . "ℂ")
      ("\\Q" . "ℚ")
-     ;; https://unicode-table.com/en/0307/
-     ;; U+0307 Combining Dot Above
-     ("\\ddot{\\r}" . "r̈")
-     ("\\dot{\\r}" . "ṙ")
-     ("\\dot{\\v}" . "v̇")
-     ("\\dot{x}" . "ẋ")
-     ("\\dot{y}" . "ẏ")
-     ("\\xdot" . "ẋ")
-     ("\\ydot" . "ẏ")
-     ("\\\\" . "⏎")
+     ("\\Lag" . "L")
+
+     ;; ("\\\\" . "⏎")
+     ("\\\\" . "")
+
+     ("\\(" . "(")
+     ("\\)" . ")")
      ("``" . "\"")
      ("''" . "\"")
-     ("$" . "⚡" ) ;; "​" zero-width space
      (" ~ " . " ")))
   (dan/alist-update!
    xenops-text-prettify-symbols-string-replacements
@@ -272,6 +269,9 @@
      ("\\end{comment}  % latex-focus" .
       "\\end{comment}  % latex-focus ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯")
 
+     ("\\begin{mdframed}" . "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯")
+     ("\\end{mdframed}" . "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯")
+
      ("\\begin{enumerate}[label=(\\alph*)]" . "┐")
 
      ("\\correct" . "☑")
@@ -286,11 +286,31 @@
      ("\\Bigg(" . "(")
      ("\\Bigg)" . ")")
 
-     ;; ("&=" . "&=")
+     ("&=" . "=")
+
      ("\\dt" . "dt")
+     ("\\du" . "du")
+     ("\\dv" . "dv")
      ("\\dx" . "dx")
      ("\\dy" . "dy")
 
+     ;; https://unicode-table.com/en/0307/
+     ;; U+0307 Combining Dot Above
+     ("\\dot{\\r}" . "ṙ")
+     ("\\dot{\\v}" . "v̇")
+     ("\\dot{x}" . "ẋ")
+     ("\\dot{y}" . "ẏ")
+
+     ("\\xdot" . "ẋ")
+     ("\\ydot" . "ẏ")
+
+     ("\\ddot{\\r}" . "r̈")
+
+     ("\\xddot" . "ẍ")
+     ("\\yddot" . "ÿ")
+
+
+     ("$" . " " ) ;; ⚡  "​" zero-width space
      ("\\d\\r" . "dr")
      ;; TODO: dangerous?, will this clash with anything starting with \r?
      ("\\r" . "r")
@@ -382,6 +402,7 @@
               ("C-x n r" . dan/latex-focus-remove-comment-delimiters)
               ("C-x n f" . dan/latex-focus-narrow-to-region)
               ("C-x n u" . dan/latex-unfocus)
+              ("C-x n d" . dan/narrow-to-subtree)
               ("C-c |" . dan/latex-set-builder-pipe)
               ("C-c /" . dan/latex-frac-or-unfrac)
               ([(control down)] . next-line)
@@ -458,7 +479,9 @@
               ;; force file write to force pelican reload
               ("C-X C-s" . (lambda () (interactive) (set-buffer-modified-p t) (save-buffer)))
               ([(meta left)] . left-word)
-              ([(meta right)] . right-word)))
+              ([(meta right)] . right-word))
+  :hook (markdown-mode . (lambda () (setq truncate-lines nil
+                                     word-wrap t))))
 
 (use-package mhtml-mode
   :defer t
@@ -689,6 +712,20 @@
 (fset 'yes-or-no-p 'y-or-n-p)
 (set-default 'truncate-lines t)
 
+
+(defvar dan/before-revert-data)
+(defun dan/before-revert-hook-fn ()
+  (setq dan/before-revert-data `(:point-min ,(point-min) :point-max ,(point-max))))
+(add-hook 'before-revert-hook 'dan/before-revert-hook-fn)
+
+(defun dan/after-revert-hook-fn ()
+  (when dan/before-revert-data
+    (let ((point-min-before (plist-get dan/before-revert-data :point-min))
+          (point-max-before (plist-get dan/before-revert-data :point-max)))
+      (unless (and (eq (point-min) point-min-before)
+                   (eq (point-max) point-max-before))
+        (narrow-to-region point-min-before point-max-before)))))
+(add-hook 'after-revert-hook 'dan/after-revert-hook-fn)
 
 (use-package autorevert
   :config
@@ -1073,13 +1110,16 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
   (interactive)
   (dan/latex-paired-characters)
 
-  (dan/set-up-outline-minor-mode "\\(\\\\sub\\|\\\\section\\|\\\\begin\\)")
+  (dan/set-up-outline-minor-mode "\\(\\\\sub\\|\\\\section\\|\\\\begin\\|\\\\item\\)")
 
   ;; (dan/watch-mathematics)
   (add-to-list 'LaTeX-item-list
                '("align" . dan/latex-insert-item-in-align-environment))
   (add-to-list 'LaTeX-item-list
                '("align*" . dan/latex-insert-item-in-align-environment))
+
+  (setq fill-column dan/fill-column)
+  (setq fci-rule-column fill-column)
 
   (setq org-latex-packages-alist '(("" "mathematics" t))
         ;; let mathematics.sty specify all packages
@@ -1097,7 +1137,8 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
 (add-hook 'magit-diff-visit-file-hook 'dan/on-jump-into-buffer)
 
 (defun dan/makefile-mode-hook-fn ()
-  (paredit-c-mode))
+  (paredit-c-mode)
+  (local-set-key "\C-j" #'electric-newline-and-maybe-indent))
 (add-hook 'makefile-mode-hook 'dan/makefile-mode-hook-fn)
 
 (defun dan/minibuffer-setup-hook-fn ()
@@ -1216,6 +1257,5 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
  '(org-todo ((t (:foreground "darkgrey" :box (:line-width 1 :color "grey") :weight normal)))))
 (put 'upcase-region 'disabled nil)
 
-
-(message "⚡")
 (put 'LaTeX-narrow-to-environment 'disabled nil)
+(message "⚡")

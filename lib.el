@@ -352,10 +352,11 @@
   (interactive "P")
   (find-file (if arg "~/src/emacs-config/lib.el" (file-chase-links "~/.emacs.d/init.el"))))
 
-(defun dan/goto-messages-buffer ()
-  (interactive)
-  (switch-to-buffer "*Messages*")
-  (goto-char (point-max)))
+(defun dan/goto-messages-buffer (&optional arg)
+  (interactive "P")
+  (if arg (message "\n\n")
+    (switch-to-buffer "*Messages*")
+    (goto-char (point-max))))
 
 (defun dan/goto-rustfmt-buffer ()
   (interactive)
@@ -483,21 +484,26 @@
       (org-content))))
 
 
+(defun dan/narrow-to-subtree ()
+  (interactive)
+  (outline-mark-subtree)
+  (call-interactively #'narrow-to-region)
+  (deactivate-mark))
+
 ;;; Paired characters
 
 ;; hack: use one of the many pairing modes
 (defun dan/paired-character (open close)
-  (if current-prefix-arg (insert open)
-    (if (region-active-p)
-        (progn
-          (save-excursion
-            (goto-char (region-beginning))
-            (insert open))
-          (save-excursion
-            (goto-char (region-end))
-            (insert close)))
-      (insert open close)
-      (backward-char (length close)))))
+  (if (region-active-p)
+      (progn
+        (save-excursion
+          (goto-char (region-beginning))
+          (insert open))
+        (save-excursion
+          (goto-char (region-end))
+          (insert close)))
+    (insert open close)
+    (backward-char (length close))))
 
 (defun dan/paired-dollar ()
   (interactive)
@@ -544,8 +550,7 @@
   (local-set-key "{" 'dan/paired-brace)
   (local-set-key "(" 'dan/paired-paren)
   (local-set-key "$" 'dan/paired-dollar)
-  (local-set-key "[" 'dan/paired-bracket)
-  (local-set-key "|" 'dan/paired-pipe))
+  (local-set-key "[" 'dan/paired-bracket))
 
 ;;; Windows
 
@@ -1494,7 +1499,7 @@ If LIST is nil use `projectile-project-root-parent-directories'"
 
 (defun dan/grep-thing-at-point ()
   (interactive)
-  (counsel-rg (if (string-match "counsyl" default-directory)
+  (counsel-rg (if (string-match "website" default-directory)
                   (format "-g *%s* -g !.mypy_cache -- %s"
                           (file-name-base (directory-file-name default-directory))
                           (ivy-thing-at-point))
@@ -1575,3 +1580,6 @@ If LIST is nil use `projectile-project-root-parent-directories'"
       (insert string)
       (kill-ring-save (point-min) (point-max))
       string)))
+
+(defun dan/format-event (event)
+  (format "%s %s %s" (event-basic-type event) (car event) (event-modifiers event)))
