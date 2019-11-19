@@ -425,17 +425,6 @@
               ([(super d)] . dan/latex-definition)
               ([(super i)] . dan/latex-italic)
               ([(super t)] . dan/latex-fixed-width))
-  :hook
-  (LaTeX-mode . (lambda ()
-                  (setq fill-column dan/fill-column
-                        fci-rule-column fill-column
-                        tab-width 2)
-                  (setq-local indent-line-function 'dan/latex-indent-line-function)
-                  (setq LaTeX-indent-environment-list (cons '("minted" . nil) LaTeX-indent-environment-list))
-                  (when nil
-                    (add-hook 'before-save-hook
-                              (lambda () (unless (string-match ".+\\.sty" (buffer-file-name)) (dan/indent-buffer)))
-                              nil 'local))))
   :config
   (setq preview-image-type 'dvipng))
 
@@ -1139,15 +1128,22 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
   (add-to-list 'LaTeX-item-list
                '("align*" . dan/latex-insert-item-in-align-environment))
 
-  (setq fill-column dan/fill-column)
-  (setq fci-rule-column fill-column)
-
   (setq org-latex-packages-alist '(("" "mathematics" t))
         ;; let mathematics.sty specify all packages
         org-latex-default-packages-alist nil)
-  ;; (xenops-mode)
   (setq xenops-image-latex-template
-        "\\begin{mdframed}\n\\includegraphics[width=400pt]{%s}\n\\end{mdframed}"))
+        "\\begin{mdframed}\n\\includegraphics[width=400pt]{%s}\n\\end{mdframed}")
+
+  (setq fill-column 150
+        fci-rule-column fill-column
+        tab-width 2)
+  (setq-local indent-line-function 'dan/latex-indent-line-function)
+  (setq LaTeX-indent-environment-list (cons '("minted" . nil) LaTeX-indent-environment-list))
+  (when nil
+    (add-hook 'before-save-hook
+              (lambda () (unless (string-match ".+\\.sty" (buffer-file-name)) (dan/indent-buffer)))
+              nil 'local))
+  (xenops-mode))
 
 (add-hook 'LaTeX-mode-hook 'dan/latex-mode-hook-fn)
 
