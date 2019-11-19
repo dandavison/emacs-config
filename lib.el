@@ -193,6 +193,10 @@
   (apply 'message args)
   (message nil))
 
+(defun dan/lightning ()
+  (interactive)
+  (insert-char #x26A1))
+
 ;;; Indentation
 
 (defun dan/indent-shift-left (&rest args)
@@ -591,7 +595,7 @@
         (buffer-name "*window-configurations*"))
     (setq list
           (-filter (lambda (elt) (and (window-configuration-p (second elt))
-                                      (number-or-marker-p (first elt))))
+                                 (number-or-marker-p (first elt))))
                    list))
     (setq list (sort list (lambda (a b) (< (car a) (car b)))))
     (with-current-buffer  (get-buffer-create buffer-name)

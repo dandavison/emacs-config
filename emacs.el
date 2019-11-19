@@ -23,6 +23,7 @@
          ("C-c M-f" . search-files-thing-at-point)
          ("C-c b" . magit-blame)
          ("C-c c" . (lambda () (interactive) (magit-show-commit "HEAD")))
+         ("C-c d" . (lambda (&optional arg) (interactive "P") (setq debug-on-error (not arg))))
          ("C-c e" . outline-show-all)
          ("C-c f" . search-files-by-name)
          ("C-c g" . magit-status)
@@ -71,21 +72,19 @@
          ([(meta ?.)] . dan/goto-definition)
          ([(shift super left)] . ivy-resume)
          ([(super G)] . isearch-repeat-backward)
+         ([(super b)] . dan/switch-to-buffer)
          ([(super d)] . dan/bookmark-set)
          ([(super f)] . dan/find-file)
          ([(super k)] . dan/bookmark-set)
          ([(super left)] . winner-undo)
          ([(super l)] . bookmark-bmenu-list)
          ([(super m)] . dan/goto-definition)
+         ([(super n)] . (lambda () (interactive) (dan/switch-to-buffer '(4))))
          ([(super o)] . dan/find-file)
-
-         ;; These don't seem to be bound in MacOS port
-         ([super n] . make-frame)
-         ([(super u)] . revert-buffer)
-         ([(super v)] . yank)
-
          ([(super return)] . dan/maximize)
          ([(super right)] . winner-redo)
+         ([(super u)] . revert-buffer) ;; not bound in MacOS port
+         ([(super v)] . yank) ;; not bound in MacOS port
          ([(super ?&)] . (lambda () (interactive) (let ((kill-buffer-query-functions nil)) (kill-buffer))))
          ([(super ?,)] . counsel-rg)
          ([(super ?.)] . dan/grep-thing-at-point)
@@ -222,6 +221,7 @@
 (use-package xenops
   :load-path "~/src/xenops"
   :bind (:map xenops-mode-map
+              ("C-p" . xenops-text-prettify-symbols-mode)
               ("C-x c" . xenops-avy-copy-math-and-paste)
               ("C-x x" . xenops-org-babel-execute-src-block))
   :config
@@ -271,6 +271,9 @@
 
      ("\\begin{mdframed}" . "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯")
      ("\\end{mdframed}" . "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯")
+
+     ("#+begin_src" . "⚡")
+     ("#+end_src" . "⚡")
 
      ("\\begin{enumerate}[label=(\\alph*)]" . "┐")
 
@@ -351,7 +354,7 @@
   :config
   (setq ivy-use-virtual-buffers t
         ivy-fixed-height-minibuffer t
-        ivy-height #xFFFFFFFF
+        ivy-height 20
         ivy-dynamic-exhibit-delay-ms 250)
   ;; https://oremacs.com/2018/03/05/grep-exclude/
   (setq counsel-git-cmd "rg --files"  ;;  --type py
@@ -365,7 +368,6 @@
   (advice-add 'swiper :before (lambda (&rest args) (outline-show-all)))
   (advice-add 'swiper--ensure-visible :after 'dan/on-jump-into-buffer)
   (add-hook 'counsel-grep-post-action-hook 'dan/on-jump-into-buffer))
-
 
 (use-package jedi-core
   :after (python-environment)
@@ -655,7 +657,8 @@
 (defalias 'color-theme 'load-theme)
 ;; (color-theme 'railscasts-reloaded t)
 ;; (color-theme 'leuven t)
-(minimal-mode)
+;; (minimal-mode)
+(tool-bar-mode -1)
 
 (defun dan/set-appearance ()
   (interactive)
@@ -1124,7 +1127,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
   (setq org-latex-packages-alist '(("" "mathematics" t))
         ;; let mathematics.sty specify all packages
         org-latex-default-packages-alist nil)
-  (xenops-mode)
+  ;; (xenops-mode)
   (setq xenops-image-latex-template
         "\\begin{mdframed}\n\\includegraphics[width=400pt]{%s}\n\\end{mdframed}"))
 
