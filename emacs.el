@@ -198,6 +198,18 @@
 (use-package cargo
   :hook (rust-mode . cargo-minor-mode))
 
+(defun dan/java-mode-hook-function ()
+  (paredit-c-mode)
+  (meghanada-mode t)
+  (meghanada-telemetry-enable t)
+  (flycheck-mode +1)
+  (setq c-basic-offset 2)
+  (add-hook 'before-save-hook (lambda () (indent-region (point-min) (point-max))) nil t)
+  (add-hook 'before-save-hook 'meghanada-code-beautify-before-save))
+
+(use-package cc-mode
+  :hook (java-mode . dan/java-mode-hook-function))
+
 (use-package clojure-mode
   :defer t
   :bind (:map clojure-mode-map
@@ -484,6 +496,12 @@
               ([(meta right)] . right-word))
   :hook (markdown-mode . (lambda () (setq truncate-lines nil
                                      word-wrap t))))
+
+
+(use-package meghanada
+  :config
+  (setq meghanada-java-path "java")
+  (setq meghanada-maven-path "mvn"))
 
 (use-package mhtml-mode
   :defer t
@@ -1237,7 +1255,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
  '(magit-diff-arguments (quote ("--ignore-all-space" "--no-ext-diff")))
  '(package-selected-packages
    (quote
-    (elisp-format company-lean lean-mode sql-indent material-theme graphql-mode typescript-mode reformatter lsp-rust cargo flycheck-rust toml-mode lsp-ui wgrep ace-jump-mode ace-window forge applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move coffee-mode color-theme-modern color-theme-railscasts company company-jedi confluence counsel debbugs dired-details+ dockerfile-mode dot-mode emmet-mode ess eyuml f fill-column-indicator fzf graphviz-dot-mode haskell-mode hindent htmlize ivy jira-markup-mode latex-pretty-symbols magit markdown-mode minimal-theme modalka multiple-cursors paredit paredit-everywhere plantuml-mode pony-mode projectile pyenv-mode py-isort railscasts-reloaded-theme railscasts-theme ripgrep smartparens smooth-scroll soothe-theme sqlite sublimity transpose-frame use-package visual-fill-column yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
+    (meghanada ivy-hydra elisp-format company-lean lean-mode sql-indent material-theme graphql-mode typescript-mode reformatter lsp-rust cargo flycheck-rust toml-mode lsp-ui wgrep ace-jump-mode ace-window forge applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move coffee-mode color-theme-modern color-theme-railscasts company company-jedi confluence counsel debbugs dired-details+ dockerfile-mode dot-mode emmet-mode ess eyuml f fill-column-indicator fzf graphviz-dot-mode haskell-mode hindent htmlize ivy jira-markup-mode latex-pretty-symbols magit markdown-mode minimal-theme modalka multiple-cursors paredit paredit-everywhere plantuml-mode pony-mode projectile pyenv-mode py-isort railscasts-reloaded-theme railscasts-theme ripgrep smartparens smooth-scroll soothe-theme sqlite sublimity transpose-frame use-package visual-fill-column yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
  '(safe-local-variable-values (quote ((bug-reference-bug-regexp . "#\\(?2:[0-9]+\\)")))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
