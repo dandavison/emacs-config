@@ -385,15 +385,13 @@
   :after (python-environment)
   :load-path "~/src/3p/emacs-jedi"
   :config
-  (pyenv-mode-set "3.6.8")
   ;; TODO: set these in (use-package python-environment ...) ?
   (setq python-environment-directory (expand-file-name "~/tmp/virtualenvs")
         python-environment-virtualenv '("python" "-m" "venv"))
-  (setq jedi:environment-root "emacs-jedi")
-  (setq jedi:server-args '("--log" "/tmp/jediepcserver.log"
-                           "--log-level" "INFO"))
-  (jedi:install-server)
-  (setq jedi:goto-definition-config
+  (setq jedi:environment-root "emacs-jedi"
+        jedi:server-args '("--log" "/tmp/jediepcserver.log"
+                           "--log-level" "INFO")
+        jedi:goto-definition-config
         '((nil definition nil)
           (t   definition nil)
           (nil nil        nil)
@@ -402,7 +400,8 @@
           (t   definition t  )
           (nil nil        t  )
           (t   nil        t  )))
-  (add-hook 'jedi:goto-definition-hook 'dan/on-jump-into-buffer))
+  :hook
+  (jedi:goto-definition-hook . #'dan/on-jump-into-buffer))
 
 (use-package js
   :defer t
@@ -583,12 +582,7 @@
           "--force_single_line_imports"
           "--dont-skip=__init__.py")))
 
-(use-package pyenv-mode
-  ;; :init
-  ;; (add-to-list 'exec-path "~/.pyenv/shims")
-  :ensure t
-  :config
-  (pyenv-mode))
+(use-package pyenv-mode)
 
 (use-package python-environment)
 
@@ -875,7 +869,8 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
 
 (defun dan/python-mode-hook-fn ()
   (interactive)
-
+  (pyenv-mode)
+  (pyenv-mode-set "3.6.8")
   (setq dan/python-project-name (dan/python-infer-project-name)
         dan/python-virtualenv (dan/python-infer-virtualenv dan/python-project-name)
         dan/python-project-root (dan/python-infer-project-root dan/python-project-name))
@@ -923,6 +918,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
     (message "Python virtualenv / project root are unknown"))
 
   (company-mode)
+  (jedi:install-server) ;; TODO do this only when necessary
   (jedi:setup)
 
   (setq fill-column 99)
