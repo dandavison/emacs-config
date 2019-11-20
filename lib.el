@@ -1530,11 +1530,28 @@ If LIST is nil use `projectile-project-root-parent-directories'"
   (let (files)
     (dolist (file (directory-files "~/src/xenops/" 'absolute))
       (when (s-ends-with? ".el" file)
-        (load-file file)
+        (dan/eval-file-with-defvars file)
         (push (file-name-nondirectory file) files)))
     (message "loaded files: %s" (s-join ", " files))))
 
 ;;; Utilities
+
+(defun dan/eval-buffer-with-defvars ()
+  "Execute the current buffer as Lisp code.
+Top-level forms are evaluated with `eval-defun' so that `defvar'
+and `defcustom' forms reset their default values."
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (while (not (eobp))
+      (forward-sexp)
+      (eval-defun nil))))
+
+(defun dan/eval-file-with-defvars (file)
+  (with-temp-buffer
+    (insert-file-contents file)
+    (emacs-lisp-mode)
+    (dan/eval-buffer-with-defvars)))
 
 (defmacro dan/alist-update! (alist1 alist2)
   `(setq ,alist1
