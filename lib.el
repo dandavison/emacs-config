@@ -1532,7 +1532,14 @@ If LIST is nil use `projectile-project-root-parent-directories'"
       (when (s-ends-with? ".el" file)
         (dan/eval-file-with-defvars file)
         (push (file-name-nondirectory file) files)))
-    (message "loaded files: %s" (s-join ", " files))))
+    (message "loaded files: %s" (s-join ", " files))
+    (save-window-excursion
+      (with-temp-buffer
+        (find-file user-init-file)
+        (goto-char (point-min))
+        (re-search-forward "^(use-package xenops")
+        (goto-char (match-beginning 0))
+        (eval-defun nil)))))
 
 ;;; Utilities
 
