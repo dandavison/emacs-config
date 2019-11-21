@@ -310,14 +310,6 @@
             font)
           (x-list-fonts "*")))
 
-(defun dan/browse-fonts (&rest face-spec)
-  (interactive)
-  (switch-to-buffer-other-window (get-buffer-create "*Fonts*"))
-  (erase-buffer)
-  (dolist (font (dan/get-fontified-strings face-spec))
-    (insert (format "%s\n" font)))
-  (goto-char (point-min)))
-
 (defun dan/ivy-browse-fonts (face-spec)
   ;; E.g. (browse-fonts :height 1.1 :foreground "blue4" :weight 'bold)
   (interactive "xFace plist: ")
