@@ -1272,3 +1272,4 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
 
 (put 'LaTeX-narrow-to-environment 'disabled nil)
 (message "⚡")
+(put 'list-timers 'disabled nil)
