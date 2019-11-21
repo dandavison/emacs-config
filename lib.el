@@ -1536,6 +1536,17 @@ If LIST is nil use `projectile-project-root-parent-directories'"
 
 ;;; Utilities
 
+(defun dan/describe-face-at-point ()
+  (interactive)
+  (let ((face (or (face-at-point) 'default)))
+    (describe-face face)
+    (if-let (remapping (cdr (assq face face-remapping-alist)))
+        (with-current-buffer "*Help*"
+          (goto-char (point-min))
+          (let ((inhibit-read-only t))
+            (insert (format "Face '%s' is remapped:\n\n%s\n\n\n"
+                            face (prin1-to-string remapping))))))))
+
 (defun dan/eval-buffer-with-defvars ()
   "Execute the current buffer as Lisp code.
 Top-level forms are evaluated with `eval-defun' so that `defvar'

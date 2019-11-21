@@ -25,7 +25,7 @@
          ("C-c c" . (lambda () (interactive) (magit-show-commit "HEAD")))
          ("C-c d" . (lambda (&optional arg) (interactive "P") (setq debug-on-error (not arg))))
          ("C-c e" . outline-show-all)
-         ("C-c f" . search-files-by-name)
+         ("C-c f" . dan/describe-face-at-point)
          ("C-c g" . magit-status)
          ("C-c l" . linum-mode)
          ("C-c m" . dan/goto-messages-buffer)
