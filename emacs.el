@@ -23,7 +23,9 @@
          ("C-c M-f" . search-files-thing-at-point)
          ("C-c b" . magit-blame)
          ("C-c c" . (lambda () (interactive) (magit-show-commit "HEAD")))
-         ("C-c d" . (lambda (&optional arg) (interactive "P") (setq debug-on-error (not arg))))
+         ("C-c d" . (lambda (&optional arg) (interactive "P")
+                      (setq debug-on-error (not arg))
+                      (message "debug-on-error: %s" debug-on-error)))
          ("C-c e" . outline-show-all)
          ("C-c f" . dan/describe-face-at-point)
          ("C-c g" . magit-status)
@@ -1261,7 +1263,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
  '(magit-diff-arguments (quote ("--ignore-all-space" "--no-ext-diff")))
  '(package-selected-packages
    (quote
-    (meghanada ivy-hydra elisp-format company-lean lean-mode sql-indent material-theme graphql-mode typescript-mode reformatter lsp-rust cargo flycheck-rust toml-mode lsp-ui wgrep ace-jump-mode ace-window forge applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move coffee-mode color-theme-modern color-theme-railscasts company company-jedi confluence counsel debbugs dired-details+ dockerfile-mode dot-mode emmet-mode ess eyuml f fill-column-indicator fzf graphviz-dot-mode haskell-mode hindent htmlize ivy jira-markup-mode latex-pretty-symbols magit markdown-mode minimal-theme modalka multiple-cursors paredit paredit-everywhere plantuml-mode pony-mode projectile pyenv-mode py-isort railscasts-reloaded-theme railscasts-theme ripgrep smartparens smooth-scroll soothe-theme sqlite sublimity transpose-frame use-package visual-fill-column yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
+    (auctex meghanada ivy-hydra elisp-format company-lean lean-mode sql-indent material-theme graphql-mode typescript-mode reformatter lsp-rust cargo flycheck-rust toml-mode lsp-ui wgrep ace-jump-mode ace-window forge applescript-mode auctex-latexmk aumix-mode auto-overlays avy buffer-move coffee-mode color-theme-modern color-theme-railscasts company company-jedi confluence counsel debbugs dired-details+ dockerfile-mode dot-mode emmet-mode ess eyuml f fill-column-indicator fzf graphviz-dot-mode haskell-mode hindent htmlize ivy jira-markup-mode latex-pretty-symbols magit markdown-mode minimal-theme modalka multiple-cursors paredit paredit-everywhere plantuml-mode pony-mode projectile pyenv-mode py-isort railscasts-reloaded-theme railscasts-theme ripgrep smartparens smooth-scroll soothe-theme sqlite sublimity transpose-frame use-package visual-fill-column yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
  '(safe-local-variable-values (quote ((bug-reference-bug-regexp . "#\\(?2:[0-9]+\\)")))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
