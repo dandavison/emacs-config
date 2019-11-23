@@ -140,7 +140,19 @@
               ([(super x)] . eval-defun)
               ([(meta left)] . nil)
               ([(meta right)] . nil))
-  :hook (emacs-lisp-mode . (lambda () (flycheck-mode -1))))
+  :config
+  (defun dan/emacs-lisp-mode-hook-fn ()
+    (paredit-mode t)
+    (company-mode)
+    (setq fill-column dan/fill-column)
+    (set (make-variable-buffer-local 'fci-rule-column) fill-column)
+    (setq prettify-symbols-alist '(("lambda" . 955)))
+    (prettify-symbols-mode)
+    (dan/set-up-outline-minor-mode "\\((\\|;;;\\)")
+    (add-hook 'before-save-hook (lambda () (indent-region (point-min) (point-max))) nil t)
+    (flycheck-mode -1))
+
+  :hook (emacs-lisp-mode . dan/emacs-lisp-mode-hook-fn))
 
 (use-package erc
   :config
@@ -431,7 +443,49 @@
               ([(super i)] . dan/latex-italic)
               ([(super t)] . dan/latex-fixed-width))
   :config
-  (setq preview-image-type 'dvipng))
+  (setq preview-image-type 'dvipng)
+
+  (defun dan/latex-mode-hook-fn ()
+    (interactive)
+
+    ;; Auctex
+    (setq TeX-auto-save t)
+    (setq TeX-parse-self t)
+    (setq-default TeX-master nil)
+    ;; (setq preview-image-type 'dvipng
+    ;;       preview-dvipng-image-type 'svg
+    ;;       TeX-PDF-from-DVI "Dvips")
+
+    ;; (setq org-latex-packages-alist '(("" "mathematics" t))
+    ;;       ;; let mathematics.sty specify all packages
+    ;;       org-latex-default-packages-alist nil)
+    (setq org-latex-packages-alist nil
+          org-latex-default-packages-alist nil)
+
+    (dan/latex-paired-characters)
+
+    (dan/set-up-outline-minor-mode "\\(\\\\sub\\|\\\\section\\|\\\\begin\\|\\\\item\\)")
+
+    ;; (dan/watch-mathematics)
+    (add-to-list 'LaTeX-item-list
+                 '("align" . dan/latex-insert-item-in-align-environment))
+    (add-to-list 'LaTeX-item-list
+                 '("align*" . dan/latex-insert-item-in-align-environment))
+
+    (setq xenops-image-latex-template
+          "\\begin{mdframed}\n\\includegraphics[width=400pt]{%s}\n\\end{mdframed}")
+
+    (setq fill-column 150
+          fci-rule-column fill-column
+          tab-width 2)
+    (setq-local indent-line-function 'dan/latex-indent-line-function)
+    (setq LaTeX-indent-environment-list (cons '("minted" . nil) LaTeX-indent-environment-list))
+    (when nil
+      (add-hook 'before-save-hook
+                (lambda () (unless (string-match ".+\\.sty" (buffer-file-name)) (dan/indent-buffer)))
+                nil 'local)))
+  :hook
+  (LaTeX-mode-hook . dan/latex-mode-hook-fn))
 
 (use-package lispy
   :defer t
@@ -1073,17 +1127,6 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
   (setq coffee-tab-width 2))
 (add-hook 'coffee-mode-hook 'dan/coffee-mode-hook-fn)
 
-(defun dan/emacs-lisp-mode-hook-fn ()
-  (paredit-mode t)
-  (company-mode)
-  (setq fill-column dan/fill-column)
-  (set (make-variable-buffer-local 'fci-rule-column) fill-column)
-  (setq prettify-symbols-alist '(("lambda" . 955)))
-  (prettify-symbols-mode)
-  (dan/set-up-outline-minor-mode "\\((\\|;;;\\)")
-  (add-hook 'before-save-hook (lambda () (indent-region (point-min) (point-max))) nil t))
-(add-hook 'emacs-lisp-mode-hook 'dan/emacs-lisp-mode-hook-fn)
-
 (defun dan/eshell-mode-hook-fn ()
   (paredit-mode t)
   (setq prettify-symbols-alist '(("lambda" . 955)))
@@ -1113,41 +1156,6 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
   (paredit-c-mode)
   (setq js-indent-level 2))
 (add-hook 'js-mode-hook 'dan/js-mode-hook-fn)
-
-
-
-
-
-(defun dan/latex-mode-hook-fn ()
-  (interactive)
-  (dan/latex-paired-characters)
-
-  (dan/set-up-outline-minor-mode "\\(\\\\sub\\|\\\\section\\|\\\\begin\\|\\\\item\\)")
-
-  ;; (dan/watch-mathematics)
-  (add-to-list 'LaTeX-item-list
-               '("align" . dan/latex-insert-item-in-align-environment))
-  (add-to-list 'LaTeX-item-list
-               '("align*" . dan/latex-insert-item-in-align-environment))
-
-  (setq org-latex-packages-alist '(("" "mathematics" t))
-        ;; let mathematics.sty specify all packages
-        org-latex-default-packages-alist nil)
-  (setq xenops-image-latex-template
-        "\\begin{mdframed}\n\\includegraphics[width=400pt]{%s}\n\\end{mdframed}")
-
-  (setq fill-column 150
-        fci-rule-column fill-column
-        tab-width 2)
-  (setq-local indent-line-function 'dan/latex-indent-line-function)
-  (setq LaTeX-indent-environment-list (cons '("minted" . nil) LaTeX-indent-environment-list))
-  (when nil
-    (add-hook 'before-save-hook
-              (lambda () (unless (string-match ".+\\.sty" (buffer-file-name)) (dan/indent-buffer)))
-              nil 'local))
-  (xenops-mode))
-
-(add-hook 'LaTeX-mode-hook 'dan/latex-mode-hook-fn)
 
 (defun dan/magit-diff-mode-hook-fn ()
   (dan/magit-hide-all-sections))
