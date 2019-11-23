@@ -1453,6 +1453,12 @@ A more complex example is:
 
 ;;; Projectile
 
+(defun dan/projectile-replace ()
+  (interactive)
+  (call-interactively #'projectile-replace)
+  (projectile-save
+   a-project-buffers))
+
 (defvar dan/projectile-root-parent-directories
   '("site-packages"
     "elpa")
@@ -1555,6 +1561,11 @@ If LIST is nil use `projectile-project-root-parent-directories'"
         (eval-defun nil)))))
 
 ;;; Utilities
+
+(defun dan/save-buffer (&optional arg)
+  (interactive "P")
+  (call-interactively
+   (if arg #'save-buffer #'projectile-save-project-buffers)))
 
 (defun dan/describe-face-at-point ()
   (interactive)
