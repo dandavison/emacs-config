@@ -1560,6 +1560,27 @@ If LIST is nil use `projectile-project-root-parent-directories'"
         (goto-char (match-beginning 0))
         (eval-defun nil)))))
 
+
+(defun dan/TeX-region-create (beg end)
+  (interactive "r")
+  (let ((file (make-temp-file "dan--tex-region-create")))
+    (TeX-region-create file (buffer-substring beg end) (buffer-file-name) 0)
+    (switch-to-buffer-other-window "*TeX-region-create*")
+    (insert-file-contents file)
+    (LaTeX-mode)))
+
+(defun dan/preview-config ()
+  (interactive)
+  (let ((output
+         (format "| | | | %s | | |"
+                 (s-join " | "
+                         (mapcar (lambda (x) (if (symbolp x) (symbol-name x) x))
+                                 `(,preview-image-type
+                                   ,preview-dvipng-image-type
+                                   ,TeX-PDF-from-DVI))))))
+    (kill-new output)
+    (message output)))
+
 ;;; Utilities
 
 (defun dan/save-buffer (&optional arg)
