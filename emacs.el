@@ -197,11 +197,11 @@
               ([(meta shift right)] . python-indent-shift-right)
               ([(meta shift left)] . python-indent-shift-left)
               ([(super mouse-1)] . (lambda (event) (interactive "e") (mouse-set-point event) (jedi:goto-definition))))
-  :hook (python-mode . blacken-on-save-mode))
-
+  :config
+  (load-file "~/src/emacs-config/python.el")
+  :hook (python-mode . dan/python-mode-hook-fn))
 
 (load-file "~/src/emacs-config/lib.el")
-
 
 ;;; External Packages
 
@@ -243,115 +243,6 @@
   (add-to-list 'company-backends 'company-jedi))
 
 (use-package dash)
-
-(use-package xenops
-  :load-path "~/src/xenops"
-  :bind (:map xenops-mode-map
-              ("C-p" . xenops-text-prettify-symbols-mode)
-              ("C-x c" . xenops-avy-copy-math-and-paste)
-              ("C-x x" . xenops-execute-at-point))
-  :config
-  (dan/alist-update!
-   xenops-text-prettify-symbols
-   '(("\\R" . "ℝ")
-     ("\\N" . "ℕ")
-     ("\\C" . "ℂ")
-     ("\\Q" . "ℚ")
-     ("\\Z" . "ℤ")
-     ("\\Lag" . "L")
-
-     ;; ("\\\\" . "⏎")
-     ("\\\\" . "")
-
-     ("\\(" . "(")
-     ("\\)" . ")")
-     ("``" . "\"")
-     ("''" . "\"")
-     (" ~ " . " ")))
-  (dan/alist-update!
-   xenops-text-prettify-symbols-string-replacements
-   '(("\\begin{question*}" . "Question.")
-     ("\\end{question*}" . "┘")
-
-     ("\\begin{example*}" . "Example.")
-     ("\\end{example*}" . "┘")
-
-     ("\\begin{example}" . "Example.")
-     ("\\end{example}" . "┘")
-
-     ("\\begin{claim*}" . "Claim.")
-     ("\\end{claim*}" . "┘")
-
-     ("\\begin{intuition*}" . "Intuition.")
-     ("\\end{intuition*}" . "┘")
-
-     ("\\begin{intuition*}" . "Intuition.")
-     ("\\end{intuition*}" . "┘")
-
-     ("\\begin{intuition}" . "Intuition.")
-     ("\\end{intuition}" . "┘")
-
-     ("\\begin{minted}" . "⚡")
-     ("\\end{minted}" . "⚡")
-
-     ("#+begin_src" . "⚡")
-     ("#+end_src" . "⚡")
-
-     ("\\begin{comment}  % latex-focus" .
-      "\\begin{comment}  % latex-focus ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯")
-     ("\\end{comment}  % latex-focus" .
-      "\\end{comment}  % latex-focus ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯")
-
-     ("\\begin{mdframed}" . "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯")
-     ("\\end{mdframed}" . "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯")
-
-     ;; ("\\newpage" .
-     ;;  "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯")
-
-     ("\\begin{enumerate}[label=(\\alph*)]" . "┐")
-
-     ("\\correct" . "☑")
-     ("\\todo" . "TODO")
-
-     ("\\vecMMM" . "\\vec")
-     ("\\bvecMMM" . "\\vec")
-
-     ;; TODO: DNW?
-     ("\\Bigg[" . "[")
-     ("\\Bigg]" . "]")
-     ("\\Bigg(" . "(")
-     ("\\Bigg)" . ")")
-
-     ("&=" . "=")
-
-     ("\\dt" . "dt")
-     ("\\du" . "du")
-     ("\\dv" . "dv")
-     ("\\dx" . "dx")
-     ("\\dy" . "dy")
-
-     ;; https://unicode-table.com/en/0307/
-     ;; U+0307 Combining Dot Above
-     ("\\dot{\\r}" . "ṙ")
-     ("\\dot{\\v}" . "v̇")
-     ("\\dot{x}" . "ẋ")
-     ("\\dot{y}" . "ẏ")
-
-     ("\\xdot" . "ẋ")
-     ("\\ydot" . "ẏ")
-
-     ("\\ddot{\\r}" . "r̈")
-
-     ("\\xddot" . "ẍ")
-     ("\\yddot" . "ÿ")
-
-
-     ;; ("$" . " " ) ;; ⚡  "​" zero-width space
-     ("\\d\\r" . "dr")
-     ;; TODO: dangerous?, will this clash with anything starting with \r?
-     ("\\r" . "r")
-     ("\\v" . "v")
-     ("\\F" . "F"))))
 
 (use-package f)
 
@@ -445,49 +336,19 @@
               ([(super i)] . dan/latex-italic)
               ([(super t)] . dan/latex-fixed-width))
   :config
-  (setq preview-image-type 'dvipng)
-  (defun dan/latex-mode-hook-fn ()
-    (interactive)
-
-    ;; Auctex
-    (setq TeX-auto-save t)
-    (setq TeX-parse-self t)
-    (setq-default TeX-master nil)
-    ;; (setq preview-image-type 'dvipng
-    ;;       preview-dvipng-image-type 'svg
-    ;;       TeX-PDF-from-DVI "Dvips")
-
-    (setq org-latex-packages-alist nil
-          org-latex-default-packages-alist nil)
-
-    (dan/latex-paired-characters)
-
-    (dan/set-up-outline-minor-mode "\\(\\\\sub\\|\\\\section\\|\\\\begin\\|\\\\item\\)")
-
-    ;; (dan/watch-mathematics)
-    (add-to-list 'LaTeX-item-list
-                 '("align" . dan/latex-insert-item-in-align-environment))
-    (add-to-list 'LaTeX-item-list
-                 '("align*" . dan/latex-insert-item-in-align-environment))
-
-    (setq xenops-image-latex-template
-          "\\begin{mdframed}\n\\includegraphics[width=400pt]{%s}\n\\end{mdframed}")
-
-    (setq fill-column 150
-          fci-rule-column fill-column
-          tab-width 2)
-    (setq-local indent-line-function 'dan/latex-indent-line-function)
-    (setq LaTeX-indent-environment-list (cons '("minted" . nil) LaTeX-indent-environment-list))
-    (when nil
-      (add-hook 'before-save-hook
-                (lambda () (unless (string-match ".+\\.sty" (buffer-file-name)) (dan/indent-buffer)))
-                nil 'local))
-    (xenops-mode))
+  (load-file "~/src/emacs-config/latex.el")
 
   :hook
   (LaTeX-mode-hook . #'dan/latex-mode-hook-fn))
 
-(add-hook 'LaTeX-mode-hook #'dan/latex-mode-hook-fn)
+(use-package xenops
+  :load-path "~/src/xenops"
+  :bind (:map xenops-mode-map
+              ("C-p" . xenops-text-prettify-symbols-mode)
+              ("C-x c" . xenops-avy-copy-math-and-paste))
+  :config
+  (load-file "~/src/emacs-config/xenops.el")
+
 
 (use-package lispy
   :defer t
@@ -924,90 +785,6 @@
 
 ;;; Plantuml
 (setq plantuml-jar-path "/usr/local/Cellar/plantuml/1.2018.11/libexec/plantuml.jar")
-
-
-;;; Python
-(defvar-local dan/python-project-name nil
-  "The name of the current python project.
-
-Suppose the name is $name. The following statements are true:
-1. The project is held in a git repository at a path like .../$name/.git.
-2. The full path is known to projectile.
-3. The project virtualenv is a directory also named $name. Its
-   parent directory is python-environment-directory.")
-
-(defvar-local dan/python-virtualenv nil
-  "Absolute path to python virtualenv for current buffer.")
-
-
-(defvar-local dan/python-project-root nil
-  "Absolute path to project root.
-The project root is the place where you might find tox.ini, setup.py, Makefile, etc.")
-
-
-(defun dan/python-mode-hook-fn ()
-  (interactive)
-  (pyenv-mode)
-  (pyenv-mode-set "3.6.8")
-  (setq dan/python-project-name (dan/python-infer-project-name)
-        dan/python-virtualenv (dan/python-infer-virtualenv dan/python-project-name)
-        dan/python-project-root (dan/python-infer-project-root dan/python-project-name))
-
-  (if (and dan/python-virtualenv
-           dan/python-project-root)
-      (progn
-        (let* ((config
-                '(;; Project
-                  (dan/python-project-name . dan/python-project-name)
-                  (dan/python-virtualenv . dan/python-virtualenv)
-                  (dan/python-project-root . dan/python-project-root)
-
-                  ;; Flycheck
-                  (flycheck-flake8-maximum-line-length . 99)
-                  (flycheck-highlighting-mode . 'lines)
-                  (flycheck-python-flake8-executable . (f-join dan/python-virtualenv "bin/flake8"))
-                  (flycheck-python-mypy-executable . (f-join dan/python-virtualenv "bin/mypy"))
-                  (flycheck-flake8rc . (f-join dan/python-project-root "tox.ini"))
-                  (flycheck-python-mypy-ini . (f-join dan/python-project-root "tox.ini"))
-
-                  ;; Shell
-                  (python-shell-virtualenv-root . dan/python-virtualenv)
-                  (python-shell-interpreter . (f-join dan/python-virtualenv "bin/ipython"))
-                  (python-shell-interpreter-args . "-i"))))
-
-          (mapcar (lambda (pair) (set (make-variable-buffer-local (car pair)) (eval (cdr pair))))
-                  config)
-          (set (make-variable-buffer-local 'dan/python-buffer-config-keys)
-               (mapcar 'car config)))
-
-        ;; (assert (f-directory? dan/python-virtualenv) t)
-        ;; (assert (f-directory? dan/python-project-root) t)
-        ;; (assert (f-executable? flycheck-python-flake8-executable) t)
-        ;; (assert (f-executable? flycheck-python-mypy-executable) t)
-        ;; (assert (f-file? flycheck-flake8rc) t)
-        ;; (assert (f-file? flycheck-python-mypy-ini) t)
-        ;; (assert (f-directory? python-shell-virtualenv-root) t)
-        ;; (assert (f-executable? python-shell-interpreter) t)
-
-        (setf (flycheck-checker-get 'python-flake8 'next-checkers) '((t . python-mypy)))
-        (setf (flycheck-checker-get 'python-mypy 'next-checkers) nil)
-
-        (flycheck-select-checker 'python-flake8))
-    (message "Python virtualenv / project root are unknown"))
-
-  (company-mode)
-  (jedi:install-server) ;; TODO do this only when necessary
-  (jedi:setup)
-
-  (setq fill-column 99)
-  (set (make-variable-buffer-local 'fci-rule-column) fill-column)
-
-  (setq python-fill-docstring-style 'django)
-  (paredit-c-mode)
-  (set (make-variable-buffer-local 'prettify-symbols-alist)
-       '(("lambda" . 955)))
-  (prettify-symbols-mode)
-  (dan/set-up-outline-minor-mode "[ \t]*\\(def .+\\|class .+\\|##\\)"))
 
 
 (add-hook 'python-mode-hook 'dan/python-mode-hook-fn 'append)
