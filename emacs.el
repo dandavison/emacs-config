@@ -23,9 +23,7 @@
          ("C-c M-f" . search-files-thing-at-point)
          ("C-c b" . magit-blame)
          ("C-c c" . (lambda () (interactive) (magit-show-commit "HEAD")))
-         ("C-c d" . (lambda (&optional arg) (interactive "P")
-                      (setq debug-on-error (not arg))
-                      (message "debug-on-error: %s" debug-on-error)))
+         ("C-c d" . dan/debug-on-error)
          ("C-c e" . outline-show-all)
          ("C-c f" . dan/describe-face-at-point)
          ("C-c g" . magit-status)
@@ -62,7 +60,7 @@
          ([f9] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?9 arg)))
          ([f10] . (lambda () (interactive) (find-file "~/dandavison7@gmail.com/Projects/xenops.org")))
          ([f11] . dan/goto-emacs-config)
-         ([f12] . dan/goto-erc-emacs)
+         ([f12] . (lambda () (interactive) (switch-to-buffer "*eshell*")))
          ([(super down)] . avy-goto-line)
          ([(super up)] . avy-goto-line)
          ([(kp-delete)] . modalka-mode)
@@ -251,7 +249,7 @@
   :bind (:map xenops-mode-map
               ("C-p" . xenops-text-prettify-symbols-mode)
               ("C-x c" . xenops-avy-copy-math-and-paste)
-              ("C-x x" . xenops-org-babel-execute-src-block))
+              ("C-x x" . xenops-execute-at-point))
   :config
   (dan/alist-update!
    xenops-text-prettify-symbols
@@ -293,6 +291,12 @@
      ("\\begin{intuition}" . "Intuition.")
      ("\\end{intuition}" . "┘")
 
+     ("\\begin{minted}" . "⚡")
+     ("\\end{minted}" . "⚡")
+
+     ("#+begin_src" . "⚡")
+     ("#+end_src" . "⚡")
+
      ("\\begin{comment}  % latex-focus" .
       "\\begin{comment}  % latex-focus ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯")
      ("\\end{comment}  % latex-focus" .
@@ -303,9 +307,6 @@
 
      ;; ("\\newpage" .
      ;;  "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯")
-
-     ("#+begin_src" . "⚡")
-     ("#+end_src" . "⚡")
 
      ("\\begin{enumerate}[label=(\\alph*)]" . "┐")
 
@@ -345,7 +346,7 @@
      ("\\yddot" . "ÿ")
 
 
-     ("$" . " " ) ;; ⚡  "​" zero-width space
+     ;; ("$" . " " ) ;; ⚡  "​" zero-width space
      ("\\d\\r" . "dr")
      ;; TODO: dangerous?, will this clash with anything starting with \r?
      ("\\r" . "r")
@@ -429,7 +430,6 @@
               ("C-c d" . (lambda () (interactive) (insert "debugger;")))))
 
 (use-package latex
-  :defer t
   :bind (:map LaTeX-mode-map
               ("C-x n i" . dan/latex-focus-insert-comment-delimiters)
               ("C-x n r" . dan/latex-focus-remove-comment-delimiters)
@@ -446,7 +446,6 @@
               ([(super t)] . dan/latex-fixed-width))
   :config
   (setq preview-image-type 'dvipng)
-
   (defun dan/latex-mode-hook-fn ()
     (interactive)
 
@@ -458,9 +457,6 @@
     ;;       preview-dvipng-image-type 'svg
     ;;       TeX-PDF-from-DVI "Dvips")
 
-    ;; (setq org-latex-packages-alist '(("" "mathematics" t))
-    ;;       ;; let mathematics.sty specify all packages
-    ;;       org-latex-default-packages-alist nil)
     (setq org-latex-packages-alist nil
           org-latex-default-packages-alist nil)
 
@@ -485,9 +481,13 @@
     (when nil
       (add-hook 'before-save-hook
                 (lambda () (unless (string-match ".+\\.sty" (buffer-file-name)) (dan/indent-buffer)))
-                nil 'local)))
+                nil 'local))
+    (xenops-mode))
+
   :hook
-  (LaTeX-mode-hook . dan/latex-mode-hook-fn))
+  (LaTeX-mode-hook . #'dan/latex-mode-hook-fn))
+
+(add-hook 'LaTeX-mode-hook #'dan/latex-mode-hook-fn)
 
 (use-package lispy
   :defer t
@@ -562,6 +562,18 @@
 (use-package minimal
   :load-path "~/src/minimal")
 
+(use-package mma
+  :load-path "~/src/3p/mma-mode"
+  :config
+  (add-to-list 'auto-mode-alist '("\\.m\\'" . mma-mode))
+  (font-lock-add-keywords
+   'mma-mode
+   '(("\\<\\([^ [\n]+\\)\\[" 1 'font-lock-function-name-face)))
+  (defun dan/mma-mode-hook-fn ()
+    (paredit-c-mode))
+  :hook
+  (mma-mode-hook . #'dan/mma-mode-hook-fn))
+
 (use-package modalka
   :defer t
   :bind (:map modalka-mode-map
@@ -596,6 +608,10 @@
   (add-to-list 'modalka-excluded-modes 'magit-log-select-mode)
   (add-to-list 'modalka-excluded-modes 'git-rebase-mode))
 
+(use-package neotree
+  :bind (:map neotree-mode-map
+              ([(left)] . neotree-select-up-node)
+              ([(right)] . (lambda () (interactive) (execute-kbd-macro (kbd "<tab>"))))))
 
 (use-package ob-mathematica
   :load-path "~/src/3p/org-mode/contrib/lisp")
@@ -1177,6 +1193,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
     (local-set-key "/" 'self-insert-command)
     (paredit-mode 1)))
 (add-hook 'minibuffer-setup-hook 'dan/minibuffer-setup-hook-fn)
+(add-hook 'minibuffer-inactive-mode-hook 'dan/minibuffer-setup-hook-fn)
 
 (defun dan/next-error-hook-fn ()
   (dan/on-jump-into-buffer))
@@ -1263,8 +1280,11 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
  '(magit-diff-arguments (quote ("--ignore-all-space" "--no-ext-diff")))
  '(package-selected-packages
    (quote
-    (auctex meghanada ivy-hydra elisp-format company-lean lean-mode sql-indent material-theme graphql-mode typescript-mode reformatter lsp-rust cargo flycheck-rust toml-mode lsp-ui wgrep ace-jump-mode ace-window forge applescript-mode auctex-latexmk aumix-mode auto-overlays avy buffer-move coffee-mode color-theme-modern color-theme-railscasts company company-jedi confluence counsel debbugs dired-details+ dockerfile-mode dot-mode emmet-mode ess eyuml f fill-column-indicator fzf graphviz-dot-mode haskell-mode hindent htmlize ivy jira-markup-mode latex-pretty-symbols magit markdown-mode minimal-theme modalka multiple-cursors paredit paredit-everywhere plantuml-mode pony-mode projectile pyenv-mode py-isort railscasts-reloaded-theme railscasts-theme ripgrep smartparens smooth-scroll soothe-theme sqlite sublimity transpose-frame use-package visual-fill-column yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
- '(safe-local-variable-values (quote ((bug-reference-bug-regexp . "#\\(?2:[0-9]+\\)")))))
+    (neotree auctex meghanada ivy-hydra elisp-format company-lean lean-mode sql-indent material-theme graphql-mode typescript-mode reformatter lsp-rust cargo flycheck-rust toml-mode lsp-ui wgrep ace-jump-mode ace-window forge applescript-mode auctex-latexmk aumix-mode auto-overlays avy buffer-move coffee-mode color-theme-modern color-theme-railscasts company company-jedi confluence counsel debbugs dired-details+ dockerfile-mode dot-mode emmet-mode ess eyuml f fill-column-indicator fzf graphviz-dot-mode haskell-mode hindent htmlize ivy jira-markup-mode latex-pretty-symbols magit markdown-mode minimal-theme modalka multiple-cursors paredit paredit-everywhere plantuml-mode pony-mode projectile pyenv-mode py-isort railscasts-reloaded-theme railscasts-theme ripgrep smartparens smooth-scroll soothe-theme sqlite sublimity transpose-frame use-package visual-fill-column yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
+ '(safe-local-variable-values
+   (quote
+    ((TeX-command-extra-options . "-shell-escape")
+     (bug-reference-bug-regexp . "#\\(?2:[0-9]+\\)")))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

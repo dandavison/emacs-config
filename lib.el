@@ -379,10 +379,6 @@
   (interactive)
   (switch-to-buffer "*rustfmt*"))
 
-(defun dan/goto-erc-emacs ()
-  (interactive)
-  (switch-to-buffer "#emacs"))
-
 (defun dan/goto-use-package ()
   (interactive)
   (dan/goto-dot-emacs)
@@ -608,7 +604,7 @@
         (buffer-name "*window-configurations*"))
     (setq list
           (-filter (lambda (elt) (and (window-configuration-p (second elt))
-                                 (number-or-marker-p (first elt))))
+                                      (number-or-marker-p (first elt))))
                    list))
     (setq list (sort list (lambda (a b) (< (car a) (car b)))))
     (with-current-buffer  (get-buffer-create buffer-name)
@@ -650,6 +646,14 @@
   (let ((file "img.png"))
     (shell-command (format "pngpaste %s && mogrify -resize 400 %s" file file))
     (insert-image-file file)))
+
+;;; Elisp
+(defun dan/debug-on-error (&optional arg)
+  (interactive "P")
+  (setq debug-on-error (not arg))
+  (if-let ((buffer (get-buffer "*Backtrace*")))
+      (kill-buffer buffer))
+  (message "debug-on-error: %s" debug-on-error))
 
 ;;; Git
 (defun dan/open-in-github (&optional clipboard-only)
@@ -1058,16 +1062,16 @@ Suppose the name is $name. The following statements are true:
 2. The full path is known to projectile.
 3. The project virtualenv is a directory also named $name. Its
    parent directory is python-environment-directory."
-  (let* ((file-name (buffer-file-name)))
-    (if (string-match
-         (format "%s/\\([^/]+\\)/" (directory-file-name python-environment-directory))
-         file-name)
-        ;; We're in the virtualenv.
-        (match-string 1 file-name)
-      ;; We're in the project directory. Note: this will give
-      ;; an incorrect answer if we are in a projectile project
-      ;; directory nested within the desired project directory.
-      (and (projectile-project-p) (projectile-project-name)))))
+  (if-let ((file-name (buffer-file-name)))
+      (if (string-match
+           (format "%s/\\([^/]+\\)/" (directory-file-name python-environment-directory))
+           file-name)
+          ;; We're in the virtualenv.
+          (match-string 1 file-name)
+        ;; We're in the project directory. Note: this will give
+        ;; an incorrect answer if we are in a projectile project
+        ;; directory nested within the desired project directory.
+        (and (projectile-project-p) (projectile-project-name)))))
 
 (defun dan/python-infer-virtualenv (&optional project-name)
   "Infer absolute path to python virtualenv for current buffer."
@@ -1544,6 +1548,13 @@ If LIST is nil use `projectile-project-root-parent-directories'"
 
 ;;; Xenops
 
+(defun dan/xenops-src-apply-syntax-highlighting ()
+  (interactive)
+  (unless (or (looking-at (caar (xenops-elements-get 'src :delimiters)))
+              (looking-at (caar (xenops-elements-get 'minted :delimiters))))
+    (error "No src/minted block at point"))
+  (xenops-src-apply-syntax-highlighting))
+
 (defun dan/xenops-reload ()
   (interactive)
   (let (files)
@@ -1561,11 +1572,15 @@ If LIST is nil use `projectile-project-root-parent-directories'"
         (eval-defun nil)))))
 
 
-(defun dan/TeX-region-create (beg end)
-  (interactive "r")
+(defun dan/TeX-region-create ()
+  (interactive)
+  (assert (region-active-p))
   (let ((file (make-temp-file "dan--tex-region-create")))
-    (TeX-region-create file (buffer-substring beg end) (buffer-file-name) 0)
+    (TeX-region-create file
+                       (buffer-substring (region-beginning) (region-end))
+                       (buffer-file-name) 0)
     (switch-to-buffer-other-window "*TeX-region-create*")
+    (erase-buffer)
     (insert-file-contents file)
     (LaTeX-mode)))
 
@@ -1586,7 +1601,9 @@ If LIST is nil use `projectile-project-root-parent-directories'"
 (defun dan/save-buffer (&optional arg)
   (interactive "P")
   (call-interactively
-   (if arg #'save-buffer #'projectile-save-project-buffers)))
+   (if (or arg (not (projectile-project-p)))
+       #'save-buffer
+     #'projectile-save-project-buffers)))
 
 (defun dan/describe-face-at-point ()
   (interactive)
