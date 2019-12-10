@@ -910,6 +910,18 @@ With C-u prefix argument copy URL to clipboard only."
 
 ;;; Magit
 
+(defun dan/magit-commit ()
+  (interactive)
+  (let ((commit-message (buffer-string)))
+    (let ((with-editor-cancel-message ""))
+      (with-editor-cancel nil))
+    (with-temp-buffer
+      (insert commit-message)
+      (goto-char (point-min))
+      (delete-matching-lines "^[ \t]*#")
+      (magit-run-git-with-input "commit" "-F" "-")))
+  (magit-refresh-all))
+
 ;; This doesn't seem to work: cl-flet doesn't override name in desired scope?
 ;; (defun dan/magit-dired-rename ()
 ;;   (interactive)
