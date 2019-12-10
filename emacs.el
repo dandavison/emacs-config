@@ -1,6 +1,6 @@
 ;;; Init
 (setq debug-on-error nil)
-(unless (equal emacs-version "27.0.50") (package-initialize))
+(package-initialize)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 (setq use-package-always-demand t)
 
@@ -28,7 +28,7 @@
          ("C-c f" . dan/describe-face-at-point)
          ("C-c g" . magit-status)
          ("C-c l" . linum-mode)
-         ("C-c m" . dan/goto-messages-buffer)
+         ("C-c m" . dan/display-messages-buffer)
          ("C-c o" . dan/scratch-buffer)
          ("C-p" . prettify-symbols-mode)
          ("C-c r" . (lambda (&optional arg) (interactive "P") (call-interactively (if arg #'dan/projectile-replace #'replace-regexp))))
@@ -339,7 +339,12 @@
   (load-file "~/src/emacs-config/latex.el")
 
   :hook
-  (LaTeX-mode-hook . #'dan/latex-mode-hook-fn))
+  (latex-mode-hook . dan/latex-mode-hook-fn)
+  (LaTeX-mode-hook . dan/latex-mode-hook-fn)
+  (plain-tex-mode-hook . dan/latex-mode-hook-fn))
+
+(dolist (hook '(plain-TeX-mode-hook latex-mode-hook LaTeX-mode-hook))
+  (add-hook hook #'dan/latex-mode-hook-fn))
 
 (use-package xenops
   :load-path "~/src/xenops"
@@ -521,7 +526,7 @@
           "--force_single_line_imports"
           "--dont-skip=__init__.py")))
 
-(use-package pyenv-mode)
+(use-package pyenv-mode :defer t)
 
 (use-package python-environment)
 
@@ -595,6 +600,7 @@
 (setq minimal-mode-line-inactive-background "dim grey")
 
 (defalias 'color-theme 'load-theme)
+(defalias 'frame-new 'make-frame)
 ;; (color-theme 'railscasts-reloaded t)
 ;; (color-theme 'leuven t)
 ;; (minimal-mode)
@@ -1057,7 +1063,8 @@
  '(magit-diff-arguments (quote ("--ignore-all-space" "--no-ext-diff")))
  '(package-selected-packages
    (quote
-    (neotree auctex meghanada ivy-hydra elisp-format company-lean lean-mode sql-indent material-theme graphql-mode typescript-mode reformatter lsp-rust cargo flycheck-rust toml-mode lsp-ui wgrep ace-jump-mode ace-window forge applescript-mode auctex-latexmk aumix-mode auto-overlays avy buffer-move coffee-mode color-theme-modern color-theme-railscasts company company-jedi confluence counsel debbugs dired-details+ dockerfile-mode dot-mode emmet-mode ess eyuml f fill-column-indicator fzf graphviz-dot-mode haskell-mode hindent htmlize ivy jira-markup-mode latex-pretty-symbols magit markdown-mode minimal-theme modalka multiple-cursors paredit paredit-everywhere plantuml-mode pony-mode projectile pyenv-mode py-isort railscasts-reloaded-theme railscasts-theme ripgrep smartparens smooth-scroll soothe-theme sqlite sublimity transpose-frame use-package visual-fill-column yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
+    (auctex dash-functional dash restclient paradox neotree meghanada ivy-hydra elisp-format company-lean lean-mode sql-indent material-theme graphql-mode typescript-mode reformatter lsp-rust cargo flycheck-rust toml-mode lsp-ui wgrep ace-jump-mode ace-window forge applescript-mode auctex-latexmk aumix-mode auto-overlays avy buffer-move coffee-mode color-theme-modern color-theme-railscasts company company-jedi confluence counsel debbugs dired-details+ dockerfile-mode dot-mode emmet-mode ess eyuml f fill-column-indicator fzf graphviz-dot-mode haskell-mode hindent htmlize ivy jira-markup-mode latex-pretty-symbols magit markdown-mode minimal-theme modalka multiple-cursors paredit paredit-everywhere plantuml-mode pony-mode projectile pyenv-mode py-isort railscasts-reloaded-theme railscasts-theme ripgrep smartparens smooth-scroll soothe-theme sqlite sublimity transpose-frame use-package visual-fill-column yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
+ '(paradox-github-token t)
  '(safe-local-variable-values
    (quote
     ((TeX-command-extra-options . "-shell-escape")

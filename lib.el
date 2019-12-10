@@ -369,10 +369,10 @@
   (interactive "P")
   (find-file (if arg "~/src/emacs-config/lib.el" (file-chase-links "~/.emacs.d/init.el"))))
 
-(defun dan/goto-messages-buffer (&optional arg)
+(defun dan/display-messages-buffer (&optional arg)
   (interactive "P")
   (if arg (message "\n\n")
-    (switch-to-buffer "*Messages*")
+    (switch-to-buffer-other-window "*Messages*")
     (goto-char (point-max))))
 
 (defun dan/goto-rustfmt-buffer ()
@@ -507,16 +507,17 @@
 
 ;; hack: use one of the many pairing modes
 (defun dan/paired-character (open close)
-  (if (region-active-p)
-      (progn
-        (save-excursion
-          (goto-char (region-beginning))
-          (insert open))
-        (save-excursion
-          (goto-char (region-end))
-          (insert close)))
-    (insert open close)
-    (backward-char (length close))))
+  (let ((cursor-sensor-inhibit '(inserting-paired-characters)))
+    (if (region-active-p)
+        (progn
+          (save-excursion
+            (goto-char (region-beginning))
+            (insert open))
+          (save-excursion
+            (goto-char (region-end))
+            (insert close)))
+      (insert open close)
+      (backward-char (length close)))))
 
 (defun dan/paired-dollar ()
   (interactive)
@@ -1548,12 +1549,19 @@ If LIST is nil use `projectile-project-root-parent-directories'"
 
 ;;; Xenops
 
-(defun dan/xenops-src-apply-syntax-highlighting ()
+(defun dan/xenops-test-syntax-highlighting ()
   (interactive)
   (unless (or (looking-at (caar (xenops-elements-get 'src :delimiters)))
               (looking-at (caar (xenops-elements-get 'minted :delimiters))))
     (error "No src/minted block at point"))
   (xenops-src-apply-syntax-highlighting))
+
+(defun dan/xenops-test-regexp-replacement ()
+  (interactive)
+  (unless (looking-at (xenops-text-regexp-replacements-make-regexp))
+    (error "Not at regexp replacement target"))
+  (xenops-text-regexp-replacement-do))
+
 
 (defun dan/xenops-reload ()
   (interactive)
