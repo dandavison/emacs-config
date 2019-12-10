@@ -4,21 +4,23 @@
   (interactive)
 
   ;; Auctex
-  (setq TeX-auto-save t)
-  (setq TeX-parse-self t)
-  (setq-default TeX-master nil)
+  ;; (setq TeX-auto-save t)
+  ;; (setq TeX-parse-self t)
+  ;; (setq-default TeX-master nil)
+  (setq TeX-electric-math '("$" . "$")
+        blink-matching-delay 0.2
+        LaTeX-electric-left-right-brace t
+        TeX-electric-sub-and-superscript nil)
   ;; (setq preview-image-type 'dvipng
   ;;       preview-dvipng-image-type 'svg
   ;;       TeX-PDF-from-DVI "Dvips")
 
-  (setq org-latex-packages-alist nil
-        org-latex-default-packages-alist nil)
+  (prettify-symbols-mode)
 
-  (dan/latex-paired-characters)
+
 
   (dan/set-up-outline-minor-mode "\\(\\\\sub\\|\\\\section\\|\\\\begin\\|\\\\item\\)")
 
-  ;; (dan/watch-mathematics)
   (add-to-list 'LaTeX-item-list
                '("align" . dan/latex-insert-item-in-align-environment))
   (add-to-list 'LaTeX-item-list
@@ -27,7 +29,7 @@
   (setq xenops-image-latex-template
         "\\begin{mdframed}\n\\includegraphics[width=400pt]{%s}\n\\end{mdframed}")
 
-  (setq fill-column 150
+  (setq fill-column 111
         fci-rule-column fill-column
         tab-width 2)
   (setq-local indent-line-function 'dan/latex-indent-line-function)
