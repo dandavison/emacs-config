@@ -97,32 +97,32 @@
 
 (use-package bookmark
   :bind (:map bookmark-bmenu-mode-map
-              ("C-x C-s" . bookmark-save)))
+         ("C-x C-s" . bookmark-save)))
 
 (use-package cl)
 
 (use-package comint
   :bind (:map comint-mode-map
-              ([(meta up)] . comint-previous-matching-input-from-input)
-              ([(meta down)] . comint-next-matching-input-from-input)
-              ([(control up)] . comint-previous-matching-input-from-input)
-              ([(control down)] . comint-next-matching-input-from-input)
-              ("C-l" . dan/comint-clear-buffer)))
+         ([(meta up)] . comint-previous-matching-input-from-input)
+         ([(meta down)] . comint-next-matching-input-from-input)
+         ([(control up)] . comint-previous-matching-input-from-input)
+         ([(control down)] . comint-next-matching-input-from-input)
+         ("C-l" . dan/comint-clear-buffer)))
 
 (use-package compilation
   :defer t
   :bind (:map compilation-mode-map
-              ([(return)] . compile-goto-error)
-              ("C-c d" . dan/delete-matching-lines)
-              ([(super mouse-1)] . (lambda (event) (interactive "e") (mouse-set-point event) (dan/iterm2-dwim))))
+         ([(return)] . compile-goto-error)
+         ("C-c d" . dan/delete-matching-lines)
+         ([(super mouse-1)] . (lambda (event) (interactive "e") (mouse-set-point event) (dan/iterm2-dwim))))
   :config
   (setq compilation-ask-about-save nil
         compilation-save-buffers-predicate (lambda () nil)))
 
 (use-package dired
   :bind (:map dired-mode-map
-              ([left] . dired-up-directory)
-              ([right] . dired-find-file))
+         ([left] . dired-up-directory)
+         ([right] . dired-find-file))
   :config
   (setq dired-auto-revert-buffer t
         dired-omit-size-limit nil
@@ -134,12 +134,12 @@
 
 (use-package elisp-mode
   :bind (:map emacs-lisp-mode-map
-              ("C-c d" . edebug-defun)
-              ("C-c ," . find-function)
-              ("C-c C-r" . (lambda () (interactive) (call-interactively 'eval-region) (deactivate-mark)))
-              ([(super x)] . eval-defun)
-              ([(meta left)] . nil)
-              ([(meta right)] . nil))
+         ("C-c d" . edebug-defun)
+         ("C-c ," . find-function)
+         ("C-c C-r" . (lambda () (interactive) (call-interactively 'eval-region) (deactivate-mark)))
+         ([(super x)] . eval-defun)
+         ([(meta left)] . nil)
+         ([(meta right)] . nil))
   :config
   (defun dan/emacs-lisp-mode-hook-fn ()
     (paredit-mode t)
@@ -163,15 +163,15 @@
   :load-path "~/src/3p/org-mode/lisp"
   :after org-table
   :bind (:map org-mode-map
-              ([(shift left)] . windmove-left)
-              ([(shift right)] . windmove-right)
-              ([(shift up)] . windmove-up)
-              ([(shift down)] . windmove-down)
-              ([(meta left)] . nil)
-              ([(meta right)] . nil)
-              :map orgtbl-mode-map
-              ([(meta left)] . nil)
-              ([(meta right)] . nil))
+         ([(shift left)] . windmove-left)
+         ([(shift right)] . windmove-right)
+         ([(shift up)] . windmove-up)
+         ([(shift down)] . windmove-down)
+         ([(meta left)] . nil)
+         ([(meta right)] . nil)
+         :map orgtbl-mode-map
+         ([(meta left)] . nil)
+         ([(meta right)] . nil))
 
   :hook
   (org-mode . (lambda ()
@@ -184,19 +184,19 @@
 
 (use-package outline
   :bind (:map outline-minor-mode-map
-              ([(control tab)] . org-cycle)
-              ([(backtab)] . org-global-cycle)))
+         ([(control tab)] . org-cycle)
+         ([(backtab)] . org-global-cycle)))
 
 (use-package python
   :bind (:map python-mode-map
-              ("C-c d" . dan/python-insert-ipdb-set-trace)
-              ("C-c C-c" . dan/save-even-if-not-modified)
-              ([(super ?b)] . dan/blacken-region)
-              ([(super ?')] . flycheck-mode)
-              ([(super i)] . dan/python-where-am-i)
-              ([(meta shift right)] . python-indent-shift-right)
-              ([(meta shift left)] . python-indent-shift-left)
-              ([(super mouse-1)] . (lambda (event) (interactive "e") (mouse-set-point event) (jedi:goto-definition))))
+         ("C-c d" . dan/python-insert-ipdb-set-trace)
+         ("C-c C-c" . dan/save-even-if-not-modified)
+         ([(super ?b)] . dan/blacken-region)
+         ([(super ?')] . flycheck-mode)
+         ([(super i)] . dan/python-where-am-i)
+         ([(meta shift right)] . python-indent-shift-right)
+         ([(meta shift left)] . python-indent-shift-left)
+         ([(super mouse-1)] . (lambda (event) (interactive "e") (mouse-set-point event) (jedi:goto-definition))))
   :config
   (load-file "~/src/emacs-config/python.el")
   :hook (python-mode . dan/python-mode-hook-fn))
@@ -227,12 +227,12 @@
 (use-package clojure-mode
   :defer t
   :bind (:map clojure-mode-map
-              ("C-x C-e" . inf-clojure-eval-last-sexp)
-              ("C-c C-z" . inf-clojure)))
+         ("C-x C-e" . inf-clojure-eval-last-sexp)
+         ("C-c C-z" . inf-clojure)))
 
 (use-package company
   :bind (:map prog-mode-map
-              ([tab] . dan/company-indent-or-complete))
+         ([tab] . dan/company-indent-or-complete))
   :hook (prog-mode . company-mode)
   :config
   (setq company-selection-wrap-around t))
@@ -265,7 +265,7 @@
 (use-package haskell
   :defer t
   :bind (:map haskell-mode-map
-              ("'" . self-insert-command)))
+         ("'" . self-insert-command)))
 
 (use-package ido
   :config
@@ -318,23 +318,23 @@
 (use-package js
   :defer t
   :bind (:map js-mode-map
-              ("C-c d" . (lambda () (interactive) (insert "debugger;")))))
+         ("C-c d" . (lambda () (interactive) (insert "debugger;")))))
 
 (use-package latex
   :bind (:map LaTeX-mode-map
-              ("C-x n i" . dan/latex-focus-insert-comment-delimiters)
-              ("C-x n r" . dan/latex-focus-remove-comment-delimiters)
-              ("C-x n f" . dan/latex-focus-narrow-to-region)
-              ("C-x n u" . dan/latex-unfocus)
-              ("C-x n d" . dan/narrow-to-subtree)
-              ("C-c |" . dan/latex-set-builder-pipe)
-              ("C-c /" . dan/latex-frac-or-unfrac)
-              ([(control down)] . next-line)
-              ([(control up)] . previous-line)
-              ([(super b)] . dan/latex-bold)
-              ([(super d)] . dan/latex-definition)
-              ([(super i)] . dan/latex-italic)
-              ([(super t)] . dan/latex-fixed-width))
+         ("C-x n i" . dan/latex-focus-insert-comment-delimiters)
+         ("C-x n r" . dan/latex-focus-remove-comment-delimiters)
+         ("C-x n f" . dan/latex-focus-narrow-to-region)
+         ("C-x n u" . dan/latex-unfocus)
+         ("C-x n d" . dan/narrow-to-subtree)
+         ("C-c |" . dan/latex-set-builder-pipe)
+         ("C-c /" . dan/latex-frac-or-unfrac)
+         ([(control down)] . next-line)
+         ([(control up)] . previous-line)
+         ([(super b)] . dan/latex-bold)
+         ([(super d)] . dan/latex-definition)
+         ([(super i)] . dan/latex-italic)
+         ([(super t)] . dan/latex-fixed-width))
   :config
   (load-file "~/src/emacs-config/latex.el")
 
@@ -352,18 +352,24 @@
 (use-package xenops
   :load-path "~/src/xenops"
   :bind (:map xenops-mode-map
-              ("C-p" . xenops-text-prettify-symbols-mode)
-              ("C-x c" . xenops-avy-copy-math-and-paste))
+         ("C-p" . xenops-xen-mode)
+         ("C-x c" . xenops-avy-copy-math-and-paste))
   :config
   (load-file "~/src/emacs-config/xenops.el")
+
+  :hook
+  (xenops-mode-hook
+   .
+   (lambda ()
+     (dan/set-up-outline-minor-mode "\\(\\\\sub\\|\\\\section\\|\\\\begin\\|\\\\item\\)"))))
 
 
 (use-package lispy
   :defer t
   :bind (:map lispy-mode-map
-              ("M-." . nil)
-              ([(meta left)] . nil)
-              ([(meta right)] . nil)))
+         ("M-." . nil)
+         ([(meta left)] . nil)
+         ([(meta right)] . nil)))
 
 (use-package lsp-mode
   :commands lsp
@@ -375,10 +381,13 @@
 
 (use-package magit
   :bind (:map magit-diff-mode-map
-              ([down] . nil)
-              ([up] . nil)
-              ([return] . magit-diff-visit-file-worktree)
-              ([control return] . magit-diff-visit-file))
+         ([down] . nil)
+         ([up] . nil)
+         ([return] . magit-diff-visit-file-worktree)
+         ([control return] . magit-diff-visit-file)
+         :map with-editor-mode-map
+         ("C-c C-c" . dan/magit-commit))
+
   :config
   (setq
    magit-completing-read-function 'ivy-completing-read
@@ -407,12 +416,12 @@
 
 (use-package markdown-mode
   :bind (:map markdown-mode-map
-              ("$" . dan/paired-dollar)
-              ("\M-q" . fill-paragraph)
-              ;; force file write to force pelican reload
-              ("C-X C-s" . (lambda () (interactive) (set-buffer-modified-p t) (save-buffer)))
-              ([(meta left)] . left-word)
-              ([(meta right)] . right-word))
+         ("$" . dan/paired-dollar)
+         ("\M-q" . fill-paragraph)
+         ;; force file write to force pelican reload
+         ("C-X C-s" . (lambda () (interactive) (set-buffer-modified-p t) (save-buffer)))
+         ([(meta left)] . left-word)
+         ([(meta right)] . right-word))
   :hook (markdown-mode . (lambda () (setq truncate-lines nil
                                      word-wrap t))))
 
@@ -425,7 +434,7 @@
 (use-package mhtml-mode
   :defer t
   :bind (:map mhtml-mode-map
-              ("C-c C-c" . emmet-expand-line))
+         ("C-c C-c" . emmet-expand-line))
   :hook (mhtml-mode . (lambda () (flycheck-mode -1))))
 
 (use-package minimal
@@ -446,7 +455,7 @@
 (use-package modalka
   :defer t
   :bind (:map modalka-mode-map
-              ((" " . modalka-mode)))
+         ((" " . modalka-mode)))
   :config
   (modalka-define-kbd "1" "C-x 1")
   (modalka-define-kbd "a" "C-a")
@@ -479,21 +488,21 @@
 
 (use-package neotree
   :bind (:map neotree-mode-map
-              ([(left)] . neotree-select-up-node)
-              ([(right)] . (lambda () (interactive) (execute-kbd-macro (kbd "<tab>"))))))
+         ([(left)] . neotree-select-up-node)
+         ([(right)] . (lambda () (interactive) (execute-kbd-macro (kbd "<tab>"))))))
 
 (use-package ob-mathematica
   :load-path "~/src/3p/org-mode/contrib/lisp")
 
 (use-package paredit
   :bind (:map paredit-mode-map
-              ;; TODO: move into paredit-c config
-              ("(" . paredit-open-round)
-              ("M-[" . paredit-wrap-square)
-              ("\\" . nil)
-              (";" . nil)
-              ;; TODO: move into paredit-c config
-              ("\"" . paredit-c/doublequote)))
+         ;; TODO: move into paredit-c config
+         ("(" . paredit-open-round)
+         ("M-[" . paredit-wrap-square)
+         ("\\" . nil)
+         (";" . nil)
+         ;; TODO: move into paredit-c config
+         ("\"" . paredit-c/doublequote)))
 
 (use-package paredit-c
   :load-path "~/src/paredit-c")
@@ -506,10 +515,10 @@
   :bind-keymap
   ([(super p)] . projectile-command-map)
   :bind (:map projectile-command-map
-              ("a" . dan/goto-alias-file)
-              ("g" . dan/goto-gitconfig)
-              ("m" . dan/goto-messages-buffer)
-              ("r" . dan/goto-rustfmt-buffer))
+         ("a" . dan/goto-alias-file)
+         ("g" . dan/goto-gitconfig)
+         ("m" . dan/display-messages-buffer)
+         ("r" . dan/goto-rustfmt-buffer))
   :config
   (projectile-mode +1)
   (setq projectile-globally-ignored-file-suffixes '("pyc" "~" "#")
@@ -550,15 +559,15 @@
     :program "/usr/local/bin/prettier"
     :args '("--parser" "babel"))
   :hook ((rust-mode . (lambda () (add-hook 'before-save-hook
-                                      (lambda () (rustfmt-buffer 'display-errors)) nil t)))))
+                                           (lambda () (rustfmt-buffer 'display-errors)) nil t)))))
 
 (use-package rust-mode
   :load-path "~/src/3p/rust-mode"
   :after lsp-mode
   :bind (:map rust-mode-map
-              ("C-c C-c" . dan/save-even-if-not-modified)
-              ("<" . dan/paired-angle-bracket)
-              ("|" . dan/paired-pipe))
+         ("C-c C-c" . dan/save-even-if-not-modified)
+         ("<" . dan/paired-angle-bracket)
+         ("|" . dan/paired-pipe))
   :hook (
          ;; (rust-mode . lsp)
          (rust-mode . (lambda ()
@@ -579,7 +588,7 @@
 
 (use-package yasnippet
   :bind (:map yas/keymap
-              ([tab] . yas/next-field))
+         ([tab] . yas/next-field))
   :config
   (yas/initialize)
   (yas/load-directory (expand-file-name "~/src/emacs-config/snippets")))
@@ -876,7 +885,7 @@
 
 (add-hook 'kill-buffer-hook
           (lambda () (when (eq major-mode 'inferior-python-mode)
-                  (dan/dump-comint-history dan/python-comint-history-file))))
+                       (dan/dump-comint-history dan/python-comint-history-file))))
 
 (add-hook 'inferior-python-mode-hook
           (lambda () (dan/load-comint-history dan/python-comint-history-file)))
