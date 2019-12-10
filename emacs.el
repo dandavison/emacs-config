@@ -346,6 +346,9 @@
 (dolist (hook '(plain-TeX-mode-hook latex-mode-hook LaTeX-mode-hook))
   (add-hook hook #'dan/latex-mode-hook-fn))
 
+(use-package override-lisp-indent
+  :load-path "~/src/3p/override-lisp-indent")
+
 (use-package xenops
   :load-path "~/src/xenops"
   :bind (:map xenops-mode-map
