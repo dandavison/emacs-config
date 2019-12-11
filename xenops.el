@@ -1,5 +1,5 @@
 (dan/alist-update!
- xenops-text-prettify-symbols
+ xenops-xen-style-rules
  '(("\\R" . "ℝ")
    ("\\N" . "ℕ")
    ("\\C" . "ℂ")
@@ -12,11 +12,8 @@
 
    ("\\(" . "(")
    ("\\)" . ")")
-   (" ~ " . " ")))
-
-(dan/alist-update!
- xenops-text-prettify-symbols-string-replacements
- '(("\\begin{question*}" . "Question.")
+   (" ~ " . " ")
+   ("\\begin{question*}" . "Question.")
    ("\\end{question*}" . "┘")
 
    ("\\begin{example*}" . "Example.")
