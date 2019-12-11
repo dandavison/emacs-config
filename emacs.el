@@ -275,7 +275,11 @@
 
 
 (use-package ivy
+  :load-path "~/src/3p/swiper"
   :config
+  (require 'counsel)
+  (require 'swiper)
+  (require 'hydra)
   (setq ivy-use-virtual-buffers t
         ivy-fixed-height-minibuffer t
         ivy-height 20
