@@ -39,3 +39,6 @@
               (lambda () (unless (string-match ".+\\.sty" (buffer-file-name)) (dan/indent-buffer)))
               nil 'local))
   (xenops-mode))
+
+
+(add-hook 'latex-mode-hook #'xenops-mode)
