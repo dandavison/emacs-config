@@ -47,7 +47,7 @@
          ("C-x p" . projectile-switch-project)
          ("C-x C-s" . dan/save-buffer)
          ("M-i" . dan/highlight)
-         ("M-o" . swiper-thing-at-point)
+         ("M-o" . (lambda () (interactive) (swiper (thing-at-point 'symbol))))
          ("M-q" . fill-paragraph)
          ([f1] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?1 arg)))
          ([f2] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?2 arg)))
@@ -75,8 +75,10 @@
          ([(shift super left)] . ivy-resume)
          ([(super G)] . isearch-repeat-backward)
          ([(super b)] . dan/switch-to-buffer)
+         ([(super c)] . kill-ring-save)
          ([(super d)] . dan/bookmark-set)
          ([(super f)] . dan/find-file)
+         ([(super g)] . magit-status)
          ([(super k)] . dan/bookmark-set)
          ([(super left)] . winner-undo)
          ([(super l)] . bookmark-bmenu-list)
@@ -85,8 +87,11 @@
          ([(super o)] . dan/find-file)
          ([(super return)] . dan/maximize)
          ([(super right)] . winner-redo)
+         ([(super s)] . dan/save-buffer) ;; not bound in MacOS port
          ([(super u)] . revert-buffer) ;; not bound in MacOS port
          ([(super v)] . yank) ;; not bound in MacOS port
+         ([(super w)] . widen)
+         ([(super x)] . kill-region)
          ([(super ?&)] . (lambda () (interactive) (let ((kill-buffer-query-functions nil)) (kill-buffer))))
          ([(super ?,)] . counsel-rg)
          ([(super ?.)] . dan/grep-thing-at-point)
@@ -142,6 +147,7 @@
          ([(meta right)] . nil))
   :config
   (defun dan/emacs-lisp-mode-hook-fn ()
+    (interactive)
     (paredit-mode t)
     (company-mode)
     (setq fill-column dan/fill-column)
@@ -286,13 +292,16 @@
         ivy-dynamic-exhibit-delay-ms 250)
   ;; https://oremacs.com/2018/03/05/grep-exclude/
   (setq counsel-git-cmd "rg --files"  ;;  --type py
-        counsel-rg-base-command "rg -i -M 120 --no-heading --line-number --color never %s .")
+        counsel-rg-base-command "rg -i -M 512 --no-heading --line-number --color never %s .")
+
+
+  ;; (advice-add 'ivy-previous-line :after #'ivy-call)
+  ;; (advice-add 'ivy-next-line :after #'ivy-call)
 
   (defun -dan/swiper-around-advice (orig-fun &rest args)
     (let ((ivy-height 20))
       (apply orig-fun args)))
   (advice-add 'swiper :around '-dan/swiper-around-advice)
-
   (advice-add 'swiper :before (lambda (&rest args) (outline-show-all)))
   (advice-add 'swiper--ensure-visible :after 'dan/on-jump-into-buffer)
   (add-hook 'counsel-grep-post-action-hook 'dan/on-jump-into-buffer))
@@ -367,6 +376,9 @@
    (lambda ()
      (dan/set-up-outline-minor-mode "\\(\\\\sub\\|\\\\section\\|\\\\begin\\|\\\\item\\)"))))
 
+(use-package xenops
+  :load-path "~/src/xenops")
+
 
 (use-package lispy
   :defer t
@@ -390,7 +402,7 @@
          ([return] . magit-diff-visit-file-worktree)
          ([control return] . magit-diff-visit-file)
          :map with-editor-mode-map
-         ("C-c C-c" . dan/magit-commit))
+         ("C-x C-$" . dan/magit-commit))
 
   :config
   (setq
@@ -427,7 +439,7 @@
          ([(meta left)] . left-word)
          ([(meta right)] . right-word))
   :hook (markdown-mode . (lambda () (setq truncate-lines nil
-                                     word-wrap t))))
+                                          word-wrap t))))
 
 
 (use-package meghanada
@@ -445,6 +457,7 @@
   :load-path "~/src/minimal")
 
 (use-package mma
+  :defer t
   :load-path "~/src/3p/mma-mode"
   :config
   (add-to-list 'auto-mode-alist '("\\.m\\'" . mma-mode))
@@ -584,6 +597,14 @@
 
 ;; (add-hook 'after-save-hook (lambda () (flycheck-mode -1) (compile "cargo build")))
 
+(use-package swift-mode
+  :hook (
+         (swift-mode . (lambda ()
+                         (paredit-c-mode)
+                         (setq fill-column dan/fill-column
+                               fci-rule-column fill-column)
+                         (dan/set-up-outline-minor-mode "[ \t]*\\(public .+\\|func .+\\|enum .+\\)")))))
+
 (use-package tla-mode
   :defer t
   :load-path "~/src/3p/tla-mode")
@@ -661,6 +682,7 @@
 
 
 ;;; Etc
+(setq-default lexical-binding t)
 (setq
  async-shell-command-buffer 'rename-buffer
  auto-save-default nil
@@ -672,7 +694,8 @@
  make-backup-files nil
  save-silently t
  shell-command-default-error-buffer "*Shell Command Error*"
- vc-follow-symlinks t)
+ vc-follow-symlinks t
+ sentence-end-double-space nil)
 
 (fset 'yes-or-no-p 'y-or-n-p)
 (set-default 'truncate-lines t)
@@ -898,6 +921,7 @@
 (setq pulse-iterations 40)
 
 (defun dan/on-jump-into-buffer ()
+  (recenter)
   (outline-show-all) ;; with swiper--ensure-visible this leaves point in the wrong place
   (dan/pulse-momentary-highlight-current-line)
   (when (eq major-mode 'python-mode)
@@ -1079,11 +1103,12 @@
  '(magit-diff-arguments (quote ("--ignore-all-space" "--no-ext-diff")))
  '(package-selected-packages
    (quote
-    (auctex dash-functional dash restclient paradox neotree meghanada ivy-hydra elisp-format company-lean lean-mode sql-indent material-theme graphql-mode typescript-mode reformatter lsp-rust cargo flycheck-rust toml-mode lsp-ui wgrep ace-jump-mode ace-window forge applescript-mode auctex-latexmk aumix-mode auto-overlays avy buffer-move coffee-mode color-theme-modern color-theme-railscasts company company-jedi confluence counsel debbugs dired-details+ dockerfile-mode dot-mode emmet-mode ess eyuml f fill-column-indicator fzf graphviz-dot-mode haskell-mode hindent htmlize ivy jira-markup-mode latex-pretty-symbols magit markdown-mode minimal-theme modalka multiple-cursors paredit paredit-everywhere plantuml-mode pony-mode projectile pyenv-mode py-isort railscasts-reloaded-theme railscasts-theme ripgrep smartparens smooth-scroll soothe-theme sqlite sublimity transpose-frame use-package visual-fill-column yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
+    (swift-mode ace-jump-mode ace-window aio applescript-mode async-await auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company company-jedi company-lean confluence counsel dash dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode ess eyuml f fill-column-indicator flycheck-rust forge fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-rust lsp-ui magit markdown-mode material-theme meghanada minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode pony-mode projectile pyenv-mode py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
  '(paradox-github-token t)
  '(safe-local-variable-values
    (quote
-    ((TeX-command-extra-options . "-shell-escape")
+    ((xenops-image-directory . "img")
+     (TeX-command-extra-options . "-shell-escape")
      (bug-reference-bug-regexp . "#\\(?2:[0-9]+\\)")))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

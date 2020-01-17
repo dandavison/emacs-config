@@ -13,6 +13,9 @@
   (keyboard-quit)
   (with-current-buffer (window-buffer (minibuffer-window)) (keyboard-quit)))
 
+(defun dan/delete-overlays ()
+  (interactive)
+  (mapc #'delete-overlay (overlays-in (point-min) (point-max))))
 
 (defun dan/transpose-line-up ()
   (interactive)
@@ -34,7 +37,7 @@
   (call-interactively
    (cond
     ((equal arg '(4))
-     'counsel-switch-buffer)
+     'ivy-switch-buffer)
     ((and (not arg)
           (projectile-project-p))
      'projectile-switch-to-buffer)
@@ -649,6 +652,12 @@
     (insert-image-file file)))
 
 ;;; Elisp
+
+(defun dan/eval-region-or-buffer (beg end)
+  (interactive "r")
+  (eval-region (or beg (point-min))
+               (or end (point-max))))
+
 (defun dan/debug-on-error (&optional arg)
   (interactive "P")
   (setq debug-on-error (not arg))
@@ -1539,7 +1548,7 @@ If LIST is nil use `projectile-project-root-parent-directories'"
 
 (defun dan/grep-thing-at-point ()
   (interactive)
-  (counsel-rg (if (string-match "website" default-directory)
+  (counsel-rg (if (and nil (string-match "website" default-directory))
                   (format "-g *%s* -g !.mypy_cache -- %s"
                           (file-name-base (directory-file-name default-directory))
                           (ivy-thing-at-point))
@@ -1621,7 +1630,8 @@ If LIST is nil use `projectile-project-root-parent-directories'"
 (defun dan/save-buffer (&optional arg)
   (interactive "P")
   (call-interactively
-   (if (or arg (not (projectile-project-p)))
+   (if (or arg (not (and (fboundp 'projectile-save-project-buffers)
+                         (projectile-project-p))))
        #'save-buffer
      #'projectile-save-project-buffers)))
 
