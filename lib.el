@@ -435,9 +435,9 @@
                  ((region-active-p) (buffer-substring (region-beginning) (region-end)))
                  (t (thing-at-point 'symbol)))))
       (when word
-	    (if (member word dan/highlighted)
-	        (unhighlight word)
-	      (highlight word))
+        (if (member word dan/highlighted)
+            (unhighlight word)
+          (highlight word))
         (when (region-active-p) (deactivate-mark))))))
 
 (defun dan/pulse-momentary-highlight-current-line ()

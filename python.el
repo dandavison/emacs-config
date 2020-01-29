@@ -63,11 +63,15 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
         (setf (flycheck-checker-get 'python-flake8 'next-checkers) '((t . python-mypy)))
         (setf (flycheck-checker-get 'python-mypy 'next-checkers) nil)
 
-        (flycheck-select-checker 'python-flake8))
+        (condition-case error
+            (flycheck-select-checker 'python-flake8)
+          (error (progn
+                   (flycheck-mode -1)
+                   (message "Failed to activate flake8; disabling flycheck: %S" error)))))
     (message "Python virtualenv / project root are unknown"))
 
   (company-mode)
-  (jedi:install-server) ;; TODO do this only when necessary
+  ;; (jedi:install-server) ;; TODO do this only when necessary
   (jedi:setup)
 
   (setq fill-column 99)

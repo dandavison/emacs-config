@@ -10,6 +10,7 @@
   (setq TeX-electric-math '("$" . "$")
         blink-matching-delay 0.2
         LaTeX-electric-left-right-brace t
+        LaTeX-command "latex -shell-escape"
         TeX-electric-sub-and-superscript nil)
   ;; (setq preview-image-type 'dvipng
   ;;       preview-dvipng-image-type 'svg
