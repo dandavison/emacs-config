@@ -1109,27 +1109,7 @@
  '(safe-local-variable-values
    (quote
     ((xenops-image-directory . "img")
-     (TeX-command-extra-options . "-shell-escape")
      (bug-reference-bug-regexp . "#\\(?2:[0-9]+\\)")))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(bold ((t (:weight bold))))
- '(font-latex-math-face ((t (:foreground "red"))))
- '(font-latex-string-face ((t (:foreground "black"))))
- '(font-latex-verbatim-face ((t (:inherit nil))))
- '(help-argument-name ((t (:inherit nil))))
- '(highlight ((t (:background "yellow" :foreground "black"))))
- '(minibuffer-prompt ((t (:background "gray99" :foreground "gray35" :weight bold))))
- '(org-block ((t (:foreground "#000088"))))
- '(org-block-begin-line ((t (:foreground "lightgrey" :underline nil))))
- '(org-block-end-line ((t (:foreground "lightgrey" :overline nil))))
- '(org-done ((t (:background "palegreen" :foreground "darkgrey" :box (:line-width 1 :color "grey") :weight normal))))
- '(org-level-1 ((t (:background nil :foreground "#CC7733" :overline nil :weight bold :height 120))))
- '(org-level-2 ((t (:background nil :foreground "dark red" :overline nil :weight bold :height 120))))
- '(org-todo ((t (:foreground "darkgrey" :box (:line-width 1 :color "grey") :weight normal)))))
 (put 'upcase-region 'disabled nil)
 
 (put 'LaTeX-narrow-to-environment 'disabled nil)
