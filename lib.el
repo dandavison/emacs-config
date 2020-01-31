@@ -302,6 +302,7 @@
 
 (defun dan/theme-load ()
   (interactive)
+  (mapc #'disable-theme custom-enabled-themes)
   (call-interactively 'load-theme)
   (dan/set-appearance))
 

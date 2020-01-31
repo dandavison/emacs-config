@@ -636,7 +636,6 @@
 (setq minimal-mode-line-background "sea green")
 (setq minimal-mode-line-inactive-background "dim grey")
 
-(defalias 'color-theme 'load-theme)
 (defalias 'frame-new 'make-frame)
 (color-theme 'railscasts-reloaded t)
 ;; (color-theme 'minimal-black t)
