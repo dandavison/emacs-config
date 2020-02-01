@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t -*-
 ;;; Init
 (setq debug-on-error nil)
 (package-initialize)

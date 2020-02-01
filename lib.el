@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t -*-
 ;;; Etc
 
 (defun dan/message-buffer-goto-end-of-buffer (&rest args)
