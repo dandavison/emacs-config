@@ -636,36 +636,12 @@
 (setq minimal-mode-line-background "sea green")
 (setq minimal-mode-line-inactive-background "dim grey")
 
-(defalias 'frame-new 'make-frame)
-(color-theme 'railscasts-reloaded t)
-;; (color-theme 'minimal-black t)
-;; (color-theme 'leuven t)
+;; (dan/theme-load 'railscasts-reloaded)
+;; (dan/theme-load 'minimal-black)
+ (dan/theme-load 'leuven)
 ;; (minimal-mode)
 (tool-bar-mode -1)
-
-(defun dan/set-appearance ()
-  (interactive)
-  (scroll-bar-mode -1)
-  (set-cursor-color "red")
-  (set-face-foreground 'cursor (face-foreground 'font-lock-comment-face))
-  (setq-default cursor-in-non-selected-windows nil)
-  (setq-default cursor-type 'bar)
-  (blink-cursor-mode -1)
-
-  (set-face-background 'fringe (face-background 'default))
-  (dan/set-show-paren-style))
-
-(defun dan/set-show-paren-style ()
-  (show-paren-mode t)
-  (setq show-paren-delay .125)
-  (setq show-paren-style 'parenthesis)
-  (set-face-attribute 'show-paren-match nil :weight 'extra-bold)
-  (set-face-background 'show-paren-match (face-background 'default))
-  (set-face-attribute 'show-paren-match nil :foreground "red"))
-
 (dan/set-appearance)
-
-(advice-add 'load-theme :after (lambda (&rest args) (dan/set-appearance)))
 
 ;;; Modes
 (add-to-list 'auto-mode-alist '("\\.applescript\\'" . applescript-mode))

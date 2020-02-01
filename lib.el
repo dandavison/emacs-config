@@ -300,11 +300,33 @@
 
 ;;; Appearance
 
-(defun dan/theme-load ()
+(defun dan/theme-load (&optional theme)
   (interactive)
   (mapc #'disable-theme custom-enabled-themes)
-  (call-interactively 'load-theme)
+  (if theme
+      (load-theme theme t)
+    (call-interactively 'load-theme))
   (dan/set-appearance))
+
+(defun dan/set-appearance ()
+  (interactive)
+  (scroll-bar-mode -1)
+  (set-cursor-color "red")
+  (set-face-foreground 'cursor (face-foreground 'font-lock-comment-face))
+  (setq-default cursor-in-non-selected-windows nil)
+  (setq-default cursor-type 'bar)
+  (blink-cursor-mode -1)
+
+  (set-face-background 'fringe (face-background 'default))
+  (dan/set-show-paren-style))
+
+(defun dan/set-show-paren-style ()
+  (show-paren-mode t)
+  (setq show-paren-delay .125)
+  (setq show-paren-style 'parenthesis)
+  (set-face-attribute 'show-paren-match nil :weight 'extra-bold)
+  (set-face-background 'show-paren-match (face-background 'default))
+  (set-face-attribute 'show-paren-match nil :foreground "red"))
 
 (defun dan/get-fontified-strings (face-spec)
   (mapcar (lambda (font)
