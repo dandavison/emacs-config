@@ -11,11 +11,3 @@
 ;; Server
 (require 'server)
 (unless (server-running-p) (server-start))
-
-(when nil
-  ;; Packages
-  (package-initialize)
-  (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
-  (require 'use-package)
-  (use-package xenops :load-path "~/src/xenops"))
-

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+/usr/local/Cellar/emacs-mac/emacs-26.3-z-mac-7.7/Emacs.app/Contents/MacOS/Emacs.sh \
+    --no-init-file \
+    --load ~/src/emacs-config/emacs-minimal.el \
+    "$@"
