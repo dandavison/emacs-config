@@ -612,7 +612,7 @@
   (if (not arg) (delete-other-windows)
     (toggle-frame-fullscreen)))
 
-(defun dan/window-configuration (register &arg)
+(defun dan/window-configuration (register &optional arg)
   (interactive "P")
   (cond
    ((not arg)
@@ -632,7 +632,7 @@
         (buffer-name "*window-configurations*"))
     (setq list
           (-filter (lambda (elt) (and (window-configuration-p (second elt))
-                                      (number-or-marker-p (first elt))))
+                                 (number-or-marker-p (first elt))))
                    list))
     (setq list (sort list (lambda (a b) (< (car a) (car b)))))
     (with-current-buffer  (get-buffer-create buffer-name)
@@ -1162,10 +1162,18 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
                 dan/python-buffer-config-keys
                 "\n")))))
 
+(defun dan/python-question-mark (&optional arg)
+  (interactive "P")
+  (if arg
+      (insert ??)
+    (call-interactively #'jedi:show-doc)))
+
 ;; pip install black-macchiato
-(defun dan/blacken-region (start end)
+(defun dan/blacken (start end)
   (interactive "r")
-  (shell-command-on-region start end "black-macchiato --line-length 99" nil 'replace))
+  (if current-prefix-arg
+      (shell-command-on-region start end "black-macchiato --line-length 99" nil 'replace)
+    (call-interactively #'blacken)))
 
 (defun dan/insert-ipdb-set-trace ()
   (interactive)
@@ -1268,7 +1276,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
   (interactive)
   (replace-regexp
    " \\([^ =]+\\) *= *\\([^,\n]+\\),?\n"
-   " '\\1': \\2,\n"
+   " \"\\1\": \\2,\n"
    nil (region-beginning) (region-end)))
 
 (defun dan/python-prep-paste ()

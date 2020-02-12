@@ -18,11 +18,15 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
 
 (defun dan/python-mode-hook-fn ()
   (interactive)
+  (require 'flycheck)
   (pyenv-mode)
-  (pyenv-mode-set "3.6.8")
-  (setq dan/python-project-name (dan/python-infer-project-name)
-        dan/python-virtualenv (dan/python-infer-virtualenv dan/python-project-name)
-        dan/python-project-root (dan/python-infer-project-root dan/python-project-name))
+
+  (unless dan/python-project-name
+    (setq dan/python-project-name (dan/python-infer-project-name)))
+  (unless dan/python-project-root
+    (setq dan/python-project-root (dan/python-infer-project-root dan/python-project-name)))
+  (unless dan/python-virtualenv
+    (setq dan/python-virtualenv (dan/python-infer-virtualenv dan/python-project-name)))
 
   (if (and dan/python-virtualenv
            dan/python-project-root)
@@ -82,5 +86,4 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
   (set (make-variable-buffer-local 'prettify-symbols-alist)
        '(("lambda" . 955)))
   (prettify-symbols-mode)
-  (dan/set-up-outline-minor-mode "[ \t]*\\(def .+\\|class .+\\|##\\)")
-  (blacken-on-save-mode))
+  (dan/set-up-outline-minor-mode "[ \t]*\\(def .+\\|class .+\\|##\\)"))

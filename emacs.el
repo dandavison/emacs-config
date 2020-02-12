@@ -31,7 +31,6 @@
          ("C-c l" . linum-mode)
          ("C-c m" . dan/display-messages-buffer)
          ("C-c o" . dan/scratch-buffer)
-         ("C-p" . prettify-symbols-mode)
          ("C-c r" . (lambda (&optional arg) (interactive "P") (call-interactively (if arg #'dan/projectile-replace #'replace-regexp))))
          ("C-c s" . (lambda () (interactive) (shell-command-on-region (region-beginning) (region-end) "sort -V" nil 'replace)))
          ("C-c w" . dan/list-window-configurations)
@@ -132,9 +131,14 @@
   :config
   (setq dired-auto-revert-buffer t
         dired-omit-size-limit nil
-        dired-omit-files "^__pycache__\\|^.mypy_cache\\|^\\.\\.?\\|\\.pyc")
+        dired-omit-files "^__pycache__$\\|\\.egg-info$\\|^.mypy_cache$\\|^\\.\\.?\\|\\.pyc$"
+        dired-omit-verbose nil)
   (put 'dired-find-alternate-file 'disabled nil)
-  (setq-default dired-omit-files-p t))
+  (setq-default dired-omit-files-p t)
+  :hook ((dired-mode . (lambda ()
+                         (dired-omit-mode)
+                         (dired-hide-details-mode 1)
+                         (push (buffer-name) winner-boring-buffers)))))
 
 (use-package dired-x)
 
@@ -198,7 +202,8 @@
   :bind (:map python-mode-map
          ("C-c d" . dan/python-insert-ipdb-set-trace)
          ("C-c C-c" . dan/save-even-if-not-modified)
-         ([(super ?b)] . dan/blacken-region)
+         ("?" . dan/python-question-mark)
+         ([(super ?b)] . dan/blacken)
          ([(super ?')] . flycheck-mode)
          ([(super i)] . dan/python-where-am-i)
          ([(meta shift right)] . python-indent-shift-right)
@@ -306,6 +311,7 @@
   (advice-add 'swiper :before (lambda (&rest args) (outline-show-all)))
   (advice-add 'swiper--ensure-visible :after 'dan/on-jump-into-buffer)
   (add-hook 'counsel-grep-post-action-hook 'dan/on-jump-into-buffer))
+
 
 (use-package jedi-core
   :after (python-environment)
@@ -639,7 +645,7 @@
 
 ;; (dan/theme-load 'railscasts-reloaded)
 ;; (dan/theme-load 'minimal-black)
- (dan/theme-load 'leuven)
+(dan/theme-load 'leuven)
 ;; (minimal-mode)
 (tool-bar-mode -1)
 (dan/set-appearance)
@@ -714,12 +720,11 @@
 (put 'downcase-region 'disabled nil)
 (put 'narrow-to-region 'disabled nil)
 
-(winner-mode t)
 (require 'ido)
 (let ((is-dired-buffer? (lambda (buff) (eq (with-current-buffer buff major-mode) 'dired-mode))))
-  (add-to-list 'ido-ignore-buffers is-dired-buffer?)
-  (add-to-list 'winner-boring-buffers is-dired-buffer?))
+  (add-to-list 'ido-ignore-buffers is-dired-buffer?))
 
+(winner-mode t)
 (windmove-default-keybindings)
 
 (setq tramp-verbose 2)
@@ -930,11 +935,6 @@
 (add-hook 'clojurescript-mode-hook 'dan/clojure-mode-hook-fn)
 
 
-(defun dan/dired-mode-hook-fn ()
-  (dired-omit-mode))
-(add-hook 'dired-mode-hook 'dan/dired-mode-hook-fn)
-
-
 (defun dan/inf-clojure-mode-hook-fn ()
   (paredit-mode))
 (add-hook 'inf-clojure-mode-hook 'dan/inf-clojure-mode-hook-fn)
@@ -1080,14 +1080,23 @@
  '(magit-diff-arguments (quote ("--ignore-all-space" "--no-ext-diff")))
  '(package-selected-packages
    (quote
-    (command-log-mode swift-mode ace-jump-mode ace-window aio applescript-mode async-await auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company company-jedi company-lean confluence counsel dash dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode ess eyuml f fill-column-indicator flycheck-rust forge fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-rust lsp-ui magit markdown-mode material-theme meghanada minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode pony-mode projectile pyenv-mode py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
+    (docker-tramp command-log-mode swift-mode ace-jump-mode ace-window aio applescript-mode async-await auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company company-jedi company-lean confluence counsel dash dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode ess eyuml f fill-column-indicator flycheck-rust forge fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-rust lsp-ui magit markdown-mode material-theme meghanada minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode pony-mode projectile pyenv-mode py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
  '(paradox-github-token t)
  '(safe-local-variable-values
    (quote
-    ((xenops-image-directory . "img")
+    ((dan/python-project-root . "/Users/dan/src/pytorch_examples")
+     (dan/python-virtualenv . "/Users/dan/tmp/virtualenvs/misc")
+     (dan/python-project-name . "pytorch_examples")
+     (xenops-image-directory . "img")
      (bug-reference-bug-regexp . "#\\(?2:[0-9]+\\)")))))
 (put 'upcase-region 'disabled nil)
 
 (put 'LaTeX-narrow-to-environment 'disabled nil)
 (message "⚡")
 (put 'list-timers 'disabled nil)
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(font-lock-comment-face ((t (:foreground "medium blue" :slant italic)))))
