@@ -19,7 +19,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
 (defun dan/python-mode-hook-fn ()
   (interactive)
   (require 'flycheck)
-  (pyenv-mode)
+  ;; (pyenv-mode)
 
   (unless dan/python-project-name
     (setq dan/python-project-name (dan/python-infer-project-name)))
@@ -55,6 +55,8 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
           (set (make-variable-buffer-local 'dan/python-buffer-config-keys)
                (mapcar 'car config)))
 
+        (setq exec-path (cons (f-join dan/python-virtualenv "bin") exec-path))
+
         ;; (assert (f-directory? dan/python-virtualenv) t)
         ;; (assert (f-directory? dan/python-project-root) t)
         ;; (assert (f-executable? flycheck-python-flake8-executable) t)
@@ -71,7 +73,8 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
             (flycheck-select-checker 'python-flake8)
           (error (progn
                    (flycheck-mode -1)
-                   (message "Failed to activate flake8; disabling flycheck: %S" error)))))
+                   (message "Failed to activate flake8; disabling flycheck: %S" error))))
+        (flycheck-mode -1))
     (message "Python virtualenv / project root are unknown"))
 
   (company-mode)

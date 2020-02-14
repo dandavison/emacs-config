@@ -1175,25 +1175,10 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
       (shell-command-on-region start end "black-macchiato --line-length 99" nil 'replace)
     (call-interactively #'blacken)))
 
-(defun dan/insert-ipdb-set-trace ()
-  (interactive)
-  (insert "import ipdb; ipdb.set_trace()")
-  ;; (indent-for-tab-command)
-  (let ((debugger "ipdb")) ;; pudb
-    (insert
-     (format
-      (if traceback
-          "import traceback ; import %s ; print(traceback.format_exc()) ; %s.set_trace()"
-        (if t
-            "import %s ; %s.set_trace()"
-          "import IPython; IPython.embed(banner1='')"))
-      debugger debugger))))
-
-
 (defun dan/python-insert-ipdb-set-trace (&optional traceback)
   (interactive "P")
   ;; (indent-for-tab-command)
-  (let ((debugger "ipdb")) ;; pudb
+  (let ((debugger "pdb")) ;; pudb
     (insert
      (format
       (if traceback
@@ -1376,6 +1361,10 @@ returns the value of `python-shell-buffer-name'."
     (executable-chmod))
   (find-file file)
   (goto-char (point-max)))
+
+(defun dan/elaenia-lint ()
+  (interactive)
+  (compile "cd /Users/dan/src/elaenia && PATH=$PWD/.venv/bin:$PATH make lint"))
 
 ;;; SQL
 (defun sqlparse-region (beg end)

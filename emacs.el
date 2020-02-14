@@ -126,6 +126,7 @@
 
 (use-package dired
   :bind (:map dired-mode-map
+         ("R" . magit-file-rename)
          ([left] . dired-up-directory)
          ([right] . dired-find-file))
   :config
