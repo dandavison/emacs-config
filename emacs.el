@@ -87,6 +87,7 @@
          ([(super o)] . dan/find-file)
          ([(super return)] . dan/maximize)
          ([(super right)] . winner-redo)
+         ([(super r)] . projectile-replace)
          ([(super s)] . dan/save-buffer) ;; not bound in MacOS port
          ([(super u)] . revert-buffer) ;; not bound in MacOS port
          ([(super v)] . yank) ;; not bound in MacOS port
@@ -126,6 +127,9 @@
 
 (use-package dired
   :bind (:map dired-mode-map
+         ("A" . (lambda () (interactive)
+                  (shell-command (format "git add %s" (dired-get-filename)))
+                  (magit-status)))
          ("R" . magit-file-rename)
          ([left] . dired-up-directory)
          ([right] . dired-find-file))
