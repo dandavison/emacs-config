@@ -95,7 +95,7 @@
          ([(super x)] . kill-region)
          ([(super ?&)] . (lambda () (interactive) (let ((kill-buffer-query-functions nil)) (kill-buffer))))
          ([(super ?,)] . dan/counsel-rg)
-         ([(super ?.)] . dan/grep-thing-at-point)
+         ([(super ?.)] . dan/counsel-rg-thing-at-point)
          ([(super ?\;)] . dan/show-buffer-file-name)
          ([(super ?\])] . fci-mode)
          ([(super \\)] . dan/indent-region)

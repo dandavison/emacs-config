@@ -1463,11 +1463,15 @@ returns the value of `python-shell-buffer-name'."
 
 
 ;;; Counsel
-(defun dan/counsel-rg ()
+(defun dan/counsel-rg (&optional initial-input)
   (interactive)
   (let ((initial-directory (if (boundp 'dan/python-project-root)
                                dan/python-project-root)))
-    (counsel-rg nil initial-directory)))
+    (counsel-rg initial-input initial-directory)))
+
+(defun dan/counsel-rg-thing-at-point ()
+  (interactive)
+  (dan/counsel-rg (ivy-thing-at-point)))
 
 (defun counsel-git-grep-cmd-with-pathspec-function (str)
   "Git grep with control over file paths searched.
@@ -1566,20 +1570,6 @@ If LIST is nil use `projectile-project-root-parent-directories'"
     (kill-buffer (current-buffer))
     (find-file link-in-project)
     (message link-in-project)))
-
-
-(defun dan/grep ()
-  (interactive)
-  (call-interactively 'counsel-git-grep))
-
-
-(defun dan/grep-thing-at-point ()
-  (interactive)
-  (counsel-rg (if (and nil (string-match "website" default-directory))
-                  (format "-g *%s* -g !.mypy_cache -- %s"
-                          (file-name-base (directory-file-name default-directory))
-                          (ivy-thing-at-point))
-                (ivy-thing-at-point))))
 
 
 (defun dan/goto-definition (&optional arg)
