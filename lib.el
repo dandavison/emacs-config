@@ -1463,6 +1463,12 @@ returns the value of `python-shell-buffer-name'."
 
 
 ;;; Counsel
+(defun dan/counsel-rg ()
+  (interactive)
+  (let ((initial-directory (if (boundp 'dan/python-project-root)
+                               dan/python-project-root)))
+    (counsel-rg nil initial-directory)))
+
 (defun counsel-git-grep-cmd-with-pathspec-function (str)
   "Git grep with control over file paths searched.
 
