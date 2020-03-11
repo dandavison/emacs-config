@@ -1080,24 +1080,54 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(ansi-color-faces-vector
+   [default bold shadow italic underline bold bold-italic bold])
+ '(ansi-color-names-vector
+   (vector "#ffffff" "#f36c60" "#8bc34a" "#fff59d" "#4dd0e1" "#b39ddb" "#81d4fa" "#263238"))
  '(bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks")
  '(custom-safe-themes
    (quote
-    ("6343f4d41b209fe8990e3c5f4d2040b359612ef9cd8682f1e1e2a836beba8107" "4780d7ce6e5491e2c1190082f7fe0f812707fc77455616ab6f8b38e796cbffa9" "732b807b0543855541743429c9979ebfb363e27ec91e82f463c91e68c772f6e3" "4e5e58e42f6f37920b95a8502f488928b3dab9b6cc03d864e38101ce36ecb968" "72759f4e42617df7a07d0a4f4b08982314aa97fbd495a5405c9b11f48bd6b839" "9e6ac467fa1e5eb09e2ac477f61c56b2e172815b4a6a43cf48def62f9d3e5bf9" "b9183de9666c3a16a7ffa7faaa8e9941b8d0ab50f9aaba1ca49f2f3aec7e3be9" "0e8c264f24f11501d3f0cabcd05e5f9811213f07149e4904ed751ffdcdc44739" "780c67d3b58b524aa485a146ad9e837051918b722fd32fd1b7e50ec36d413e70" "a11043406c7c4233bfd66498e83600f4109c83420714a2bd0cd131f81cbbacea" "45482e7ddf47ab1f30fe05f75e5f2d2118635f5797687e88571842ff6f18b4d5" "a3821772b5051fa49cf567af79cc4dabfcfd37a1b9236492ae4724a77f42d70d" "3b4800ea72984641068f45e8d1911405b910f1406b83650cbd747a831295c911" default)))
+    ("a455366c5cdacebd8adaa99d50e37430b0170326e7640a688e9d9ad406e2edfd" "a24c5b3c12d147da6cef80938dca1223b7c7f70f2f382b26308eba014dc4833a" "6343f4d41b209fe8990e3c5f4d2040b359612ef9cd8682f1e1e2a836beba8107" "4780d7ce6e5491e2c1190082f7fe0f812707fc77455616ab6f8b38e796cbffa9" "732b807b0543855541743429c9979ebfb363e27ec91e82f463c91e68c772f6e3" "4e5e58e42f6f37920b95a8502f488928b3dab9b6cc03d864e38101ce36ecb968" "72759f4e42617df7a07d0a4f4b08982314aa97fbd495a5405c9b11f48bd6b839" "9e6ac467fa1e5eb09e2ac477f61c56b2e172815b4a6a43cf48def62f9d3e5bf9" "b9183de9666c3a16a7ffa7faaa8e9941b8d0ab50f9aaba1ca49f2f3aec7e3be9" "0e8c264f24f11501d3f0cabcd05e5f9811213f07149e4904ed751ffdcdc44739" "780c67d3b58b524aa485a146ad9e837051918b722fd32fd1b7e50ec36d413e70" "a11043406c7c4233bfd66498e83600f4109c83420714a2bd0cd131f81cbbacea" "45482e7ddf47ab1f30fe05f75e5f2d2118635f5797687e88571842ff6f18b4d5" "a3821772b5051fa49cf567af79cc4dabfcfd37a1b9236492ae4724a77f42d70d" "3b4800ea72984641068f45e8d1911405b910f1406b83650cbd747a831295c911" default)))
  '(default-input-method "latin-1-prefix")
  '(fci-rule-color "#383838")
+ '(hl-sexp-background-color "#1c1f26")
  '(magit-diff-arguments (quote ("--ignore-all-space" "--no-ext-diff")))
  '(package-selected-packages
    (quote
-    (docker-tramp command-log-mode swift-mode ace-jump-mode ace-window aio applescript-mode async-await auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company company-jedi company-lean confluence counsel dash dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode ess eyuml f fill-column-indicator flycheck-rust forge fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-rust lsp-ui magit markdown-mode material-theme meghanada minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode pony-mode projectile pyenv-mode py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
+    (elisp-lint aio pubmed go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode async-await auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company company-jedi company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode ess eyuml f fill-column-indicator flycheck-rust forge fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-rust lsp-ui magit markdown-mode material-theme meghanada minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode pony-mode projectile pyenv-mode py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
  '(paradox-github-token t)
  '(safe-local-variable-values
    (quote
-    ((dan/python-project-root . "/Users/dan/src/pytorch_examples")
+    ((dan/python-project-root . "/Users/dan/src/elaenia/")
+     (dan/python-project-name . "elaenia")
+     (dan/python-virtualenv . "/Users/dan/tmp/virtualenvs/elaenia/")
+     (dan/python-project-root . "/Users/dan/src/pytorch_examples")
      (dan/python-virtualenv . "/Users/dan/tmp/virtualenvs/misc")
      (dan/python-project-name . "pytorch_examples")
      (xenops-image-directory . "img")
-     (bug-reference-bug-regexp . "#\\(?2:[0-9]+\\)")))))
+     (bug-reference-bug-regexp . "#\\(?2:[0-9]+\\)"))))
+ '(vc-annotate-background nil)
+ '(vc-annotate-color-map
+   (quote
+    ((20 . "#f36c60")
+     (40 . "#ff9800")
+     (60 . "#fff59d")
+     (80 . "#8bc34a")
+     (100 . "#81d4fa")
+     (120 . "#4dd0e1")
+     (140 . "#b39ddb")
+     (160 . "#f36c60")
+     (180 . "#ff9800")
+     (200 . "#fff59d")
+     (220 . "#8bc34a")
+     (240 . "#81d4fa")
+     (260 . "#4dd0e1")
+     (280 . "#b39ddb")
+     (300 . "#f36c60")
+     (320 . "#ff9800")
+     (340 . "#fff59d")
+     (360 . "#8bc34a"))))
+ '(vc-annotate-very-old-color nil))
 (put 'upcase-region 'disabled nil)
 
 (put 'LaTeX-narrow-to-environment 'disabled nil)
@@ -1108,4 +1138,4 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(font-lock-comment-face ((t (:foreground "medium blue" :slant italic)))))
+ '(font-lock-comment-face ((t (:foreground "#bc9357" :slant italic)))))
