@@ -44,18 +44,6 @@
      'projectile-switch-to-buffer)
     (t 'switch-to-buffer))))
 
-(defun dan/find-file (&optional arg)
-  (interactive "P")
-  (let ((current-prefix-arg nil))
-    (call-interactively
-     (cond
-      ((not arg)
-       'counsel-git)
-      ((equal arg '(4))
-       'counsel-recentf)
-      ((equal arg '(16))
-       'find-file)))))
-
 (defun dan/set-exec-path-from-shell (&optional pathvar)
   (interactive)
   (let* ((pathvar (or pathvar "PATH"))
@@ -295,7 +283,14 @@
           (save-restriction
             (goto-char (point-min))
             (and (re-search-forward "[ \t]$" nil t)
-                 ;; (yes-or-no-p "Delete trailing whitespace?")
+                 (or t ;; set to nil to avoid altering whitespace in 3rd party files
+                     (progn
+                       (unless (boundp 'dan/delete-trailing-whitespace-answer)
+                         (setq-local dan/delete-trailing-whitespace-answer
+                                     (yes-or-no-p "Delete trailing whitespace?"))
+                         t)))
+                 (or (not (boundp 'dan/delete-trailing-whitespace-answer))
+                     dan/delete-trailing-whitespace-answer)
                  (delete-trailing-whitespace))))))))
 
 
@@ -379,18 +374,23 @@
 
 ;;; Bookmarks
 
-(defun dan/bookmark-set ()
-  (interactive)
-  (if (eq major-mode 'python-mode)
-      (dan/python-bookmark-set)
-    (call-interactively 'bookmark-set)))
+(defun dan/bookmark-set (&optional arg)
+  (interactive "P")
+  (if arg
+      (bookmark-bmenu-list)
+    (if (eq major-mode 'python-mode)
+        (dan/python-bookmark-set)
+      (call-interactively 'bookmark-set))))
 
 
 ;;; Hot files
 
 (defun dan/goto-emacs-config (&optional arg)
   (interactive "P")
-  (if arg (find-file "~/src/emacs-config/lib.el") (dan/goto-use-package)))
+  (pcase arg
+    (`nil (dan/goto-use-package))
+    (`(4) (find-file "~/src/emacs-config/lib.el"))
+    (`(16) (find-file "~/src/emacs-config/python.el"))))
 
 (defun dan/goto-dot-emacs (&optional arg)
   (interactive "P")
@@ -943,6 +943,14 @@ With C-u prefix argument copy URL to clipboard only."
 
 ;;; Magit
 
+(defun dan/magit-file-rename (&optional file newname)
+  (interactive)
+  (let* ((file (or file (magit-read-file "Rename file")))
+         (dir (file-name-directory file))
+         (newname (read-file-name (format "Rename %s to file: " file)
+                                  (and dir (expand-file-name dir)))))
+    (magit-file-rename file newname)))
+
 (defun dan/magit-commit ()
   (interactive)
   (let ((commit-message (buffer-string)))
@@ -1184,7 +1192,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
       (if traceback
           "import traceback ; import %s ; print(traceback.format_exc()) ; %s.set_trace()"
         (if t
-            "import %s ; %s.set_trace()"
+            "__import__('pdb').set_trace()"
           "import IPython; IPython.embed(banner1='')"))
       debugger debugger))))
 
@@ -1364,7 +1372,7 @@ returns the value of `python-shell-buffer-name'."
 
 (defun dan/elaenia-lint ()
   (interactive)
-  (compile "cd /Users/dan/src/elaenia && PATH=$PWD/.venv/bin:$PATH make lint"))
+  (compile "cd /Users/dan/src/elaenia && PATH=~/tmp/virtualenvs/elaenia/bin:$PATH make lint"))
 
 ;;; SQL
 (defun sqlparse-region (beg end)
@@ -1463,15 +1471,32 @@ returns the value of `python-shell-buffer-name'."
 
 
 ;;; Counsel
-(defun dan/counsel-rg (&optional initial-input)
-  (interactive)
-  (let ((initial-directory (if (boundp 'dan/python-project-root)
-                               dan/python-project-root)))
-    (counsel-rg initial-input initial-directory)))
+(defun dan/counsel-rg (&optional arg initial-input)
+  (interactive "P")
+  (let ((dir (or (and (not arg)
+                      (boundp 'dan/python-project-root)
+                      dan/python-project-root)
+                 default-directory)))
+    (counsel-rg initial-input dir)))
 
-(defun dan/counsel-rg-thing-at-point ()
-  (interactive)
-  (dan/counsel-rg (ivy-thing-at-point)))
+(defun dan/counsel-rg-thing-at-point (&optional arg)
+  (interactive "P")
+  (dan/counsel-rg arg (ivy-thing-at-point)))
+
+(defun dan/find-file (&optional arg)
+  (interactive "P")
+  (let ((current-prefix-arg nil)
+        (default-directory (or (and (boundp 'dan/python-project-root)
+                                    dan/python-project-root)
+                               default-directory)))
+    (call-interactively
+     (cond
+      ((not arg)
+       'counsel-git)
+      ((equal arg '(4))
+       'counsel-recentf)
+      ((equal arg '(16))
+       'find-file)))))
 
 (defun counsel-git-grep-cmd-with-pathspec-function (str)
   "Git grep with control over file paths searched.

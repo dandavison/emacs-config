@@ -21,6 +21,11 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
   (require 'flycheck)
   ;; (pyenv-mode)
 
+  (if nil
+      (setq dan/python-virtualenv  "/Users/dan/tmp/virtualenvs/elaenia/"
+            dan/python-project-name "elaenia"
+            dan/python-project-root "/Users/dan/src/elaenia/"))
+
   (unless dan/python-project-name
     (setq dan/python-project-name (dan/python-infer-project-name)))
   (unless dan/python-project-root
@@ -73,9 +78,10 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
             (flycheck-select-checker 'python-flake8)
           (error (progn
                    (flycheck-mode -1)
-                   (message "Failed to activate flake8; disabling flycheck: %S" error))))
-        (flycheck-mode -1))
-    (message "Python virtualenv / project root are unknown"))
+                   (message "dan/python-mode-hook-fn: Error thrown by (flycheck-select-checker 'python-flake8). Disabling flycheck: %S" error))))
+        (blacken-on-save-mode)
+        (flycheck-mode +1))
+    (message "dan/python-mode-hook-fn: Python virtualenv / project root are unknown"))
 
   (company-mode)
   ;; (jedi:install-server) ;; TODO do this only when necessary

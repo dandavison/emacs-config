@@ -4,6 +4,11 @@
 (setq mac-command-modifier 'super)
 (setq mac-option-modifier 'meta)
 
+;; Appearance
+(blink-cursor-mode -1)
+(set-face-background 'fringe (face-background 'default))
+(tool-bar-mode -1)
+
 ;; Full screen
 (setq ns-use-native-fullscreen nil)
 (run-with-timer 1 nil 'toggle-frame-fullscreen)
@@ -11,3 +16,7 @@
 ;; Server
 (require 'server)
 (unless (server-running-p) (server-start))
+
+;; Packages
+(package-initialize)
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)

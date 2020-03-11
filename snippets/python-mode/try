@@ -5,4 +5,4 @@ try:
     $1
 except Exception as ex:
     print("%s: %s" % (ex.__class__.__name__, ex))
-    import ipdb ; ipdb.set_trace()
+    __import__("pdb").set_trace()

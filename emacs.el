@@ -79,9 +79,9 @@
          ([(super d)] . dan/bookmark-set)
          ([(super f)] . dan/find-file)
          ([(super g)] . magit-status)
-         ([(super k)] . dan/bookmark-set)
+         ([(super k)] . dan/bookmark-dwim)
          ([(super left)] . winner-undo)
-         ([(super l)] . bookmark-bmenu-list)
+         ([(super l)] . find-library)
          ([(super m)] . dan/goto-definition)
          ([(super n)] . (lambda () (interactive) (dan/switch-to-buffer '(4))))
          ([(super o)] . dan/find-file)
@@ -131,12 +131,13 @@
                   (shell-command (format "git add %s" (dired-get-filename)))
                   (magit-status)))
          ("R" . magit-file-rename)
+         ;; ("R" . (lambda () (interactive) (dan/magit-file-rename (dired-filename-at-point))))
          ([left] . dired-up-directory)
          ([right] . dired-find-file))
   :config
   (setq dired-auto-revert-buffer t
         dired-omit-size-limit nil
-        dired-omit-files "^__pycache__$\\|\\.egg-info$\\|^.mypy_cache$\\|^\\.\\.?\\|\\.pyc$"
+        dired-omit-files "^__pycache__$\\|\\.egg-info$\\|^.mypy_cache$\\|^\\.\\.?\\|\\.pyc\\|^junk\\."
         dired-omit-verbose nil)
   (put 'dired-find-alternate-file 'disabled nil)
   (setq-default dired-omit-files-p t)
@@ -305,7 +306,7 @@
   (setq counsel-git-cmd "rg --files"  ;;  --type py
         counsel-rg-base-command "rg -i -M 512 --no-heading --line-number --color never %s .")
 
-
+  ;; Doesn't seem to work well unfortunately
   ;; (advice-add 'ivy-previous-line :after #'ivy-call)
   ;; (advice-add 'ivy-next-line :after #'ivy-call)
 
@@ -419,8 +420,6 @@
   :config
   (setq
    magit-completing-read-function 'ivy-completing-read
-   magit-log-arguments '("--graph" "--decorate" "-n20")
-   magit-push-always-verify nil
    magit-revision-insert-related-refs nil
    magit-save-repository-buffers nil
    magit-status-sections-hook '(
@@ -450,6 +449,12 @@
          ("C-X C-s" . (lambda () (interactive) (set-buffer-modified-p t) (save-buffer)))
          ([(meta left)] . left-word)
          ([(meta right)] . right-word))
+  :config
+  (advice-add 'yank :after (lambda (&rest args)
+                             (if (eq major-mode 'markdown-mode)
+                                 (save-excursion (skip-chars-backward " \n")
+                                                 (dan/markdown-image-to-html (point-at-bol) (point-at-eol))))))
+  (setq markdown-fontify-code-blocks-natively t)
   :hook (markdown-mode . (lambda () (setq truncate-lines nil
                                      word-wrap t))))
 
@@ -473,9 +478,9 @@
   :load-path "~/src/3p/mma-mode"
   :config
   (add-to-list 'auto-mode-alist '("\\.m\\'" . mma-mode))
-  (font-lock-add-keywords
-   'mma-mode
-   '(("\\<\\([^ [\n]+\\)\\[" 1 'font-lock-function-name-face)))
+  ;; (font-lock-add-keywords
+  ;;  'mma-mode
+  ;;  '(("\\<\\([^ [\n]+\\)\\[" 1 'font-lock-function-name-face)))
   (defun dan/mma-mode-hook-fn ()
     (paredit-c-mode))
   :hook
@@ -650,7 +655,7 @@
 
 ;; (dan/theme-load 'railscasts-reloaded)
 ;; (dan/theme-load 'minimal-black)
-(dan/theme-load 'leuven)
+;; (dan/theme-load 'leuven)
 ;; (minimal-mode)
 (tool-bar-mode -1)
 (dan/set-appearance)
@@ -686,7 +691,6 @@
  sentence-end-double-space nil)
 
 (fset 'yes-or-no-p 'y-or-n-p)
-
 
 (defvar dan/before-revert-data)
 (defun dan/before-revert-hook-fn ()
