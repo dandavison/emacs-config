@@ -22,16 +22,17 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
   ;; (pyenv-mode)
 
   (if nil
-      (setq dan/python-virtualenv  "/Users/dan/tmp/virtualenvs/elaenia/"
-            dan/python-project-name "elaenia"
-            dan/python-project-root "/Users/dan/src/elaenia/"))
+      (progn
+        (setq-local dan/python-virtualenv  "/Users/dan/tmp/virtualenvs/elaenia/")
+        (setq-local  dan/python-project-name "elaenia")
+        (setq-local dan/python-project-root "/Users/dan/src/elaenia/")))
 
   (unless dan/python-project-name
-    (setq dan/python-project-name (dan/python-infer-project-name)))
+    (setq-local dan/python-project-name (dan/python-infer-project-name)))
   (unless dan/python-project-root
-    (setq dan/python-project-root (dan/python-infer-project-root dan/python-project-name)))
+    (setq-local dan/python-project-root (dan/python-infer-project-root dan/python-project-name)))
   (unless dan/python-virtualenv
-    (setq dan/python-virtualenv (dan/python-infer-virtualenv dan/python-project-name)))
+    (setq-local dan/python-virtualenv (dan/python-infer-virtualenv dan/python-project-name)))
 
   (if (and dan/python-virtualenv
            dan/python-project-root)
@@ -79,7 +80,9 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
           (error (progn
                    (flycheck-mode -1)
                    (message "dan/python-mode-hook-fn: Error thrown by (flycheck-select-checker 'python-flake8). Disabling flycheck: %S" error))))
+
         (blacken-on-save-mode)
+        ;; (add-hook 'before-save-hook #'dan/python-blacken-defun-on-save nil t)
         (flycheck-mode +1))
     (message "dan/python-mode-hook-fn: Python virtualenv / project root are unknown"))
 

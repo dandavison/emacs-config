@@ -1,14 +1,14 @@
 ;; -*- lexical-binding: t -*-
+
 ;;; Init
 (setq debug-on-error nil)
-(package-initialize)
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
-(setq use-package-always-demand t)
 
-;;; MacOS
-;; https://github.com/railwaycat/homebrew-emacsmacport/
-(setq mac-command-modifier 'super)
-(setq mac-option-modifier 'meta)
+;;; Package manager
+
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+(package-initialize)
+(setq use-package-always-demand t)
 
 ;;; Native packages
 
@@ -100,6 +100,11 @@
          ([(super ?\])] . fci-mode)
          ([(super \\)] . dan/indent-region)
          ([(super |)] . dan/shell-command-on-region-and-replace)))
+
+;;; MacOS
+;; https://github.com/railwaycat/homebrew-emacsmacport/
+(setq mac-command-modifier 'super)
+(setq mac-option-modifier 'meta)
 
 (use-package bookmark
   :bind (:map bookmark-bmenu-mode-map
@@ -209,7 +214,7 @@
          ("C-c d" . dan/python-insert-ipdb-set-trace)
          ("C-c C-c" . dan/save-even-if-not-modified)
          ("?" . dan/python-question-mark)
-         ([(super ?b)] . dan/blacken)
+         ([(super ?b)] . dan/python-blacken)
          ([(super ?')] . flycheck-mode)
          ([(super i)] . dan/python-where-am-i)
          ([(meta shift right)] . python-indent-shift-right)
@@ -220,6 +225,9 @@
   :hook (python-mode . dan/python-mode-hook-fn))
 
 (load-file "~/src/emacs-config/lib.el")
+
+(use-package term
+  :hook (term-mode . eterm-256color-mode))
 
 ;;; External Packages
 
@@ -376,22 +384,19 @@
   :load-path "~/src/3p/override-lisp-indent")
 
 (use-package xenops
-  :load-path "~/src/xenops"
-  :bind (:map xenops-mode-map
-         ("C-p" . xenops-xen-mode)
-         ("C-x c" . xenops-avy-copy-math-and-paste))
-  :config
-  (load-file "~/src/emacs-config/xenops.el")
+  :load-path "~/src/xenops/lisp"
+  ;; :bind (:map xenops-mode-map
+  ;;        ("C-p" . xenops-xen-mode)
+  ;;        ("C-x c" . xenops-avy-copy-math-and-paste))
+  ;; :config
+  ;; (load-file "~/src/emacs-config/xenops.el")
 
-  :hook
-  (xenops-mode-hook
-   .
-   (lambda ()
-     (dan/set-up-outline-minor-mode "\\(\\\\sub\\|\\\\section\\|\\\\begin\\|\\\\item\\)"))))
-
-(use-package xenops
-  :load-path "~/src/xenops")
-
+  ;; :hook
+  ;; (xenops-mode-hook
+  ;;  .
+  ;;  (lambda ()
+  ;;    (dan/set-up-outline-minor-mode "\\(\\\\sub\\|\\\\section\\|\\\\begin\\|\\\\item\\)")))
+  )
 
 (use-package lispy
   :defer t
@@ -409,6 +414,7 @@
   :after lsp)
 
 (use-package magit
+  ;; :load-path "~/src/3p/magit/lisp"
   :bind (:map magit-diff-mode-map
          ([down] . nil)
          ([up] . nil)
@@ -419,6 +425,15 @@
 
   :config
   (setq
+
+   magit-git-executable "git"
+   magit-diff-ansi-color-conversion-function nil
+   magit-diff-refine-hunk "all"
+
+   ;; magit-git-executable "git-delta"
+   ;; magit-diff-ansi-color-conversion-function #'ansi-color-apply-on-region
+   ;; magit-diff-refine-hunk nil
+
    magit-completing-read-function 'ivy-completing-read
    magit-revision-insert-related-refs nil
    magit-save-repository-buffers nil
@@ -688,7 +703,15 @@
  save-silently t
  shell-command-default-error-buffer "*Shell Command Error*"
  vc-follow-symlinks t
+ find-function-C-source-directory nil ;;(f-expand "~/src/3p/emacs/src")
  sentence-end-double-space nil)
+
+(setq save-some-buffers-default-predicate (lambda ())) ;; this might cause problems? maybe in magit?
+
+(desktop-save-mode 1)
+(add-to-list 'desktop-globals-to-save 'command-history)
+
+;; (add-to-list 'Info-directory-list "/usr/local/Cellar/emacs-plus/26.3/share/info")
 
 (fset 'yes-or-no-p 'y-or-n-p)
 
@@ -742,6 +765,7 @@
 (recentf-mode t)
 (setq recentf-max-saved-items nil)
 (add-to-list 'recentf-exclude ".*\\.\\(png\\|pdf\\)")
+(add-to-list 'recentf-exclude "/var/.*")
 
 (advice-add 'goto-line :before (lambda (&rest args) (outline-show-all)))
 
@@ -1094,11 +1118,34 @@
  '(magit-diff-arguments (quote ("--ignore-all-space" "--no-ext-diff")))
  '(package-selected-packages
    (quote
-    (elisp-lint aio pubmed go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode async-await auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company company-jedi company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode ess eyuml f fill-column-indicator flycheck-rust forge fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-rust lsp-ui magit markdown-mode material-theme meghanada minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode pony-mode projectile pyenv-mode py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
+    (magit undercover simple-call-tree eterm-256color xterm-color elisp-lint aio pubmed go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode async-await auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company company-jedi company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode ess eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-rust lsp-ui markdown-mode material-theme meghanada minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode pony-mode projectile pyenv-mode py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
  '(paradox-github-token t)
  '(safe-local-variable-values
    (quote
-    ((dan/python-project-root . "/Users/dan/src/elaenia/")
+    ((git-commit-major-mode . git-commit-elisp-text-mode)
+     (org-src-preserve-indentation)
+     (eval and
+           (featurep
+            (quote ox-extra))
+           (ox-extras-activate
+            (quote
+             (ignore-headlines))))
+     (eval require
+           (quote ox-texinfo+)
+           nil t)
+     (eval require
+           (quote ox-extra)
+           nil t)
+     (eval require
+           (quote ol-man)
+           nil t)
+     (eval require
+           (quote org-man)
+           nil t)
+     (eval require
+           (quote magit-utils)
+           nil t)
+     (dan/python-project-root . "/Users/dan/src/elaenia/")
      (dan/python-project-name . "elaenia")
      (dan/python-virtualenv . "/Users/dan/tmp/virtualenvs/elaenia/")
      (dan/python-project-root . "/Users/dan/src/pytorch_examples")
@@ -1138,4 +1185,4 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(font-lock-comment-face ((t (:foreground "#bc9357" :slant italic)))))
+ '(font-lock-comment-face ((t (:foreground "dark cyan")))))

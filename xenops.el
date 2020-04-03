@@ -1,4 +1,4 @@
-(setq xenops-font-font-family "Latin Modern Math")
+;; (setq xenops-font-font-family "Latin Modern Math")
 (setq xenops-xen-style-rules
       (append xenops-xen-style-rules
               '(("\\R" . "ℝ")

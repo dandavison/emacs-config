@@ -189,6 +189,9 @@
   (interactive)
   (insert-char #x26A1))
 
+(defun dan/bytes-to-hex (bytes)
+  (--map (format "#x%02x" it) bytes))
+
 ;;; Indentation
 
 (defun dan/indent-shift-left (&rest args)
@@ -283,7 +286,7 @@
           (save-restriction
             (goto-char (point-min))
             (and (re-search-forward "[ \t]$" nil t)
-                 (or t ;; set to nil to avoid altering whitespace in 3rd party files
+                 (or nil ;; set to nil to avoid altering whitespace in 3rd party files
                      (progn
                        (unless (boundp 'dan/delete-trailing-whitespace-answer)
                          (setq-local dan/delete-trailing-whitespace-answer
@@ -374,13 +377,13 @@
 
 ;;; Bookmarks
 
-(defun dan/bookmark-set (&optional arg)
+(defun dan/bookmark-dwim (&optional arg)
   (interactive "P")
   (if arg
-      (bookmark-bmenu-list)
-    (if (eq major-mode 'python-mode)
-        (dan/python-bookmark-set)
-      (call-interactively 'bookmark-set))))
+      (if (eq major-mode 'python-mode)
+          (dan/python-bookmark-set)
+        (call-interactively 'bookmark-set))
+    (call-interactively #'bookmark-bmenu-list)))
 
 
 ;;; Hot files
@@ -1177,11 +1180,17 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
     (call-interactively #'jedi:show-doc)))
 
 ;; pip install black-macchiato
-(defun dan/blacken (start end)
+(defun dan/python-blacken (start end)
   (interactive "r")
   (if current-prefix-arg
       (shell-command-on-region start end "black-macchiato --line-length 99" nil 'replace)
     (call-interactively #'blacken)))
+
+(defun dan/python-blacken-defun-on-save ()
+  (save-excursion
+    (python-mark-defun)
+    (let ((current-prefix-arg '(4)))
+      (call-interactively #'dan/python-blacken))))
 
 (defun dan/python-insert-ipdb-set-trace (&optional traceback)
   (interactive "P")
@@ -1474,9 +1483,10 @@ returns the value of `python-shell-buffer-name'."
 (defun dan/counsel-rg (&optional arg initial-input)
   (interactive "P")
   (let ((dir (or (and (not arg)
+                      (eq major-mode 'python-mode)
                       (boundp 'dan/python-project-root)
                       dan/python-project-root)
-                 default-directory)))
+                 (and arg default-directory))))
     (counsel-rg initial-input dir)))
 
 (defun dan/counsel-rg-thing-at-point (&optional arg)

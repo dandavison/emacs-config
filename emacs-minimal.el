@@ -1,8 +1,13 @@
 ;; Conveniences / Annoyances
-(setq ring-bell-function (lambda nil nil))
 (fset 'yes-or-no-p 'y-or-n-p)
-(setq mac-command-modifier 'super)
-(setq mac-option-modifier 'meta)
+(setq
+ make-backup-files nil
+ create-lockfiles nil
+ ring-bell-function (lambda nil nil)
+ save-silently t
+ vc-follow-symlinks t
+ mac-command-modifier 'super
+ mac-option-modifier 'meta)
 
 ;; Appearance
 (blink-cursor-mode -1)
