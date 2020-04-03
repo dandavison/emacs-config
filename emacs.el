@@ -171,7 +171,7 @@
     (setq prettify-symbols-alist '(("lambda" . 955)))
     (prettify-symbols-mode)
     (dan/set-up-outline-minor-mode "\\((\\|;;;\\)")
-    (add-hook 'before-save-hook (lambda () (indent-region (point-min) (point-max))) nil t)
+    ;;(add-hook 'before-save-hook (lambda () (indent-region (point-min) (point-max))) nil t)
     (flycheck-mode -1))
 
   :hook (emacs-lisp-mode . dan/emacs-lisp-mode-hook-fn))
@@ -427,11 +427,11 @@
   (setq
 
    magit-git-executable "git"
-   magit-diff-ansi-color-conversion-function nil
-   magit-diff-refine-hunk "all"
+   ;; magit-diff-ansi-color-conversion-function nil
+   ;; magit-diff-refine-hunk "all"
 
    ;; magit-git-executable "git-delta"
-   ;; magit-diff-ansi-color-conversion-function #'ansi-color-apply-on-region
+   magit-diff-ansi-color-conversion-function #'ansi-color-apply-on-region
    ;; magit-diff-refine-hunk nil
 
    magit-completing-read-function 'ivy-completing-read
@@ -455,6 +455,7 @@
                                 ))
   (fset 'dan/magit-diff-master
         [?\C-c ?g ?d ?r ?m ?a ?s ?t ?e ?r ?. ?. ?. return]))
+
 
 (use-package markdown-mode
   :bind (:map markdown-mode-map
