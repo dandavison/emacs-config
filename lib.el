@@ -8,6 +8,12 @@
          (set-window-point
           win (with-current-buffer buf (point-max))))))
 
+(defun dan/message-buffer-clear ()
+  (interactive)
+  (let* ((win (get-buffer-window "*Messages*" t))
+         (buf (and win (window-buffer win))))
+    (with-selected-window win
+      (with-current-buffer buf (recenter 1)))))
 
 (defun dan/keyboard-quit ()
   (interactive)

@@ -57,7 +57,7 @@
          ([f6] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?6 arg)))
          ([f7] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?7 arg)))
          ([f8] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?8 arg)))
-         ([f9] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?9 arg)))
+         ([f9] . dan/magit-dev)
          ([f10] . (lambda () (interactive) (find-file "~/dandavison7@gmail.com/Projects/xenops.org")))
          ([f11] . dan/goto-emacs-config)
          ([f12] . (lambda () (interactive) (switch-to-buffer "*eshell*")))
@@ -112,6 +112,7 @@
 
 (use-package cl)
 
+
 (use-package comint
   :bind (:map comint-mode-map
          ([(meta up)] . comint-previous-matching-input-from-input)
@@ -153,6 +154,11 @@
 
 (use-package dired-x)
 
+(use-package erc
+  :config
+  (setq erc-nick "dd7"
+        erc-hide-list '("JOIN" "PART" "QUIT")))
+
 (use-package elisp-mode
   :bind (:map emacs-lisp-mode-map
          ("C-c d" . edebug-defun)
@@ -175,11 +181,6 @@
     (flycheck-mode -1))
 
   :hook (emacs-lisp-mode . dan/emacs-lisp-mode-hook-fn))
-
-(use-package erc
-  :config
-  (setq erc-nick "dd7"
-        erc-hide-list '("JOIN" "PART" "QUIT")))
 
 (use-package org
   :load-path "~/src/3p/org-mode/lisp"
@@ -424,16 +425,31 @@
          ("C-x C-$" . dan/magit-commit))
 
   :config
+
+  ;; (propertize " magit-dev" 'face font-lock-warning-face)
+  (define-minor-mode dan/magit-dev
+    "Magit development mode"
+    :lighter " magit-dev"
+    :global t
+    (cond
+     (dan/magit-dev
+      (setq magit-git-executable "git-delta"
+            ;; magit-diff-ansi-color-conversion-function #'ansi-color-apply-on-region
+            magit-diff-ansi-color-conversion-function #'dan/xterm-color-apply-on-region))
+     ('deactivate
+      (setq magit-git-executable "git"
+            magit-diff-ansi-color-conversion-function #'ansi-color-apply-on-region))))
+
+  (defun dan/xterm-color-apply-on-region (begin end)
+    (require 'xterm-color)
+    (save-restriction
+      (narrow-to-region begin end)
+      (let ((buffer-read-only nil))
+        (xterm-color-colorize-buffer))))
+
+
   (setq
-
-   magit-git-executable "git"
-   ;; magit-diff-ansi-color-conversion-function nil
-   ;; magit-diff-refine-hunk "all"
-
-   ;; magit-git-executable "git-delta"
-   magit-diff-ansi-color-conversion-function #'ansi-color-apply-on-region
-   ;; magit-diff-refine-hunk nil
-
+   magit-diff-refine-hunk "all"
    magit-completing-read-function 'ivy-completing-read
    magit-revision-insert-related-refs nil
    magit-save-repository-buffers nil
@@ -709,7 +725,7 @@
 
 (setq save-some-buffers-default-predicate (lambda ())) ;; this might cause problems? maybe in magit?
 
-(desktop-save-mode 1)
+;; (desktop-save-mode 1)
 (add-to-list 'desktop-globals-to-save 'command-history)
 
 ;; (add-to-list 'Info-directory-list "/usr/local/Cellar/emacs-plus/26.3/share/info")
