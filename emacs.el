@@ -29,7 +29,7 @@
          ("C-c e" . outline-show-all)
          ("C-c f" . dan/describe-face-at-point)
          ("C-c g" . magit-status)
-         ("C-c l" . linum-mode)
+         ("C-c l" . magit-log)
          ("C-c m" . dan/display-messages-buffer)
          ("C-c o" . dan/scratch-buffer)
          ("C-c r" . (lambda (&optional arg) (interactive "P") (call-interactively (if arg #'dan/projectile-replace #'replace-regexp))))
@@ -57,8 +57,8 @@
          ([f5] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?5 arg)))
          ([f6] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?6 arg)))
          ([f7] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?7 arg)))
-         ([f8] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?8 arg)))
-         ([f9] . dan/magit-dev)
+         ([f8] . magit-log)
+         ([f9] . dan/magit-dev-mode)
          ([f10] . (lambda () (interactive) (find-file "~/dandavison7@gmail.com/Projects/xenops.org")))
          ([f11] . dan/goto-emacs-config)
          ([f12] . (lambda () (interactive) (switch-to-buffer "*eshell*")))
@@ -428,26 +428,26 @@
   :config
 
   ;; (propertize " magit-dev" 'face font-lock-warning-face)
-  (define-minor-mode dan/magit-dev
+  (define-minor-mode dan/magit-dev-mode
     "Magit development mode"
     :lighter " magit-dev"
     :global t
     (cond
-     (dan/magit-dev
+     (dan/magit-dev-mode
       (setq magit-git-executable "git-delta"
             ;; magit-diff-ansi-color-conversion-function #'ansi-color-apply-on-region
-            magit-diff-ansi-color-conversion-function #'dan/xterm-color-apply-on-region))
+            magit-diff-convert-ansi-colors-function #'magit-diff-convert-ansi-colors--xterm-color
+            face-remapping-alist '((magit-diff-context-highlight . default)
+                                   (magit-diff-added . default)
+                                   (magit-diff-added-highlight . default)
+                                   (magit-diff-removed . default)
+                                   (magit-diff-removed-highlight . default))))
      ('deactivate
       (setq magit-git-executable "git"
-            magit-diff-ansi-color-conversion-function #'ansi-color-apply-on-region))))
+            magit-diff-convert-ansi-colors-function #'ansi-color-apply-on-region
+            face-remapping-alist nil))))
 
-  (defun dan/xterm-color-apply-on-region (begin end)
-    (require 'xterm-color)
-    (save-restriction
-      (narrow-to-region begin end)
-      (let ((buffer-read-only nil))
-        (xterm-color-colorize-buffer))))
-
+  (dan/magit-dev-mode +1)
 
   (setq
    magit-diff-refine-hunk "all"
