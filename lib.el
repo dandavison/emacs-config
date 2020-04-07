@@ -20,8 +20,27 @@
   (keyboard-quit)
   (with-current-buffer (window-buffer (minibuffer-window)) (keyboard-quit)))
 
-(defun dan/delete-overlays ()
+(defun dan/describe-properties (&optional prop)
   (interactive)
+  (let* ((prop (or prop 'face))
+         (pos (point))
+         (ovs (overlays-at pos))
+         (text-prop-val (get-text-property pos prop)))
+    (if ovs
+        (dolist (ov ovs)
+          (message "overlay with %S=%S" prop (overlay-get ov prop)))
+      (message "<no overlays>"))
+    (message "text property %S=%S" prop text-prop-val)
+    nil))
+
+(defun dan/describe-properties-in (beg end)
+  (interactive "r")
+  (let* ((ovs (overlays-in beg end)))
+    (dolist (ov ovs)
+      (message "overlay with %S=%S" 'face (overlay-get ov 'face)))))
+
+(defun dan/delete-overlays (beg end)
+  (interactive "r")
   (mapc #'delete-overlay (overlays-in (point-min) (point-max))))
 
 (defun dan/transpose-line-up ()
@@ -691,12 +710,17 @@
   (eval-region (or beg (point-min))
                (or end (point-max))))
 
-(defun dan/debug-on-error (&optional arg)
-  (interactive "P")
-  (setq debug-on-error (not arg))
-  (if-let ((buffer (get-buffer "*Backtrace*")))
-      (kill-buffer buffer))
-  (message "debug-on-error: %s" debug-on-error))
+(define-minor-mode dan/debug-mode
+  "Debug-on-error mode"
+  :lighter " DEBUG"
+  :global t
+  (cond
+   (dan/debug-mode
+    (setq debug-on-error t)
+    (if-let ((buffer (get-buffer "*Backtrace*")))
+        (kill-buffer buffer)))
+   ('deactivate
+    (setq debug-on-error nil))))
 
 ;;; Git
 (defun dan/open-in-github (&optional clipboard-only)

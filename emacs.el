@@ -15,6 +15,7 @@
 (use-package emacs
   :bind (("C-M-\\" . dan/indent-region)
          ("C-b" . backward-sexp)
+         ("C-l" . dan/message-buffer-clear)
          ("C-c 1" . flycheck-mode)
          ("C-c C-c" . dan/save-even-if-not-modified)
          ("C-c C-l" . (lambda () (interactive) (eval-buffer) (message "eval-buffer: %s" (buffer-file-name))))
@@ -728,7 +729,8 @@
 ;; (desktop-save-mode 1)
 (add-to-list 'desktop-globals-to-save 'command-history)
 
-;; (add-to-list 'Info-directory-list "/usr/local/Cellar/emacs-plus/26.3/share/info")
+(setenv "INFOPATH" "/Users/dan/src/3p/emacs-mac/share/info")
+(add-to-list 'Info-additional-directory-list "/Users/dan/src/3p/emacs-mac/share/info")
 
 (fset 'yes-or-no-p 'y-or-n-p)
 
