@@ -258,9 +258,15 @@
   (interactive)
   (indent-region (point-min) (point-max)))
 
-(defun dan/indent-buffer-on-save ()
-  (interactive)
-  (add-hook 'before-save-hook 'dan/indent-buffer nil 'local))
+(define-minor-mode dan/indent-buffer-on-save
+  "indent-buffer-on-save mode"
+  :lighter " indent"
+  :global t
+  (cond
+   (dan/indent-buffer-on-save
+    (add-hook 'before-save-hook #'dan/indent-buffer nil 'local))
+   ('deactivate
+    (remove-hook 'before-save-hook #'dan/indent-buffer 'local))))
 
 (defun dan/show-shell-output-buffer ()
   (interactive)

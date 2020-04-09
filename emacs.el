@@ -97,6 +97,7 @@
          ([(super ?&)] . (lambda () (interactive) (let ((kill-buffer-query-functions nil)) (kill-buffer))))
          ([(super ?,)] . dan/counsel-rg)
          ([(super ?.)] . dan/counsel-rg-thing-at-point)
+         ([(super ?')] . magit-dispatch)
          ([(super ?\;)] . dan/show-buffer-file-name)
          ([(super ?\])] . fci-mode)
          ([(super \\)] . dan/indent-region)
