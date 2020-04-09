@@ -1336,7 +1336,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
           (setq name (funcall get-name)))
         (push name names))
       ;; (push (dan/python-current-module-name) names)
-      (setq name (mapconcat #'identity names "."))
+      (setq name (mapconcat #'identity names "::"))
       (dan/save-value-to-kill-ring name)
       (message name))))
 
@@ -1358,17 +1358,17 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
     (let ((module (replace-regexp-in-string
                    "\.__init__\\(.py\\)?" ""
                    (replace-regexp-in-string
-                    "/" "."
+                    "/" "/"
                     (replace-regexp-in-string
                      (concat "^" (dan/git-get-git-dir)) ""
                      (replace-regexp-in-string
-                      "\.py$" ""
+                      "\.py$" "\.py"
                       (file-truename (dan/file-or-directory-name)))))))
           (def (dan/python-current-defun-name)))
 
       (cond
        ((equal arg '(4))
-        (format "%s:%s" module def))
+        (format "%s::%s" module def))
        ((equal arg '(16))
         def)
        (t (format "from %s import %s" module def)))))))

@@ -81,8 +81,9 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
                    (flycheck-mode -1)
                    (message "dan/python-mode-hook-fn: Error thrown by (flycheck-select-checker 'python-flake8). Disabling flycheck: %S" error))))
 
-        (blacken-on-save-mode)
+        ;; (blacken-on-save-mode)
         ;; (add-hook 'before-save-hook #'dan/python-blacken-defun-on-save nil t)
+        (add-hook 'before-save-hook (lambda () (blacken-buffer t)) nil t)
         (flycheck-mode +1))
     (message "dan/python-mode-hook-fn: Python virtualenv / project root are unknown"))
 
