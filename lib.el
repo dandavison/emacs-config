@@ -1072,7 +1072,7 @@ With C-u prefix argument copy URL to clipboard only."
     (save-excursion
       (goto-char beg)
       (while (re-search-forward "!\\[\\([^]]*\\)\\](\\([^)]+\\))" endm t)
-        (replace-match "<img width=300px src=\"\\2\" alt=\"\\1\" />")))))
+        (replace-match "<table><tr><td><img width=300px src=\"\\2\" alt=\"\\1\" /></td></tr></table>")))))
 
 (defun dan/jira-link-to-markdown (beg end)
   "Convert all JIRA links in region to markdown links."
