@@ -20,10 +20,9 @@
   (keyboard-quit)
   (with-current-buffer (window-buffer (minibuffer-window)) (keyboard-quit)))
 
-(defun dan/describe-properties (&optional prop)
-  (interactive)
-  (let* ((prop (or prop 'face))
-         (pos (point))
+(defun dan/describe-properties (prop)
+  (interactive "Sproperty: ")
+  (let* ((pos (point))
          (ovs (overlays-at pos))
          (text-prop-val (get-text-property pos prop)))
     (if ovs
@@ -258,12 +257,12 @@
   (interactive)
   (indent-region (point-min) (point-max)))
 
-(define-minor-mode dan/indent-buffer-on-save
+(define-minor-mode dan/indent-buffer-on-save-mode
   "indent-buffer-on-save mode"
   :lighter " indent"
   :global t
   (cond
-   (dan/indent-buffer-on-save
+   (dan/indent-buffer-on-save-mode
     (add-hook 'before-save-hook #'dan/indent-buffer nil 'local))
    ('deactivate
     (remove-hook 'before-save-hook #'dan/indent-buffer 'local))))
@@ -317,7 +316,7 @@
           (save-restriction
             (goto-char (point-min))
             (and (re-search-forward "[ \t]$" nil t)
-                 (or nil ;; set to nil to avoid altering whitespace in 3rd party files
+                 (or t ;; set to nil to avoid altering whitespace in 3rd party files
                      (progn
                        (unless (boundp 'dan/delete-trailing-whitespace-answer)
                          (setq-local dan/delete-trailing-whitespace-answer

@@ -29,7 +29,7 @@
          ("C-c e" . outline-show-all)
          ("C-c f" . dan/describe-face-at-point)
          ("C-c g" . magit-status)
-         ("C-c l" . magit-log)
+         ("C-c l" . linum-mode)
          ("C-c m" . dan/display-messages-buffer)
          ("C-c o" . dan/scratch-buffer)
          ("C-c r" . (lambda (&optional arg) (interactive "P") (call-interactively (if arg #'dan/projectile-replace #'replace-regexp))))
@@ -109,6 +109,7 @@
 (setq mac-option-modifier 'meta)
 
 (use-package bookmark
+  :defer t
   :bind (:map bookmark-bmenu-mode-map
          ("C-x C-s" . bookmark-save)))
 
@@ -116,6 +117,7 @@
 
 
 (use-package comint
+  :defer t
   :bind (:map comint-mode-map
          ([(meta up)] . comint-previous-matching-input-from-input)
          ([(meta down)] . comint-next-matching-input-from-input)
@@ -134,6 +136,7 @@
         compilation-save-buffers-predicate (lambda () nil)))
 
 (use-package dired
+  :defer t
   :bind (:map dired-mode-map
          ("A" . (lambda () (interactive)
                   (shell-command (format "git add %s" (dired-get-filename)))
@@ -157,6 +160,7 @@
 (use-package dired-x)
 
 (use-package erc
+  :defer t
   :config
   (setq erc-nick "dd7"
         erc-hide-list '("JOIN" "PART" "QUIT")))
@@ -185,7 +189,7 @@
   :hook (emacs-lisp-mode . dan/emacs-lisp-mode-hook-fn))
 
 (use-package org
-  :load-path "~/src/3p/org-mode/lisp"
+  :defer t
   :after org-table
   :bind (:map org-mode-map
          ([(shift left)] . windmove-left)
@@ -208,17 +212,18 @@
   (setq org-support-shift-select 'always))
 
 (use-package outline
+  :defer t
   :bind (:map outline-minor-mode-map
          ([(control tab)] . org-cycle)
          ([(backtab)] . org-global-cycle)))
 
 (use-package python
+  :defer t
   :bind (:map python-mode-map
          ("C-c d" . dan/python-insert-ipdb-set-trace)
          ("C-c C-c" . dan/save-even-if-not-modified)
          ("?" . dan/python-question-mark)
          ([(super ?b)] . dan/python-blacken)
-         ([(super ?')] . flycheck-mode)
          ([(super i)] . dan/python-where-am-i)
          ([(meta shift right)] . python-indent-shift-right)
          ([(meta shift left)] . python-indent-shift-left)
@@ -230,6 +235,7 @@
 (load-file "~/src/emacs-config/lib.el")
 
 (use-package term
+  :defer t
   :hook (term-mode . eterm-256color-mode))
 
 ;;; External Packages
@@ -279,8 +285,7 @@
   :load-path "~/src/facet/emacs")
 
 (use-package flycheck
-  :hook (prog-mode . flycheck-mode)
-  :load-path "~/src/3p/flycheck")
+  :hook (prog-mode . flycheck-mode))
 
 (use-package flycheck-rust
   :config (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
@@ -304,7 +309,6 @@
 
 
 (use-package ivy
-  :load-path "~/src/3p/swiper"
   :config
   (require 'counsel)
   (require 'swiper)
@@ -417,62 +421,53 @@
   :after lsp)
 
 (use-package magit
-  ;; :load-path "~/src/3p/magit/lisp"
+  :load-path "~/src/3p/magit/lisp"
   :bind (:map magit-diff-mode-map
          ([down] . nil)
          ([up] . nil)
-         ([return] . magit-diff-visit-file-worktree)
+         ([return] . magit-diff-visit-worktree-file)
          ([control return] . magit-diff-visit-file)
          :map with-editor-mode-map
          ("C-x C-$" . dan/magit-commit))
 
   :config
 
-  ;; (propertize " magit-dev" 'face font-lock-warning-face)
-  (define-minor-mode dan/magit-dev-mode
-    "Magit development mode"
-    :lighter " magit-dev"
-    :global t
-    (cond
-     (dan/magit-dev-mode
-      (setq magit-git-executable "git-delta"
-            ;; magit-diff-ansi-color-conversion-function #'ansi-color-apply-on-region
-            magit-diff-convert-ansi-colors-function #'magit-diff-convert-ansi-colors--xterm-color
-            face-remapping-alist '((magit-diff-context-highlight . default)
-                                   (magit-diff-added . default)
-                                   (magit-diff-added-highlight . default)
-                                   (magit-diff-removed . default)
-                                   (magit-diff-removed-highlight . default))))
-     ('deactivate
-      (setq magit-git-executable "git"
-            magit-diff-convert-ansi-colors-function #'ansi-color-apply-on-region
-            face-remapping-alist nil))))
+  ;; (transient-append-suffix 'magit-diff "d"
+  ;; '("m" "Master" (lambda () (magit-diff-range "master..."))))
 
-  (dan/magit-dev-mode +1)
+  ;; (transient-remove-suffix 'magit-diff "d")
 
-  (setq
-   magit-diff-refine-hunk "all"
-   magit-completing-read-function 'ivy-completing-read
-   magit-revision-insert-related-refs nil
-   magit-save-repository-buffers nil
-   magit-status-sections-hook '(
-                                ;; magit-insert-status-headers
-                                magit-insert-merge-log
-                                magit-insert-rebase-sequence
-                                magit-insert-am-sequence
-                                magit-insert-sequencer-sequence
-                                magit-insert-bisect-output
-                                magit-insert-bisect-rest
-                                magit-insert-bisect-log
-                                ;; magit-insert-untracked-files
-                                magit-insert-unstaged-changes
-                                magit-insert-staged-changes
-                                ;; magit-insert-stashes
-                                ;; magit-insert-unpulled-commits
-                                ;; magit-insert-unpushed-commits
-                                ))
+  (if t
+      (setq
+       magit-diff-refine-hunk 'all
+       magit-completing-read-function 'ivy-completing-read
+       magit-revision-insert-related-refs nil
+       magit-save-repository-buffers nil
+       magit-status-sections-hook '(
+                                    ;; magit-insert-status-headers
+                                    magit-insert-merge-log
+                                    magit-insert-rebase-sequence
+                                    magit-insert-am-sequence
+                                    magit-insert-sequencer-sequence
+                                    magit-insert-bisect-output
+                                    magit-insert-bisect-rest
+                                    magit-insert-bisect-log
+                                    ;; magit-insert-untracked-files
+                                    magit-insert-unstaged-changes
+                                    magit-insert-staged-changes
+                                    ;; magit-insert-stashes
+                                    ;; magit-insert-unpulled-commits
+                                    ;; magit-insert-unpushed-commits
+                                    )))
   (fset 'dan/magit-diff-master
         [?\C-c ?g ?d ?r ?m ?a ?s ?t ?e ?r ?. ?. ?. return]))
+
+
+(use-package magit-delta
+  :after magit xterm-color
+  :load-path "~/src/magit-delta"
+  :config
+  (magit-delta-mode +1))
 
 
 (use-package markdown-mode
@@ -494,6 +489,7 @@
 
 
 (use-package meghanada
+  :defer t
   :config
   (setq meghanada-java-path "java")
   (setq meghanada-maven-path "mvn"))
@@ -630,7 +626,6 @@
                                       (lambda () (rustfmt-buffer 'display-errors)) nil t)))))
 
 (use-package rust-mode
-  :load-path "~/src/3p/rust-mode"
   :after lsp-mode
   :bind (:map rust-mode-map
          ("C-c C-c" . dan/save-even-if-not-modified)
@@ -649,6 +644,7 @@
 ;; (add-hook 'after-save-hook (lambda () (flycheck-mode -1) (compile "cargo build")))
 
 (use-package swift-mode
+  :defer t
   :hook (
          (swift-mode . (lambda ()
                          (paredit-c-mode)
@@ -661,6 +657,8 @@
   :load-path "~/src/3p/tla-mode")
 
 (use-package toml-mode)
+
+(use-package xterm-color)
 
 (use-package yasnippet
   :bind (:map yas/keymap
@@ -711,6 +709,7 @@
 ;;; Etc
 (setq-default lexical-binding t)
 (setq
+ uniquify-min-dir-content 1
  async-shell-command-buffer 'rename-buffer
  auto-save-default nil
  create-lockfiles nil
@@ -1138,7 +1137,7 @@
  '(magit-diff-arguments (quote ("--ignore-all-space" "--no-ext-diff")))
  '(package-selected-packages
    (quote
-    (magit undercover simple-call-tree eterm-256color xterm-color elisp-lint aio pubmed go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode async-await auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company company-jedi company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode ess eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-rust lsp-ui markdown-mode material-theme meghanada minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode pony-mode projectile pyenv-mode py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
+    (company-jedi magit xterm-color undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-rust lsp-ui markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode projectile py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
  '(paradox-github-token t)
  '(safe-local-variable-values
    (quote
