@@ -334,28 +334,6 @@
   (add-hook 'counsel-grep-post-action-hook 'dan/on-jump-into-buffer))
 
 
-(use-package jedi-core
-  :after (python-environment)
-  :load-path "~/src/3p/emacs-jedi"
-  :config
-  ;; TODO: set these in (use-package python-environment ...) ?
-  (setq python-environment-directory (expand-file-name "~/tmp/virtualenvs")
-        python-environment-virtualenv '("python" "-m" "venv"))
-  (setq jedi:environment-root "emacs-jedi"
-        jedi:server-args '("--log" "/tmp/jediepcserver.log"
-                           "--log-level" "INFO")
-        jedi:goto-definition-config
-        '((nil definition nil)
-          (t   definition nil)
-          (nil nil        nil)
-          (t   nil        nil)
-          (nil definition t  )
-          (t   definition t  )
-          (nil nil        t  )
-          (t   nil        t  )))
-  :hook
-  (jedi:goto-definition-hook . #'dan/on-jump-into-buffer))
-
 (use-package js
   :defer t
   :bind (:map js-mode-map
@@ -603,8 +581,6 @@
           "--dont-skip=__init__.py")))
 
 (use-package pyenv-mode :defer t)
-
-(use-package python-environment)
 
 (use-package reformatter
   :config

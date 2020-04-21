@@ -1153,10 +1153,10 @@ Suppose the name is $name. The following statements are true:
 1. The project is held in a git repository at a path like .../$name/.git.
 2. The full path is known to projectile.
 3. The project virtualenv is a directory also named $name. Its
-   parent directory is python-environment-directory."
+   parent directory is dan/virtualenvs-directory."
   (if-let ((file-name (buffer-file-name)))
       (if (string-match
-           (format "%s/\\([^/]+\\)/" (directory-file-name python-environment-directory))
+           (format "%s/\\([^/]+\\)/" (directory-file-name dan/virtualenvs-directory))
            file-name)
           ;; We're in the virtualenv.
           (match-string 1 file-name)
@@ -1169,7 +1169,7 @@ Suppose the name is $name. The following statements are true:
   "Infer absolute path to python virtualenv for current buffer."
   (let* ((project-name (or project-name (dan/python-infer-project-name)))
          (virtualenv (and project-name
-                          (f-join python-environment-directory project-name))))
+                          (f-join dan/virtualenvs-directory project-name))))
     (and virtualenv
          (f-directory-p virtualenv)
          (file-name-as-directory virtualenv))))

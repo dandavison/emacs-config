@@ -1,3 +1,25 @@
+(use-package jedi-core
+  ;; :load-path "~/src/3p/emacs-jedi"
+  :config
+  ;; (setq jedi:environment-root "emacs-jedi"
+  ;;       jedi:server-args '("--log" "/tmp/jediepcserver.log"
+  ;;                          "--log-level" "INFO"))
+  (setq
+        jedi:goto-definition-config
+        '((nil definition nil)
+          (t   definition nil)
+          (nil nil        nil)
+          (t   nil        nil)
+          (nil definition t  )
+          (t   definition t  )
+          (nil nil        t  )
+          (t   nil        t  )))
+  ;; :hook
+  ;; (jedi:goto-definition-hook . #'dan/on-jump-into-buffer)
+)
+
+(defvar dan/virtualenvs-directory (expand-file-name "~/tmp/virtualenvs"))
+
 (defvar-local dan/python-project-name nil
   "The name of the current python project.
 
@@ -5,7 +27,7 @@ Suppose the name is $name. The following statements are true:
 1. The project is held in a git repository at a path like .../$name/.git.
 2. The full path is known to projectile.
 3. The project virtualenv is a directory also named $name. Its
-   parent directory is python-environment-directory.")
+   parent directory is dan/virtualenvs-directory.")
 
 (defvar-local dan/python-virtualenv nil
   "Absolute path to python virtualenv for current buffer.")
@@ -18,8 +40,6 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
 
 (defun dan/python-mode-hook-fn ()
   (interactive)
-  (require 'flycheck)
-  ;; (pyenv-mode)
 
   (if nil
       (progn
@@ -61,8 +81,6 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
           (set (make-variable-buffer-local 'dan/python-buffer-config-keys)
                (mapcar 'car config)))
 
-        (setq exec-path (cons (f-join dan/python-virtualenv "bin") exec-path))
-
         ;; (assert (f-directory? dan/python-virtualenv) t)
         ;; (assert (f-directory? dan/python-project-root) t)
         ;; (assert (f-executable? flycheck-python-flake8-executable) t)
@@ -72,8 +90,10 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
         ;; (assert (f-directory? python-shell-virtualenv-root) t)
         ;; (assert (f-executable? python-shell-interpreter) t)
 
-        (setf (flycheck-checker-get 'python-flake8 'next-checkers) '((t . python-mypy)))
-        (setf (flycheck-checker-get 'python-mypy 'next-checkers) nil)
+        ;; (setf (flycheck-checker-get 'python-flake8 'next-checkers) '((t . python-mypy)))
+        (put 'python-flake8 (flycheck--checker-property-name 'next-checkers) '((t . python-mypy)))
+        ;; (setf (flycheck-checker-get 'python-mypy 'next-checkers) nil)
+        (put 'python-mypy (flycheck--checker-property-name 'next-checkers) nil)
 
         (condition-case error
             (flycheck-select-checker 'python-flake8)
