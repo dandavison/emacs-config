@@ -1537,11 +1537,11 @@ returns the value of `python-shell-buffer-name'."
     (call-interactively
      (cond
       ((not arg)
-       'counsel-git)
+       #'projectile-find-file)
       ((equal arg '(4))
-       'counsel-recentf)
+       #'counsel-recentf)
       ((equal arg '(16))
-       'find-file)))))
+       #'find-file)))))
 
 (defun counsel-git-grep-cmd-with-pathspec-function (str)
   "Git grep with control over file paths searched.
