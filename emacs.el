@@ -272,11 +272,6 @@
   :config
   (setq company-selection-wrap-around t))
 
-(use-package company-jedi
-  :after company
-  :config
-  (add-to-list 'company-backends 'company-jedi))
-
 (use-package dash)
 
 (use-package f)

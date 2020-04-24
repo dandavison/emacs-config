@@ -1,22 +1,29 @@
-(use-package jedi-core
-  ;; :load-path "~/src/3p/emacs-jedi"
-  :config
-  ;; (setq jedi:environment-root "emacs-jedi"
-  ;;       jedi:server-args '("--log" "/tmp/jediepcserver.log"
-  ;;                          "--log-level" "INFO"))
-  (setq
-        jedi:goto-definition-config
-        '((nil definition nil)
-          (t   definition nil)
-          (nil nil        nil)
-          (t   nil        nil)
-          (nil definition t  )
-          (t   definition t  )
-          (nil nil        t  )
-          (t   nil        t  )))
-  ;; :hook
-  ;; (jedi:goto-definition-hook . #'dan/on-jump-into-buffer)
-)
+(if nil
+    (use-package jedi-core
+      :load-path "~/src/3p/emacs-jedi"
+      :config
+      (setq jedi:server-args '("--log" "/tmp/jediepcserver.log"
+                               "--log-level" "INFO"
+                               "--log-traceback"))
+      (setq
+       jedi:goto-definition-config
+       '((nil definition nil)
+         (t   definition nil)
+         (nil nil        nil)
+         (t   nil        nil)
+         (nil definition t  )
+         (t   definition t  )
+         (nil nil        t  )
+         (t   nil        t  )))
+      ;; :hook
+      ;; (jedi:goto-definition-hook . #'dan/on-jump-into-buffer)
+      )
+
+  (use-package company-jedi
+    :load-path "~/src/3p/company-jedi"
+    :after company
+    :config
+    (add-to-list 'company-backends 'company-jedi)))
 
 (defvar dan/virtualenvs-directory (expand-file-name "~/tmp/virtualenvs"))
 
@@ -71,6 +78,9 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
                   (flycheck-flake8rc . (f-join dan/python-project-root "tox.ini"))
                   (flycheck-python-mypy-ini . (f-join dan/python-project-root "tox.ini"))
 
+                  ;; Jedi
+                  (jedi:virtualenv . dan/python-virtualenv)
+
                   ;; Shell
                   (python-shell-virtualenv-root . dan/python-virtualenv)
                   (python-shell-interpreter . (f-join dan/python-virtualenv "bin/ipython"))
@@ -95,16 +105,17 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
         ;; (setf (flycheck-checker-get 'python-mypy 'next-checkers) nil)
         (put 'python-mypy (flycheck--checker-property-name 'next-checkers) nil)
 
-        (condition-case error
-            (flycheck-select-checker 'python-flake8)
-          (error (progn
-                   (flycheck-mode -1)
-                   (message "dan/python-mode-hook-fn: Error thrown by (flycheck-select-checker 'python-flake8). Disabling flycheck: %S" error))))
+        ;; (condition-case error
+        ;;     (flycheck-select-checker 'python-flake8)
+        ;;   (error (progn
+        ;;            (flycheck-mode -1)
+        ;;            (message "dan/python-mode-hook-fn: Error thrown by (flycheck-select-checker 'python-flake8). Disabling flycheck: %S" error))))
 
         ;; (blacken-on-save-mode)
         ;; (add-hook 'before-save-hook #'dan/python-blacken-defun-on-save nil t)
-        (add-hook 'before-save-hook (lambda () (blacken-buffer t)) nil t)
-        (flycheck-mode +1))
+        ;; (add-hook 'before-save-hook (lambda () (blacken-buffer t)) nil t)
+        ;; (flycheck-mode -1)
+        )
     (message "dan/python-mode-hook-fn: Python virtualenv / project root are unknown"))
 
   (company-mode)
