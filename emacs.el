@@ -141,7 +141,7 @@
          ("A" . (lambda () (interactive)
                   (shell-command (format "git add %s" (dired-get-filename)))
                   (magit-status)))
-         ("R" . magit-file-rename)
+         ([(super r)] . magit-file-rename)
          ;; ("R" . (lambda () (interactive) (dan/magit-file-rename (dired-filename-at-point))))
          ([left] . dired-up-directory)
          ([right] . dired-find-file))
@@ -410,7 +410,7 @@
 
   ;; (transient-remove-suffix 'magit-diff "d")
 
-  (if t
+  (when t
       (setq
        magit-diff-refine-hunk 'all
        magit-completing-read-function 'ivy-completing-read
@@ -736,11 +736,10 @@
 (advice-add 'message :after 'dan/message-buffer-goto-end-of-buffer)
 
 
-(setq dan/fill-column 99)
+
 (use-package fill-column-indicator
   :config
-  (setq fci-rule-column dan/fill-column
-        fci-rule-color "#A5BAF1"))
+  (dan/set-fill-column 99))
 
 (put 'downcase-region 'disabled nil)
 (put 'narrow-to-region 'disabled nil)
@@ -1111,11 +1110,12 @@
  '(magit-diff-arguments (quote ("--ignore-all-space" "--no-ext-diff")))
  '(package-selected-packages
    (quote
-    (company-jedi magit xterm-color undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-rust lsp-ui markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode projectile py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
+    (magit-delta eglot lsp-docker package-build flycheck-package xterm-color undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-ui markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode projectile py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
  '(paradox-github-token t)
  '(safe-local-variable-values
    (quote
-    ((git-commit-major-mode . git-commit-elisp-text-mode)
+    ((checkdoc-minor-mode . 1)
+     (git-commit-major-mode . git-commit-elisp-text-mode)
      (org-src-preserve-indentation)
      (eval and
            (featurep
