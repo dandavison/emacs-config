@@ -1,23 +1,23 @@
-(if nil
-    (use-package jedi-core
-      :load-path "~/src/3p/emacs-jedi"
-      :config
-      (setq jedi:server-args '("--log" "/tmp/jediepcserver.log"
-                               "--log-level" "INFO"
-                               "--log-traceback"))
-      (setq
-       jedi:goto-definition-config
-       '((nil definition nil)
-         (t   definition nil)
-         (nil nil        nil)
-         (t   nil        nil)
-         (nil definition t  )
-         (t   definition t  )
-         (nil nil        t  )
-         (t   nil        t  )))
-      ;; :hook
-      ;; (jedi:goto-definition-hook . #'dan/on-jump-into-buffer)
-      )
+(when nil
+  (use-package jedi-core
+    :load-path "~/src/3p/emacs-jedi"
+    :config
+    (setq jedi:server-args '("--log" "/tmp/jediepcserver.log"
+                             "--log-level" "INFO"
+                             "--log-traceback"))
+    (setq
+     jedi:goto-definition-config
+     '((nil definition nil)
+       (t   definition nil)
+       (nil nil        nil)
+       (t   nil        nil)
+       (nil definition t  )
+       (t   definition t  )
+       (nil nil        t  )
+       (t   nil        t  )))
+    ;; :hook
+    ;; (jedi:goto-definition-hook . #'dan/on-jump-into-buffer)
+    )
 
   (use-package company-jedi
     :load-path "~/src/3p/company-jedi"
@@ -119,8 +119,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
     (message "dan/python-mode-hook-fn: Python virtualenv / project root are unknown"))
 
   (company-mode)
-  ;; (jedi:install-server) ;; TODO do this only when necessary
-  (jedi:setup)
+  ;; (eglot)
 
   (setq fill-column 99)
   (set (make-variable-buffer-local 'fci-rule-column) fill-column)
