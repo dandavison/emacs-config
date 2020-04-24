@@ -1,6 +1,15 @@
 ;; -*- lexical-binding: t -*-
 ;;; Etc
 
+(defun dan/set-fill-column (n)
+  (interactive "nColumn: ")
+  (fci-mode -1)
+  (setq dan/fill-column n
+        fill-column dan/fill-column
+        fci-rule-column dan/fill-column
+        fci-rule-color "#A5BAF1")
+  (fci-mode +1))
+
 (defun dan/message-buffer-goto-end-of-buffer (&rest args)
   (let* ((win (get-buffer-window "*Messages*"))
          (buf (and win (window-buffer win))))
@@ -1644,14 +1653,14 @@ If LIST is nil use `projectile-project-root-parent-directories'"
 
 (defun dan/goto-definition (&optional arg)
   (interactive "P")
-  (if (equal major-mode 'python-mode)
-      (call-interactively 'jedi:goto-definition)
-    (find-function (or (and (not arg) (function-called-at-point))
-                       (intern (completing-read
-                                "Function: "
-                                #'help--symbol-completion-table
-                                (lambda (f) (or (fboundp f) (get f 'function-documentation)))
-                                t nil nil nil))))))
+  (if (equal major-mode 'emacs-lisp-mode)
+      (find-function (or (and (not arg) (function-called-at-point))
+                         (intern (completing-read
+                                  "Function: "
+                                  #'help--symbol-completion-table
+                                  (lambda (f) (or (fboundp f) (get f 'function-documentation)))
+                                  t nil nil nil))))
+    (xref-find-definitions (thing-at-point 'symbol))))
 
 
 
@@ -1765,18 +1774,18 @@ and `defcustom' forms reset their default values."
   "Root dir of current repo"
   (file-name-as-directory
    (org-babel-chomp
-    (shell-command-to-string "git rev-parse --show-toplevel"))))
+    (shell-command-to-string "git rev-parse --show-toplevel 2>/dev/null"))))
 
 (defun dan/git-get-commit ()
   "Current commit"
   (org-babel-chomp
-   (shell-command-to-string "git rev-parse HEAD")))
+   (shell-command-to-string "git rev-parse HEAD 2>/dev/null")))
 
 
 (defun dan/git-get-branch ()
   "Current branch"
   (org-babel-chomp
-   (shell-command-to-string "git rev-parse --abbrev-ref HEAD")))
+   (shell-command-to-string "git rev-parse --abbrev-ref HEAD 2>/dev/null")))
 
 
 (defun dan/git-get-repo-url ()

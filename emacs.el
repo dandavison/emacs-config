@@ -141,7 +141,7 @@
          ("A" . (lambda () (interactive)
                   (shell-command (format "git add %s" (dired-get-filename)))
                   (magit-status)))
-         ("R" . magit-file-rename)
+         ([(super r)] . magit-file-rename)
          ;; ("R" . (lambda () (interactive) (dan/magit-file-rename (dired-filename-at-point))))
          ([left] . dired-up-directory)
          ([right] . dired-find-file))
@@ -410,28 +410,28 @@
 
   ;; (transient-remove-suffix 'magit-diff "d")
 
-  (if t
-      (setq
-       magit-diff-refine-hunk 'all
-       magit-completing-read-function 'ivy-completing-read
-       magit-revision-insert-related-refs nil
-       magit-save-repository-buffers nil
-       magit-status-sections-hook '(
-                                    ;; magit-insert-status-headers
-                                    magit-insert-merge-log
-                                    magit-insert-rebase-sequence
-                                    magit-insert-am-sequence
-                                    magit-insert-sequencer-sequence
-                                    magit-insert-bisect-output
-                                    magit-insert-bisect-rest
-                                    magit-insert-bisect-log
-                                    ;; magit-insert-untracked-files
-                                    magit-insert-unstaged-changes
-                                    magit-insert-staged-changes
-                                    ;; magit-insert-stashes
-                                    ;; magit-insert-unpulled-commits
-                                    ;; magit-insert-unpushed-commits
-                                    )))
+  (when t
+    (setq
+     magit-diff-refine-hunk 'all
+     magit-completing-read-function 'ivy-completing-read
+     magit-revision-insert-related-refs nil
+     magit-save-repository-buffers nil
+     magit-status-sections-hook '(
+                                  ;; magit-insert-status-headers
+                                  magit-insert-merge-log
+                                  magit-insert-rebase-sequence
+                                  magit-insert-am-sequence
+                                  magit-insert-sequencer-sequence
+                                  magit-insert-bisect-output
+                                  magit-insert-bisect-rest
+                                  magit-insert-bisect-log
+                                  ;; magit-insert-untracked-files
+                                  magit-insert-unstaged-changes
+                                  magit-insert-staged-changes
+                                  ;; magit-insert-stashes
+                                  ;; magit-insert-unpulled-commits
+                                  ;; magit-insert-unpushed-commits
+                                  )))
   (fset 'dan/magit-diff-master
         [?\C-c ?g ?d ?r ?m ?a ?s ?t ?e ?r ?. ?. ?. return]))
 
@@ -479,18 +479,19 @@
 (use-package minimal
   :load-path "~/src/minimal")
 
-(use-package mma
-  :defer t
-  :load-path "~/src/3p/mma-mode"
-  :config
-  (add-to-list 'auto-mode-alist '("\\.m\\'" . mma-mode))
-  ;; (font-lock-add-keywords
-  ;;  'mma-mode
-  ;;  '(("\\<\\([^ [\n]+\\)\\[" 1 'font-lock-function-name-face)))
-  (defun dan/mma-mode-hook-fn ()
-    (paredit-c-mode))
-  :hook
-  (mma-mode-hook . #'dan/mma-mode-hook-fn))
+(when nil
+  (use-package mma
+    :defer t
+    :load-path "~/src/3p/mma-mode"
+    :config
+    (add-to-list 'auto-mode-alist '("\\.m\\'" . mma-mode))
+    ;; (font-lock-add-keywords
+    ;;  'mma-mode
+    ;;  '(("\\<\\([^ [\n]+\\)\\[" 1 'font-lock-function-name-face)))
+    (defun dan/mma-mode-hook-fn ()
+      (paredit-c-mode))
+    :hook
+    (mma-mode-hook . #'dan/mma-mode-hook-fn)))
 
 (use-package modalka
   :defer t
@@ -632,7 +633,13 @@
 
 (use-package toml-mode)
 
-(use-package xterm-color)
+(use-package xterm-color
+  :config
+  ;; https://github.com/atomontage/xterm-color#usage
+  (setq compilation-environment '("TERM=xterm-256color"))
+  (defun dan/compilation-filter-advice (f proc string)
+    (funcall f proc (xterm-color-filter string)))
+  (advice-add 'compilation-filter :around #'dan/compilation-filter-advice))
 
 (use-package yasnippet
   :bind (:map yas/keymap
@@ -736,11 +743,10 @@
 (advice-add 'message :after 'dan/message-buffer-goto-end-of-buffer)
 
 
-(setq dan/fill-column 99)
+
 (use-package fill-column-indicator
   :config
-  (setq fci-rule-column dan/fill-column
-        fci-rule-color "#A5BAF1"))
+  (dan/set-fill-column 99))
 
 (put 'downcase-region 'disabled nil)
 (put 'narrow-to-region 'disabled nil)
@@ -1111,11 +1117,12 @@
  '(magit-diff-arguments (quote ("--ignore-all-space" "--no-ext-diff")))
  '(package-selected-packages
    (quote
-    (company-jedi magit xterm-color undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-rust lsp-ui markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode projectile py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
+    (magit-delta eglot lsp-docker package-build flycheck-package xterm-color undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-ui markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode projectile py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
  '(paradox-github-token t)
  '(safe-local-variable-values
    (quote
-    ((git-commit-major-mode . git-commit-elisp-text-mode)
+    ((checkdoc-minor-mode . 1)
+     (git-commit-major-mode . git-commit-elisp-text-mode)
      (org-src-preserve-indentation)
      (eval and
            (featurep
