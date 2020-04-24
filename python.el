@@ -119,8 +119,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
     (message "dan/python-mode-hook-fn: Python virtualenv / project root are unknown"))
 
   (company-mode)
-  ;; (jedi:install-server) ;; TODO do this only when necessary
-  (jedi:setup)
+  ;; (eglot)
 
   (setq fill-column 99)
   (set (make-variable-buffer-local 'fci-rule-column) fill-column)

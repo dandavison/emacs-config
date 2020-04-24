@@ -398,8 +398,16 @@
       (company-complete)
     (indent-for-tab-command)))
 
+;;; LSP
 
-;;; Comment
+(defun dan/eglot-pyls-transform-path-to-docker-tramp (path)
+  (cl-destructuring-bind (container-id)
+      (cl-loop for (id name) in (docker-tramp--running-containers)
+               if (s-contains-p "_pyls_" name)
+               collect id)
+    (format "/docker:%s:%s" container-id path)))
+
+;;; comment
 (defun comment-or-uncomment-region-or-line ()
   "Comments or uncomments the region or the current line if there's no active region."
   (interactive)

@@ -227,7 +227,7 @@
          ([(super i)] . dan/python-where-am-i)
          ([(meta shift right)] . python-indent-shift-right)
          ([(meta shift left)] . python-indent-shift-left)
-         ([(super mouse-1)] . (lambda (event) (interactive "e") (mouse-set-point event) (jedi:goto-definition))))
+         ([(super mouse-1)] . (lambda (event) (interactive "e") (mouse-set-point event) (xref-find-definitions))))
   :config
   (load-file "~/src/emacs-config/python.el")
   :hook (python-mode . dan/python-mode-hook-fn))
@@ -273,6 +273,15 @@
   (setq company-selection-wrap-around t))
 
 (use-package dash)
+
+(use-package eglot
+  :load-path "~/src/3p/eglot"
+  :config
+  (setq eglot-transform-path-function #'dan/eglot-pyls-transform-path-to-docker-tramp))
+
+(use-package eglot-x
+  :load-path "~/src/3p/eglot-x"
+  :after eglot)
 
 (use-package f)
 
@@ -385,13 +394,19 @@
          ([(meta left)] . nil)
          ([(meta right)] . nil)))
 
-(use-package lsp-mode
-  :commands lsp
-  ;; :config (require 'lsp-clients)
-  )
+(when nil
+  (use-package lsp-mode
+    :hook ((python-mode . lsp))
+    :commands lsp
+    :config
+    ;; https://github.com/emacs-lsp/lsp-mode#performance
+    (setq gc-cons-threshold 100000000)
+    (setq read-process-output-max (* 1024 1024))
+    (setq lsp-prefer-capf t)
+    (setq lsp-idle-delay 0.500))
 
-(use-package lsp-ui
-  :after lsp)
+  (use-package lsp-ui
+    :after lsp))
 
 (use-package magit
   :load-path "~/src/3p/magit/lisp"
@@ -739,7 +754,7 @@
 
 (use-package fill-column-indicator
   :config
-  (dan/set-fill-column 99))
+  (dan/set-fill-column 80))
 
 (put 'downcase-region 'disabled nil)
 (put 'narrow-to-region 'disabled nil)
@@ -1110,7 +1125,7 @@
  '(magit-diff-arguments (quote ("--ignore-all-space" "--no-ext-diff")))
  '(package-selected-packages
    (quote
-    (magit-delta eglot lsp-docker package-build flycheck-package xterm-color undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-ui markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode projectile py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
+    (docker magit-delta lsp-docker package-build flycheck-package xterm-color undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-ui markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode projectile py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
  '(paradox-github-token t)
  '(safe-local-variable-values
    (quote
