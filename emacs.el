@@ -436,10 +436,13 @@
         [?\C-c ?g ?d ?r ?m ?a ?s ?t ?e ?r ?. ?. ?. return]))
 
 
-(use-package magit-delta
-  :after magit xterm-color
-  :load-path "~/src/magit-delta"
-  :config
+(if nil
+    (use-package magit-delta
+      :after magit xterm-color
+      :load-path "~/src/magit-delta"
+      :config
+      (magit-delta-mode +1))
+  (package-install-file "~/src/3p/melpa/packages/magit-delta-20200423.327.el")
   (magit-delta-mode +1))
 
 
