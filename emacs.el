@@ -944,13 +944,6 @@
 ;;; Mode hooks
 (setq pulse-iterations 40)
 
-(defun dan/on-jump-into-buffer ()
-  (recenter)
-  (outline-show-all) ;; with swiper--ensure-visible this leaves point in the wrong place
-  (dan/pulse-momentary-highlight-current-line)
-  (when (eq major-mode 'python-mode)
-    (dan/python-current-defun-name)))
-
 (defun dan/after-change-major-mode-hook-fn ()
   (dan/set-appearance))
 (add-hook 'after-change-major-mode-hook 'dan/after-change-major-mode-hook-fn)

@@ -487,6 +487,14 @@
     (ffap (format "https://doc.rust-lang.org/std/?search=%s" (buffer-substring beg end))))
    (t (error "No search backend for major-mode %s" major-mode))))
 
+(defun dan/on-jump-into-buffer ()
+  (recenter)
+  (outline-show-all) ;; with swiper--ensure-visible this leaves point in the wrong place
+  (dan/pulse-momentary-highlight-current-line)
+  (when (eq major-mode 'python-mode)
+    (dan/python-current-defun-name)))
+
+
 ;;; Highlight
 (require 'ring)
 (setq dan/highlighted nil)
