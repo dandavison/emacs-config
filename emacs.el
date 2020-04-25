@@ -223,7 +223,7 @@
          ("C-c d" . dan/python-insert-ipdb-set-trace)
          ("C-c C-c" . dan/save-even-if-not-modified)
          ("?" . dan/python-question-mark)
-         ([(super ?b)] . dan/python-blacken)
+         ([(super ?b)] . dan/python-black)
          ([(super i)] . dan/python-where-am-i)
          ([(meta shift right)] . python-indent-shift-right)
          ([(meta shift left)] . python-indent-shift-left)

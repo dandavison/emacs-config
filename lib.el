@@ -1231,18 +1231,29 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
       (insert ??)
     (call-interactively #'jedi:show-doc)))
 
-;; pip install black-macchiato
-(defun dan/python-blacken (start end)
+(defun dan/python-black (start end)
   (interactive "r")
-  (if current-prefix-arg
-      (shell-command-on-region start end "black-macchiato --line-length 99" nil 'replace)
-    (call-interactively #'blacken)))
+  (cond
 
-(defun dan/python-blacken-defun-on-save ()
-  (save-excursion
-    (python-mark-defun)
-    (let ((current-prefix-arg '(4)))
-      (call-interactively #'dan/python-blacken))))
+   ((null current-prefix-arg)
+    ;; blacken buffer, now and always.
+    (call-interactively #'blacken)
+    ;; Assume that if you want the buffer blackened once, you want it blackened
+    ;; on save. Don't use reformatter.el blacken-on-save-mode because it does
+    ;; not display an error on failure to blacken.
+    ;; https://github.com/purcell/reformatter.el/issues/12
+    (add-hook 'before-save-hook (lambda () (blacken-buffer t)) nil t))
+
+   ;; blacken region
+   ((eq current-prefix-arg '(4))
+    (shell-command-on-region start end "black-macchiato --line-length 99" nil 'replace))
+
+   ;; blacken defun
+   ((eq current-prefix-arg '(16))
+    (save-excursion
+      (python-mark-defun)
+      (let ((current-prefix-arg '(4)))
+        (call-interactively #'dan/python-blacken))))))
 
 (defun dan/python-insert-ipdb-set-trace (&optional traceback)
   (interactive "P")
