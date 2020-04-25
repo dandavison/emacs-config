@@ -184,7 +184,7 @@
     (prettify-symbols-mode)
     (dan/set-up-outline-minor-mode "\\((\\|;;;\\)")
     ;;(add-hook 'before-save-hook (lambda () (indent-region (point-min) (point-max))) nil t)
-    (flycheck-mode -1))
+    )
 
   :hook (emacs-lisp-mode . dan/emacs-lisp-mode-hook-fn))
 
@@ -288,8 +288,7 @@
 (use-package facet
   :load-path "~/src/facet/emacs")
 
-(use-package flycheck
-  :hook (prog-mode . flycheck-mode))
+(use-package flycheck)
 
 (use-package flycheck-rust
   :config (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
@@ -488,8 +487,7 @@
 (use-package mhtml-mode
   :defer t
   :bind (:map mhtml-mode-map
-         ("C-c C-c" . emmet-expand-line))
-  :hook (mhtml-mode . (lambda () (flycheck-mode -1))))
+         ("C-c C-c" . emmet-expand-line)))
 
 (use-package minimal
   :load-path "~/src/minimal")
@@ -624,14 +622,11 @@
   :hook (
          ;; (rust-mode . lsp)
          (rust-mode . (lambda ()
-                        (flycheck-mode -1)
                         (paredit-c-mode)
                         (setq fill-column dan/fill-column
                               fci-rule-column fill-column)
                         (dan/set-up-outline-minor-mode "[ \t]*\\(pub .+\\|fn .+\\|impl .+\\|struct .+\\|enum .+\\|##\\)")))
-         (rust-after-save . (lambda () (flycheck-mode -1) (compile "cargo build")))))
-
-;; (add-hook 'after-save-hook (lambda () (flycheck-mode -1) (compile "cargo build")))
+         (rust-after-save . (lambda () (compile "cargo build")))))
 
 (use-package swift-mode
   :defer t
