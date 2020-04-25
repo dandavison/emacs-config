@@ -1767,7 +1767,8 @@ If LIST is nil use `projectile-project-root-parent-directories'"
   (interactive "P")
   (call-interactively
    (if (or arg (not (and (fboundp 'projectile-save-project-buffers)
-                         (projectile-project-p))))
+                         (fboundp 'projectile-project-p)
+			 (projectile-project-p))))
        #'save-buffer
      #'projectile-save-project-buffers)))
 
