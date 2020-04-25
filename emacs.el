@@ -277,6 +277,7 @@
 (use-package eglot
   :load-path "~/src/3p/eglot"
   :config
+  (setq eglot-ignored-server-capabilites '(:documentHighlightProvider))
   (setq eglot-transform-path-function #'dan/eglot-pyls-transform-path-to-docker-tramp))
 
 (use-package eglot-x
