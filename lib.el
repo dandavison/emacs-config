@@ -1213,7 +1213,11 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
        (lambda (version) (f-join dan/python-virtualenv (format "lib/python%s/site-packages" version)))
        '("3.6" "3.7" "2.7"))))))
 
-(defun dan/python-show-buffer-config ()
+(defmacro dan/python-verify-setup--do-check (check)
+  `(when (not (eval ,check))
+     (princ (format "check failed: %S\n" ,check))))
+
+(defun dan/python-verify-setup ()
   (interactive)
   (with-temp-buffer-window
    "*Python Buffer Config*"
@@ -1223,7 +1227,16 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
      "Python buffer-local config\n--------------------------\n\n%s\n"
      (mapconcat (lambda (sym) (format "%-40s %s" (symbol-name sym) (eval sym)))
                 dan/python-buffer-config-keys
-                "\n")))))
+                "\n")))
+   (princ "\n\n")
+   (dan/python-verify-setup--do-check '(f-directory? dan/python-virtualenv))
+   (dan/python-verify-setup--do-check '(f-directory? dan/python-project-root))
+   (dan/python-verify-setup--do-check '(f-executable? flycheck-python-flake8-executable))
+   (dan/python-verify-setup--do-check '(f-executable? flycheck-python-mypy-executable))
+   (dan/python-verify-setup--do-check '(f-file? flycheck-flake8rc))
+   (dan/python-verify-setup--do-check '(f-file? flycheck-python-mypy-ini))
+   (dan/python-verify-setup--do-check '(f-directory? python-shell-virtualenv-root))
+   (dan/python-verify-setup--do-check '(f-executable? python-shell-interpreter))))
 
 (defun dan/python-question-mark (&optional arg)
   (interactive "P")

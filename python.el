@@ -62,15 +62,6 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
           (set (make-variable-buffer-local 'dan/python-buffer-config-keys)
                (mapcar 'car config)))
 
-        (assert (f-directory? dan/python-virtualenv) t)
-        (assert (f-directory? dan/python-project-root) t)
-        (assert (f-executable? flycheck-python-flake8-executable) t)
-        (assert (f-executable? flycheck-python-mypy-executable) t)
-        (assert (f-file? flycheck-flake8rc) t)
-        (assert (f-file? flycheck-python-mypy-ini) t)
-        (assert (f-directory? python-shell-virtualenv-root) t)
-        (assert (f-executable? python-shell-interpreter) t)
-
         ;; (setf (flycheck-checker-get 'python-flake8 'next-checkers) '((t . python-mypy)))
         (put 'python-flake8 (flycheck--checker-property-name 'next-checkers) '((t . python-mypy)))
         ;; (setf (flycheck-checker-get 'python-mypy 'next-checkers) nil)
