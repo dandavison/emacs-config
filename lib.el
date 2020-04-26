@@ -1339,18 +1339,6 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
   (while (not (python-shell-get-process)) (sleep-for 0.5))
   (python-shell-send-string string))
 
-(when nil
-  ;; What was I doing here?
-  (defun dan/python-cd-site-packages ()
-    (interactive)
-    (if (null python-shell-virtualenv-root)
-        (call-interactively 'dan/python-set-virtualenv))
-    (cl-flet ((make-site-package python-version
-                                 (concat
-                                  (file-name-as-directory python-shell-virtualenv-root)
-                                  "lib/python3.6/site-packages/"))))))
-
-
 (defun dan/python-dict-literal-to-kwargs ()
   (interactive)
   (replace-regexp
@@ -1628,6 +1616,14 @@ A more complex example is:
 (setq counsel-git-grep-cmd-function #'counsel-git-grep-cmd-with-pathspec-function)
 
 ;;; Projectile
+
+(defun dan/projectile-describe-cache ()
+  (interactive)
+  (let* ((items (--map `(,it . ,(length (gethash it projectile-projects-cache)))
+                       (hash-table-keys projectile-projects-cache)))
+         (sorted-items (--sort (> (cdr it) (cdr other)) items)))
+    (cl-loop for (key . n) in sorted-items
+             do (message "%-60s %d" key n))))
 
 (defun dan/projectile-replace ()
   (interactive)

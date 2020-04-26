@@ -394,20 +394,6 @@
          ([(meta left)] . nil)
          ([(meta right)] . nil)))
 
-(when nil
-  (use-package lsp-mode
-    :hook ((python-mode . lsp))
-    :commands lsp
-    :config
-    ;; https://github.com/emacs-lsp/lsp-mode#performance
-    (setq gc-cons-threshold 100000000)
-    (setq read-process-output-max (* 1024 1024))
-    (setq lsp-prefer-capf t)
-    (setq lsp-idle-delay 0.500))
-
-  (use-package lsp-ui
-    :after lsp))
-
 (use-package magit
   :bind (:map magit-diff-mode-map
          ([down] . nil)
@@ -450,15 +436,12 @@
         [?\C-c ?g ?d ?r ?m ?a ?s ?t ?e ?r ?. ?. ?. return]))
 
 
-(if t
-    (use-package magit-delta
-      :after magit xterm-color
-      :load-path "~/src/magit-delta"
-      :config
-      (magit-delta-mode +1))
-  (package-install-file "~/src/3p/melpa/packages/magit-delta-20200423.327.el"))
-
-(magit-delta-mode +1)
+;;(package-install-file "~/src/3p/melpa/packages/magit-delta-20200423.327.el")
+(use-package magit-delta
+  :after magit xterm-color
+  :load-path "~/src/magit-delta"
+  :config
+  (magit-delta-mode +1))
 
 
 (use-package markdown-mode
@@ -475,8 +458,10 @@
                                  (save-excursion (skip-chars-backward " \n")
                                                  (dan/markdown-image-to-html (point-at-bol) (point-at-eol))))))
   (setq markdown-fontify-code-blocks-natively t)
-  :hook (markdown-mode . (lambda () (setq truncate-lines nil
-                                     word-wrap t))))
+  :hook (markdown-mode . (lambda ()
+                           (setq truncate-lines nil
+                                 word-wrap t)
+                           (add-hook 'before-save-hook #'dan/org-table-to-markdown nil t))))
 
 
 (use-package meghanada
@@ -493,19 +478,18 @@
 (use-package minimal
   :load-path "~/src/minimal")
 
-(when nil
-  (use-package mma
-    :defer t
-    :load-path "~/src/3p/mma-mode"
-    :config
-    (add-to-list 'auto-mode-alist '("\\.m\\'" . mma-mode))
-    ;; (font-lock-add-keywords
-    ;;  'mma-mode
-    ;;  '(("\\<\\([^ [\n]+\\)\\[" 1 'font-lock-function-name-face)))
-    (defun dan/mma-mode-hook-fn ()
-      (paredit-c-mode))
-    :hook
-    (mma-mode-hook . #'dan/mma-mode-hook-fn)))
+;; (use-package mma
+;;   :defer t
+;;   :load-path "~/src/3p/mma-mode"
+;;   :config
+;;   (add-to-list 'auto-mode-alist '("\\.m\\'" . mma-mode))
+;;   ;; (font-lock-add-keywords
+;;   ;;  'mma-mode
+;;   ;;  '(("\\<\\([^ [\n]+\\)\\[" 1 'font-lock-function-name-face)))
+;;   (defun dan/mma-mode-hook-fn ()
+;;     (paredit-c-mode))
+;;   :hook
+;;   (mma-mode-hook . #'dan/mma-mode-hook-fn))
 
 (use-package modalka
   :defer t
@@ -615,13 +599,11 @@
                                       (lambda () (rustfmt-buffer 'display-errors)) nil t)))))
 
 (use-package rust-mode
-  :after lsp-mode
   :bind (:map rust-mode-map
          ("C-c C-c" . dan/save-even-if-not-modified)
          ("<" . dan/paired-angle-bracket)
          ("|" . dan/paired-pipe))
   :hook (
-         ;; (rust-mode . lsp)
          (rust-mode . (lambda ()
                         (paredit-c-mode)
                         (setq fill-column dan/fill-column
@@ -949,10 +931,9 @@
 (add-hook 'after-change-major-mode-hook 'dan/after-change-major-mode-hook-fn)
 
 (defun dan/before-save-hook-fn ()
-  (dan/query-delete-trailing-whitespace)
-  (when (or (eq major-mode 'org-mode) (eq major-mode 'markdown-mode))
-    (dan/org-table-to-markdown)))
-(add-hook 'before-save-hook 'dan/before-save-hook-fn)
+  (dan/query-delete-trailing-whitespace))
+
+(add-hook 'before-save-hook #'dan/before-save-hook-fn)
 
 (defun dan/awk-mode-hook-fn ()
   (paredit-c-mode))
@@ -1121,7 +1102,7 @@
  '(magit-diff-arguments (quote ("--ignore-all-space" "--no-ext-diff")))
  '(package-selected-packages
    (quote
-    (magit docker magit-delta lsp-docker package-build flycheck-package xterm-color undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-ui markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode projectile py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
+    (darkroom magit docker magit-delta lsp-docker package-build flycheck-package xterm-color undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-ui markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode projectile py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
  '(paradox-github-token t)
  '(safe-local-variable-values
    (quote
