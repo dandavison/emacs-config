@@ -398,7 +398,7 @@
       (company-complete)
     (indent-for-tab-command)))
 
-;;; LSP
+;;; Eglot
 
 (defun dan/eglot-pyls-transform-path-to-docker-tramp (path)
   (cl-destructuring-bind (container-id)
@@ -406,6 +406,12 @@
                if (s-contains-p "_pyls_" name)
                collect id)
     (format "/docker:%s:%s" container-id path)))
+
+(defun dan/eglot-toggle ()
+  (interactive)
+  (if (eglot-managed-p)
+      (call-interactively #'eglot-shutdown)
+    (call-interactively #'eglot)))
 
 ;;; comment
 (defun comment-or-uncomment-region-or-line ()

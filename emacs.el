@@ -61,7 +61,7 @@
          ([f9] . dan/magit-dev-mode)
          ([f10] . (lambda () (interactive) (find-file "~/dandavison7@gmail.com/Projects/xenops.org")))
          ([f11] . dan/goto-emacs-config)
-         ([f12] . (lambda () (interactive) (switch-to-buffer "*eshell*")))
+         ([f12] . dan/eglot-toggle)
          ([(super down)] . avy-goto-line)
          ([(super up)] . avy-goto-line)
          ([(kp-delete)] . modalka-mode)
@@ -277,6 +277,7 @@
 (use-package eglot
   :load-path "~/src/3p/eglot"
   :config
+  (setf (alist-get 'rust-mode eglot-server-programs) '("rust-analyzer")) ;; "rls"
   (setq eglot-ignored-server-capabilites '(:documentHighlightProvider))
   (setq eglot-transform-path-function #'dan/eglot-pyls-transform-path-to-docker-tramp))
 
