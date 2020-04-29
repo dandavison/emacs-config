@@ -457,7 +457,8 @@
   (advice-add 'yank :after (lambda (&rest args)
                              (if (eq major-mode 'markdown-mode)
                                  (save-excursion (skip-chars-backward " \n")
-                                                 (dan/markdown-image-to-html (point-at-bol) (point-at-eol))))))
+                                                 (dan/markdown-image-to-html (point-at-bol) (point-at-eol))
+                                                 (copy-region-as-kill (point-at-bol) (point-at-eol))))))
   (setq markdown-fontify-code-blocks-natively t)
   :hook (markdown-mode . (lambda ()
                            (setq truncate-lines nil
