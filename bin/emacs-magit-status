@@ -2,4 +2,5 @@
 
 emacsclient \
     --no-wait \
-    --eval "(progn (magit-status (dan/git-get-git-dir)) (select-frame-set-input-focus (selected-frame)) (delete-other-windows))"
+    --eval "(progn (magit-status \"$PWD\") (magit-section-show-level-4-all) (select-frame-set-input-focus (selected-frame)) (delete-other-windows))" \
+    > /dev/null
