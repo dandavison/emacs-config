@@ -405,9 +405,13 @@
          ("C-x C-$" . dan/magit-commit))
 
   :config
+  (defun dan/magit-diff-master () (magit-diff-range "master..."))
+  ;; https://emacs.stackexchange.com/questions/12738/magit-custom-commands/12739#12739
+  (transient-append-suffix 'magit-diff "d"
+  '("m" "Master" dan/magit-diff-master))
 
-  ;; (transient-append-suffix 'magit-diff "d"
-  ;; '("m" "Master" (lambda () (magit-diff-range "master..."))))
+  ;; (transient-append-suffix 'magit-commit "c"
+  ;; '("n" "Snapshot" magit-commit-snapshot))
 
   ;; (transient-remove-suffix 'magit-diff "d")
 
