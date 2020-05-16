@@ -1277,8 +1277,19 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
   (if arg
       (insert ??)
     (call-interactively
-     (if (fboundp 'eglot-help-at-point) #'eglot-help-at-point
+     (if (fboundp 'eglot-help-at-point) #'dan/eglot-help-at-point
        #'display-local-help))))
+
+(defun dan/eglot-help-at-point ()
+  (interactive)
+  (eglot-help-at-point)
+  (when-let ((diagnostic (get-char-property (point) 'flymake-diagnostic)))
+    (save-window-excursion
+      (other-window 1) ;; Temporary hack
+      (goto-char (point-max))
+      (let ((inhibit-read-only t))
+        (insert (eglot--format-markup (flymake--diag-text diagnostic)))))))
+
 
 (defun dan/python-black ()
   (interactive)
