@@ -17,7 +17,7 @@
          ("C-b" . backward-sexp)
          ("C-l" . dan/message-buffer-clear)
          ("C-c 1" . flycheck-mode)
-         ("C-c C-c" . dan/save-even-if-not-modified)
+         ("C-c C-c" . dan/default-command)
          ("C-c C-l" . (lambda () (interactive) (eval-buffer) (message "eval-buffer: %s" (buffer-file-name))))
          ("C-c C-r" . magit-file-rename)
          ("C-c C-z" . python-shell-switch-to-shell)
@@ -27,7 +27,7 @@
          ("C-c c" . (lambda () (interactive) (magit-show-commit "HEAD")))
          ("C-c d" . dan/debug-on-error)
          ("C-c e" . outline-show-all)
-         ("C-c f" . dan/describe-face-at-point)
+         ("C-c f" . dan/flymake-flycheck-toggle)
          ("C-c g" . magit-status)
          ("C-c l" . linum-mode)
          ("C-c m" . dan/display-messages-buffer)
@@ -61,7 +61,7 @@
          ([f9] . dan/magit-dev-mode)
          ([f10] . (lambda () (interactive) (find-file "~/dandavison7@gmail.com/Projects/xenops.org")))
          ([f11] . dan/goto-emacs-config)
-         ([f12] . dan/eglot-toggle)
+         ([f12] . osa-chrome)
          ([(super down)] . avy-goto-line)
          ([(super up)] . avy-goto-line)
          ([(kp-delete)] . modalka-mode)
@@ -188,6 +188,12 @@
 
   :hook (emacs-lisp-mode . dan/emacs-lisp-mode-hook-fn))
 
+(use-package go-mode
+  :config
+  (add-to-list 'auto-mode-alist '("\\.wb\\'" . go-mode)))
+
+(add-hook 'go-mode-hook #'paredit-c-mode)
+
 (use-package org
   :defer t
   :after org-table
@@ -220,9 +226,9 @@
 (use-package python
   :defer t
   :bind (:map python-mode-map
+         ("C-c C-c" . nil)
          ("C-c d" . dan/python-insert-ipdb-set-trace)
-         ("C-c C-c" . dan/save-even-if-not-modified)
-         ("?" . dan/python-question-mark)
+         ("?" . dan/question-mark)
          ([(super ?b)] . dan/python-black)
          ([(super i)] . dan/python-where-am-i)
          ([(meta shift right)] . python-indent-shift-right)
@@ -266,9 +272,9 @@
          ("C-c C-z" . inf-clojure)))
 
 (use-package company
-  :bind (:map prog-mode-map
-         ([tab] . dan/company-indent-or-complete))
   :hook (prog-mode . company-mode)
+  :bind (:map prog-mode-map
+	      ([tab] . dan/company-indent-or-complete))
   :config
   (setq company-selection-wrap-around t))
 
@@ -277,9 +283,10 @@
 (use-package eglot
   :load-path "~/src/3p/eglot"
   :config
-  (setf (alist-get 'rust-mode eglot-server-programs) '("rust-analyzer")) ;; "rls"
-  (setq eglot-ignored-server-capabilites '(:documentHighlightProvider))
-  (setq eglot-transform-path-function #'dan/eglot-pyls-transform-path-to-docker-tramp))
+  (setf (alist-get 'rust-mode eglot-server-programs) '("rust-analyzer"))
+  (setq eldoc-echo-area-use-multiline-p nil
+        eglot-ignored-server-capabilites '(:documentHighlightProvider)))
+
 
 (use-package eglot-x
   :load-path "~/src/3p/eglot-x"
@@ -292,8 +299,9 @@
 
 (use-package flycheck)
 
-(use-package flycheck-rust
-  :config (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
+(when nil
+  (use-package flycheck-rust
+    :config (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)))
 
 
 (use-package graphql-mode
@@ -441,12 +449,13 @@
         [?\C-c ?g ?d ?r ?m ?a ?s ?t ?e ?r ?. ?. ?. return]))
 
 
-;;(package-install-file "~/src/3p/melpa/packages/magit-delta-20200423.327.el")
-(use-package magit-delta
-  :after magit xterm-color
-  :load-path "~/src/magit-delta"
-  :config
-  (magit-delta-mode +1))
+(package-install-file "~/src/3p/melpa/packages/magit-delta-20200514.1351.el")
+(magit-delta-mode +1)
+;; (use-package magit-delta
+;;   :after magit xterm-color
+;;   :load-path "~/src/magit-delta"
+;;   :config
+;;   (magit-delta-mode +1))
 
 
 (use-package markdown-mode
@@ -539,6 +548,16 @@
 (use-package ob-mathematica
   :load-path "~/src/3p/org-mode/contrib/lisp")
 
+(use-package osa
+  :load-path "~/src/3p/osa")
+
+(use-package osa-chrome
+  :after osa
+  :load-path "~/src/3p/osa-chrome"
+  :hook (osa-chrome-mode .
+         (lambda () (setq-local revert-buffer-function
+                           (lambda (&rest args) (osa-chrome-revert-buffer nil 'noconfirm))))))
+
 (use-package paredit
   :bind (:map paredit-mode-map
          ;; TODO: move into paredit-c config
@@ -606,6 +625,7 @@
 
 (use-package rust-mode
   :bind (:map rust-mode-map
+         ("?" . dan/question-mark)
          ("C-c C-c" . dan/save-even-if-not-modified)
          ("<" . dan/paired-angle-bracket)
          ("|" . dan/paired-pipe))
@@ -614,7 +634,8 @@
                         (paredit-c-mode)
                         (setq fill-column dan/fill-column
                               fci-rule-column fill-column)
-                        (dan/set-up-outline-minor-mode "[ \t]*\\(pub .+\\|fn .+\\|impl .+\\|struct .+\\|enum .+\\|##\\)")))
+                        (dan/set-up-outline-minor-mode "[ \t]*\\(pub .+\\|fn .+\\|impl .+\\|struct .+\\|enum .+\\|##\\)")
+                        (eglot-ensure)))
          (rust-after-save . (lambda () (compile "cargo build")))))
 
 (use-package swift-mode
@@ -650,7 +671,6 @@
 
 (when (file-exists-p "~/src/emacs-config/extra.el")
   (load-file "~/src/emacs-config/extra.el"))
-
 
 
 ;;; Appearance
@@ -1103,12 +1123,13 @@
    (quote
     ("a455366c5cdacebd8adaa99d50e37430b0170326e7640a688e9d9ad406e2edfd" "a24c5b3c12d147da6cef80938dca1223b7c7f70f2f382b26308eba014dc4833a" "6343f4d41b209fe8990e3c5f4d2040b359612ef9cd8682f1e1e2a836beba8107" "4780d7ce6e5491e2c1190082f7fe0f812707fc77455616ab6f8b38e796cbffa9" "732b807b0543855541743429c9979ebfb363e27ec91e82f463c91e68c772f6e3" "4e5e58e42f6f37920b95a8502f488928b3dab9b6cc03d864e38101ce36ecb968" "72759f4e42617df7a07d0a4f4b08982314aa97fbd495a5405c9b11f48bd6b839" "9e6ac467fa1e5eb09e2ac477f61c56b2e172815b4a6a43cf48def62f9d3e5bf9" "b9183de9666c3a16a7ffa7faaa8e9941b8d0ab50f9aaba1ca49f2f3aec7e3be9" "0e8c264f24f11501d3f0cabcd05e5f9811213f07149e4904ed751ffdcdc44739" "780c67d3b58b524aa485a146ad9e837051918b722fd32fd1b7e50ec36d413e70" "a11043406c7c4233bfd66498e83600f4109c83420714a2bd0cd131f81cbbacea" "45482e7ddf47ab1f30fe05f75e5f2d2118635f5797687e88571842ff6f18b4d5" "a3821772b5051fa49cf567af79cc4dabfcfd37a1b9236492ae4724a77f42d70d" "3b4800ea72984641068f45e8d1911405b910f1406b83650cbd747a831295c911" default)))
  '(default-input-method "latin-1-prefix")
+ '(eglot-documentation-function (quote eglot-documentation-singleline))
  '(fci-rule-color "#383838")
  '(hl-sexp-background-color "#1c1f26")
  '(magit-diff-arguments (quote ("--ignore-all-space" "--no-ext-diff")))
  '(package-selected-packages
    (quote
-    (darkroom magit docker magit-delta lsp-docker package-build flycheck-package xterm-color undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-ui markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode projectile py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
+    (xterm-color projectile darkroom magit docker magit-delta lsp-docker package-build flycheck-package undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-ui markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
  '(paradox-github-token t)
  '(safe-local-variable-values
    (quote

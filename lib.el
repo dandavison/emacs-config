@@ -1,14 +1,18 @@
 ;; -*- lexical-binding: t -*-
 ;;; Etc
 
+(defun dan/flymake-flycheck-toggle ()
+  (interactive)
+  (call-interactively (cond (flymake-mode #'flymake-mode)
+                            (flycheck-mode #'flycheck-mode)
+                            (t #'flymake-mode))))
+
 (defun dan/set-fill-column (n)
   (interactive "nColumn: ")
-  (fci-mode -1)
   (setq dan/fill-column n
         fill-column dan/fill-column
         fci-rule-column dan/fill-column
-        fci-rule-color "#A5BAF1")
-  (fci-mode +1))
+        fci-rule-color "#A5BAF1"))
 
 (defun dan/message-buffer-goto-end-of-buffer (&rest args)
   (let* ((win (get-buffer-window "*Messages*"))
@@ -307,6 +311,24 @@
   (save-buffer))
 
 
+(defun dan/compile ()
+  (interactive)
+  (setq compilation-finish-functions '(dan/compilers-compilation-finish))
+  (compile "cd ~/src/compilers/ && make"))
+
+(defun dan/compilers-compilation-finish (buf status)
+  ;; Hack: there seem to be stray = and > characters at the beginning of lines.
+  (with-current-buffer buf
+    (let ((inhibit-read-only t))
+     (save-excursion
+       (goto-char (point-min))
+       (while (re-search-forward "^\\(=\\|\\>\\)" nil t)
+         (replace-match ""))))))
+
+(defun dan/default-command ()
+  (interactive)
+  (dan/compile))
+
 ;;; Autoformatting
 
 (defun dan/elisp-format-defun ()
@@ -325,15 +347,18 @@
           (save-restriction
             (goto-char (point-min))
             (and (re-search-forward "[ \t]$" nil t)
-                 (or t ;; set to nil to avoid altering whitespace in 3rd party files
-                     (progn
-                       (unless (boundp 'dan/delete-trailing-whitespace-answer)
-                         (setq-local dan/delete-trailing-whitespace-answer
-                                     (yes-or-no-p "Delete trailing whitespace?"))
-                         t)))
+                 (progn
+                   (unless (boundp 'dan/delete-trailing-whitespace-answer)
+                     (setq-local dan/delete-trailing-whitespace-answer
+                                 (yes-or-no-p "Delete trailing whitespace?"))
+                     t))
                  (or (not (boundp 'dan/delete-trailing-whitespace-answer))
                      dan/delete-trailing-whitespace-answer)
                  (delete-trailing-whitespace))))))))
+
+(defun dan/delete-trailing-whitespace-do-not ()
+  (interactive)
+  (setq-local dan/delete-trailing-whitespace-answer nil))
 
 
 ;;; Appearance
@@ -407,11 +432,6 @@
                collect id)
     (format "/docker:%s:%s" container-id path)))
 
-(defun dan/eglot-toggle ()
-  (interactive)
-  (if (eglot-managed-p)
-      (call-interactively #'eglot-shutdown)
-    (call-interactively #'eglot)))
 
 ;;; comment
 (defun comment-or-uncomment-region-or-line ()
@@ -581,7 +601,7 @@
 (require 'org)
 (defun dan/set-up-outline-minor-mode (outline-regexp &optional activate)
   (set (make-local-variable 'outline-regexp) outline-regexp)
-  (when (or t activate)
+  (when activate
     (outline-minor-mode t)
     (when (eq (point) (point-min))
       (org-overview)
@@ -1252,14 +1272,16 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
    (dan/python-verify-setup--do-check '(f-directory? python-shell-virtualenv-root))
    (dan/python-verify-setup--do-check '(f-executable? python-shell-interpreter))))
 
-(defun dan/python-question-mark (&optional arg)
+(defun dan/question-mark (&optional arg)
   (interactive "P")
   (if arg
       (insert ??)
-    (call-interactively #'jedi:show-doc)))
+    (call-interactively
+     (if (fboundp 'eglot-help-at-point) #'eglot-help-at-point
+       #'display-local-help))))
 
-(defun dan/python-black (start end)
-  (interactive "r")
+(defun dan/python-black ()
+  (interactive)
   (cond
 
    ((null current-prefix-arg)
@@ -1273,7 +1295,8 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
 
    ;; blacken region
    ((eq current-prefix-arg '(4))
-    (shell-command-on-region start end "black-macchiato --line-length 99" nil 'replace))
+    (shell-command-on-region (region-beginning) (region-end)
+                             "black-macchiato --line-length 99" nil 'replace))
 
    ;; blacken defun
    ((eq current-prefix-arg '(16))

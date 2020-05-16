@@ -1,4 +1,4 @@
 #name : clint
 # --
 $1 = lambda s: __import__("clint").textui.colored.$1(s, always=True, bold=True)
-print($1($2))
+print($1(f"$2"))

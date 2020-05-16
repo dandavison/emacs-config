@@ -1,4 +1,4 @@
 #name : red
 # --
-from clint.textui import colored; red = lambda s: colored.red(s, bold=True)
-print(red($1))
+red = lambda s: __import__("clint").textui.colored.red(s, always=True, bold=True)
+print(red(f"$1"))
