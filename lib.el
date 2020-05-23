@@ -433,6 +433,18 @@
     (format "/docker:%s:%s" container-id path)))
 
 
+(defun dan/eglot-dashboard ()
+  (interactive)
+  (select-frame (make-frame))
+  (set-frame-name "Eglot Dashboard")
+  (cl-flet ((make-buffer-name (source)
+                              (format "*EGLOT (delta/rust-mode) %s*" source)))
+    (switch-to-buffer (get-buffer (make-buffer-name "events")))
+    (dolist (source '("output" "stderr"))
+      (split-window-vertically)
+      (display-buffer (make-buffer-name source)))
+    (balance-windows)))
+
 ;;; comment
 (defun comment-or-uncomment-region-or-line ()
   "Comments or uncomments the region or the current line if there's no active region."
