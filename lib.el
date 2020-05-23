@@ -348,7 +348,7 @@
             (goto-char (point-min))
             (and (re-search-forward "[ \t]$" nil t)
                  (progn
-                   (unless (boundp 'dan/delete-trailing-whitespace-answer)
+                   ( (boundp 'dan/delete-trailing-whitespace-answer)
                      (setq-local dan/delete-trailing-whitespace-answer
                                  (yes-or-no-p "Delete trailing whitespace?"))
                      t))
@@ -421,7 +421,7 @@
            (not (looking-back " "))
            (> (current-column) 0))
       (company-complete)
-    (indent-for-tab-command)))
+    (funcall indent-line-function)))
 
 ;;; Eglot
 
@@ -1277,7 +1277,7 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
   (if arg
       (insert ??)
     (call-interactively
-     (if (fboundp 'eglot-help-at-point) #'dan/eglot-help-at-point
+     (if (fboundp 'eglot-help-at-point) #'eglot-help-at-point
        #'display-local-help))))
 
 (defun dan/eglot-help-at-point ()

@@ -273,8 +273,6 @@
 
 (use-package company
   :hook (prog-mode . company-mode)
-  :bind (:map prog-mode-map
-	      ([tab] . dan/company-indent-or-complete))
   :config
   (setq company-selection-wrap-around t))
 
@@ -449,13 +447,14 @@
         [?\C-c ?g ?d ?r ?m ?a ?s ?t ?e ?r ?. ?. ?. return]))
 
 
-(package-install-file "~/src/3p/melpa/packages/magit-delta-20200514.1351.el")
-(magit-delta-mode +1)
-;; (use-package magit-delta
-;;   :after magit xterm-color
-;;   :load-path "~/src/magit-delta"
-;;   :config
-;;   (magit-delta-mode +1))
+
+;;(package-install-file "~/src/3p/melpa/packages/magit-delta-20200518.2205.el")
+;; (magit-delta-mode +1)
+(use-package magit-delta
+  :after magit xterm-color
+  :load-path "~/src/magit-delta"
+  :config
+  (magit-delta-mode +1))
 
 
 (use-package markdown-mode
@@ -957,7 +956,7 @@
 (add-hook 'after-change-major-mode-hook 'dan/after-change-major-mode-hook-fn)
 
 (defun dan/before-save-hook-fn ()
-  (dan/query-delete-trailing-whitespace))
+  (delete-trailing-whitespace))
 
 (add-hook 'before-save-hook #'dan/before-save-hook-fn)
 
@@ -1129,7 +1128,7 @@
  '(magit-diff-arguments (quote ("--ignore-all-space" "--no-ext-diff")))
  '(package-selected-packages
    (quote
-    (xterm-color projectile darkroom magit docker magit-delta lsp-docker package-build flycheck-package undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-ui markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
+    (ag xterm-color projectile darkroom magit docker magit-delta lsp-docker package-build flycheck-package undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-ui markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
  '(paradox-github-token t)
  '(safe-local-variable-values
    (quote
