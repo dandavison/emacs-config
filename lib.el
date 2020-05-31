@@ -97,7 +97,13 @@
   (if (or (eq major-mode 'python-mode)
           (eq major-mode 'django-mode))
       (dan/python-where-am-i arg)
-    (dan/show-buffer-file-name)))
+    (message (dan/current-defun))))
+
+(defun dan/current-defun ()
+  (save-excursion
+    (beginning-of-defun)
+    (buffer-substring (point-at-bol) (point-at-eol))))
+
 
 (defun counsyl/current-website-repo () nil)
 
@@ -611,10 +617,10 @@
 ;;; Outline
 
 (require 'org)
-(defun dan/set-up-outline-minor-mode (outline-regexp &optional activate)
+(defun dan/set-up-outline-minor-mode (outline-regexp &optional start-folded)
   (set (make-local-variable 'outline-regexp) outline-regexp)
-  (when activate
-    (outline-minor-mode t)
+  (outline-minor-mode t)
+  (when start-folded
     (when (eq (point) (point-min))
       (org-overview)
       (org-content))))

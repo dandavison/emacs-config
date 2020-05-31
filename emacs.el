@@ -31,6 +31,7 @@
          ("C-c g" . magit-status)
          ("C-c l" . linum-mode)
          ("C-c m" . dan/display-messages-buffer)
+         ("C-c n" . flymake-goto-next-error)
          ("C-c o" . dan/scratch-buffer)
          ("C-c r" . (lambda (&optional arg) (interactive "P") (call-interactively (if arg #'dan/projectile-replace #'replace-regexp))))
          ("C-c s" . (lambda () (interactive) (shell-command-on-region (region-beginning) (region-end) "sort -V" nil 'replace)))
@@ -223,6 +224,10 @@
          ([(control tab)] . org-cycle)
          ([(backtab)] . org-global-cycle)))
 
+(use-package prog-mode
+  :bind (:map prog-mode-map
+         ([(super i)] . dan/where-am-i)))
+
 (use-package python
   :defer t
   :bind (:map python-mode-map
@@ -230,7 +235,6 @@
          ("C-c d" . dan/python-insert-ipdb-set-trace)
          ("?" . dan/question-mark)
          ([(super ?b)] . dan/python-black)
-         ([(super i)] . dan/python-where-am-i)
          ([(meta shift right)] . python-indent-shift-right)
          ([(meta shift left)] . python-indent-shift-left)
          ([(super mouse-1)] . (lambda (event) (interactive "e") (mouse-set-point event) (xref-find-definitions))))
@@ -286,9 +290,10 @@
         eglot-ignored-server-capabilites '(:documentHighlightProvider)))
 
 
-(use-package eglot-x
-  :load-path "~/src/3p/eglot-x"
-  :after eglot)
+(when nil
+  (use-package eglot-x
+    :load-path "~/src/3p/eglot-x"
+    :after eglot))
 
 (use-package f)
 
@@ -394,12 +399,13 @@
   ;;    (dan/set-up-outline-minor-mode "\\(\\\\sub\\|\\\\section\\|\\\\begin\\|\\\\item\\)")))
   )
 
-(use-package lispy
-  :defer t
-  :bind (:map lispy-mode-map
-         ("M-." . nil)
-         ([(meta left)] . nil)
-         ([(meta right)] . nil)))
+(when nil
+  (use-package lispy
+   :defer t
+   :bind (:map lispy-mode-map
+          ("M-." . nil)
+          ([(meta left)] . nil)
+          ([(meta right)] . nil))))
 
 (use-package magit
   :bind (:map magit-diff-mode-map
@@ -408,7 +414,10 @@
          ([return] . magit-diff-visit-worktree-file)
          ([control return] . magit-diff-visit-file)
          :map with-editor-mode-map
-         ("C-x C-$" . dan/magit-commit))
+         ("C-x C-$" . dan/magit-commit)
+         :map magit-status-mode-map
+         ([down] . next-line)
+         ([up] . previous-line))
 
   :config
   (defun dan/magit-diff-master () (magit-diff-range "master..."))
@@ -447,12 +456,7 @@
         [?\C-c ?g ?d ?r ?m ?a ?s ?t ?e ?r ?. ?. ?. return]))
 
 
-
-;;(package-install-file "~/src/3p/melpa/packages/magit-delta-20200518.2205.el")
-;; (magit-delta-mode +1)
 (use-package magit-delta
-  :after magit xterm-color
-  :load-path "~/src/magit-delta"
   :config
   (magit-delta-mode +1))
 
@@ -469,8 +473,8 @@
   (advice-add 'yank :after (lambda (&rest args)
                              (if (eq major-mode 'markdown-mode)
                                  (save-excursion (skip-chars-backward " \n")
-                                                 (dan/markdown-image-to-html (point-at-bol) (point-at-eol))
-                                                 (copy-region-as-kill (point-at-bol) (point-at-eol))))))
+                                                 (when (dan/markdown-image-to-html (point-at-bol) (point-at-eol))
+                                                   (copy-region-as-kill (point-at-bol) (point-at-eol)))))))
   (setq markdown-fontify-code-blocks-natively t)
   :hook (markdown-mode . (lambda ()
                            (setq truncate-lines nil
@@ -726,7 +730,7 @@
 (setq save-some-buffers-default-predicate (lambda ())) ;; this might cause problems? maybe in magit?
 
 ;; (desktop-save-mode 1)
-(add-to-list 'desktop-globals-to-save 'command-history)
+;; (add-to-list 'desktop-globals-to-save 'command-history)
 
 (setenv "INFOPATH" "/Users/dan/src/3p/emacs-mac/share/info")
 (add-to-list 'Info-additional-directory-list "/Users/dan/src/3p/emacs-mac/share/info")
@@ -764,7 +768,7 @@
 
 (use-package fill-column-indicator
   :config
-  (dan/set-fill-column 80))
+  (dan/set-fill-column 99))
 
 (put 'downcase-region 'disabled nil)
 (put 'narrow-to-region 'disabled nil)
@@ -1128,7 +1132,7 @@
  '(magit-diff-arguments (quote ("--ignore-all-space" "--no-ext-diff")))
  '(package-selected-packages
    (quote
-    (ag xterm-color projectile darkroom magit docker magit-delta lsp-docker package-build flycheck-package undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-ui markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
+    (flymake project project-root jsonrpc ag xterm-color projectile darkroom magit docker magit-delta lsp-docker package-build flycheck-package undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-ui markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
  '(paradox-github-token t)
  '(safe-local-variable-values
    (quote
