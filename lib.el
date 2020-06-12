@@ -551,17 +551,17 @@
    minibuffer."
   (interactive "P")
   (cl-flet ((highlight (word)
-                       (add-to-list 'dan/highlighted word)
+                       (setq dan/highlighted (-union dan/highlighted (list word)))
                        (highlight-regexp word dan/highlight-face))
             (unhighlight (word)
-                         (setq dan/highlighted nil)
+                         (setq dan/highlighted (-difference dan/highlighted (list word)))
                          (unhighlight-regexp word)))
     (let ((word (cond
                  (arg (read-from-minibuffer "Highlight: "))
                  ((region-active-p) (buffer-substring (region-beginning) (region-end)))
                  (t (thing-at-point 'symbol)))))
       (when word
-        (if (member word dan/highlighted)
+        (if (-contains? dan/highlighted word)
             (unhighlight word)
           (highlight word))
         (when (region-active-p) (deactivate-mark))))))
