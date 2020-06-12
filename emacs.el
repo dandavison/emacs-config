@@ -60,7 +60,7 @@
          ([f7] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?7 arg)))
          ([f8] . magit-log)
          ([f9] . dan/magit-dev-mode)
-         ([f10] . (lambda () (interactive) (find-file "~/dandavison7@gmail.com/Projects/xenops.org")))
+         ([f10] . (lambda () (interactive) (find-file "~/.gitconfig")))
          ([f11] . dan/goto-emacs-config)
          ([f12] . osa-chrome)
          ([(super down)] . avy-goto-line)
@@ -417,9 +417,19 @@
          ("C-x C-$" . dan/magit-commit)
          :map magit-status-mode-map
          ([down] . next-line)
-         ([up] . previous-line))
+         ([up] . previous-line)
+         ([backtab] . dan/magit-hide-all-sections))
+  :hook
+  (magit-status-mode-hook
+   . (lambda ()
+       (local-set-key [down] next-line)
+       (local-set-key [up] previous-line)))
 
   :config
+
+  (defalias 'magit-previous-line #'previous-line)
+  (defalias 'magit-next-line #'next-line)
+
   (defun dan/magit-diff-master () (magit-diff-range "master..."))
   ;; https://emacs.stackexchange.com/questions/12738/magit-custom-commands/12739#12739
   (transient-append-suffix 'magit-diff "d"
@@ -1070,6 +1080,11 @@
   (add-hook 'penrose-substance-mode-hook 'dan/penrose-hook-fn)
   (add-hook 'penrose-style-mode-hook 'dan/penrose-hook-fn)
   (add-hook 'penrose-dsl-mode-hook 'dan/penrose-hook-fn))
+
+(defun dan/perl-mode-hook-fn ()
+  (dan/set-up-outline-minor-mode "sub ")
+  (paredit-c-mode))
+(add-hook 'perl-mode-hook 'dan/perl-mode-hook-fn)
 
 (defun dan/r-mode-hook-fn ()
   (paredit-c-mode))

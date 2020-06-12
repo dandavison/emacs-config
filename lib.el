@@ -97,7 +97,7 @@
   (if (or (eq major-mode 'python-mode)
           (eq major-mode 'django-mode))
       (dan/python-where-am-i arg)
-    (message (dan/current-defun))))
+    (message (dan/save-value-to-kill-ring (dan/current-defun)))))
 
 (defun dan/current-defun ()
   (save-excursion
@@ -1471,7 +1471,9 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
         (format "%s::%s" module def))
        ((equal arg '(16))
         def)
-       (t (format "from %s import %s" module def)))))))
+       (t (format "from %s import %s"
+                  (s-replace "/" "." (s-replace-regexp "\.py$" "" module))
+                  def)))))))
 
 (defun dan/python-bookmark-set ()
   (interactive)
