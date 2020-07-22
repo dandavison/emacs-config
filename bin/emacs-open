@@ -1,7 +1,7 @@
 #!/bin/bash
 
 emacsclient --no-wait \
-    --eval "(find-file \"/tmp/scratch.txt\")" \
-    --eval "(delete-region (point-min) (point-max))" \
-    --eval "(insert-file-contents \"$1\")" \
-    --eval "(progn (select-frame-set-input-focus (selected-frame)) (delete-other-windows))" > /dev/null
+            --eval "(progn (find-file \"$1\") (goto-line $2))" \
+            --eval "(select-frame-set-input-focus (selected-frame))" \
+            --eval "(when (functionp 'pulse-momentary-highlight-one-line) (let ((pulse-delay 0.05)) (pulse-momentary-highlight-one-line (point) 'highlight)))" \
+            > /dev/null
