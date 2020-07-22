@@ -16,7 +16,7 @@
   :bind (("C-M-\\" . dan/indent-region)
          ("C-b" . backward-sexp)
          ("C-l" . dan/message-buffer-clear)
-         ("C-c 1" . flycheck-mode)
+         ("C-c 1" . flymake-mode)
          ("C-c C-c" . dan/default-command)
          ("C-c C-l" . (lambda () (interactive) (eval-buffer) (message "eval-buffer: %s" (buffer-file-name))))
          ("C-c C-r" . magit-file-rename)
@@ -60,7 +60,7 @@
          ([f7] . (lambda (&optional arg) (interactive "P") (dan/window-configuration ?7 arg)))
          ([f8] . magit-log)
          ([f9] . dan/magit-dev-mode)
-         ([f10] . (lambda () (interactive) (find-file "~/.gitconfig")))
+         ([f10] . dan/goto-gitconfig)
          ([f11] . dan/goto-emacs-config)
          ([f12] . osa-chrome)
          ([(super down)] . avy-goto-line)
@@ -135,6 +135,10 @@
   :config
   (setq compilation-ask-about-save nil
         compilation-save-buffers-predicate (lambda () nil)))
+
+(use-package conf-mode
+  :hook
+  (conf-unix-mode . (lambda () (paredit-c-mode))))
 
 (use-package dired
   :defer t
@@ -385,19 +389,9 @@
   :load-path "~/src/3p/override-lisp-indent")
 
 (use-package xenops
-  :load-path "~/src/xenops/lisp"
-  ;; :bind (:map xenops-mode-map
-  ;;        ("C-p" . xenops-xen-mode)
-  ;;        ("C-x c" . xenops-avy-copy-math-and-paste))
-  ;; :config
-  ;; (load-file "~/src/emacs-config/xenops.el")
-
-  ;; :hook
-  ;; (xenops-mode-hook
-  ;;  .
-  ;;  (lambda ()
-  ;;    (dan/set-up-outline-minor-mode "\\(\\\\sub\\|\\\\section\\|\\\\begin\\|\\\\item\\)")))
-  )
+  ;; :load-path "~/src/xenops/lisp"
+  :bind (:map xenops-mode-map
+         ("s-m" . xenops-xen-mode)))
 
 (when nil
   (use-package lispy
@@ -641,7 +635,8 @@
          ("?" . dan/question-mark)
          ("C-c C-c" . dan/save-even-if-not-modified)
          ("<" . dan/paired-angle-bracket)
-         ("|" . dan/paired-pipe))
+         ("|" . dan/paired-pipe)
+         ([(tab)] . dan/indent-or-complete))
   :hook (
          (rust-mode . (lambda ()
                         (paredit-c-mode)
@@ -969,8 +964,11 @@
   (dan/set-appearance))
 (add-hook 'after-change-major-mode-hook 'dan/after-change-major-mode-hook-fn)
 
+(defvar-local dan/delete-trailing-whitespace t)
+
 (defun dan/before-save-hook-fn ()
-  (delete-trailing-whitespace))
+  (if dan/delete-trailing-whitespace
+      (delete-trailing-whitespace)))
 
 (add-hook 'before-save-hook #'dan/before-save-hook-fn)
 
@@ -1147,11 +1145,45 @@
  '(magit-diff-arguments (quote ("--ignore-all-space" "--no-ext-diff")))
  '(package-selected-packages
    (quote
-    (flymake project project-root jsonrpc ag xterm-color projectile darkroom magit docker magit-delta lsp-docker package-build flycheck-package undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-ui markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
+    (xenops flymake project project-root jsonrpc ag xterm-color projectile darkroom magit docker magit-delta lsp-docker package-build flycheck-package undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-ui markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
  '(paradox-github-token t)
  '(safe-local-variable-values
    (quote
-    ((checkdoc-minor-mode . 1)
+    ((eval when
+           (and
+            (buffer-file-name)
+            (not
+             (file-directory-p
+              (buffer-file-name)))
+            (string-match-p "^[^.]"
+                            (buffer-file-name)))
+           (unless
+               (featurep
+                (quote package-build))
+             (let
+                 ((load-path
+                   (cons "../package-build" load-path)))
+               (require
+                (quote package-build))))
+           (unless
+               (derived-mode-p
+                (quote emacs-lisp-mode))
+             (emacs-lisp-mode))
+           (package-build-minor-mode)
+           (setq-local flycheck-checkers nil)
+           (set
+            (make-local-variable
+             (quote package-build-working-dir))
+            (expand-file-name "../working/"))
+           (set
+            (make-local-variable
+             (quote package-build-archive-dir))
+            (expand-file-name "../packages/"))
+           (set
+            (make-local-variable
+             (quote package-build-recipes-dir))
+            default-directory))
+     (checkdoc-minor-mode . 1)
      (git-commit-major-mode . git-commit-elisp-text-mode)
      (org-src-preserve-indentation)
      (eval and

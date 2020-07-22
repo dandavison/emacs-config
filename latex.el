@@ -17,11 +17,13 @@
   ;; ;; (setq-default TeX-master nil)
   (setq blink-matching-delay 0.2
         LaTeX-electric-left-right-brace t
-        ;; LaTeX-command "latex -shell-escape"
+        LaTeX-command "latex -shell-escape"
         TeX-electric-sub-and-superscript nil)
   ;; ;; (setq preview-image-type 'dvipng
   ;; ;;       preview-dvipng-image-type 'svg
   ;; ;;       TeX-PDF-from-DVI "Dvips")
+
+  (unless TeX-electric-math (dan/latex-toggle-TeX-electric-math))
 
   (prettify-symbols-mode)
 

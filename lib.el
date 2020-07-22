@@ -420,7 +420,7 @@
 
 
 ;;; Completion
-(defun dan/company-indent-or-complete ()
+(defun dan/indent-or-complete ()
   (interactive)
   (if (and (or (looking-at "[ \n)]")
                (equal (point) (point-max)))
@@ -431,12 +431,26 @@
 
 ;;; Eglot
 
-(defun dan/eglot-pyls-transform-path-to-docker-tramp (path)
+(defun dan/eglot-pyls-map-local-path-to-docker-tramp-path (path)
   (cl-destructuring-bind (container-id)
       (cl-loop for (id name) in (docker-tramp--running-containers)
                if (s-contains-p "_pyls_" name)
                collect id)
     (format "/docker:%s:%s" container-id path)))
+
+
+(defun dan/eglot-pyls-map-docker-tramp-path-to-local-path (path)
+  (and (string-match "/docker:[0-9a-f]+:/home/docker/website/" path)
+     (replace-match (expand-file-name "~/src/counsyl/website-4/") t t path)))
+
+
+(defun dan/eglot-pyls-open-local-path ()
+  (interactive)
+  (let ((point (point))
+        (buf (current-buffer)))
+    (find-file (dan/eglot-pyls-map-docker-tramp-path-to-local-path (buffer-file-name)))
+    (goto-char point)
+    (kill-buffer buf)))
 
 
 (defun dan/eglot-dashboard ()
@@ -517,10 +531,9 @@
   (interactive)
   (find-file (file-chase-links "~/src/shell-config/alias.sh")))
 
-(defun dan/goto-gitconfig ()
-  (interactive)
-  (find-file (file-chase-links "~/src/config/git/gitconfig")))
-
+(defun dan/goto-gitconfig (&optional arg)
+  (interactive "P")
+  (find-file (file-chase-links (if arg "~/.gitconfig" "~/src/config/delta/delta.conf"))))
 
 ;;; Search
 
@@ -1304,9 +1317,10 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
   (when-let ((diagnostic (get-char-property (point) 'flymake-diagnostic)))
     (save-window-excursion
       (other-window 1) ;; Temporary hack
-      (goto-char (point-max))
+      (goto-char (point-min))
       (let ((inhibit-read-only t))
-        (insert (eglot--format-markup (flymake--diag-text diagnostic)))))))
+        (insert (eglot--format-markup (flymake--diag-text diagnostic)))
+        (insert "\n\n")))))
 
 
 (defun dan/python-black ()
@@ -1756,7 +1770,10 @@ If LIST is nil use `projectile-project-root-parent-directories'"
                                   #'help--symbol-completion-table
                                   (lambda (f) (or (fboundp f) (get f 'function-documentation)))
                                   t nil nil nil))))
-    (xref-find-definitions (thing-at-point 'symbol))))
+    (xref-find-definitions (thing-at-point 'symbol))
+    (when (and (equal major-mode 'python-mode)
+               (not (s-contains? "/venv/" (buffer-file-name))))
+      (dan/eglot-pyls-open-local-path))))
 
 
 
