@@ -17,7 +17,7 @@
          ("C-b" . backward-sexp)
          ("C-l" . dan/message-buffer-clear)
          ("C-c 1" . flymake-mode)
-         ("C-c C-c" . dan/default-command)
+         ;; ("C-c C-c" . dan/default-command)
          ("C-c C-l" . (lambda () (interactive) (eval-buffer) (message "eval-buffer: %s" (buffer-file-name))))
          ("C-c C-r" . magit-file-rename)
          ("C-c C-z" . python-shell-switch-to-shell)
@@ -29,7 +29,7 @@
          ("C-c e" . outline-show-all)
          ("C-c f" . dan/flymake-flycheck-toggle)
          ("C-c g" . magit-status)
-         ("C-c l" . linum-mode)
+         ("C-c l" . display-line-numbers-mode)
          ("C-c m" . dan/display-messages-buffer)
          ("C-c n" . flymake-goto-next-error)
          ("C-c o" . dan/scratch-buffer)
@@ -83,7 +83,7 @@
          ([(super g)] . magit-status)
          ([(super k)] . dan/bookmark-dwim)
          ([(super left)] . winner-undo)
-         ([(super l)] . find-library)
+         ([(super l)] . magit-log)
          ([(super m)] . dan/goto-definition)
          ([(super n)] . (lambda () (interactive) (dan/switch-to-buffer '(4))))
          ([(super o)] . dan/find-file)
@@ -133,7 +133,8 @@
          ("C-c d" . dan/delete-matching-lines)
          ([(super mouse-1)] . (lambda (event) (interactive "e") (mouse-set-point event) (dan/iterm2-dwim))))
   :config
-  (setq compilation-ask-about-save nil
+  (setq compilation-read-command nil
+        compilation-ask-about-save nil
         compilation-save-buffers-predicate (lambda () nil)))
 
 (use-package conf-mode
@@ -339,7 +340,7 @@
         ivy-dynamic-exhibit-delay-ms 250)
   ;; https://oremacs.com/2018/03/05/grep-exclude/
   (setq counsel-git-cmd "rg --files"  ;;  --type py
-        counsel-rg-base-command "rg -i -M 512 --no-heading --line-number --color never %s .")
+        counsel-rg-base-command "rg -i -M 512 --no-heading --line-number --color never %s .") ;; -u
 
   ;; Doesn't seem to work well unfortunately
   ;; (advice-add 'ivy-previous-line :after #'ivy-call)
@@ -353,6 +354,16 @@
   (advice-add 'swiper--ensure-visible :after 'dan/on-jump-into-buffer)
   (add-hook 'counsel-grep-post-action-hook 'dan/on-jump-into-buffer))
 
+(use-package ivy-xref
+  :init
+  ;; xref initialization is different in Emacs 27 - there are two different
+  ;; variables which can be set rather than just one
+  (when (>= emacs-major-version 27)
+    (setq xref-show-definitions-function #'ivy-xref-show-defs))
+  ;; Necessary in Emacs <27. In Emacs 27 it will affect all xref-based
+  ;; commands other than xref-find-definitions (e.g. project-find-regexp)
+  ;; as well
+  (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
 
 (use-package js
   :defer t
@@ -389,9 +400,45 @@
   :load-path "~/src/3p/override-lisp-indent")
 
 (use-package xenops
-  ;; :load-path "~/src/xenops/lisp"
+  :load-path "~/src/xenops/lisp"
   :bind (:map xenops-mode-map
-         ("s-m" . xenops-xen-mode)))
+         ("s-[" . xenops-copy-and-paste-element)
+         ("s-m" . xenops-xen-mode))
+  :config
+  ;; HACK: Add a zero-width space before the quote so that xen mode styles the quote.
+  (setq TeX-close-quote "​''")
+  (setq xenops-image-latex-template
+        "\\begin{mdframed}\n\\includegraphics[width=400pt]{%s}\n\\end{mdframed}")
+  (setq xenops-reveal-on-entry t)
+  (defun dan/xenops-xen-style-regexp-rules-get-text-properties (match)
+    (cond
+     ((string-match "\\(\\\\defn{\\|{\\\\defn \\)" match)
+      '(face (:slant italic :foreground "blue")))
+     ((string-match "\\\\red{" match)
+      '(face (:foreground "red")))
+     ((string-match "\\\\blue{" match)
+      '(face (:foreground "blue")))
+     ((string-match "\\\\green{" match)
+      '(face (:foreground "forestgreen")))
+     ((xenops-xen-style-regexp-rules-get-text-properties match))))
+
+  (setq xenops-xen-style-rules
+        (-union xenops-xen-style-rules
+                `("\\\\defn{\\([^\n}]+\\)}"
+                  "{\\\\defn +\\([^\n}]+\\)}"
+                  "\\(?:\\\\red\\|\\\\blue\\|\\\\green\\){\\([^\n}]+\\)}"
+                  ("\\begin{mdframed}" . ,(s-repeat 150 "⎯"))
+                  ("\\end{mdframed}" . ,(s-repeat 150 "⎯"))
+                  ("\\begin{enumerate}" . "")
+                  ("\\end{enumerate}" . "")))
+        xenops-xen-style-regexp-rules-get-text-properties-function
+        'dan/xenops-xen-style-regexp-rules-get-text-properties)
+  :hook
+  (xenops-mode . (lambda ()
+                   (setq face-remapping-alist '((font-latex-string-face . default)))
+                   (when nil (xenops-xen-mode))
+                   (setq TeX-engine 'luatex)
+                   (setq xenops-math-image-scale-factor 1.0))))
 
 (when nil
   (use-package lispy
@@ -461,8 +508,10 @@
 
 
 (use-package magit-delta
+  :load-path "~/src/magit-delta"
+  :after magit
   :config
-  (magit-delta-mode +1))
+  (add-hook 'magit-mode-hook (lambda () (magit-delta-mode +1))))
 
 
 (use-package markdown-mode
@@ -674,7 +723,10 @@
          ([tab] . yas/next-field))
   :config
   (yas/initialize)
-  (yas/load-directory (expand-file-name "~/src/emacs-config/snippets")))
+  (yas/load-directory (expand-file-name "~/src/emacs-config/snippets"))
+  ;; :hook
+  ;; (yas-after-exit-snippet . (lambda () (font-lock-ensure yas-snippet-beg yas-snippet-end)))
+)
 
 
 (when (file-exists-p "~/src/emacs-config/extra.el")
@@ -833,7 +885,6 @@
 (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
 (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
 (setq scroll-step 1) ;; keyboard scroll one line at a time
-(setq linum-delay t)
 
 ;;; Comint
 
@@ -967,8 +1018,11 @@
 (defvar-local dan/delete-trailing-whitespace t)
 
 (defun dan/before-save-hook-fn ()
-  (if dan/delete-trailing-whitespace
-      (delete-trailing-whitespace)))
+  (when (and dan/delete-trailing-whitespace
+             (not (member (f-filename buffer-file-name) '("test_example_diffs.rs"))))
+      (delete-trailing-whitespace))
+  (when (and nil (eq major-mode 'python-mode))
+    (blacken-buffer)))
 
 (add-hook 'before-save-hook #'dan/before-save-hook-fn)
 
@@ -1136,20 +1190,17 @@
    (vector "#ffffff" "#f36c60" "#8bc34a" "#fff59d" "#4dd0e1" "#b39ddb" "#81d4fa" "#263238"))
  '(bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks")
  '(custom-safe-themes
-   (quote
-    ("a455366c5cdacebd8adaa99d50e37430b0170326e7640a688e9d9ad406e2edfd" "a24c5b3c12d147da6cef80938dca1223b7c7f70f2f382b26308eba014dc4833a" "6343f4d41b209fe8990e3c5f4d2040b359612ef9cd8682f1e1e2a836beba8107" "4780d7ce6e5491e2c1190082f7fe0f812707fc77455616ab6f8b38e796cbffa9" "732b807b0543855541743429c9979ebfb363e27ec91e82f463c91e68c772f6e3" "4e5e58e42f6f37920b95a8502f488928b3dab9b6cc03d864e38101ce36ecb968" "72759f4e42617df7a07d0a4f4b08982314aa97fbd495a5405c9b11f48bd6b839" "9e6ac467fa1e5eb09e2ac477f61c56b2e172815b4a6a43cf48def62f9d3e5bf9" "b9183de9666c3a16a7ffa7faaa8e9941b8d0ab50f9aaba1ca49f2f3aec7e3be9" "0e8c264f24f11501d3f0cabcd05e5f9811213f07149e4904ed751ffdcdc44739" "780c67d3b58b524aa485a146ad9e837051918b722fd32fd1b7e50ec36d413e70" "a11043406c7c4233bfd66498e83600f4109c83420714a2bd0cd131f81cbbacea" "45482e7ddf47ab1f30fe05f75e5f2d2118635f5797687e88571842ff6f18b4d5" "a3821772b5051fa49cf567af79cc4dabfcfd37a1b9236492ae4724a77f42d70d" "3b4800ea72984641068f45e8d1911405b910f1406b83650cbd747a831295c911" default)))
+   '("a455366c5cdacebd8adaa99d50e37430b0170326e7640a688e9d9ad406e2edfd" "a24c5b3c12d147da6cef80938dca1223b7c7f70f2f382b26308eba014dc4833a" "6343f4d41b209fe8990e3c5f4d2040b359612ef9cd8682f1e1e2a836beba8107" "4780d7ce6e5491e2c1190082f7fe0f812707fc77455616ab6f8b38e796cbffa9" "732b807b0543855541743429c9979ebfb363e27ec91e82f463c91e68c772f6e3" "4e5e58e42f6f37920b95a8502f488928b3dab9b6cc03d864e38101ce36ecb968" "72759f4e42617df7a07d0a4f4b08982314aa97fbd495a5405c9b11f48bd6b839" "9e6ac467fa1e5eb09e2ac477f61c56b2e172815b4a6a43cf48def62f9d3e5bf9" "b9183de9666c3a16a7ffa7faaa8e9941b8d0ab50f9aaba1ca49f2f3aec7e3be9" "0e8c264f24f11501d3f0cabcd05e5f9811213f07149e4904ed751ffdcdc44739" "780c67d3b58b524aa485a146ad9e837051918b722fd32fd1b7e50ec36d413e70" "a11043406c7c4233bfd66498e83600f4109c83420714a2bd0cd131f81cbbacea" "45482e7ddf47ab1f30fe05f75e5f2d2118635f5797687e88571842ff6f18b4d5" "a3821772b5051fa49cf567af79cc4dabfcfd37a1b9236492ae4724a77f42d70d" "3b4800ea72984641068f45e8d1911405b910f1406b83650cbd747a831295c911" default))
  '(default-input-method "latin-1-prefix")
- '(eglot-documentation-function (quote eglot-documentation-singleline))
+ '(eglot-documentation-function 'eglot-documentation-singleline)
  '(fci-rule-color "#383838")
  '(hl-sexp-background-color "#1c1f26")
- '(magit-diff-arguments (quote ("--ignore-all-space" "--no-ext-diff")))
+ '(magit-diff-arguments '("--ignore-all-space" "--no-ext-diff"))
  '(package-selected-packages
-   (quote
-    (xenops flymake project project-root jsonrpc ag xterm-color projectile darkroom magit docker magit-delta lsp-docker package-build flycheck-package undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-ui markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones)))
+   '(xenops ivy-xref flymake project project-root jsonrpc ag xterm-color projectile darkroom magit docker lsp-docker package-build flycheck-package undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-ui markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones))
  '(paradox-github-token t)
  '(safe-local-variable-values
-   (quote
-    ((eval when
+   '((eval when
            (and
             (buffer-file-name)
             (not
@@ -1158,55 +1209,37 @@
             (string-match-p "^[^.]"
                             (buffer-file-name)))
            (unless
-               (featurep
-                (quote package-build))
+               (featurep 'package-build)
              (let
                  ((load-path
                    (cons "../package-build" load-path)))
-               (require
-                (quote package-build))))
+               (require 'package-build)))
            (unless
-               (derived-mode-p
-                (quote emacs-lisp-mode))
+               (derived-mode-p 'emacs-lisp-mode)
              (emacs-lisp-mode))
            (package-build-minor-mode)
            (setq-local flycheck-checkers nil)
            (set
-            (make-local-variable
-             (quote package-build-working-dir))
+            (make-local-variable 'package-build-working-dir)
             (expand-file-name "../working/"))
            (set
-            (make-local-variable
-             (quote package-build-archive-dir))
+            (make-local-variable 'package-build-archive-dir)
             (expand-file-name "../packages/"))
            (set
-            (make-local-variable
-             (quote package-build-recipes-dir))
+            (make-local-variable 'package-build-recipes-dir)
             default-directory))
      (checkdoc-minor-mode . 1)
      (git-commit-major-mode . git-commit-elisp-text-mode)
      (org-src-preserve-indentation)
      (eval and
-           (featurep
-            (quote ox-extra))
+           (featurep 'ox-extra)
            (ox-extras-activate
-            (quote
-             (ignore-headlines))))
-     (eval require
-           (quote ox-texinfo+)
-           nil t)
-     (eval require
-           (quote ox-extra)
-           nil t)
-     (eval require
-           (quote ol-man)
-           nil t)
-     (eval require
-           (quote org-man)
-           nil t)
-     (eval require
-           (quote magit-utils)
-           nil t)
+            '(ignore-headlines)))
+     (eval require 'ox-texinfo+ nil t)
+     (eval require 'ox-extra nil t)
+     (eval require 'ol-man nil t)
+     (eval require 'org-man nil t)
+     (eval require 'magit-utils nil t)
      (dan/python-project-root . "/Users/dan/src/elaenia/")
      (dan/python-project-name . "elaenia")
      (dan/python-virtualenv . "/Users/dan/tmp/virtualenvs/elaenia/")
@@ -1214,11 +1247,10 @@
      (dan/python-virtualenv . "/Users/dan/tmp/virtualenvs/misc")
      (dan/python-project-name . "pytorch_examples")
      (xenops-image-directory . "img")
-     (bug-reference-bug-regexp . "#\\(?2:[0-9]+\\)"))))
+     (bug-reference-bug-regexp . "#\\(?2:[0-9]+\\)")))
  '(vc-annotate-background nil)
  '(vc-annotate-color-map
-   (quote
-    ((20 . "#f36c60")
+   '((20 . "#f36c60")
      (40 . "#ff9800")
      (60 . "#fff59d")
      (80 . "#8bc34a")
@@ -1235,7 +1267,7 @@
      (300 . "#f36c60")
      (320 . "#ff9800")
      (340 . "#fff59d")
-     (360 . "#8bc34a"))))
+     (360 . "#8bc34a")))
  '(vc-annotate-very-old-color nil))
 (put 'upcase-region 'disabled nil)
 

@@ -17,16 +17,16 @@
   ;; ;; (setq-default TeX-master nil)
   (setq blink-matching-delay 0.2
         LaTeX-electric-left-right-brace t
-        LaTeX-command "latex -shell-escape"
+        LaTeX-command "lualatex -shell-escape"
+        TeX-engine 'luatex
         TeX-electric-sub-and-superscript nil)
   ;; ;; (setq preview-image-type 'dvipng
   ;; ;;       preview-dvipng-image-type 'svg
   ;; ;;       TeX-PDF-from-DVI "Dvips")
 
   (unless TeX-electric-math (dan/latex-toggle-TeX-electric-math))
-
+  (outline-minor-mode)
   (prettify-symbols-mode)
-
 
 
   ;; (dan/set-up-outline-minor-mode "\\(\\\\sub\\|\\\\section\\|\\\\begin\\|\\\\item\\)")
@@ -35,9 +35,6 @@
   ;;              '("align" . dan/latex-insert-item-in-align-environment))
   ;; (add-to-list 'LaTeX-item-list
   ;;              '("align*" . dan/latex-insert-item-in-align-environment))
-
-  ;; (setq xenops-image-latex-template
-  ;;       "\\begin{mdframed}\n\\includegraphics[width=400pt]{%s}\n\\end{mdframed}")
 
   (setq fill-column 111
         fci-rule-column fill-column
@@ -49,4 +46,4 @@
   ;;   (add-hook 'before-save-hook
   ;;             (lambda () (unless (string-match ".+\\.sty" (buffer-file-name)) (dan/indent-buffer)))
   ;;             nil 'local))
-  (xenops-mode))
+  (when t (xenops-mode)))

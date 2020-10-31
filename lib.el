@@ -379,6 +379,7 @@
 
 (defun dan/set-appearance ()
   (interactive)
+  (set-frame-font "Monaco 14")
   (scroll-bar-mode -1)
   (set-cursor-color "red")
   (set-face-foreground 'cursor (face-foreground 'font-lock-comment-face))
@@ -1317,10 +1318,10 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
   (when-let ((diagnostic (get-char-property (point) 'flymake-diagnostic)))
     (save-window-excursion
       (other-window 1) ;; Temporary hack
-      (goto-char (point-min))
+      (goto-char (point-max))
       (let ((inhibit-read-only t))
-        (insert (eglot--format-markup (flymake--diag-text diagnostic)))
-        (insert "\n\n")))))
+        (insert "\n\n")
+        (insert (eglot--format-markup (flymake--diag-text diagnostic)))))))
 
 
 (defun dan/python-black ()
@@ -1334,7 +1335,8 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
     ;; on save. Don't use reformatter.el blacken-on-save-mode because it does
     ;; not display an error on failure to blacken.
     ;; https://github.com/purcell/reformatter.el/issues/12
-    (add-hook 'before-save-hook (lambda () (blacken-buffer t)) nil t))
+    ;;(add-hook 'before-save-hook (lambda () (blacken-buffer t)) nil t)
+    )
 
    ;; blacken region
    ((eq current-prefix-arg '(4))

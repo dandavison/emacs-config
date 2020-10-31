@@ -1,7 +1,17 @@
 #!/bin/bash
 
-emacsclient --no-wait \
-            --eval "(progn (find-file \"$1\") (goto-line $2))" \
-            --eval "(select-frame-set-input-focus (selected-frame))" \
-            --eval "(when (functionp 'pulse-momentary-highlight-one-line) (let ((pulse-delay 0.05)) (pulse-momentary-highlight-one-line (point) 'highlight)))" \
-            > /dev/null
+EMACSCLIENT=/Users/dan/bin/emacsclient
+
+URL=$1
+URL_SANS_LINE=${URL%:*}
+FILE=${URL_SANS_LINE##*://}
+LINE=${URL##*:}
+LINE=${LINE:-1}
+
+echo "$@ URL=$URL URL_SANS_LINE=$URL_SANS_LINE FILE=$FILE LINE=$LINE" >> /tmp/emacs-open.log
+
+$EMACSCLIENT --no-wait \
+             --eval "(progn (find-file \"$FILE\") (goto-line $LINE) (recenter-top-bottom))" \
+             --eval "(select-frame-set-input-focus (selected-frame))" \
+             --eval "(when (functionp 'pulse-momentary-highlight-one-line) (let ((pulse-delay 0.05)) (pulse-momentary-highlight-one-line (point) 'highlight)))" \
+             > /dev/null
