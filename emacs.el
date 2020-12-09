@@ -88,6 +88,9 @@
          ([(super n)] . (lambda () (interactive) (dan/switch-to-buffer '(4))))
          ([(super o)] . dan/find-file)
          ([(super return)] . dan/maximize)
+         ([(super \\)] . (lambda () (interactive) (if (buffer-narrowed-p)
+                                                 (widen)
+                                               (call-interactively #'narrow-to-region) (pop-mark))))
          ([(super right)] . winner-redo)
          ([(super r)] . projectile-replace)
          ([(super s)] . dan/save-buffer) ;; not bound in MacOS port
@@ -101,7 +104,6 @@
          ([(super ?')] . magit-dispatch)
          ([(super ?\;)] . dan/show-buffer-file-name)
          ([(super ?\])] . fci-mode)
-         ([(super \\)] . dan/indent-region)
          ([(super |)] . dan/shell-command-on-region-and-replace)))
 
 ;;; MacOS
@@ -340,7 +342,7 @@
         ivy-dynamic-exhibit-delay-ms 250)
   ;; https://oremacs.com/2018/03/05/grep-exclude/
   (setq counsel-git-cmd "rg --files"  ;;  --type py
-        counsel-rg-base-command "rg -i -M 512 --no-heading --line-number --color never %s .") ;; -u
+        counsel-rg-base-command "rg -u -i -M 512 --no-heading --line-number --color never %s .") ;; -u
 
   ;; Doesn't seem to work well unfortunately
   ;; (advice-add 'ivy-previous-line :after #'ivy-call)
@@ -420,23 +422,27 @@
       '(face (:foreground "blue")))
      ((string-match "\\\\green{" match)
       '(face (:foreground "forestgreen")))
+     ((string-match "\\\\newpage" match)
+      '(face (:foreground "forestgreen")))
      ((xenops-xen-style-regexp-rules-get-text-properties match))))
 
   (setq xenops-xen-style-rules
         (-union xenops-xen-style-rules
                 `("\\\\defn{\\([^\n}]+\\)}"
                   "{\\\\defn +\\([^\n}]+\\)}"
-                  "\\(?:\\\\red\\|\\\\blue\\|\\\\green\\){\\([^\n}]+\\)}"
-                  ("\\begin{mdframed}" . ,(s-repeat 150 "⎯"))
-                  ("\\end{mdframed}" . ,(s-repeat 150 "⎯"))
-                  ("\\begin{enumerate}" . "")
-                  ("\\end{enumerate}" . "")))
+                  "\\(\\\\newpage\\)"
+                  "\\(?:\\\\red\\|\\\\blue\\|\\\\green\\){\\([^\n{}]+\\)}"
+                  ("\\begin{mdframed}" . ,(s-repeat 250 "⎯"))
+                  ("\\end{mdframed}" . ,(s-repeat 250 "⎯"))
+                  ("%.+" . " ")
+                  ("\\begin{enumerate}" . "↴")
+                  ("\\end{enumerate}" . "↲")))
         xenops-xen-style-regexp-rules-get-text-properties-function
         'dan/xenops-xen-style-regexp-rules-get-text-properties)
   :hook
   (xenops-mode . (lambda ()
                    (setq face-remapping-alist '((font-latex-string-face . default)))
-                   (when nil (xenops-xen-mode))
+                   (when t (xenops-xen-mode))
                    (setq TeX-engine 'luatex)
                    (setq xenops-math-image-scale-factor 1.0))))
 
@@ -1197,7 +1203,7 @@
  '(hl-sexp-background-color "#1c1f26")
  '(magit-diff-arguments '("--ignore-all-space" "--no-ext-diff"))
  '(package-selected-packages
-   '(xenops ivy-xref flymake project project-root jsonrpc ag xterm-color projectile darkroom magit docker lsp-docker package-build flycheck-package undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-ui markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones))
+   '(magic-latex-buffer xenops ivy-xref flymake project project-root jsonrpc ag xterm-color projectile darkroom magit docker lsp-docker package-build flycheck-package undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-ui markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones))
  '(paradox-github-token t)
  '(safe-local-variable-values
    '((eval when

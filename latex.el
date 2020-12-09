@@ -25,6 +25,7 @@
   ;; ;;       TeX-PDF-from-DVI "Dvips")
 
   (unless TeX-electric-math (dan/latex-toggle-TeX-electric-math))
+  (setq outline-regexp " *\\\\") ;; "\\\\begin{"
   (outline-minor-mode)
   (prettify-symbols-mode)
 
