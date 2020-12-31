@@ -290,7 +290,7 @@
 (use-package dash)
 
 (use-package eglot
-  :load-path "~/src/3p/eglot"
+  :load-path "~/src-3p/eglot"
   :config
   (setf (alist-get 'rust-mode eglot-server-programs) '("rust-analyzer"))
   (setq eldoc-echo-area-use-multiline-p nil
@@ -299,7 +299,7 @@
 
 (when nil
   (use-package eglot-x
-    :load-path "~/src/3p/eglot-x"
+    :load-path "~/src-3p/eglot-x"
     :after eglot))
 
 (use-package f)
@@ -399,7 +399,7 @@
   (add-hook hook #'dan/latex-mode-hook-fn))
 
 (use-package override-lisp-indent
-  :load-path "~/src/3p/override-lisp-indent")
+  :load-path "~/src-3p/override-lisp-indent")
 
 (use-package sql
   :config
@@ -562,7 +562,7 @@
 
 ;; (use-package mma
 ;;   :defer t
-;;   :load-path "~/src/3p/mma-mode"
+;;   :load-path "~/src-3p/mma-mode"
 ;;   :config
 ;;   (add-to-list 'auto-mode-alist '("\\.m\\'" . mma-mode))
 ;;   ;; (font-lock-add-keywords
@@ -613,14 +613,14 @@
          ([(right)] . (lambda () (interactive) (execute-kbd-macro (kbd "<tab>"))))))
 
 (use-package ob-mathematica
-  :load-path "~/src/3p/org-mode/contrib/lisp")
+  :load-path "~/src-3p/org-mode/contrib/lisp")
 
 (use-package osa
-  :load-path "~/src/3p/osa")
+  :load-path "~/src-3p/osa")
 
 (use-package osa-chrome
   :after osa
-  :load-path "~/src/3p/osa-chrome"
+  :load-path "~/src-3p/osa-chrome"
   :hook (osa-chrome-mode .
          (lambda () (setq-local revert-buffer-function
                            (lambda (&rest args) (osa-chrome-revert-buffer nil 'noconfirm))))))
@@ -640,7 +640,7 @@
 
 (use-package penrose-modes
   :defer t
-  :load-path "~/src/3p/penrose-modes")
+  :load-path "~/src-3p/penrose-modes")
 
 (use-package projectile
   :bind-keymap
@@ -717,7 +717,7 @@
 
 (use-package tla-mode
   :defer t
-  :load-path "~/src/3p/tla-mode")
+  :load-path "~/src-3p/tla-mode")
 
 (use-package toml-mode
   :hook ((toml-mode . paredit-c-mode)))
@@ -794,7 +794,7 @@
  save-silently t
  shell-command-default-error-buffer "*Shell Command Error*"
  vc-follow-symlinks t
- find-function-C-source-directory nil ;;(f-expand "~/src/3p/emacs/src")
+ find-function-C-source-directory nil ;;(f-expand "~/src-3p/emacs/src")
  sentence-end-double-space nil)
 
 (setq save-some-buffers-default-predicate (lambda ())) ;; this might cause problems? maybe in magit?
@@ -802,8 +802,8 @@
 ;; (desktop-save-mode 1)
 ;; (add-to-list 'desktop-globals-to-save 'command-history)
 
-(setenv "INFOPATH" "/Users/dan/src/3p/emacs-mac/share/info")
-(add-to-list 'Info-additional-directory-list "/Users/dan/src/3p/emacs-mac/share/info")
+(setenv "INFOPATH" "/Users/dan/src-3p/emacs-mac/share/info")
+(add-to-list 'Info-additional-directory-list "/Users/dan/src-3p/emacs-mac/share/info")
 
 (fset 'yes-or-no-p 'y-or-n-p)
 
@@ -1138,7 +1138,7 @@
 
 
 (when nil
-  (add-to-list 'load-path "~/src/3p/penrose-modes") (require 'penrose-modes)
+  (add-to-list 'load-path "~/src-3p/penrose-modes") (require 'penrose-modes)
   (defun dan/penrose-hook-fn ()
     (paredit-c-mode))
 
