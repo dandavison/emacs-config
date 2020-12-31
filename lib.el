@@ -423,9 +423,7 @@
 ;;; Completion
 (defun dan/indent-or-complete ()
   (interactive)
-  (if (and (or (looking-at "[ \n)]")
-               (equal (point) (point-max)))
-           (not (looking-back " "))
+  (if (and (not (looking-back " "))
            (> (current-column) 0))
       (company-complete)
     (funcall indent-line-function)))
@@ -1309,8 +1307,9 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
   (if arg
       (insert ??)
     (call-interactively
-     (if (fboundp 'eglot-help-at-point) #'eglot-help-at-point
-       #'display-local-help))))
+     (cond ((fboundp 'eglot-help-at-point) #'eglot-help-at-point)
+           ((fboundp 'eldoc-doc-buffer) #'eldoc-doc-buffer)
+           #'display-local-help))))
 
 (defun dan/eglot-help-at-point ()
   (interactive)
@@ -1548,7 +1547,7 @@ returns the value of `python-shell-buffer-name'."
 (defun dan/sicm ()
   (interactive)
   (run-scheme
-   "/Users/dan/src/3p/scmutils-20150821-x86-64-OSX/scmutils/mit-scheme/bin/scheme --library /Users/dan/src/3p/scmutils-20150821-x86-64-OSX/scmutils/mit-scheme/lib"))
+   "/Users/dan/src-3p/scmutils-20150821-x86-64-OSX/scmutils/mit-scheme/bin/scheme --library /Users/dan/src/3p/scmutils-20150821-x86-64-OSX/scmutils/mit-scheme/lib"))
 
 ;;; Comint
 

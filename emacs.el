@@ -342,7 +342,7 @@
         ivy-dynamic-exhibit-delay-ms 250)
   ;; https://oremacs.com/2018/03/05/grep-exclude/
   (setq counsel-git-cmd "rg --files"  ;;  --type py
-        counsel-rg-base-command "rg -u -i -M 512 --no-heading --line-number --color never %s .") ;; -u
+        counsel-rg-base-command "rg -i -M 512 --no-heading --line-number --color never %s .") ;; -u
 
   ;; Doesn't seem to work well unfortunately
   ;; (advice-add 'ivy-previous-line :after #'ivy-call)
@@ -400,6 +400,10 @@
 
 (use-package override-lisp-indent
   :load-path "~/src/3p/override-lisp-indent")
+
+(use-package sql
+  :config
+  (setq sql-dialect 'postgres))
 
 (use-package xenops
   :load-path "~/src/xenops/lisp"
@@ -517,8 +521,9 @@
   :load-path "~/src/magit-delta"
   :after magit
   :config
-  (add-hook 'magit-mode-hook (lambda () (magit-delta-mode +1))))
-
+  (add-hook 'magit-mode-hook (lambda () (magit-delta-mode +1)))
+  (add-to-list 'magit-delta-delta-args "--no-gitconfig")
+  (setq magit-delta-delta-executable "/usr/local/bin/delta"))
 
 (use-package markdown-mode
   :bind (:map markdown-mode-map
@@ -714,7 +719,8 @@
   :defer t
   :load-path "~/src/3p/tla-mode")
 
-(use-package toml-mode)
+(use-package toml-mode
+  :hook ((toml-mode . paredit-c-mode)))
 
 (use-package xterm-color
   :config
@@ -762,6 +768,7 @@
 (add-to-list 'auto-mode-alist '("\\.applescript\\'" . applescript-mode))
 (add-to-list 'auto-mode-alist '("\\.compilation\\'" . compilation-mode))
 (add-to-list 'auto-mode-alist '("\\.es6\\'" . js-mode))
+(add-to-list 'auto-mode-alist '("\\.tera\\'" . mhtml-mode))
 (add-to-list 'auto-mode-alist '("\\.jira\\'" . jira-markup-mode))
 (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
 (add-to-list 'auto-mode-alist '("\\.sublime-syntax\\'" . yaml-mode))
@@ -1203,7 +1210,7 @@
  '(hl-sexp-background-color "#1c1f26")
  '(magit-diff-arguments '("--ignore-all-space" "--no-ext-diff"))
  '(package-selected-packages
-   '(magic-latex-buffer xenops ivy-xref flymake project project-root jsonrpc ag xterm-color projectile darkroom magit docker lsp-docker package-build flycheck-package undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-ui markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones))
+   '(magit magic-latex-buffer xenops ivy-xref flymake project project-root jsonrpc ag xterm-color projectile darkroom docker lsp-docker package-build flycheck-package undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-ui markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones))
  '(paradox-github-token t)
  '(safe-local-variable-values
    '((eval when

@@ -37,9 +37,8 @@
   ;; (add-to-list 'LaTeX-item-list
   ;;              '("align*" . dan/latex-insert-item-in-align-environment))
 
-  (setq fill-column 111
-        fci-rule-column fill-column
-        tab-width 2)
+  (dan/set-fill-column 99)
+  (setq tab-width 2)
 
   ;; (setq-local indent-line-function 'dan/latex-indent-line-function)
   ;; (setq LaTeX-indent-environment-list (cons '("minted" . nil) LaTeX-indent-environment-list))
