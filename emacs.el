@@ -768,10 +768,12 @@
 (add-to-list 'auto-mode-alist '("\\.applescript\\'" . applescript-mode))
 (add-to-list 'auto-mode-alist '("\\.compilation\\'" . compilation-mode))
 (add-to-list 'auto-mode-alist '("\\.es6\\'" . js-mode))
+(add-to-list 'auto-mode-alist '("\\.vue\\'" . mhtml-mode))
 (add-to-list 'auto-mode-alist '("\\.tera\\'" . mhtml-mode))
 (add-to-list 'auto-mode-alist '("\\.jira\\'" . jira-markup-mode))
 (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
 (add-to-list 'auto-mode-alist '("\\.sublime-syntax\\'" . yaml-mode))
+(add-to-list 'auto-mode-alist '("\\.gitconfig\\'" . conf-unix-mode))
 
 ;;; Server
 
