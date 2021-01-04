@@ -1847,9 +1847,9 @@ If LIST is nil use `projectile-project-root-parent-directories'"
 (defun dan/save-buffer (&optional arg)
   (interactive "P")
   (call-interactively
-   (if (or arg (not (and (fboundp 'projectile-save-project-buffers)
-                         (fboundp 'projectile-project-p)
-			 (projectile-project-p))))
+   (if (or (not arg) (not (and (fboundp 'projectile-save-project-buffers)
+                           (fboundp 'projectile-project-p)
+			               (projectile-project-p))))
        #'save-buffer
      #'projectile-save-project-buffers)))
 
