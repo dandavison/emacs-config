@@ -808,7 +808,7 @@
    ('deactivate
     (setq debug-on-error nil))))
 
-;;; Git
+;;; Open in
 (defun dan/open-in-github (&optional clipboard-only)
   "Open current file location in github.
 With C-u prefix argument copy URL to clipboard only."
@@ -829,6 +829,13 @@ With C-u prefix argument copy URL to clipboard only."
             (browse-url url)))
       (message "Not in a git repo"))))
 
+(defun dan/open-in-vscode ()
+  (interactive)
+  (shell-command
+   (format "code %s"
+           (if (eq major-mode 'dired-mode)
+               (dired-filename-at-point)
+             buffer-file-name))))
 
 ;;; LaTeX
 
