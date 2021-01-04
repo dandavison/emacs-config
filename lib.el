@@ -829,13 +829,50 @@ With C-u prefix argument copy URL to clipboard only."
             (browse-url url)))
       (message "Not in a git repo"))))
 
-(defun dan/open-in-vscode ()
+;; VSCode
+(define-minor-mode vscode-mode
+  "Emacs - VSCode symbiosis"
+  :lighter " VSCode"
+  (cond
+   (vscode-mode
+    (setq dan/open-in-vscode-automatically t))
+   ('deactivate
+    (setq dan/open-in-vscode-automatically nil))))
+
+
+(defvar dan/vscode-file-types '(".js" ".ts" ".vue" ".json" ".rs"))
+(defun dan/open-in-vscode (&optional file)
   (interactive)
-  (shell-command
-   (format "code %s"
-           (if (eq major-mode 'dired-mode)
-               (dired-filename-at-point)
-             buffer-file-name))))
+  (when-let* ((file (or file (if (eq major-mode 'dired-mode)
+                                 (dired-filename-at-point)
+                               buffer-file-name))))
+    (if (-any? (lambda (suffix) (s-ends-with? suffix file))
+               dan/vscode-file-types)
+        (shell-command
+         (if (eq major-mode 'dired-mode)
+             (format "code %s" file)
+           (format "code -g %s:%s:%s"
+                   file
+                   (1+ (current-line))
+                   (1+ (current-column)))))
+      (if vscode-mode (message "Not opening in vscode: %s" file)))))
+
+(add-hook 'magit-diff-visit-file-hook (lambda () (and dan/open-in-vscode-automatically
+                                                 (dan/open-in-vscode))))
+
+(add-hook 'find-file-hook (lambda () (and dan/open-in-vscode-automatically
+                                     (dan/open-in-vscode))))
+
+
+(defun dan/open-current-buffer-in-vscode-maybe (_)
+  (when-let* ((file (buffer-file-name (window-buffer (selected-window)))))
+    (and dan/open-in-vscode-automatically
+         (dan/open-in-vscode file))))
+
+(add-to-list 'window-buffer-change-functions #'dan/open-current-buffer-in-vscode-maybe)
+
+
+
 
 ;;; LaTeX
 

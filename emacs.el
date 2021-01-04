@@ -35,6 +35,7 @@
          ("C-c o" . dan/scratch-buffer)
          ("C-c r" . (lambda (&optional arg) (interactive "P") (call-interactively (if arg #'dan/projectile-replace #'replace-regexp))))
          ("C-c s" . (lambda () (interactive) (shell-command-on-region (region-beginning) (region-end) "sort -V" nil 'replace)))
+         ("C-c v" . vscode-mode)
          ("C-c w" . dan/list-window-configurations)
          ("C-c x" . (lambda () (interactive) (find-library "xenops")))
          ("C-f" . forward-sexp)
@@ -800,6 +801,7 @@
  sentence-end-double-space nil)
 
 (setq save-some-buffers-default-predicate (lambda ())) ;; this might cause problems? maybe in magit?
+
 
 ;; (desktop-save-mode 1)
 ;; (add-to-list 'desktop-globals-to-save 'command-history)
