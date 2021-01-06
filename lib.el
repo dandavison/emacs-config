@@ -833,12 +833,7 @@ With C-u prefix argument copy URL to clipboard only."
 (define-minor-mode vscode-mode
   "Emacs - VSCode symbiosis"
   :lighter " VSCode"
-  (cond
-   (vscode-mode
-    (setq dan/open-in-vscode-automatically t))
-   ('deactivate
-    (setq dan/open-in-vscode-automatically nil))))
-
+  :global t)
 
 (defvar dan/vscode-file-types '(".js" ".ts" ".vue" ".json" ".rs"))
 (defun dan/open-in-vscode (&optional file)
@@ -857,22 +852,15 @@ With C-u prefix argument copy URL to clipboard only."
                    (1+ (current-column)))))
       (if vscode-mode (message "Not opening in vscode: %s" file)))))
 
-(add-hook 'magit-diff-visit-file-hook (lambda () (and dan/open-in-vscode-automatically
-                                                 (dan/open-in-vscode))))
-
-(add-hook 'find-file-hook (lambda () (and dan/open-in-vscode-automatically
-                                     (dan/open-in-vscode))))
-
-
-(defun dan/open-current-buffer-in-vscode-maybe (_)
+(defun dan/open-current-buffer-in-vscode-maybe (&optional _)
   (when-let* ((file (buffer-file-name (window-buffer (selected-window)))))
-    (and dan/open-in-vscode-automatically
+    (when vscode-mode
          (dan/open-in-vscode file))))
 
+(add-hook 'find-file-hook #'dan/open-current-buffer-in-vscode-maybe)
 (add-to-list 'window-buffer-change-functions #'dan/open-current-buffer-in-vscode-maybe)
-
-
-
+(when (boundp 'magit-diff-visit-file-hook)
+  (add-hook 'magit-diff-visit-file-hook #'dan/open-current-buffer-in-vscode-maybe))
 
 ;;; LaTeX
 
