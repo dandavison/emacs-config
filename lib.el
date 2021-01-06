@@ -1,12 +1,6 @@
 ;; -*- lexical-binding: t -*-
 ;;; Etc
 
-(defun dan/flymake-flycheck-toggle ()
-  (interactive)
-  (call-interactively (cond (flymake-mode #'flymake-mode)
-                            (flycheck-mode #'flycheck-mode)
-                            (t #'flymake-mode))))
-
 (defun dan/set-fill-column (n)
   (interactive "nColumn: ")
   (setq dan/fill-column n
@@ -828,6 +822,21 @@ With C-u prefix argument copy URL to clipboard only."
               (progn (kill-new url) (message url))
             (browse-url url)))
       (message "Not in a git repo"))))
+
+;; flymake
+(defun dan/flymake-flycheck-toggle ()
+  (interactive)
+  (call-interactively (cond (flymake-mode #'flymake-mode)
+                            (flycheck-mode #'flycheck-mode)
+                            (t #'flymake-mode))))
+
+(defun dan/flymake-ignore-diagnostic (diag)
+  (let ((text (flymake--diag-text diag)))
+    (or (s-matches? "found module but no type hints" text)
+        (s-matches? "running_mypy.html#missing-imports" text)
+        (s-matches? "> 79 characters" text))))
+
+
 
 ;; VSCode
 (define-minor-mode vscode-mode
