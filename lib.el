@@ -320,10 +320,10 @@
   ;; Hack: there seem to be stray = and > characters at the beginning of lines.
   (with-current-buffer buf
     (let ((inhibit-read-only t))
-     (save-excursion
-       (goto-char (point-min))
-       (while (re-search-forward "^\\(=\\|\\>\\)" nil t)
-         (replace-match ""))))))
+      (save-excursion
+        (goto-char (point-min))
+        (while (re-search-forward "^\\(=\\|\\>\\)" nil t)
+          (replace-match ""))))))
 
 (defun dan/default-command ()
   (interactive)
@@ -434,7 +434,7 @@
 
 (defun dan/eglot-pyls-map-docker-tramp-path-to-local-path (path)
   (and (string-match "/docker:[0-9a-f]+:/home/docker/website/" path)
-     (replace-match (expand-file-name "~/src/counsyl/website-4/") t t path)))
+       (replace-match (expand-file-name "~/src/counsyl/website-4/") t t path)))
 
 
 (defun dan/eglot-pyls-open-local-path ()
@@ -1325,23 +1325,23 @@ The project root is the place where you might find tox.ini, setup.py, Makefile, 
 (defun dan/python-verify-setup ()
   (interactive)
   (with-temp-buffer-window
-   "*Python Buffer Config*"
-   nil nil
-   (princ
-    (format
-     "Python buffer-local config\n--------------------------\n\n%s\n"
-     (mapconcat (lambda (sym) (format "%-40s %s" (symbol-name sym) (eval sym)))
-                dan/python-buffer-config-keys
-                "\n")))
-   (princ "\n\n")
-   (dan/python-verify-setup--do-check '(f-directory? dan/python-virtualenv))
-   (dan/python-verify-setup--do-check '(f-directory? dan/python-project-root))
-   (dan/python-verify-setup--do-check '(f-executable? flycheck-python-flake8-executable))
-   (dan/python-verify-setup--do-check '(f-executable? flycheck-python-mypy-executable))
-   (dan/python-verify-setup--do-check '(f-file? flycheck-flake8rc))
-   (dan/python-verify-setup--do-check '(f-file? flycheck-python-mypy-ini))
-   (dan/python-verify-setup--do-check '(f-directory? python-shell-virtualenv-root))
-   (dan/python-verify-setup--do-check '(f-executable? python-shell-interpreter))))
+      "*Python Buffer Config*"
+      nil nil
+    (princ
+     (format
+      "Python buffer-local config\n--------------------------\n\n%s\n"
+      (mapconcat (lambda (sym) (format "%-40s %s" (symbol-name sym) (eval sym)))
+                 dan/python-buffer-config-keys
+                 "\n")))
+    (princ "\n\n")
+    (dan/python-verify-setup--do-check '(f-directory? dan/python-virtualenv))
+    (dan/python-verify-setup--do-check '(f-directory? dan/python-project-root))
+    (dan/python-verify-setup--do-check '(f-executable? flycheck-python-flake8-executable))
+    (dan/python-verify-setup--do-check '(f-executable? flycheck-python-mypy-executable))
+    (dan/python-verify-setup--do-check '(f-file? flycheck-flake8rc))
+    (dan/python-verify-setup--do-check '(f-file? flycheck-python-mypy-ini))
+    (dan/python-verify-setup--do-check '(f-directory? python-shell-virtualenv-root))
+    (dan/python-verify-setup--do-check '(f-executable? python-shell-interpreter))))
 
 (defun dan/question-mark (&optional arg)
   (interactive "P")
@@ -1882,8 +1882,8 @@ If LIST is nil use `projectile-project-root-parent-directories'"
   (interactive "P")
   (call-interactively
    (if (or (not arg) (not (and (fboundp 'projectile-save-project-buffers)
-                           (fboundp 'projectile-project-p)
-			               (projectile-project-p))))
+                               (fboundp 'projectile-project-p)
+			                   (projectile-project-p))))
        #'save-buffer
      #'projectile-save-project-buffers)))
 

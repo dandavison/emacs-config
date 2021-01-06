@@ -470,6 +470,8 @@
          :map magit-status-mode-map
          ([down] . next-line)
          ([up] . previous-line)
+         ([backtab] . dan/magit-hide-all-sections)
+         :map magit-revision-mode-map
          ([backtab] . dan/magit-hide-all-sections))
   :hook
   (magit-status-mode-hook
