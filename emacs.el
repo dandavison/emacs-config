@@ -87,7 +87,7 @@
          ([(super l)] . magit-log)
          ([(super m)] . dan/goto-definition)
          ([(super n)] . (lambda () (interactive) (dan/switch-to-buffer '(4))))
-         ([(super o)] . dan/open-in-vscode)
+         ([(super o)] . (lambda () (interactive) (dan/open-in-vscode nil t)))
          ([(super return)] . dan/maximize)
          ([(super \\)] . (lambda () (interactive) (if (buffer-narrowed-p)
                                                  (widen)

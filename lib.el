@@ -845,13 +845,14 @@ With C-u prefix argument copy URL to clipboard only."
   :global t)
 
 (defvar dan/vscode-file-types '(".js" ".ts" ".vue" ".json" ".rs"))
-(defun dan/open-in-vscode (&optional file)
+(defun dan/open-in-vscode (&optional file definitely)
   (interactive)
   (when-let* ((file (or file (if (eq major-mode 'dired-mode)
                                  (dired-filename-at-point)
                                buffer-file-name))))
-    (if (-any? (lambda (suffix) (s-ends-with? suffix file))
-               dan/vscode-file-types)
+    (if (or definitely
+            (-any? (lambda (suffix) (s-ends-with? suffix file))
+                   dan/vscode-file-types))
         (shell-command
          (if (eq major-mode 'dired-mode)
              (format "code %s" file)
@@ -859,7 +860,7 @@ With C-u prefix argument copy URL to clipboard only."
                    file
                    (1+ (current-line))
                    (1+ (current-column)))))
-      (if vscode-mode (message "Not opening in vscode: %s" file)))))
+      (when vscode-mode (message "Not opening in vscode: %s" file)))))
 
 (defun dan/open-current-buffer-in-vscode-maybe (&optional _)
   (when-let* ((file (buffer-file-name (window-buffer (selected-window)))))
