@@ -371,7 +371,17 @@
 (use-package js
   :defer t
   :bind (:map js-mode-map
-         ("C-c d" . (lambda () (interactive) (insert "debugger;")))))
+         ("C-c d" . (lambda () (interactive) (insert "debugger;")))
+         ("<" . dan/paired-angle-bracket)))
+
+(use-package typescript-mode
+  :defer t
+  :hook
+  (typescript-mode . dan/typescript-mode-hook-fn)
+  :config
+  (defun dan/typescript-mode-hook-fn ()
+    (setq typescript-indent-level 2)
+    (paredit-c-mode)))
 
 (use-package latex
   :bind (:map LaTeX-mode-map
@@ -401,10 +411,6 @@
 
 (use-package override-lisp-indent
   :load-path "~/src-3p/override-lisp-indent")
-
-(use-package sql
-  :config
-  (setq sql-dialect 'postgres))
 
 (use-package xenops
   :load-path "~/src/xenops/lisp"
@@ -679,19 +685,27 @@
   (reformatter-define blacken
     :program "/Users/dan/bin/black"
     :args '("-l" "99" "-"))
-  (reformatter-define rustfmt
+  (reformatter-define rust-mode-format
     :program "/Users/dan/.cargo/bin/rustfmt")
-  (reformatter-define prettier-graphql
+  (reformatter-define typescript-mode-format
+    :program "/usr/local/bin/npx"
+    :args '("prettier" "--write" "--parser" "typescript"))
+  (reformatter-define vue-mode-format
+    :program "/usr/local/bin/npx"
+    :args '("prettier" "--write" "--parser" "vue"))
+  (reformatter-define graphql-mode-format
     :program "/usr/local/bin/prettier"
     :args '("--parser" "graphql"))
-  (reformatter-define prettier-html
+  (reformatter-define html-mode-format
     :program "/usr/local/bin/prettier"
     :args '("--parser" "html"))
-  (reformatter-define prettier-js
+  (reformatter-define js-mode-format
     :program "/usr/local/bin/prettier"
     :args '("--parser" "babel"))
-  :hook ((rust-mode . (lambda () (add-hook 'before-save-hook
-                                      (lambda () (rustfmt-buffer 'display-errors)) nil t)))))
+  (defun dan/format-buffer ()
+    (interactive)
+    (funcall (intern (format "%s-format-buffer" (symbol-name major-mode))) 'display-errors))
+  :hook ((before-save . (lambda () (add-hook #'dan/format-buffer nil t)))))
 
 (use-package rust-mode
   :bind (:map rust-mode-map
@@ -771,7 +785,7 @@
 (add-to-list 'auto-mode-alist '("\\.applescript\\'" . applescript-mode))
 (add-to-list 'auto-mode-alist '("\\.compilation\\'" . compilation-mode))
 (add-to-list 'auto-mode-alist '("\\.es6\\'" . js-mode))
-(add-to-list 'auto-mode-alist '("\\.vue\\'" . js-mode))
+(add-to-list 'auto-mode-alist '("\\.vue\\'" . vue-mode))
 (add-to-list 'auto-mode-alist '("\\.tera\\'" . html-mode))
 (add-to-list 'auto-mode-alist '("\\.jira\\'" . jira-markup-mode))
 (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
@@ -1216,7 +1230,7 @@
  '(hl-sexp-background-color "#1c1f26")
  '(magit-diff-arguments '("--ignore-all-space" "--no-ext-diff"))
  '(package-selected-packages
-   '(magit magic-latex-buffer xenops ivy-xref flymake project project-root jsonrpc ag xterm-color projectile darkroom docker lsp-docker package-build flycheck-package undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-ui markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones))
+   '(vue-mode magit magic-latex-buffer xenops ivy-xref flymake project project-root jsonrpc ag xterm-color projectile darkroom docker lsp-docker package-build flycheck-package undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-ui markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones))
  '(paradox-github-token t)
  '(safe-local-variable-values
    '((eval when
