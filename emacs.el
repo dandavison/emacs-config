@@ -705,7 +705,7 @@
   (defun dan/format-buffer ()
     (interactive)
     (funcall (intern (format "%s-format-buffer" (symbol-name major-mode))) 'display-errors))
-  :hook ((before-save . (lambda () (add-hook #'dan/format-buffer nil t)))))
+  :hook ((before-save . (lambda () (dan/format-buffer)))))
 
 (use-package rust-mode
   :bind (:map rust-mode-map
@@ -738,6 +738,9 @@
 
 (use-package toml-mode
   :hook ((toml-mode . paredit-c-mode)))
+
+(use-package vue-mode
+  :hook ((vue-mode . (lambda () (set-face-background 'mmm-default-submode-face (face-background 'default))))))
 
 (use-package xterm-color
   :config
