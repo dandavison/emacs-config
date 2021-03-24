@@ -527,7 +527,7 @@
 
 
 (use-package magit-delta
-  :load-path "~/src/magit-delta"
+;;  :load-path "~/src/magit-delta"
   :after magit
   :config
   (add-hook 'magit-mode-hook (lambda () (magit-delta-mode +1)))
@@ -682,7 +682,7 @@
 
 (use-package reformatter
   :config
-  (reformatter-define blacken
+  (reformatter-define python-mode-format
     :program "/Users/dan/bin/black"
     :args '("-l" "99" "-"))
   (reformatter-define rust-mode-format
@@ -705,7 +705,7 @@
   (defun dan/format-buffer ()
     (interactive)
     (funcall (intern (format "%s-format-buffer" (symbol-name major-mode))) 'display-errors))
-  :hook ((before-save . (lambda () (dan/format-buffer)))))
+  :hook ((before-save . (lambda () (unless (dan/file-is-vscode-file-type (buffer-file-name)) (dan/format-buffer))))))
 
 (use-package rust-mode
   :bind (:map rust-mode-map
@@ -794,6 +794,7 @@
 (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
 (add-to-list 'auto-mode-alist '("\\.sublime-syntax\\'" . yaml-mode))
 (add-to-list 'auto-mode-alist '("\\.gitconfig\\'" . conf-unix-mode))
+(add-to-list 'auto-mode-alist '("\\.puml\\'" . plantuml-mode))
 
 ;;; Server
 
@@ -956,8 +957,9 @@
 ;;; Erc
 
 ;;; Plantuml
-(setq plantuml-jar-path "/usr/local/Cellar/plantuml/1.2018.11/libexec/plantuml.jar")
-
+(setq plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.26/libexec/plantuml.jar")
+(setq plantuml-executable-path "/usr/local/bin/plantuml")
+(setq plantuml-default-exec-mode 'executable)
 
 (add-hook 'python-mode-hook 'dan/python-mode-hook-fn 'append)
 

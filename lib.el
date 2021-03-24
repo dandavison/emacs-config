@@ -254,6 +254,10 @@
   (interactive "sCommand: ")
   (set (make-local-variable 'dan/after-save-command) cmd))
 
+(defun dan/cancel-after-save-command ()
+  (interactive)
+  (setq-local dan/after-save-command nil))
+
 (defvar dan/after-save-command nil
   "This string will be executed as a shell command after saving
   the buffer.")
@@ -834,6 +838,7 @@ With C-u prefix argument copy URL to clipboard only."
   (let ((text (flymake--diag-text diag)))
     (or (s-matches? "found module but no type hints" text)
         (s-matches? "running_mypy.html#missing-imports" text)
+        (s-matches? "found module but no type hints" text)
         (s-matches? "> 79 characters" text))))
 
 
@@ -844,15 +849,14 @@ With C-u prefix argument copy URL to clipboard only."
   :lighter " VSCode"
   :global t)
 
-(defvar dan/vscode-file-types '(".js" ".ts" ".vue" ".json"))
+(defvar dan/vscode-file-types '(".js" ".ts" ".vue" ".json" ".py" ".html"))
 (defun dan/open-in-vscode (&optional file definitely)
   (interactive)
   (when-let* ((file (or file (if (eq major-mode 'dired-mode)
                                  (dired-filename-at-point)
                                buffer-file-name))))
     (if (or definitely
-            (-any? (lambda (suffix) (s-ends-with? suffix file))
-                   dan/vscode-file-types))
+            (dan/file-is-vscode-file-type file))
         (shell-command
          (if (eq major-mode 'dired-mode)
              (format "code %s" file)
@@ -861,6 +865,10 @@ With C-u prefix argument copy URL to clipboard only."
                    (1+ (current-line))
                    (1+ (current-column)))))
       (when vscode-mode (message "Not opening in vscode: %s" file)))))
+
+(defun dan/file-is-vscode-file-type (file)
+  (-any? (lambda (suffix) (s-ends-with? suffix file))
+         dan/vscode-file-types))
 
 (defun dan/open-current-buffer-in-vscode-maybe (&optional _)
   (when-let* ((file (buffer-file-name (window-buffer (selected-window)))))
@@ -1103,6 +1111,13 @@ With C-u prefix argument copy URL to clipboard only."
     (insert-image (create-image tmp-file))))
 
 ;;; Magit
+
+(defun time-magit-status ()
+  (interactive)
+  (let ((start-time (time-to-seconds (current-time))))
+    (magit-status)
+    (message "magit-status took %.1f seconds"
+             (- (time-to-seconds (current-time)) start-time))))
 
 (defun dan/magit-file-rename (&optional file newname)
   (interactive)
