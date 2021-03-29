@@ -96,7 +96,7 @@
          ([(super r)] . projectile-replace)
          ([(super s)] . dan/save-buffer) ;; not bound in MacOS port
          ([(super u)] . revert-buffer) ;; not bound in MacOS port
-         ([(super v)] . yank) ;; not bound in MacOS port
+         ([(super v)] . vscode-mode)
          ([(super w)] . widen)
          ([(super x)] . kill-region)
          ([(super ?&)] . (lambda () (interactive) (let ((kill-buffer-query-functions nil)) (kill-buffer))))
