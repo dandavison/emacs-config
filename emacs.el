@@ -534,6 +534,25 @@
   (add-to-list 'magit-delta-delta-args "--no-gitconfig")
   (setq magit-delta-delta-executable "/usr/local/bin/delta"))
 
+(with-eval-after-load 'magit-delta
+    (set-face-attribute 'magit-diff-added-highlight nil
+              :background "#d0ffd0")
+    (set-face-attribute 'magit-diff-added nil
+              :background "#d0ffd0")
+    (set-face-attribute 'magit-diff-removed-highlight nil
+              :background "#ffe0e0")
+    (set-face-attribute 'magit-diff-removed nil
+              :background "#ffe0e0"))
+
+(add-hook 'magit-delta-mode-hook
+            (lambda ()
+              (setq face-remapping-alist
+                    (seq-difference face-remapping-alist
+                                    '((magit-diff-removed . default)
+                                      (magit-diff-removed-highlight . default)
+                                      (magit-diff-added . default)
+                                      (magit-diff-added-highlight . default))))))
+
 (use-package markdown-mode
   :bind (:map markdown-mode-map
          ("$" . dan/paired-dollar)
