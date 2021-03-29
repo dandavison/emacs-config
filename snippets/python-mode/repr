@@ -1,0 +1,5 @@
+#name : repr
+# expand-env: ((yas-indent-line 'fixed))x
+# --
+    def __repr__(self):
+        return f"$1"

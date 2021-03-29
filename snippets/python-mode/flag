@@ -1,0 +1,3 @@
+#name : flag
+# --
+__import__("pathlib").Path("/tmp/flag").touch()

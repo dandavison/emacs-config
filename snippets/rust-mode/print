@@ -1,0 +1,3 @@
+#name : print
+# --
+println!("{$1:?}");
