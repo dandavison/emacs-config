@@ -80,8 +80,7 @@
   (let* ((pathvar (or pathvar "PATH"))
          (path-from-shell
           (shell-command-to-string
-           ;; && . ~/src/shell-config/pyenv.sh
-           (format "/bin/bash -c '. ~/src/shell-config/path.sh && echo -n $%s'" pathvar))))
+           (format "/bin/bash -c 'echo -n $%s'" pathvar))))
     (setenv pathvar path-from-shell)
     (when (string-equal pathvar "PATH")
       (setq exec-path (split-string path-from-shell path-separator)))))
@@ -494,12 +493,12 @@
   (interactive "P")
   (pcase arg
     (`nil (dan/goto-use-package))
-    (`(4) (find-file "~/src/emacs-config/lib.el"))
-    (`(16) (find-file "~/src/emacs-config/python.el"))))
+    (`(4) (find-file "~/devenv/emacs-config/lib.el"))
+    (`(16) (find-file "~/devenv/emacs-config/python.el"))))
 
 (defun dan/goto-dot-emacs (&optional arg)
   (interactive "P")
-  (find-file (if arg "~/src/emacs-config/lib.el" (file-chase-links "~/.emacs.d/init.el"))))
+  (find-file (if arg "~/devenv/emacs-config/lib.el" (file-chase-links "~/.emacs.d/init.el"))))
 
 (defun dan/display-messages-buffer (&optional arg)
   (interactive "P")

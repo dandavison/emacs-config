@@ -247,10 +247,10 @@
          ([(meta shift left)] . python-indent-shift-left)
          ([(super mouse-1)] . (lambda (event) (interactive "e") (mouse-set-point event) (xref-find-definitions))))
   :config
-  (load-file "~/src/emacs-config/python.el")
+  (load-file "~/devenv/emacs-config/python.el")
   :hook (python-mode . dan/python-mode-hook-fn))
 
-(load-file "~/src/emacs-config/lib.el")
+(load-file "~/devenv/emacs-config/lib.el")
 
 (use-package term
   :defer t
@@ -399,7 +399,7 @@
          ([(super i)] . dan/latex-italic)
          ([(super t)] . dan/latex-fixed-width))
   :config
-  (load-file "~/src/emacs-config/latex.el")
+  (load-file "~/devenv/emacs-config/latex.el")
 
   :hook
   (latex-mode-hook . dan/latex-mode-hook-fn)
@@ -774,14 +774,14 @@
          ([tab] . yas/next-field))
   :config
   (yas/initialize)
-  (yas/load-directory (expand-file-name "~/src/emacs-config/snippets"))
+  (yas/load-directory (expand-file-name "~/devenv/emacs-config/snippets"))
   ;; :hook
   ;; (yas-after-exit-snippet . (lambda () (font-lock-ensure yas-snippet-beg yas-snippet-end)))
 )
 
 
-(when (file-exists-p "~/src/emacs-config/extra.el")
-  (load-file "~/src/emacs-config/extra.el"))
+(when (file-exists-p "~/devenv/emacs-config/extra.el")
+  (load-file "~/devenv/emacs-config/extra.el"))
 
 
 ;;; Appearance
