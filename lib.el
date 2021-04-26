@@ -1138,6 +1138,13 @@ With C-u prefix argument copy URL to clipboard only."
       (magit-run-git-with-input "commit" "-F" "-")))
   (magit-refresh-all))
 
+(defun dan/kill-magit-buffers ()
+  (interactive)
+  (mapc (lambda (buffer)
+          (and (string-match-p "magit" (buffer-name buffer))
+               (kill-buffer buffer)))
+        (buffer-list)))
+
 ;; This doesn't seem to work: cl-flet doesn't override name in desired scope?
 ;; (defun dan/magit-dired-rename ()
 ;;   (interactive)
