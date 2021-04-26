@@ -28,7 +28,6 @@
          ("C-c d" . dan/debug-on-error)
          ("C-c e" . outline-show-all)
          ("C-c f" . dan/flymake-flycheck-toggle)
-         ("C-c g" . magit-status)
          ("C-c l" . display-line-numbers-mode)
          ("C-c m" . dan/display-messages-buffer)
          ("C-c n" . flymake-goto-next-error)
@@ -44,6 +43,7 @@
          ("C-x C-f" . dan/find-file)
          ("C-x b" . dan/switch-to-buffer)
          ("C-x d" . dan/dired-no-ask)
+         ("C-x g" . magit-status)
          ("C-x C-l" . find-library)
          ("C-x n n" . dan/narrow-to-region)
          ("C-x n w" . dan/widen)
@@ -86,7 +86,7 @@
          ([(super left)] . winner-undo)
          ([(super l)] . magit-log)
          ([(super m)] . dan/goto-definition)
-         ([(super n)] . (lambda () (interactive) (dan/switch-to-buffer '(4))))
+         ([(super n)] . magit-status)
          ([(super o)] . (lambda () (interactive) (dan/open-in-vscode nil t)))
          ([(super return)] . dan/maximize)
          ([(super \\)] . (lambda () (interactive) (if (buffer-narrowed-p)
@@ -96,7 +96,7 @@
          ([(super r)] . projectile-replace)
          ([(super s)] . dan/save-buffer) ;; not bound in MacOS port
          ([(super u)] . revert-buffer) ;; not bound in MacOS port
-         ([(super v)] . vscode-mode)
+         ([(super v)] . yank) ;; not bound in MacOS port
          ([(super w)] . widen)
          ([(super x)] . kill-region)
          ([(super ?&)] . (lambda () (interactive) (let ((kill-buffer-query-functions nil)) (kill-buffer))))
@@ -478,7 +478,10 @@
          ([up] . previous-line)
          ([backtab] . dan/magit-hide-all-sections)
          :map magit-revision-mode-map
-         ([backtab] . dan/magit-hide-all-sections))
+         ([backtab] . dan/magit-hide-all-sections)
+         :map magit-log-select-mode-map
+         ([return] . magit-log-select-pick)
+         ("." . magit-show-commit))
   :hook
   (magit-status-mode-hook
    . (lambda ()
@@ -515,7 +518,7 @@
                                   magit-insert-bisect-output
                                   magit-insert-bisect-rest
                                   magit-insert-bisect-log
-                                  ;; magit-insert-untracked-files
+                                  magit-insert-untracked-files
                                   magit-insert-unstaged-changes
                                   magit-insert-staged-changes
                                   ;; magit-insert-stashes
@@ -1247,7 +1250,7 @@
    (vector "#ffffff" "#f36c60" "#8bc34a" "#fff59d" "#4dd0e1" "#b39ddb" "#81d4fa" "#263238"))
  '(bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks")
  '(custom-safe-themes
-   '("a455366c5cdacebd8adaa99d50e37430b0170326e7640a688e9d9ad406e2edfd" "a24c5b3c12d147da6cef80938dca1223b7c7f70f2f382b26308eba014dc4833a" "6343f4d41b209fe8990e3c5f4d2040b359612ef9cd8682f1e1e2a836beba8107" "4780d7ce6e5491e2c1190082f7fe0f812707fc77455616ab6f8b38e796cbffa9" "732b807b0543855541743429c9979ebfb363e27ec91e82f463c91e68c772f6e3" "4e5e58e42f6f37920b95a8502f488928b3dab9b6cc03d864e38101ce36ecb968" "72759f4e42617df7a07d0a4f4b08982314aa97fbd495a5405c9b11f48bd6b839" "9e6ac467fa1e5eb09e2ac477f61c56b2e172815b4a6a43cf48def62f9d3e5bf9" "b9183de9666c3a16a7ffa7faaa8e9941b8d0ab50f9aaba1ca49f2f3aec7e3be9" "0e8c264f24f11501d3f0cabcd05e5f9811213f07149e4904ed751ffdcdc44739" "780c67d3b58b524aa485a146ad9e837051918b722fd32fd1b7e50ec36d413e70" "a11043406c7c4233bfd66498e83600f4109c83420714a2bd0cd131f81cbbacea" "45482e7ddf47ab1f30fe05f75e5f2d2118635f5797687e88571842ff6f18b4d5" "a3821772b5051fa49cf567af79cc4dabfcfd37a1b9236492ae4724a77f42d70d" "3b4800ea72984641068f45e8d1911405b910f1406b83650cbd747a831295c911" default))
+   '("b4fd44f653c69fb95d3f34f071b223ae705bb691fb9abaf2ffca3351e92aa374" "a455366c5cdacebd8adaa99d50e37430b0170326e7640a688e9d9ad406e2edfd" "a24c5b3c12d147da6cef80938dca1223b7c7f70f2f382b26308eba014dc4833a" "6343f4d41b209fe8990e3c5f4d2040b359612ef9cd8682f1e1e2a836beba8107" "4780d7ce6e5491e2c1190082f7fe0f812707fc77455616ab6f8b38e796cbffa9" "732b807b0543855541743429c9979ebfb363e27ec91e82f463c91e68c772f6e3" "4e5e58e42f6f37920b95a8502f488928b3dab9b6cc03d864e38101ce36ecb968" "72759f4e42617df7a07d0a4f4b08982314aa97fbd495a5405c9b11f48bd6b839" "9e6ac467fa1e5eb09e2ac477f61c56b2e172815b4a6a43cf48def62f9d3e5bf9" "b9183de9666c3a16a7ffa7faaa8e9941b8d0ab50f9aaba1ca49f2f3aec7e3be9" "0e8c264f24f11501d3f0cabcd05e5f9811213f07149e4904ed751ffdcdc44739" "780c67d3b58b524aa485a146ad9e837051918b722fd32fd1b7e50ec36d413e70" "a11043406c7c4233bfd66498e83600f4109c83420714a2bd0cd131f81cbbacea" "45482e7ddf47ab1f30fe05f75e5f2d2118635f5797687e88571842ff6f18b4d5" "a3821772b5051fa49cf567af79cc4dabfcfd37a1b9236492ae4724a77f42d70d" "3b4800ea72984641068f45e8d1911405b910f1406b83650cbd747a831295c911" default))
  '(default-input-method "latin-1-prefix")
  '(eglot-documentation-function 'eglot-documentation-singleline)
  '(fci-rule-color "#383838")
