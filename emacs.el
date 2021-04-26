@@ -529,6 +529,19 @@
         [?\C-c ?g ?d ?r ?m ?a ?s ?t ?e ?r ?. ?. ?. return]))
 
 
+
+(setq magit-status-sections-hook
+      '(magit-insert-merge-log
+        magit-insert-rebase-sequence
+        magit-insert-am-sequence
+        magit-insert-sequencer-sequence
+        magit-insert-bisect-output
+        magit-insert-bisect-rest
+        magit-insert-bisect-log
+        magit-insert-untracked-files
+        magit-insert-unstaged-changes
+        magit-insert-staged-changes))
+
 (use-package magit-delta
 ;;  :load-path "~/src/magit-delta"
   :after magit
