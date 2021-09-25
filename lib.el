@@ -848,7 +848,7 @@ With C-u prefix argument copy URL to clipboard only."
   :lighter " VSCode"
   :global t)
 
-(defvar dan/vscode-file-types '(".js" ".ts" ".vue" ".json" ".py" ".html" ".rs"))
+(defvar dan/vscode-file-types '(".js" ".ts" ".vue" ".json" ".py" ".html" ".rs" ".java"))
 (defun dan/open-in-vscode (&optional file definitely)
   (interactive)
   (when-let* ((file (or file (if (eq major-mode 'dired-mode)
@@ -1138,7 +1138,7 @@ With C-u prefix argument copy URL to clipboard only."
       (magit-run-git-with-input "commit" "-F" "-")))
   (magit-refresh-all))
 
-(defun dan/kill-magit-buffers ()
+(defun dan/magit-kill-buffers ()
   (interactive)
   (mapc (lambda (buffer)
           (and (string-match-p "magit" (buffer-name buffer))

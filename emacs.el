@@ -85,7 +85,7 @@
          ([(super k)] . dan/bookmark-dwim)
          ([(super left)] . winner-undo)
          ([(super l)] . magit-log)
-         ([(super m)] . dan/goto-definition)
+         ([(super m)] . magit-status)
          ([(super n)] . magit-status)
          ([(super o)] . (lambda () (interactive) (dan/open-in-vscode nil t)))
          ([(super return)] . dan/maximize)
@@ -93,6 +93,7 @@
                                                  (widen)
                                                (call-interactively #'narrow-to-region) (pop-mark))))
          ([(super right)] . winner-redo)
+         ([(super q)] . dan/switch-to-buffer)
          ([(super r)] . projectile-replace)
          ([(super s)] . dan/save-buffer) ;; not bound in MacOS port
          ([(super u)] . revert-buffer) ;; not bound in MacOS port
@@ -290,19 +291,6 @@
 
 (use-package dash)
 
-(use-package eglot
-  :load-path "~/src-3p/eglot"
-  :config
-  (setf (alist-get 'rust-mode eglot-server-programs) '("rust-analyzer"))
-  (setq eldoc-echo-area-use-multiline-p nil
-        eglot-ignored-server-capabilites '(:documentHighlightProvider)))
-
-
-(when nil
-  (use-package eglot-x
-    :load-path "~/src-3p/eglot-x"
-    :after eglot))
-
 (use-package f)
 
 (use-package facet
@@ -409,8 +397,10 @@
 (dolist (hook '(plain-TeX-mode-hook latex-mode-hook LaTeX-mode-hook))
   (add-hook hook #'dan/latex-mode-hook-fn))
 
-(use-package override-lisp-indent
-  :load-path "~/src-3p/override-lisp-indent")
+(when nil
+  (use-package override-lisp-indent
+    :load-path "~/src-3p/override-lisp-indent")
+  )
 
 (use-package xenops
   :load-path "~/src/xenops/lisp"
@@ -656,18 +646,20 @@
          ([(left)] . neotree-select-up-node)
          ([(right)] . (lambda () (interactive) (execute-kbd-macro (kbd "<tab>"))))))
 
-(use-package ob-mathematica
-  :load-path "~/src-3p/org-mode/contrib/lisp")
+(when nil (use-package ob-mathematica
+   :load-path "~/src-3p/org-mode/contrib/lisp"))
 
-(use-package osa
-  :load-path "~/src-3p/osa")
+(when nil
+  (use-package osa
+    :load-path "~/src-3p/osa")
 
-(use-package osa-chrome
-  :after osa
-  :load-path "~/src-3p/osa-chrome"
-  :hook (osa-chrome-mode .
-         (lambda () (setq-local revert-buffer-function
-                           (lambda (&rest args) (osa-chrome-revert-buffer nil 'noconfirm))))))
+  (use-package osa-chrome
+    :after osa
+    :load-path "~/src-3p/osa-chrome"
+    :hook (osa-chrome-mode .
+                           (lambda () (setq-local revert-buffer-function
+                                                  (lambda (&rest args) (osa-chrome-revert-buffer nil 'noconfirm))))))
+  )
 
 (use-package paredit
   :bind (:map paredit-mode-map
@@ -1270,7 +1262,7 @@
  '(hl-sexp-background-color "#1c1f26")
  '(magit-diff-arguments '("--ignore-all-space" "--no-ext-diff"))
  '(package-selected-packages
-   '(vue-mode magit magic-latex-buffer xenops ivy-xref flymake project project-root jsonrpc ag xterm-color projectile darkroom docker lsp-docker package-build flycheck-package undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-ui markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones))
+   '(magit-delta vue-mode xenops ivy-xref flymake project project-root jsonrpc ag xterm-color projectile darkroom docker lsp-docker package-build flycheck-package undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-ui markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones))
  '(paradox-github-token t)
  '(safe-local-variable-values
    '((eval when
@@ -1353,3 +1345,5 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(font-lock-comment-face ((t (:foreground "dark cyan")))))
+
+(vscode-mode)
