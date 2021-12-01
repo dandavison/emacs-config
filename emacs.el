@@ -70,8 +70,8 @@
          ([(meta down)] . dan/transpose-line-down)
          ([(meta left)] . backward-word)
          ([(meta right)] . forward-word)
-         ([(meta shift left)] . dan/indent-shift-left)
-         ([(meta shift right)] . dan/indent-shift-right)
+         ([(super ?[)] . dan/indent-shift-left)
+         ([(super ?])] . dan/indent-shift-right)
          ([(meta up)] . dan/transpose-line-up)
          ([(meta ?,)] . ace-jump-mode)
          ([(meta ?.)] . dan/goto-definition)
@@ -536,9 +536,9 @@
 ;;  :load-path "~/src/magit-delta"
   :after magit
   :config
-  (add-hook 'magit-mode-hook (lambda () (magit-delta-mode +1)))
+  ;; (add-hook 'magit-mode-hook (lambda () (magit-delta-mode +1)))
   (add-to-list 'magit-delta-delta-args "--no-gitconfig")
-  (setq magit-delta-delta-executable "/usr/local/bin/delta"))
+  (setq magit-delta-delta-executable "/opt/homebrew/bin/delta"))
 
 (with-eval-after-load 'magit-delta
     (set-face-attribute 'magit-diff-added-highlight nil
@@ -715,19 +715,19 @@
   (reformatter-define rust-mode-format
     :program "/Users/dan/.cargo/bin/rustfmt")
   (reformatter-define typescript-mode-format
-    :program "/usr/local/bin/npx"
+    :program "/opt/homebrew/bin/npx"
     :args '("prettier" "--write" "--parser" "typescript"))
   (reformatter-define vue-mode-format
-    :program "/usr/local/bin/npx"
+    :program "/opt/homebrew/bin/npx"
     :args '("prettier" "--write" "--parser" "vue"))
   (reformatter-define graphql-mode-format
-    :program "/usr/local/bin/prettier"
+    :program "/opt/homebrew/bin/prettier"
     :args '("--parser" "graphql"))
   (reformatter-define html-mode-format
-    :program "/usr/local/bin/prettier"
+    :program "/opt/homebrew/bin/prettier"
     :args '("--parser" "html"))
   (reformatter-define js-mode-format
-    :program "/usr/local/bin/prettier"
+    :program "/opt/homebrew/bin/prettier"
     :args '("--parser" "babel"))
   (defun dan/format-buffer ()
     (interactive)
@@ -984,8 +984,8 @@
 ;;; Erc
 
 ;;; Plantuml
-(setq plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.26/libexec/plantuml.jar")
-(setq plantuml-executable-path "/usr/local/bin/plantuml")
+(setq plantuml-jar-path "/opt/homebrew/Cellar/plantuml/1.2020.26/libexec/plantuml.jar")
+(setq plantuml-executable-path "/opt/homebrew/bin/plantuml")
 (setq plantuml-default-exec-mode 'executable)
 
 (add-hook 'python-mode-hook 'dan/python-mode-hook-fn 'append)
@@ -1262,7 +1262,7 @@
  '(hl-sexp-background-color "#1c1f26")
  '(magit-diff-arguments '("--ignore-all-space" "--no-ext-diff"))
  '(package-selected-packages
-   '(magit-delta vue-mode xenops ivy-xref flymake project project-root jsonrpc ag xterm-color projectile darkroom docker lsp-docker package-build flycheck-package undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts company-lean confluence counsel dash-functional debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols lean-mode lsp-ui markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones))
+   '(xenops github-review magit-delta vue-mode ivy-xref flymake project project-root jsonrpc ag xterm-color projectile darkroom docker package-build flycheck-package undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts confluence counsel debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones))
  '(paradox-github-token t)
  '(safe-local-variable-values
    '((eval when

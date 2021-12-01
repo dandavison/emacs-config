@@ -861,7 +861,7 @@ With C-u prefix argument copy URL to clipboard only."
              (format "code %s" file)
            (format "code -g %s:%s:%s"
                    file
-                   (1+ (current-line))
+                   (1+ (line-number-at-pos))
                    (1+ (current-column)))))
       (when vscode-mode (message "Not opening in vscode: %s" file)))))
 
@@ -1247,7 +1247,7 @@ With C-u prefix argument copy URL to clipboard only."
       (let ((display-buffer-alist
              `(("*Async Shell Command*" . (display-buffer-no-window . nil)))))
         (async-shell-command
-         (format "/usr/local/bin/iterm2-dwim '%s' '%s'"
+         (format "/opt/homebrew/bin/iterm2-dwim '%s' '%s'"
                  path (buffer-substring (point) (point-at-eol))))))))
 
 
