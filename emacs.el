@@ -86,7 +86,7 @@
          ([(super left)] . winner-undo)
          ([(super l)] . magit-log)
          ([(super m)] . magit-status)
-         ([(super n)] . magit-status)
+         ([(super n)] . (lambda () (interactive) (let ((current-prefix-arg '(16))) (call-interactively 'dan/find-file))))
          ([(super o)] . (lambda () (interactive) (dan/open-in-vscode nil t)))
          ([(super return)] . dan/maximize)
          ([(super \\)] . (lambda () (interactive) (if (buffer-narrowed-p)
@@ -233,6 +233,9 @@
          ([(control tab)] . org-cycle)
          ([(backtab)] . org-global-cycle)))
 
+(use-package paredit-c
+  :load-path "~/src/paredit-c")
+
 (use-package prog-mode
   :bind (:map prog-mode-map
          ([(super i)] . dan/where-am-i)))
@@ -294,6 +297,7 @@
 (use-package f)
 
 (use-package facet
+  :defer t
   :load-path "~/src/facet/emacs")
 
 (use-package flycheck)
@@ -538,6 +542,7 @@
   :config
   ;; (add-hook 'magit-mode-hook (lambda () (magit-delta-mode +1)))
   (add-to-list 'magit-delta-delta-args "--no-gitconfig")
+  (add-to-list 'magit-delta-delta-args "--light")
   (setq magit-delta-delta-executable "/opt/homebrew/bin/delta"))
 
 (with-eval-after-load 'magit-delta
@@ -592,6 +597,7 @@
          ("C-c C-c" . emmet-expand-line)))
 
 (use-package minimal
+  :defer t
   :load-path "~/src/minimal")
 
 ;; (use-package mma
@@ -672,6 +678,7 @@
          ("\"" . paredit-c/doublequote)))
 
 (use-package paredit-c
+  :defer t
   :load-path "~/src/paredit-c")
 
 (use-package penrose-modes
@@ -822,6 +829,7 @@
 (add-to-list 'auto-mode-alist '("\\.sublime-syntax\\'" . yaml-mode))
 (add-to-list 'auto-mode-alist '("\\.gitconfig\\'" . conf-unix-mode))
 (add-to-list 'auto-mode-alist '("\\.puml\\'" . plantuml-mode))
+(add-to-list 'auto-mode-alist '("\\.strato\\'" . scala-mode))
 
 ;;; Server
 
@@ -1255,14 +1263,14 @@
    (vector "#ffffff" "#f36c60" "#8bc34a" "#fff59d" "#4dd0e1" "#b39ddb" "#81d4fa" "#263238"))
  '(bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks")
  '(custom-safe-themes
-   '("b4fd44f653c69fb95d3f34f071b223ae705bb691fb9abaf2ffca3351e92aa374" "a455366c5cdacebd8adaa99d50e37430b0170326e7640a688e9d9ad406e2edfd" "a24c5b3c12d147da6cef80938dca1223b7c7f70f2f382b26308eba014dc4833a" "6343f4d41b209fe8990e3c5f4d2040b359612ef9cd8682f1e1e2a836beba8107" "4780d7ce6e5491e2c1190082f7fe0f812707fc77455616ab6f8b38e796cbffa9" "732b807b0543855541743429c9979ebfb363e27ec91e82f463c91e68c772f6e3" "4e5e58e42f6f37920b95a8502f488928b3dab9b6cc03d864e38101ce36ecb968" "72759f4e42617df7a07d0a4f4b08982314aa97fbd495a5405c9b11f48bd6b839" "9e6ac467fa1e5eb09e2ac477f61c56b2e172815b4a6a43cf48def62f9d3e5bf9" "b9183de9666c3a16a7ffa7faaa8e9941b8d0ab50f9aaba1ca49f2f3aec7e3be9" "0e8c264f24f11501d3f0cabcd05e5f9811213f07149e4904ed751ffdcdc44739" "780c67d3b58b524aa485a146ad9e837051918b722fd32fd1b7e50ec36d413e70" "a11043406c7c4233bfd66498e83600f4109c83420714a2bd0cd131f81cbbacea" "45482e7ddf47ab1f30fe05f75e5f2d2118635f5797687e88571842ff6f18b4d5" "a3821772b5051fa49cf567af79cc4dabfcfd37a1b9236492ae4724a77f42d70d" "3b4800ea72984641068f45e8d1911405b910f1406b83650cbd747a831295c911" default))
+   '("d1b30c69aaf27807108e358b08c6aec4759d7240bc530fca90fd5833813fbc84" "22f080367d0b7da6012d01a8cd672289b1debfb55a76ecdb08491181dcb29626" "b4fd44f653c69fb95d3f34f071b223ae705bb691fb9abaf2ffca3351e92aa374" "a455366c5cdacebd8adaa99d50e37430b0170326e7640a688e9d9ad406e2edfd" "a24c5b3c12d147da6cef80938dca1223b7c7f70f2f382b26308eba014dc4833a" "6343f4d41b209fe8990e3c5f4d2040b359612ef9cd8682f1e1e2a836beba8107" "4780d7ce6e5491e2c1190082f7fe0f812707fc77455616ab6f8b38e796cbffa9" "732b807b0543855541743429c9979ebfb363e27ec91e82f463c91e68c772f6e3" "4e5e58e42f6f37920b95a8502f488928b3dab9b6cc03d864e38101ce36ecb968" "72759f4e42617df7a07d0a4f4b08982314aa97fbd495a5405c9b11f48bd6b839" "9e6ac467fa1e5eb09e2ac477f61c56b2e172815b4a6a43cf48def62f9d3e5bf9" "b9183de9666c3a16a7ffa7faaa8e9941b8d0ab50f9aaba1ca49f2f3aec7e3be9" "0e8c264f24f11501d3f0cabcd05e5f9811213f07149e4904ed751ffdcdc44739" "780c67d3b58b524aa485a146ad9e837051918b722fd32fd1b7e50ec36d413e70" "a11043406c7c4233bfd66498e83600f4109c83420714a2bd0cd131f81cbbacea" "45482e7ddf47ab1f30fe05f75e5f2d2118635f5797687e88571842ff6f18b4d5" "a3821772b5051fa49cf567af79cc4dabfcfd37a1b9236492ae4724a77f42d70d" "3b4800ea72984641068f45e8d1911405b910f1406b83650cbd747a831295c911" default))
  '(default-input-method "latin-1-prefix")
  '(eglot-documentation-function 'eglot-documentation-singleline)
  '(fci-rule-color "#383838")
  '(hl-sexp-background-color "#1c1f26")
  '(magit-diff-arguments '("--ignore-all-space" "--no-ext-diff"))
  '(package-selected-packages
-   '(xenops github-review magit-delta vue-mode ivy-xref flymake project project-root jsonrpc ag xterm-color projectile darkroom docker package-build flycheck-package undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts confluence counsel debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones))
+   '(dracula-theme magit-delta lsp-mode scala-mode toml flycheck xenops github-review vue-mode ivy-xref flymake project project-root jsonrpc ag xterm-color projectile darkroom docker package-build flycheck-package undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts confluence counsel debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones))
  '(paradox-github-token t)
  '(safe-local-variable-values
    '((eval when
