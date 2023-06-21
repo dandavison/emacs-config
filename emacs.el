@@ -26,7 +26,7 @@
          ("C-c b" . magit-blame)
          ("C-c c" . (lambda () (interactive) (magit-show-commit "HEAD")))
          ("C-c d" . dan/debug-on-error)
-         ("C-c e" . outline-show-all)
+         ("C-c e" . dan/dna)
          ("C-c f" . dan/flymake-flycheck-toggle)
          ("C-c l" . display-line-numbers-mode)
          ("C-c m" . dan/display-messages-buffer)

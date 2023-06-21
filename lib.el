@@ -225,6 +225,11 @@
   (interactive)
   (insert-char #x26A1))
 
+(defun dan/dna ()
+  (interactive)
+  (insert-char ?🧬))
+
+
 (defun dan/bytes-to-hex (bytes)
   (--map (format "#x%02x" it) bytes))
 
