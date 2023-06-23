@@ -534,7 +534,7 @@
 
 (defun dan/goto-gitconfig (&optional arg)
   (interactive "P")
-  (find-file (file-chase-links (if arg "~/.gitconfig" "~/src/config/delta/delta.conf"))))
+  (find-file (file-chase-links (if arg "~/.gitconfig" "~/src/config/delta/delta.gitconfig"))))
 
 ;;; Search
 
