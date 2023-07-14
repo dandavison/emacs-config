@@ -80,7 +80,7 @@
   (let* ((pathvar (or pathvar "PATH"))
          (path-from-shell
           (shell-command-to-string
-           (format "/bin/bash -c 'echo -n $%s'" pathvar))))
+           (format "/bin/zsh -c 'echo -n $%s'" pathvar))))
     (setenv pathvar path-from-shell)
     (when (string-equal pathvar "PATH")
       (setq exec-path (split-string path-from-shell path-separator)))))
@@ -534,7 +534,7 @@
 
 (defun dan/goto-gitconfig (&optional arg)
   (interactive "P")
-  (find-file (file-chase-links (if arg "~/.gitconfig" "~/src/config/delta/delta.gitconfig"))))
+  (find-file (file-chase-links (if arg "~/.gitconfig" "~/src/devenv/dotfiles/delta/delta.gitconfig"))))
 
 ;;; Search
 

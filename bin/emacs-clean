@@ -1,1 +1,1 @@
-emacs -Q -l /Users/dan/src/emacs-config/bin/emacs-clean.el $@
+emacs -Q -l /Users/dan/src/devenv/emacs-config/bin/emacs-clean.el $@
