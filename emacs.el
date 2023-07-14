@@ -198,6 +198,7 @@
   :hook (emacs-lisp-mode . dan/emacs-lisp-mode-hook-fn))
 
 (use-package go-mode
+  :defer t
   :config
   (add-to-list 'auto-mode-alist '("\\.wb\\'" . go-mode)))
 
@@ -231,6 +232,16 @@
   :bind (:map outline-minor-mode-map
          ([(control tab)] . org-cycle)
          ([(backtab)] . org-global-cycle)))
+
+(use-package paredit
+  :bind (:map paredit-mode-map
+         ;; TODO: move into paredit-c config
+         ("(" . paredit-open-round)
+         ("M-[" . paredit-wrap-square)
+         ("\\" . nil)
+         (";" . nil)
+         ;; TODO: move into paredit-c config
+         ("\"" . paredit-c/doublequote)))
 
 (use-package paredit-c
   :load-path "~/src/paredit-c")
@@ -266,6 +277,7 @@
   :bind (("C-x o" . ace-window)))
 
 (use-package cargo
+  :defer t
   :hook (rust-mode . cargo-minor-mode))
 
 (defun dan/java-mode-hook-function ()
@@ -287,6 +299,7 @@
          ("C-c C-z" . inf-clojure)))
 
 (use-package company
+  :defer t
   :hook (prog-mode . company-mode)
   :config
   (setq company-selection-wrap-around t))
@@ -299,7 +312,7 @@
   :defer t
   :load-path "~/src/facet/emacs")
 
-(use-package flycheck)
+(use-package flycheck :defer)
 
 (when nil
   (use-package flycheck-rust
@@ -307,6 +320,7 @@
 
 
 (use-package graphql-mode
+  :defer t
   :hook (graphql-mode . (lambda ()
                           (paredit-c-mode)
                           (prettier-graphql-on-save-mode))))
@@ -317,13 +331,17 @@
          ("'" . self-insert-command)))
 
 (use-package ido
+  :defer t
   :config
   (ido-mode t)
   (ido-everywhere t)
-  (setq ido-enable-flex-matching t))
+  (setq ido-enable-flex-matching t)
+  (let ((is-dired-buffer? (lambda (buff) (eq (with-current-buffer buff major-mode) 'dired-mode)))))
+  (add-to-list 'ido-ignore-buffers is-dired-buffer?))
 
 
 (use-package ivy
+  :defer t
   :config
   (require 'counsel)
   (require 'swiper)
@@ -349,6 +367,7 @@
   (add-hook 'counsel-grep-post-action-hook 'dan/on-jump-into-buffer))
 
 (use-package ivy-xref
+  :defer t
   :init
   ;; xref initialization is different in Emacs 27 - there are two different
   ;; variables which can be set rather than just one
@@ -564,6 +583,7 @@
                                       (magit-diff-added-highlight . default))))))
 
 (use-package markdown-mode
+  :defer t
   :bind (:map markdown-mode-map
          ("$" . dan/paired-dollar)
          ("\M-q" . fill-paragraph)
@@ -647,6 +667,7 @@
   (add-to-list 'modalka-excluded-modes 'git-rebase-mode))
 
 (use-package neotree
+  :defer t
   :bind (:map neotree-mode-map
          ([(left)] . neotree-select-up-node)
          ([(right)] . (lambda () (interactive) (execute-kbd-macro (kbd "<tab>"))))))
@@ -666,25 +687,13 @@
                                                   (lambda (&rest args) (osa-chrome-revert-buffer nil 'noconfirm))))))
   )
 
-(use-package paredit
-  :bind (:map paredit-mode-map
-         ;; TODO: move into paredit-c config
-         ("(" . paredit-open-round)
-         ("M-[" . paredit-wrap-square)
-         ("\\" . nil)
-         (";" . nil)
-         ;; TODO: move into paredit-c config
-         ("\"" . paredit-c/doublequote)))
-
-(use-package paredit-c
-  :defer t
-  :load-path "~/src/paredit-c")
 
 (use-package penrose-modes
   :defer t
   :load-path "~/src-3p/penrose-modes")
 
 (use-package projectile
+  :defer t
   :bind-keymap
   ([(super p)] . projectile-command-map)
   :bind (:map projectile-command-map
@@ -705,6 +714,7 @@
   (add-to-list 'projectile-globally-ignored-modes "dired-mode"))
 
 (use-package py-isort
+  :defer t
   :config
   (setq py-isort-options
         '("--lines=9999999"
@@ -714,6 +724,7 @@
 (use-package pyenv-mode :defer t)
 
 (use-package reformatter
+  :defer t
   :config
   (reformatter-define python-mode-format
     :program "/Users/dan/bin/black"
@@ -741,6 +752,7 @@
   :hook ((before-save . (lambda () (unless (dan/file-is-vscode-file-type (buffer-file-name)) (dan/format-buffer))))))
 
 (use-package rust-mode
+  :defer t
   :bind (:map rust-mode-map
          ("?" . dan/question-mark)
          ("C-c C-c" . dan/save-even-if-not-modified)
@@ -756,6 +768,15 @@
                         (eglot-ensure)))
          (rust-after-save . (lambda () (compile "cargo build")))))
 
+(use-package sql-indent :defer t
+ :config
+ ;; See https://github.com/alex-hhh/emacs-sql-indent/blob/master/sql-indent.org
+ ;; and `sqlind-indentation-offsets-alist'
+ (defvar dan/sqlind-offsets-alist
+   `((select-clause 0)
+     (select-table-continuation sqlind-indent-select-table sqlind-lineup-joins-to-anchor 0)
+     ,@sqlind-default-indentation-offsets-alist)))
+
 (use-package swift-mode
   :defer t
   :hook (
@@ -770,12 +791,15 @@
   :load-path "~/src-3p/tla-mode")
 
 (use-package toml-mode
+  :defer t
   :hook ((toml-mode . paredit-c-mode)))
 
 (use-package vue-mode
+  :defer t
   :hook ((vue-mode . (lambda () (set-face-background 'mmm-default-submode-face (face-background 'default))))))
 
 (use-package xterm-color
+  :defer t
   :config
   ;; https://github.com/atomontage/xterm-color#usage
   (setq compilation-environment '("TERM=xterm-256color"))
@@ -784,6 +808,7 @@
   (advice-add 'compilation-filter :around #'dan/compilation-filter-advice))
 
 (use-package yasnippet
+  :defer t
   :bind (:map yas/keymap
          ([tab] . yas/next-field))
   :config
@@ -895,15 +920,12 @@
 
 
 (use-package fill-column-indicator
+  :defer t
   :config
   (dan/set-fill-column 99))
 
 (put 'downcase-region 'disabled nil)
 (put 'narrow-to-region 'disabled nil)
-
-(require 'ido)
-(let ((is-dired-buffer? (lambda (buff) (eq (with-current-buffer buff major-mode) 'dired-mode))))
-  (add-to-list 'ido-ignore-buffers is-dired-buffer?))
 
 (winner-mode t)
 (windmove-default-keybindings)
@@ -1227,13 +1249,6 @@
 (add-hook 'sh-mode-hook 'dan/sh-mode-hook-fn)
 
 
-(require 'sql-indent)
-;; See https://github.com/alex-hhh/emacs-sql-indent/blob/master/sql-indent.org
-;; and `sqlind-indentation-offsets-alist'
-(defvar dan/sqlind-offsets-alist
-  `((select-clause 0)
-    (select-table-continuation sqlind-indent-select-table sqlind-lineup-joins-to-anchor 0)
-    ,@sqlind-default-indentation-offsets-alist))
 
 (defun dan/sql-mode-hook-fn ()
   (paredit-c-mode)
