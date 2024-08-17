@@ -99,12 +99,14 @@
          ([(super v)] . yank) ;; not bound in MacOS port
          ([(super w)] . widen)
          ([(super x)] . kill-region)
+         ([(super z)] . undo)
          ([(super ?&)] . (lambda () (interactive) (let ((kill-buffer-query-functions nil)) (kill-buffer))))
          ([(super ?,)] . dan/counsel-rg)
          ([(super ?.)] . dan/counsel-rg-thing-at-point)
          ([(super ?')] . magit-dispatch)
          ([(super ?\;)] . dan/show-buffer-file-name)
          ([(super ?\])] . fci-mode)
+         ([(super ?/)] . comment-dwim)
          ([(super |)] . dan/shell-command-on-region-and-replace)))
 
 ;;; MacOS
@@ -555,12 +557,13 @@
         magit-insert-staged-changes))
 
 (use-package magit-delta
-;;  :load-path "~/src/magit-delta"
+  :load-path "~/src/magit-delta"
   :after magit
   :config
-  ;; (add-hook 'magit-mode-hook (lambda () (magit-delta-mode +1)))
+  (add-hook 'magit-mode-hook (lambda () (magit-delta-mode +1)))
   (add-to-list 'magit-delta-delta-args "--no-gitconfig")
   (add-to-list 'magit-delta-delta-args "--light")
+  (setq magit-git-global-arguments (append magit-git-global-arguments '("-c" "diff.context=3")))
   (setq magit-delta-delta-executable "/opt/homebrew/bin/delta"))
 
 (with-eval-after-load 'magit-delta
@@ -902,11 +905,9 @@
       (unless (and (eq (point-min) point-min-before)
                    (eq (point-max) point-max-before))
         (narrow-to-region point-min-before point-max-before)))))
-(add-hook 'after-revert-hook 'dan/after-revert-hook-fn)
 
 (use-package autorevert
   :config
-  (global-auto-revert-mode t)
   (setq auto-revert-interval 0.1
         global-auto-revert-non-file-buffers t))
 

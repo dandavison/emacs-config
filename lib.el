@@ -853,7 +853,7 @@ With C-u prefix argument copy URL to clipboard only."
   :lighter " VSCode"
   :global t)
 
-(defvar dan/vscode-file-types '(".js" ".ts" ".tsx" ".vue" ".json" ".py" ".html" ".rs" ".java" ".nu" ".go" ".zsh" ".sh" ".bash" ".toml" ".swift"))
+(defvar dan/vscode-file-types '(".js" ".ts" ".tsx" ".vue" ".json" ".yaml" ".py" ".html" ".rs" ".java" ".nu" ".go" ".zsh" ".sh" ".bash" ".toml" ".swift" ".lock" ".rb" ".swift" ".lua" ".md" ".mdx" ".proto" ".mod" ".sum"))
 (defun dan/open-in-vscode (&optional file definitely)
   (interactive)
   (when-let* ((file (or file (if (eq major-mode 'dired-mode)
