@@ -210,8 +210,6 @@
   :defer t
   :after org-table
   :bind (:map org-mode-map
-         ([(shift left)] . windmove-left)
-         ([(shift right)] . windmove-right)
          ([(shift up)] . windmove-up)
          ([(shift down)] . windmove-down)
          ([(meta left)] . nil)
@@ -223,9 +221,7 @@
   :hook
   (org-mode . (lambda ()
                 (local-set-key [(meta left)] 'backward-word)
-                (local-set-key [(meta right)] 'forward-word)
-                (local-set-key [(shift left)] 'windmove-left)
-                (local-set-key [(shift right)] 'windmove-right)))
+                (local-set-key [(meta right)] 'forward-word)))
   :config
   (setq org-support-shift-select 'always))
 
@@ -929,7 +925,6 @@
 (put 'narrow-to-region 'disabled nil)
 
 (winner-mode t)
-(windmove-default-keybindings)
 
 (setq tramp-verbose 2)
 (setq tramp-default-method "ssh")
