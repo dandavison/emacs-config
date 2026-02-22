@@ -1,12 +1,13 @@
 ;; -*- lexical-binding: t -*-
 
 ;;; Init
-(setq debug-on-error nil)
+(setq debug-on-error t)
 
 ;;; Package manager
 
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+(setq Info-additional-directory-list nil)
 (package-initialize)
 (setq use-package-always-demand t)
 
@@ -176,6 +177,7 @@
   (setq erc-nick "dd7"
         erc-hide-list '("JOIN" "PART" "QUIT")))
 
+(setq dan/fill-column 70)
 (use-package elisp-mode
   :bind (:map emacs-lisp-mode-map
          ("C-c d" . edebug-defun)
@@ -188,7 +190,7 @@
   (defun dan/emacs-lisp-mode-hook-fn ()
     (interactive)
     (paredit-mode t)
-    (company-mode)
+    ;; (company-mode)
     (setq fill-column dan/fill-column)
     (set (make-variable-buffer-local 'fci-rule-column) fill-column)
     (setq prettify-symbols-alist '(("lambda" . 955)))
@@ -231,18 +233,22 @@
          ([(control tab)] . org-cycle)
          ([(backtab)] . org-global-cycle)))
 
-(use-package paredit
-  :bind (:map paredit-mode-map
-         ;; TODO: move into paredit-c config
-         ("(" . paredit-open-round)
-         ("M-[" . paredit-wrap-square)
-         ("\\" . nil)
-         (";" . nil)
-         ;; TODO: move into paredit-c config
-         ("\"" . paredit-c/doublequote)))
+;; (use-package paredit
+;;   :bind (:map paredit-mode-map
+;;          ;; TODO: move into paredit-c config
+;;          ("(" . paredit-open-round)
+;;          ("M-[" . paredit-wrap-square)
+;;          ("\\" . nil)
+;;          (";" . nil)
+;;          ;; TODO: move into paredit-c config
+;;          ("\"" . paredit-c/doublequote)))
 
-(use-package paredit-c
-  :load-path "~/src/paredit-c")
+;; (use-package paredit-c
+;;   :defer t
+;;   :load-path "~/src/paredit-c")
+
+(defun paredit-mode (&rest args))
+(defun paredit-c-mode (&rest args))
 
 (use-package prog-mode
   :bind (:map prog-mode-map
@@ -298,7 +304,7 @@
 
 (use-package company
   :defer t
-  :hook (prog-mode . company-mode)
+  ;; :hook (prog-mode . company-mode)
   :config
   (setq company-selection-wrap-around t))
 
@@ -408,6 +414,16 @@
          ([(super t)] . dan/latex-fixed-width))
   :config
   (load-file "~/devenv/emacs-config/latex.el")
+;;   (setq org-format-latex-options
+;;    '(:foreground "Black" :background default :scale 1.0 :html-foreground "Black" :html-background "Transparent" :html-scale 1.0 :matchers
+;;                  ("begin" "$1" "$" "$$" "\\(" "\\[")))
+
+;; (with-eval-after-load 'org
+;;   (dolist (pair '((:foreground . auto)
+;;                   (:background . auto)))
+;;     (setq org-format-latex-options
+;;           (plist-put org-format-latex-options
+;;                      (car pair) (cdr pair)))))
 
   :hook
   (latex-mode-hook . dan/latex-mode-hook-fn)
@@ -426,7 +442,7 @@
   :load-path "~/src/xenops/lisp"
   :bind (:map xenops-mode-map
          ("s-[" . xenops-copy-and-paste-element)
-         ("s-m" . xenops-xen-mode))
+         ("s-p" . xenops-xen-mode))
   :config
   ;; HACK: Add a zero-width space before the quote so that xen mode styles the quote.
   (setq TeX-close-quote "​''")
@@ -460,12 +476,16 @@
                   ("\\end{enumerate}" . "↲")))
         xenops-xen-style-regexp-rules-get-text-properties-function
         'dan/xenops-xen-style-regexp-rules-get-text-properties)
+
+
   :hook
   (xenops-mode . (lambda ()
-                   (setq face-remapping-alist '((font-latex-string-face . default)))
+                   (set-face-attribute 'font-latex-math-face nil :foreground "black")
+                   (setq face-remapping-alist '((font-latex-string-face . default)
+                                                (font-latex-math-face . (:foreground default))))
                    (when t (xenops-xen-mode))
                    (setq TeX-engine 'luatex)
-                   (setq xenops-math-image-scale-factor 1.0))))
+                   (setq xenops-math-image-scale-factor 1.6))))
 
 (when nil
   (use-package lispy
@@ -515,6 +535,7 @@
 
   (when t
     (setq
+     magit-diff-visit-prefer-worktree t
      magit-diff-refine-hunk 'all
      magit-completing-read-function 'ivy-completing-read
      magit-revision-insert-related-refs nil
@@ -722,7 +743,7 @@
 
 (use-package pyenv-mode :defer t)
 
-(use-package reformatter
+(when nil (use-package reformatter
   :defer t
   :config
   (reformatter-define python-mode-format
@@ -748,7 +769,7 @@
   (defun dan/format-buffer ()
     (interactive)
     (funcall (intern (format "%s-format-buffer" (symbol-name major-mode))) 'display-errors))
-  :hook ((before-save . (lambda () (unless (dan/file-is-vscode-file-type (buffer-file-name)) (dan/format-buffer))))))
+  :hook ((before-save . (lambda () (unless (dan/file-is-vscode-file-type (buffer-file-name)) (dan/format-buffer)))))))
 
 (use-package rust-mode
   :defer t
@@ -806,13 +827,15 @@
     (funcall f proc (xterm-color-filter string)))
   (advice-add 'compilation-filter :around #'dan/compilation-filter-advice))
 
+(use-package yasnippet)
+
 (use-package yasnippet
-  :defer t
-  :bind (:map yas/keymap
-         ([tab] . yas/next-field))
+  :defer nil
+  :bind (:map yas-keymap
+         ([tab] . yas-next-field))
   :config
-  (yas/initialize)
-  (yas/load-directory (expand-file-name "~/devenv/emacs-config/snippets"))
+  (yas-initialize)
+  (yas-load-directory (expand-file-name "~/devenv/emacs-config/snippets"))
   ;; :hook
   ;; (yas-after-exit-snippet . (lambda () (font-lock-ensure yas-snippet-beg yas-snippet-end)))
 )
@@ -1202,9 +1225,7 @@
 
 (defun dan/org-mode-hook-fn ()
   (local-set-key [(meta left)] 'backward-word)
-  (local-set-key [(meta right)] 'forward-word)
-  (local-set-key [(shift left)] 'windmove-left)
-  (local-set-key [(shift right)] 'windmove-right))
+  (local-set-key [(meta right)] 'forward-word))
 (add-hook 'org-mode-hook 'dan/org-mode-hook-fn)
 
 (defun dan/paredit-c-mode-hook-fn ()
@@ -1270,58 +1291,91 @@
  '(ansi-color-faces-vector
    [default bold shadow italic underline bold bold-italic bold])
  '(ansi-color-names-vector
-   (vector "#ffffff" "#f36c60" "#8bc34a" "#fff59d" "#4dd0e1" "#b39ddb" "#81d4fa" "#263238"))
+   (vector "#ffffff" "#f36c60" "#8bc34a" "#fff59d" "#4dd0e1" "#b39ddb"
+           "#81d4fa" "#263238"))
  '(bmkp-last-as-first-bookmark-file "~/.emacs.d/bookmarks")
  '(custom-safe-themes
-   '("d1b30c69aaf27807108e358b08c6aec4759d7240bc530fca90fd5833813fbc84" "22f080367d0b7da6012d01a8cd672289b1debfb55a76ecdb08491181dcb29626" "b4fd44f653c69fb95d3f34f071b223ae705bb691fb9abaf2ffca3351e92aa374" "a455366c5cdacebd8adaa99d50e37430b0170326e7640a688e9d9ad406e2edfd" "a24c5b3c12d147da6cef80938dca1223b7c7f70f2f382b26308eba014dc4833a" "6343f4d41b209fe8990e3c5f4d2040b359612ef9cd8682f1e1e2a836beba8107" "4780d7ce6e5491e2c1190082f7fe0f812707fc77455616ab6f8b38e796cbffa9" "732b807b0543855541743429c9979ebfb363e27ec91e82f463c91e68c772f6e3" "4e5e58e42f6f37920b95a8502f488928b3dab9b6cc03d864e38101ce36ecb968" "72759f4e42617df7a07d0a4f4b08982314aa97fbd495a5405c9b11f48bd6b839" "9e6ac467fa1e5eb09e2ac477f61c56b2e172815b4a6a43cf48def62f9d3e5bf9" "b9183de9666c3a16a7ffa7faaa8e9941b8d0ab50f9aaba1ca49f2f3aec7e3be9" "0e8c264f24f11501d3f0cabcd05e5f9811213f07149e4904ed751ffdcdc44739" "780c67d3b58b524aa485a146ad9e837051918b722fd32fd1b7e50ec36d413e70" "a11043406c7c4233bfd66498e83600f4109c83420714a2bd0cd131f81cbbacea" "45482e7ddf47ab1f30fe05f75e5f2d2118635f5797687e88571842ff6f18b4d5" "a3821772b5051fa49cf567af79cc4dabfcfd37a1b9236492ae4724a77f42d70d" "3b4800ea72984641068f45e8d1911405b910f1406b83650cbd747a831295c911" default))
+   '("d1b30c69aaf27807108e358b08c6aec4759d7240bc530fca90fd5833813fbc84"
+     "22f080367d0b7da6012d01a8cd672289b1debfb55a76ecdb08491181dcb29626"
+     "b4fd44f653c69fb95d3f34f071b223ae705bb691fb9abaf2ffca3351e92aa374"
+     "a455366c5cdacebd8adaa99d50e37430b0170326e7640a688e9d9ad406e2edfd"
+     "a24c5b3c12d147da6cef80938dca1223b7c7f70f2f382b26308eba014dc4833a"
+     "6343f4d41b209fe8990e3c5f4d2040b359612ef9cd8682f1e1e2a836beba8107"
+     "4780d7ce6e5491e2c1190082f7fe0f812707fc77455616ab6f8b38e796cbffa9"
+     "732b807b0543855541743429c9979ebfb363e27ec91e82f463c91e68c772f6e3"
+     "4e5e58e42f6f37920b95a8502f488928b3dab9b6cc03d864e38101ce36ecb968"
+     "72759f4e42617df7a07d0a4f4b08982314aa97fbd495a5405c9b11f48bd6b839"
+     "9e6ac467fa1e5eb09e2ac477f61c56b2e172815b4a6a43cf48def62f9d3e5bf9"
+     "b9183de9666c3a16a7ffa7faaa8e9941b8d0ab50f9aaba1ca49f2f3aec7e3be9"
+     "0e8c264f24f11501d3f0cabcd05e5f9811213f07149e4904ed751ffdcdc44739"
+     "780c67d3b58b524aa485a146ad9e837051918b722fd32fd1b7e50ec36d413e70"
+     "a11043406c7c4233bfd66498e83600f4109c83420714a2bd0cd131f81cbbacea"
+     "45482e7ddf47ab1f30fe05f75e5f2d2118635f5797687e88571842ff6f18b4d5"
+     "a3821772b5051fa49cf567af79cc4dabfcfd37a1b9236492ae4724a77f42d70d"
+     "3b4800ea72984641068f45e8d1911405b910f1406b83650cbd747a831295c911"
+     default))
  '(default-input-method "latin-1-prefix")
  '(eglot-documentation-function 'eglot-documentation-singleline)
- '(fci-rule-color "#383838")
+ '(fci-rule-color "#383838" t)
  '(hl-sexp-background-color "#1c1f26")
  '(magit-diff-arguments '("--ignore-all-space" "--no-ext-diff"))
+ '(magit-git-global-arguments
+   '("--no-pager" "--literal-pathspecs" "-c" "core.preloadindex=true"
+     "-c" "log.showSignature=false" "-c" "color.ui=false" "-c"
+     "color.diff=false" "-c" "diff.context=3"))
  '(package-selected-packages
-   '(dracula-theme magit-delta lsp-mode scala-mode toml flycheck xenops github-review vue-mode ivy-xref flymake project project-root jsonrpc ag xterm-color projectile darkroom docker package-build flycheck-package undercover simple-call-tree elisp-lint aio go-mode wdl-mode docker-tramp command-log-mode swift-mode ace-jump-mode ace-window applescript-mode auctex auctex-latexmk aumix-mode auto-overlays avy buffer-move cargo coffee-mode color-theme-modern color-theme-railscasts confluence counsel debbugs dired-details+ dockerfile-mode dot-mode elisp-format emmet-mode eyuml f fill-column-indicator flycheck-rust fzf graphql-mode graphviz-dot-mode haskell-mode hindent htmlize ivy ivy-hydra jira-markup-mode latex-pretty-symbols markdown-mode material-theme minimal-theme modalka multiple-cursors neotree paradox paredit paredit-everywhere plantuml-mode py-isort railscasts-reloaded-theme railscasts-theme reformatter restclient ripgrep smartparens smooth-scroll soothe-theme sqlite sql-indent sublimity texfrag toml-mode transpose-frame typescript-mode use-package visual-fill-column wgrep yaml-mode yasnippet yasnippet-bundle zencoding-mode zones))
+   '(ace-jump-mode ace-window ag aio applescript-mode auctex
+                   auctex-latexmk aumix-mode auto-overlays avy
+                   buffer-move cargo coffee-mode color-theme-modern
+                   color-theme-railscasts command-log-mode confluence
+                   counsel darkroom dash debbugs dired-details+ docker
+                   docker-tramp dockerfile-mode dot-mode dracula-theme
+                   elisp-format elisp-lint emmet-mode eyuml f
+                   fill-column-indicator flycheck flycheck-package
+                   flycheck-rust flymake fzf github-review go-mode
+                   graphql-mode graphviz-dot-mode haskell-mode hindent
+                   htmlize hydra ivy ivy-hydra ivy-xref
+                   jira-markup-mode jsonrpc latex-pretty-symbols
+                   lsp-mode magit magit-delta markdown-mode
+                   material-theme minimal-theme modalka
+                   multiple-cursors neotree package-build paradox
+                   paredit paredit-everywhere plantuml-mode project
+                   project-root projectile py-isort
+                   railscasts-reloaded-theme railscasts-theme
+                   reformatter restclient ripgrep scala-mode
+                   simple-call-tree smartparens smooth-scroll
+                   soothe-theme sql-indent sqlite sublimity swift-mode
+                   swiper texfrag toml toml-mode transpose-frame
+                   typescript-mode undercover use-package
+                   visual-fill-column vue-mode wdl-mode wgrep xenops
+                   xterm-color yaml-mode yasnippet yasnippet-bundle
+                   zencoding-mode zones))
  '(paradox-github-token t)
  '(safe-local-variable-values
    '((eval when
-           (and
-            (buffer-file-name)
-            (not
-             (file-directory-p
-              (buffer-file-name)))
-            (string-match-p "^[^.]"
-                            (buffer-file-name)))
-           (unless
-               (featurep 'package-build)
-             (let
-                 ((load-path
-                   (cons "../package-build" load-path)))
+           (and (buffer-file-name)
+                (not (file-directory-p (buffer-file-name)))
+                (string-match-p "^[^.]" (buffer-file-name)))
+           (unless (featurep 'package-build)
+             (let ((load-path (cons "../package-build" loaxd-path)))
                (require 'package-build)))
-           (unless
-               (derived-mode-p 'emacs-lisp-mode)
+           (unless (derived-mode-p 'emacs-lisp-mode)
              (emacs-lisp-mode))
            (package-build-minor-mode)
            (setq-local flycheck-checkers nil)
-           (set
-            (make-local-variable 'package-build-working-dir)
-            (expand-file-name "../working/"))
-           (set
-            (make-local-variable 'package-build-archive-dir)
-            (expand-file-name "../packages/"))
-           (set
-            (make-local-variable 'package-build-recipes-dir)
-            default-directory))
+           (set (make-local-variable 'package-build-working-dir)
+                (expand-file-name "../working/"))
+           (set (make-local-variable 'package-build-archive-dir)
+                (expand-file-name "../packages/"))
+           (set (make-local-variable 'package-build-recipes-dir)
+                default-directory))
      (checkdoc-minor-mode . 1)
      (git-commit-major-mode . git-commit-elisp-text-mode)
      (org-src-preserve-indentation)
-     (eval and
-           (featurep 'ox-extra)
-           (ox-extras-activate
-            '(ignore-headlines)))
-     (eval require 'ox-texinfo+ nil t)
-     (eval require 'ox-extra nil t)
-     (eval require 'ol-man nil t)
-     (eval require 'org-man nil t)
+     (eval and (featurep 'ox-extra)
+           (ox-extras-activate '(ignore-headlines)))
+     (eval require 'ox-texinfo+ nil t) (eval require 'ox-extra nil t)
+     (eval require 'ol-man nil t) (eval require 'org-man nil t)
      (eval require 'magit-utils nil t)
      (dan/python-project-root . "/Users/dan/src/elaenia/")
      (dan/python-project-name . "elaenia")
@@ -1333,24 +1387,12 @@
      (bug-reference-bug-regexp . "#\\(?2:[0-9]+\\)")))
  '(vc-annotate-background nil)
  '(vc-annotate-color-map
-   '((20 . "#f36c60")
-     (40 . "#ff9800")
-     (60 . "#fff59d")
-     (80 . "#8bc34a")
-     (100 . "#81d4fa")
-     (120 . "#4dd0e1")
-     (140 . "#b39ddb")
-     (160 . "#f36c60")
-     (180 . "#ff9800")
-     (200 . "#fff59d")
-     (220 . "#8bc34a")
-     (240 . "#81d4fa")
-     (260 . "#4dd0e1")
-     (280 . "#b39ddb")
-     (300 . "#f36c60")
-     (320 . "#ff9800")
-     (340 . "#fff59d")
-     (360 . "#8bc34a")))
+   '((20 . "#f36c60") (40 . "#ff9800") (60 . "#fff59d") (80 . "#8bc34a")
+     (100 . "#81d4fa") (120 . "#4dd0e1") (140 . "#b39ddb")
+     (160 . "#f36c60") (180 . "#ff9800") (200 . "#fff59d")
+     (220 . "#8bc34a") (240 . "#81d4fa") (260 . "#4dd0e1")
+     (280 . "#b39ddb") (300 . "#f36c60") (320 . "#ff9800")
+     (340 . "#fff59d") (360 . "#8bc34a")))
  '(vc-annotate-very-old-color nil))
 (put 'upcase-region 'disabled nil)
 

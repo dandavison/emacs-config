@@ -71,6 +71,7 @@
     ((equal arg '(4))
      'ivy-switch-buffer)
     ((and (not arg)
+          (fboundp 'projectile-project-p)
           (projectile-project-p))
      'projectile-switch-to-buffer)
     (t 'switch-to-buffer))))
@@ -853,7 +854,9 @@ With C-u prefix argument copy URL to clipboard only."
   :lighter " VSCode"
   :global t)
 
-(defvar dan/vscode-file-types '(".js" ".ts" ".tsx" ".vue" ".json" ".yaml" ".py" ".html" ".rs" ".java" ".nu" ".go" ".zsh" ".sh" ".bash" ".toml" ".swift" ".lock" ".rb" ".swift" ".lua" ".md" ".mdx" ".proto" ".mod" ".sum"))
+(defvar dan/vscode-file-types
+  '(".js" ".ts" ".tsx" ".vue" ".json" ".yaml" ".yml" ".py" ".html" ".rs" ".java" ".nu" ".go" ".zsh" ".sh" ".bash" ".toml" ".swift" ".lock" ".rb" ".swift" ".lua" ".md" ".mdx" ".proto" ".mod" ".sum" ".gitconfig" "Makefile" ".tcss" ".d2"))
+
 (defun dan/open-in-vscode (&optional file definitely)
   (interactive)
   (when-let* ((file (or file (if (eq major-mode 'dired-mode)
@@ -864,11 +867,9 @@ With C-u prefix argument copy URL to clipboard only."
         (shell-command
          (if (eq major-mode 'dired-mode)
              (format "code %s" file)
-           (format "code -g %s:%s:%s"
+           (format "open cursor://file/%s:%s"
                    file
-                   (1+ (line-number-at-pos))
-                   (1+ (current-column)))))
-      (when vscode-mode (message "Not opening in vscode: %s" file)))))
+                   (1+ (line-number-at-pos))))))))
 
 (defun dan/file-is-vscode-file-type (file)
   (-any? (lambda (suffix) (s-ends-with? suffix file))
