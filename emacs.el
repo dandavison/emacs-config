@@ -177,7 +177,9 @@
   (setq erc-nick "dd7"
         erc-hide-list '("JOIN" "PART" "QUIT")))
 
+(load-file "~/devenv/emacs-config/lib.el")
 (setq dan/fill-column 70)
+
 (use-package elisp-mode
   :bind (:map emacs-lisp-mode-map
          ("C-c d" . edebug-defun)
@@ -268,7 +270,6 @@
   (load-file "~/devenv/emacs-config/python.el")
   :hook (python-mode . dan/python-mode-hook-fn))
 
-(load-file "~/devenv/emacs-config/lib.el")
 
 (use-package term
   :defer t
