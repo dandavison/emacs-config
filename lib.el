@@ -867,7 +867,7 @@ With C-u prefix argument copy URL to clipboard only."
         (shell-command
          (if (eq major-mode 'dired-mode)
              (format "code %s" file)
-           (format "open cursor://file/%s:%s"
+           (format "open vscode://file/%s:%s"
                    file
                    (1+ (line-number-at-pos))))))))
 
