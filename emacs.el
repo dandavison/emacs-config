@@ -177,7 +177,7 @@
   (setq erc-nick "dd7"
         erc-hide-list '("JOIN" "PART" "QUIT")))
 
-(load-file "~/devenv/emacs-config/lib.el")
+(load-file "~/devenv/emacs/lib.el")
 (setq dan/fill-column 70)
 
 (use-package elisp-mode
@@ -267,7 +267,7 @@
          ([(meta shift left)] . python-indent-shift-left)
          ([(super mouse-1)] . (lambda (event) (interactive "e") (mouse-set-point event) (xref-find-definitions))))
   :config
-  (load-file "~/devenv/emacs-config/python.el")
+  (load-file "~/devenv/emacs/python.el")
   :hook (python-mode . dan/python-mode-hook-fn))
 
 
@@ -414,7 +414,7 @@
          ([(super i)] . dan/latex-italic)
          ([(super t)] . dan/latex-fixed-width))
   :config
-  (load-file "~/devenv/emacs-config/latex.el")
+  (load-file "~/devenv/emacs/latex.el")
 ;;   (setq org-format-latex-options
 ;;    '(:foreground "Black" :background default :scale 1.0 :html-foreground "Black" :html-background "Transparent" :html-scale 1.0 :matchers
 ;;                  ("begin" "$1" "$" "$$" "\\(" "\\[")))
@@ -836,14 +836,14 @@
          ([tab] . yas-next-field))
   :config
   (yas-initialize)
-  (yas-load-directory (expand-file-name "~/devenv/emacs-config/snippets"))
+  (yas-load-directory (expand-file-name "~/devenv/emacs/snippets"))
   ;; :hook
   ;; (yas-after-exit-snippet . (lambda () (font-lock-ensure yas-snippet-beg yas-snippet-end)))
 )
 
 
-(when (file-exists-p "~/devenv/emacs-config/extra.el")
-  (load-file "~/devenv/emacs-config/extra.el"))
+(when (file-exists-p "~/devenv/emacs/extra.el")
+  (load-file "~/devenv/emacs/extra.el"))
 
 
 ;;; Appearance

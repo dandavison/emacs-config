@@ -499,12 +499,12 @@
   (interactive "P")
   (pcase arg
     (`nil (dan/goto-use-package))
-    (`(4) (find-file "~/devenv/emacs-config/lib.el"))
-    (`(16) (find-file "~/devenv/emacs-config/python.el"))))
+    (`(4) (find-file "~/devenv/emacs/lib.el"))
+    (`(16) (find-file "~/devenv/emacs/python.el"))))
 
 (defun dan/goto-dot-emacs (&optional arg)
   (interactive "P")
-  (find-file (if arg "~/devenv/emacs-config/lib.el" (file-chase-links "~/.emacs.d/init.el"))))
+  (find-file (if arg "~/devenv/emacs/lib.el" (file-chase-links "~/.emacs.d/init.el"))))
 
 (defun dan/display-messages-buffer (&optional arg)
   (interactive "P")

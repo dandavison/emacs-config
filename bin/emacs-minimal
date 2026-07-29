@@ -2,5 +2,5 @@
 
 /opt/homebrew/Cellar/emacs-mac/emacs-26.3-z-mac-7.9/Emacs.app/Contents/MacOS/Emacs.sh \
     --no-init-file \
-    --load ~/devenv/emacs-config/emacs-minimal.el \
+    --load ~/devenv/emacs/emacs-minimal.el \
     "$@"
