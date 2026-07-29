@@ -531,7 +531,7 @@
 
 (defun dan/goto-alias-file ()
   (interactive)
-  (find-file (file-chase-links "~/src/shell-config/alias.sh")))
+  (find-file (file-chase-links "~/src/devenv/shell/alias.sh")))
 
 (defun dan/goto-gitconfig (&optional arg)
   (interactive "P")
